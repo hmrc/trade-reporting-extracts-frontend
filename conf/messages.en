@@ -47,3 +47,43 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+guidancePage.title = Request Customs Declaration Service data on imports and exports
+guidancePage.heading = Request Customs Declaration Service data on imports and exports
+guidancePage.intro = Find out how to request Customs Declaration Service data from HMRC if you're a company that imports or exports goods.
+guidancePage.requirements.title = To use this service you need:
+guidancePage.requirements.item1 = A government gateway login
+guidancePage.requirements.item2 = An active Custom Declaration Service (CDS) subscription
+guidancePage.audit.title = When a customs audit takes place, HMRC holds records of actual data entered and raises demand on duties for imports not recorded in the trader’s records but actually declared to customs. This can happen when an agent fails to make a correct declaration.
+guidancePage.responsibility = It’s your responsibility to correctly declare goods and only negligible liability is placed on your agent. If you’re a larger trader with multi-site operations, you might find it difficult to keep records of imports or exports due to the number of different locations and agents.
+guidancePage.benefits = Customs Declaration Service data helps simplify and improve the accuracy of your records. For example, by giving accurate figures for the total amount of duty paid against value of goods entered.
+
+guidancePage.reports.title = What information is in a report
+guidancePage.reports.intro = There are 4 reports available, covering:
+guidancePage.reports.item1 = import item
+guidancePage.reports.item2 = import header
+guidancePage.reports.item3 = import tax lines
+guidancePage.reports.item4 = export item
+guidancePage.reports.note = These reports should meet the needs of most HMRC customers.
+
+guidancePage.dataLimitations = Not all data items on the Customs Declaration Service are in the reports. There is information on the system which cannot be released because it could compromise HMRC control activities.
+
+guidancePage.dataDescriptions = Descriptions of the data available can be found in Customs
+guidancePage.dataDescriptionsLinkText =Declaration Service data import and export descriptions.
+
+guidancePage.requestReport.title = How to request a report
+guidancePage.requestReport.trader = If you’re a trader
+guidancePage.requestReport.traderDetails = You can request a report using your own EORI number.
+
+guidancePage.requestReport.thirdParty = If you’re a third party
+guidancePage.requestReport.thirdPartyDetails = You must have authorisation to request data on behalf of the EORI number owner.
+
+guidancePage.dataDelivery.title = How the data is sent to you
+guidancePage.dataDelivery.details = Once the report is generated, it will be available to download directly from the portal under the "Available for download" section. You’ll receive an email notification letting you know when the report is ready for download.
+
+guidancePage.securityNote = If you agree to download the reports from the portal, HMRC will not be responsible for the security of the information once it has been downloaded.
+guidancePage.start = Start now
+guidancePage.more = More
+
+
+
