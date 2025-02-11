@@ -28,24 +28,16 @@ govukButton: GovukButton
 }
 
 @layout(
-pageTitle = titleNoForm(messages("guidancePage.title")),
-showBackLink = false,
-showSignOut = false,
-sidebar = Some(sidebarContent)
+    pageTitle = titleNoForm(messages("guidancePage.title")),
+    breadcrumbContribution = Seq(
+                            BreadcrumbsItem(content = Text(messages("guidancePage.heading")), href = Some(s"#"))
+
+                            ),
+    showBackLink = false,
+    showSignOut = false,
+    sidebar = Some(sidebarContent)
 ) {
-<nav class="govuk-breadcrumbs" aria-label="Breadcrumb">
-    <ol class="govuk-breadcrumbs__list">
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="#">Home</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="#">Passports, travel and living abroad</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="#">Travel abroad</a>
-        </li>
-    </ol>
-</nav>
+
 <h1 class="govuk-heading-xl">@messages("guidancePage.heading")</h1>
 <p class="govuk-body">@messages("guidancePage.intro")</p>
 <h3 class="govuk-heading-s">@messages("guidancePage.requirements.title")</h3>
@@ -66,7 +58,7 @@ sidebar = Some(sidebarContent)
 </ul>
 <p class="govuk-body">@messages("guidancePage.reports.note")</p>
 <p class="govuk-body">@messages("guidancePage.dataLimitations")</p>
-<p class="govuk-body">@messages("guidancePage.dataDescriptions")<a href="" class="govuk-link">@messages("guidancePage.dataDescriptionsLinkText")</a>
+<p class="govuk-body">@messages("guidancePage.dataDescriptions") <a href="" class="govuk-link">@messages("guidancePage.dataDescriptionsLinkText")</a>
 </p>
 <h3 class="govuk-heading-l">@messages("guidancePage.requestReport.title")</h3>
 <h3 class="govuk-heading-m">@messages("guidancePage.requestReport.trader")</h3>

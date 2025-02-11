@@ -24,53 +24,68 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsOneThirdMainContent
 
 @this(
-    appConfig: FrontendAppConfig,
-    hmrcTimeoutDialog: HmrcTimeoutDialog,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    alphaBanner: StandardAlphaBanner,
-    hmrcStandardPage: HmrcStandardPage,
-    twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent
+appConfig: FrontendAppConfig,
+hmrcTimeoutDialog: HmrcTimeoutDialog,
+hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+alphaBanner: StandardAlphaBanner,
+hmrcStandardPage: HmrcStandardPage,
+twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
+govukBreadcrumbs: GovukBreadcrumbs
 )
 
-@(pageTitle: String, sidebar: Option[Html] = None, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, sidebar: Option[Html] = None, breadcrumbContribution: Seq[BreadcrumbsItem] = Seq(),showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
 
-    @if(timeout) {
-        @hmrcTimeoutDialog(TimeoutDialog(
-            timeout             = Some(appConfig.timeout),
-            countdown           = Some(appConfig.countdown),
-            keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
-            keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
-            signOutButtonText   = Some(messages("timeout.signOut")),
-            title               = Some(messages("timeout.title")),
-            message             = Some(messages("timeout.message")),
-            language            = Some(messages.lang.code)
-        ))
-    }
+@if(timeout) {
+@hmrcTimeoutDialog(TimeoutDialog(
+timeout             = Some(appConfig.timeout),
+countdown           = Some(appConfig.countdown),
+keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
+keepAliveButtonText = Some(messages("timeout.keepAlive")),
+signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+signOutButtonText   = Some(messages("timeout.signOut")),
+title               = Some(messages("timeout.title")),
+message             = Some(messages("timeout.message")),
+language            = Some(messages.lang.code)
+))
+}
 }
 
+@defaultBeforeContentBlock = {
+@govukBreadcrumbs(Breadcrumbs(
+items = Seq(
+BreadcrumbsItem(
+content = Text("Home"),
+href = Some(s"#")
+)
+) ++ breadcrumbContribution
+))
+}
+
+
 @content = {
-    @contentBlock
-    @hmrcReportTechnicalIssueHelper()
+@contentBlock
+@hmrcReportTechnicalIssueHelper()
 }
 
 
 @hmrcStandardPage(HmrcStandardPageParams(
-    pageTitle = Some(pageTitle),
-    templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head),
-        mainContentLayout = sidebar.map(s => twoThirdsOneThirdMainContent(s))
-    ),
-    serviceURLs = ServiceURLs(
-        serviceUrl = Some(routes.IndexController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
-    ),
-    banners = Banners(
-        displayHmrcBanner = showHmrcBanner,
-        phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
-    ),
-    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
-    backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
+pageTitle = Some(pageTitle),
+templateOverrides = TemplateOverrides(
+additionalHeadBlock = Some(head),
+mainContentLayout = sidebar.map(s => twoThirdsOneThirdMainContent(s)),
+beforeContentBlock = Some(defaultBeforeContentBlock)
+),
+serviceURLs = ServiceURLs(
+serviceUrl = Some(routes.IndexController.onPageLoad().url),
+signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+),
+banners = Banners(
+displayHmrcBanner = showHmrcBanner,
+phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
+
+),
+isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
+backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
 ))(content)
