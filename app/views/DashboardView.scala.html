@@ -16,6 +16,7 @@
 
 @import views.html.components.Card
 @import views.html.components.CardSubHeadingWithValue
+@import views.html.components.NotificationBadge
 
 @this(
         layout: templates.Layout,
@@ -31,57 +32,44 @@
     <span class="govuk-caption-l">Administrator</span>
     <h1 class="govuk-heading-xl">@messages("dashboard.heading")</h1>
     <div class="flex-container govuk-grid-row">
-    @Card(
-    id = "reports-card",
-    heading = Messages("dashboard.reports.heading"),
-    subHeading = Some(Messages("dashboard.reports.subHeading")),
-    links = Seq(
-    (Messages("dashboard.reports.requestNewReport"), "#", None),
-    (Messages("dashboard.reports.requestedReports"), "#", None),
-    (Messages("dashboard.reports.availableForDownload"), "#", None)
-    ),
-    extraSubHeading = Some(Html(
-    """<p class="card-sub-heading bold govuk-body-m">
-    <span class="font-xsmall">Available for download</span>
-    <span class="bold govuk-!-font-weight-bold govuk-!-display-inline-block font-large bold">2</span>
-    </p>"""
-    ))
-    )
-
-    @Card(
-    id = "account-card",
-    heading = Messages("dashboard.account.heading"),
-    subHeading = Some(Messages("dashboard.account.subHeading")),
-    links = Seq(
-    (Messages("dashboard.account.yourDetails"), "#", None),
-    (Messages("dashboard.account.messages"), "#", Some(Html(
-    """<span class="hmrc-notification-badge message-highlight">1</span>"""
-    )))
-    )
-    )
-
-    @Card(
-    id = "help-card",
-    heading = Messages("dashboard.thirdPartyAccess.heading"),
-    subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
-    links = Seq(
-    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
-    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
-    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
-
-    )
-    )
-    @Card(
-    id = "help-card",
-    heading = Messages("dashboard.help.heading"),
-    links = Seq(
-    (Messages("dashboard.help.fieldsInReport"), "#", None),
-    (Messages("dashboard.help.reportTypes"), "#", None),
-    (Messages("dashboard.help.dataMissing"), "#", None),
-
-    )
-    )
+        @Card(
+            id = "reports-card",
+            heading = Messages("dashboard.reports.heading"),
+            subHeading = Some(Messages("dashboard.reports.subHeading")),
+            links = Seq(
+                (Messages("dashboard.reports.requestNewReport"), "#", None),
+                (Messages("dashboard.reports.requestedReports"), "#", None),
+                (Messages("dashboard.reports.availableForDownload"), "#", None)
+            ),
+            extraSubHeading = Some( CardSubHeadingWithValue(Messages("dashboard.reports.availableForDownload"), 2))
+        )
+        @Card(
+            id = "account-card",
+            heading = Messages("dashboard.account.heading"),
+            subHeading = Some(Messages("dashboard.account.subHeading")),
+            links = Seq(
+                (Messages("dashboard.account.yourDetails"), "#", None),
+                (Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2")))
+            )
+        )
+        @Card(
+            id = "help-card",
+            heading = Messages("dashboard.thirdPartyAccess.heading"),
+            subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
+            links = Seq(
+                (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
+                (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
+                (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+            )
+        )
+        @Card(
+            id = "help-card",
+            heading = Messages("dashboard.help.heading"),
+            links = Seq(
+                (Messages("dashboard.help.fieldsInReport"), "#", None),
+                (Messages("dashboard.help.reportTypes"), "#", None),
+                (Messages("dashboard.help.dataMissing"), "#", None),
+            )
+        )
 </div>
-
-
 }
