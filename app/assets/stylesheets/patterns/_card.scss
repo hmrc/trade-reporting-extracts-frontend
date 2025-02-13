@@ -1,0 +1,34 @@
+// dashboard pattern
+
+.card {
+    background-colour: #f0f0f0;
+    border: 1px solid #dee0e2;
+  }
+  
+  
+  .card .card-body {
+      border-bottom: 1px solid #dee0e2;
+      padding: 12px;
+      min-height: 83px;
+      background-color: #f0f0f0;   
+  }
+  
+  .card .card-body .card-sub-heading span {
+      display: block;
+      color: #505a5f;
+  }
+  
+  .card .card-body .card-sub-heading span.font-large.bold {
+      color: #0b0c0c;
+      font-size: 32px;
+  }
+  
+  .card .card-action {
+      border-top: 0;
+      padding: 12px 12px 25px 12px;
+  }
+  
+  .card .card-action ul li {
+      margin: 0 0 1em;
+  }
+  
