@@ -1,0 +1,87 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.components.Card
+@import views.html.components.CardSubHeadingWithValue
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
+
+@()(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = titleNoForm(messages("dashboard.title")),
+    isFullWidth = true
+) {
+    <span class="govuk-caption-l">Administrator</span>
+    <h1 class="govuk-heading-xl">@messages("dashboard.heading")</h1>
+    <div class="flex-container govuk-grid-row">
+    @Card(
+    id = "reports-card",
+    heading = Messages("dashboard.reports.heading"),
+    subHeading = Some(Messages("dashboard.reports.subHeading")),
+    links = Seq(
+    (Messages("dashboard.reports.requestNewReport"), "#", None),
+    (Messages("dashboard.reports.requestedReports"), "#", None),
+    (Messages("dashboard.reports.availableForDownload"), "#", None)
+    ),
+    extraSubHeading = Some(Html(
+    """<p class="card-sub-heading bold govuk-body-m">
+    <span class="font-xsmall">Available for download</span>
+    <span class="bold govuk-!-font-weight-bold govuk-!-display-inline-block font-large bold">2</span>
+    </p>"""
+    ))
+    )
+
+    @Card(
+    id = "account-card",
+    heading = Messages("dashboard.account.heading"),
+    subHeading = Some(Messages("dashboard.account.subHeading")),
+    links = Seq(
+    (Messages("dashboard.account.yourDetails"), "#", None),
+    (Messages("dashboard.account.messages"), "#", Some(Html(
+    """<span class="hmrc-notification-badge message-highlight">1</span>"""
+    )))
+    )
+    )
+
+    @Card(
+    id = "help-card",
+    heading = Messages("dashboard.thirdPartyAccess.heading"),
+    subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
+    links = Seq(
+    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
+    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
+    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+
+    )
+    )
+    @Card(
+    id = "help-card",
+    heading = Messages("dashboard.help.heading"),
+    links = Seq(
+    (Messages("dashboard.help.fieldsInReport"), "#", None),
+    (Messages("dashboard.help.reportTypes"), "#", None),
+    (Messages("dashboard.help.dataMissing"), "#", None),
+
+    )
+    )
+</div>
+
+
+}
