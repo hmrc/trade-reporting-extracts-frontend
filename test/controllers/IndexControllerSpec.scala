@@ -3,7 +3,7 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.IndexView
+import views.html.{GuidancePageView, IndexView}
 
 class IndexControllerSpec extends SpecBase {
 
@@ -18,7 +18,7 @@ class IndexControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[IndexView]
+        val view = application.injector.instanceOf[GuidancePageView]
 
         status(result) mustEqual OK
 
