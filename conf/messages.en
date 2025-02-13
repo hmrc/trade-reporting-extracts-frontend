@@ -85,5 +85,28 @@ guidancePage.securityNote = If you agree to download the reports from the portal
 guidancePage.start = Start now
 guidancePage.more = More
 
+dashboard.title = dashboard
+dashboard.heading = Trade reporting and extracts
 
+dashboard.reports.heading=Reports
+dashboard.reports.subHeading=Manage and view your reports
+dashboard.reports.requestNewReport=Request a new report
+dashboard.reports.requestedReports=Requested reports
+dashboard.reports.availableForDownload=Available for download
+dashboard.reports.reportHistory=Report history
 
+dashboard.account.heading=Your Account
+dashboard.account.subHeading=View your account information
+dashboard.account.yourDetails=Your Details
+dashboard.account.messages=Messages
+
+dashboard.thirdPartyAccess.heading=Third-party access
+dashboard.thirdPartyAccess.subHeading=Manage third-party access to your account
+dashboard.thirdPartyAccess.addNewThirdParty=Add a new third party
+dashboard.thirdPartyAccess.authorisedThirdParty=Authorised third parties
+dashboard.thirdPartyAccess.authorisedAccounts=Accounts you have authority over
+
+dashboard.help.heading=Help
+dashboard.help.fieldsInReport=What do the fields in my report mean?
+dashboard.help.reportTypes=What are the different report types?
+dashboard.help.dataMissing=Why is my data missing?
