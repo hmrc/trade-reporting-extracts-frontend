@@ -20,6 +20,5 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET        /guidancePage                                 controllers.GuidancePageController.onPageLoad()
+GET        /dashboard                                    controllers.DashboardController.onPageLoad()
 
-GET        /dashboard                       controllers.DashboardController.onPageLoad()
