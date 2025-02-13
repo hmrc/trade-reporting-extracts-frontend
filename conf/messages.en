@@ -1,4 +1,4 @@
-service.name = trade-reporting-extracts-frontend
+service.name = Trade Reporting Extracts
 
 site.back = Back
 site.remove = Remove
@@ -110,3 +110,11 @@ dashboard.help.heading=Help
 dashboard.help.fieldsInReport=What do the fields in my report mean?
 dashboard.help.reportTypes=What are the different report types?
 dashboard.help.dataMissing=Why is my data missing?
+
+contactDetails.title = contactDetails
+contactDetails.heading = Your Details
+contactDetails.intro = This is the contact address you gave us when you registered for your Economic Operators Registration and Identification (EORI) number.
+contactDetails.name = Name
+contactDetails.eoriNumber = EORI number
+contactDetails.email = Email address
+
