@@ -69,7 +69,7 @@
         items = Seq(
             BreadcrumbsItem(
             content = Text("Home"),
-            href = Some(s"#")
+            href = Some(s"${routes.DashboardController.onPageLoad().url}")
         )
         ) ++ breadcrumbContribution
     ))
