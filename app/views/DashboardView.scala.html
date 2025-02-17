@@ -48,7 +48,7 @@
             heading = Messages("dashboard.account.heading"),
             subHeading = Some(Messages("dashboard.account.subHeading")),
             links = Seq(
-                (Messages("dashboard.account.yourDetails"), "#", None),
+                (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None),
                 (Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2")))
             )
         )
