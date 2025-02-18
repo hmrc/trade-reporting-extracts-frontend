@@ -23,8 +23,10 @@
 
 @sidebarContent = {
     <h3 class="govuk-heading-m">Subsection</h3>
-    <a href="" class="govuk-link">@messages("guidancePage.dataDescriptionsLinkText")</a>
-    <a href="" class="govuk-link">@messages("guidancePage.more")</a>
+    <ul class="govuk-list govuk-list--spaced govuk-!-font-size-16">
+        <li><a href="" class="govuk-link">@messages("guidancePage.dataDescriptionsLinkText")</a></li>
+        <li><a href="" class="govuk-link govuk-!-font-weight-bold">@messages("guidancePage.more")</a></li>
+    </ul>
 }
 
 @layout(
