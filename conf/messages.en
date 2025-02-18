@@ -68,8 +68,8 @@ guidancePage.reports.note = These reports should meet the needs of most HMRC cus
 
 guidancePage.dataLimitations = Not all data items on the Customs Declaration Service are in the reports. There is information on the system which cannot be released because it could compromise HMRC control activities.
 
-guidancePage.dataDescriptions = Descriptions of the data available can be found in Customs
-guidancePage.dataDescriptionsLinkText =Declaration Service data import and export descriptions.
+guidancePage.dataDescriptions = Descriptions of the data available can be found in
+guidancePage.dataDescriptionsLinkText =Customs Declaration Service data import and export descriptions.
 
 guidancePage.requestReport.title = How to request a report
 guidancePage.requestReport.trader = If you’re a trader
