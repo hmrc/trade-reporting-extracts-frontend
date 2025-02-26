@@ -16,24 +16,31 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
+
 import javax.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ContactDetailsView
+
+import scala.concurrent.ExecutionContext
 
 class ContactDetailsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ContactDetailsView
-) extends FrontendBaseController
+) (implicit ec: ExecutionContext) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = identify async { implicit request =>
+    tradeReportingExtractsService.getCompanyInformation(request.userId).map(companyInformation => {
+      Ok(view(companyInformation, "GB123456789002"))
+    })
   }
 }

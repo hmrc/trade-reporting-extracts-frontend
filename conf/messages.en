@@ -116,5 +116,5 @@ contactDetails.heading = Your Details
 contactDetails.intro = This is the contact address you gave us when you registered for your Economic Operators Registration and Identification (EORI) number.
 contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
-contactDetails.email = Email address
+contactDetails.address = Address
 
