@@ -1,8 +1,9 @@
 package controllers
 
 import base.SpecBase
+import models.{AddressInformation, CompanyInformation}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.ContactDetailsView
 
 class ContactDetailsControllerSpec extends SpecBase {
@@ -21,7 +22,8 @@ class ContactDetailsControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ContactDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(CompanyInformation("ABC Company", "1",
+          AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB")), "GB123456789002")(request, messages(application)).toString
       }
     }
   }
