@@ -65,14 +65,16 @@
 }
 
 @defaultBeforeContentBlock = {
-    @govukBreadcrumbs(Breadcrumbs(
-        items = Seq(
-            BreadcrumbsItem(
-            content = Text("Home"),
-            href = Some(s"${routes.DashboardController.onPageLoad().url}")
-        )
-        ) ++ breadcrumbContribution
-    ))
+    @if(breadcrumbContribution.nonEmpty) {
+        @govukBreadcrumbs(Breadcrumbs(
+            items = Seq(
+                BreadcrumbsItem(
+                content = Text("Home"),
+                href = Some(s"${routes.DashboardController.onPageLoad().url}")
+            )
+            ) ++ breadcrumbContribution
+        ))
+    }
 }
 
 

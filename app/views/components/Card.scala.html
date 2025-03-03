@@ -30,7 +30,7 @@
         <ul class="govuk-list">
             @for((linkText, linkHref, dynamicElement) <- links) {
             <li>
-                <a class="govuk-link" href="@linkHref">
+                <a class="govuk-link govuk-link--no-visited-state" href="@linkHref">
                     @linkText
                     @dynamicElement.map { de =>
                     @de
