@@ -118,3 +118,11 @@ contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
 contactDetails.address = Address
 
+unauthorisedCdsEnrolment.title = There is a problem
+unauthorisedCdsEnrolment.heading = There is a problem
+unauthorisedCdsEnrolment.p1 = The details signed in are not subscribed to the Customs Declaration Service (CDS).
+unauthorisedCdsEnrolment.cdsLink = You must be subscribed to CDS before you can use Trade Reporting Extracts (opens in new tab).
+unauthorisedCdsEnrolment.p2.part1 = If you are subscribed to CDS,
+unauthorisedCdsEnrolment.p2.linkText = sign out
+unauthorisedCdsEnrolment.p2.part2 = and sign in with the correct details.
+

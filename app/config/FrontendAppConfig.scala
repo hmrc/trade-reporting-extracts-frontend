@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import models.EnrolmentConfig
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -37,6 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginUrl: String         = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
+  val cdsSubscribeUrl: String       = configuration.get[String]("urls.cdsSubscribeUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/trade-reporting-extracts-frontend"
@@ -56,5 +58,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   lazy val tradeReportingExtractsApi: String = servicesConfig.baseUrl("trade-reporting-extracts") +
     configuration.get[String]("microservice.services.trade-reporting-extracts.context")
+
+  val cdsEnrolmentIdentifier: EnrolmentConfig = configuration.get[EnrolmentConfig]("enrolment-config")
 
 }
