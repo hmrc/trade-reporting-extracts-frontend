@@ -18,14 +18,28 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(cdsSubscribeUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("unauthorised.title")),
     timeout   = false
 ) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+<h1 class="govuk-heading-l">@messages("unauthorisedCdsEnrolment.heading")</h1>
 
-    <p class="govuk-body">@messages("unauthorised.guidance")</p>
+<p class="govuk-body">@messages("unauthorisedCdsEnrolment.p1")</p>
+
+<p class="govuk-body">
+    <a href="@cdsSubscribeUrl" rel="noreferrer noopener" target="_blank" class=govuk-link>
+        @messages("unauthorisedCdsEnrolment.cdsLink")
+    </a>
+</p>
+
+<p class="govuk-body">
+    @messages("unauthorisedCdsEnrolment.p2.part1")
+    <a href="@routes.ContactDetailsController.onPageLoad().url" class="govuk-link">
+        @messages("unauthorisedCdsEnrolment.p2.linkText")
+    </a>
+    @messages("unauthorisedCdsEnrolment.p2.part2")
+</p>
 }

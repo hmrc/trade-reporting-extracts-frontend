@@ -46,16 +46,22 @@ class AuthenticatedIdentifierAction @Inject() (
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val predicates                 =
+      Enrolment(config.cdsEnrolmentIdentifier.key) and (AffinityGroup.Organisation or AffinityGroup.Individual)
 
-    authorised().retrieve(Retrievals.internalId) {
-      case Some(internalId) => block(IdentifierRequest(request, internalId))
-      case None => throw new UnauthorizedException("Unable to retrieve internal Id")
+    authorised().retrieve(Retrievals.allEnrolments) { allEnrolments =>
+      allEnrolments.getEnrolment("HMRC-CUS-ORG").flatMap(_.getIdentifier("EORINumber")) match {
+        case Some(eori) =>
+          block(IdentifierRequest(request, eori.value))
+        case None => throw new UnauthorizedException("Unable to retrieve internal Id")
+      }
     } recover {
-      case _: NoActiveSession =>
+      case _: NoActiveSession        =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
         Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad())
     }
+
   }
 }
 

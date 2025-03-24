@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.problem
+package models
 
-import controllers.BaseController
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.problem.UnauthorisedView
+import play.api.{ConfigLoader, Configuration}
 
-import config.FrontendAppConfig
-import javax.inject.Inject
+case class EnrolmentConfig(key: String, identifier: String)
 
-class UnauthorisedController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  config: FrontendAppConfig,
-  view: UnauthorisedView
-) extends BaseController {
+object EnrolmentConfig {
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view(config.cdsSubscribeUrl))
+  implicit lazy val configLoader: ConfigLoader[EnrolmentConfig] = ConfigLoader { config => prefix =>
+    val enrolmentConfig = Configuration(config).get[Configuration](prefix)
+    val key             = enrolmentConfig.get[String]("enrolment-key")
+    val id              = enrolmentConfig.get[String]("enrolment-identifier")
+
+    EnrolmentConfig(key, id)
   }
 }
