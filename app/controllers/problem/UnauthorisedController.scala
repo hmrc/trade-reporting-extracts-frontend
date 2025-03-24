@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.problem
 
-import controllers.actions.IdentifierAction
+import controllers.BaseController
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import views.html.problem.UnauthorisedView
 
 import javax.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
 
-class IndexController @Inject() (
-  override val messagesApi: MessagesApi,
+class UnauthorisedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: GuidancePageView
-) extends BaseController  {
+  view: UnauthorisedView
+) extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view())

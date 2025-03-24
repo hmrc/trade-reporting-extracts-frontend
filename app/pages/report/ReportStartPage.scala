@@ -14,23 +14,8 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.report
 
-import controllers.actions.IdentifierAction
+import pages.Page
 
-import javax.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
-
-class IndexController @Inject() (
-  override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: GuidancePageView
-) extends BaseController  {
-
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
-}
+case object ReportStartPage extends Page

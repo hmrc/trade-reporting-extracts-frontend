@@ -118,3 +118,8 @@ contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
 contactDetails.address = Address
 
+reportRequest.decision.heading = What type of data do you want to download?
+reportRequest.decision.import = Import
+reportRequest.decision.export = Export
+decisionPage.error.required = Select the type of report you want
+

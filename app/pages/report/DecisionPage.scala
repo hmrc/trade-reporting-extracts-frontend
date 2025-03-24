@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.report
 
-import javax.inject.Inject
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UnauthorisedView
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class UnauthorisedController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: UnauthorisedView
-) extends FrontendBaseController
-    with I18nSupport {
+case object DecisionPage extends QuestionPage[String] {
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "decision"
 }

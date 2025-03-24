@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,24 @@
 
 package navigation
 
-import javax.inject.{Inject, Singleton}
+import models.*
+import pages.*
+import play.api.mvc.Results.Redirect
+import play.api.mvc.{Call, Result}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
-import play.api.mvc.Call
-import controllers.routes
-import pages._
-import models._
+trait Navigator {
 
-@Singleton
-class Navigator @Inject() () {
-
-  private val normalRoutes: Page => UserAnswers => Call = { case _ =>
-    _ => routes.IndexController.onPageLoad()
-  }
-
-  private val checkRouteMap: Page => UserAnswers => Call = { case _ =>
-    _ => routes.CheckYourAnswersController.onPageLoad()
-  }
+  val normalRoutes: Page => UserAnswers => Call
+  val checkRoutes: Page => UserAnswers => Call
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>
       normalRoutes(page)(userAnswers)
     case CheckMode  =>
-      checkRouteMap(page)(userAnswers)
+      checkRoutes(page)(userAnswers)
   }
+  def journeyRecovery(continueUrl: Option[RedirectUrl] = None): Result = Redirect(
+    controllers.problem.routes.JourneyRecoveryController.onPageLoad(continueUrl)
+  )
 }

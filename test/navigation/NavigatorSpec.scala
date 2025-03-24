@@ -23,7 +23,7 @@ import models._
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator = new FakeNavigator(routes.IndexController.onPageLoad())
 
   "Navigator" - {
 

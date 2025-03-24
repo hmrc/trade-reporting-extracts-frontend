@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.helper
 
-import controllers.actions.IdentifierAction
+import play.api.data.validation.{Constraint, Valid}
 
-import javax.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
+object StopOnFirstFail {
 
-class IndexController @Inject() (
-  override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: GuidancePageView
-) extends BaseController  {
-
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
+  def apply[T](constraints: Constraint[T]*): Constraint[T] = Constraint { field =>
+    constraints.toList dropWhile (_(field) == Valid) match {
+      case Nil             => Valid
+      case constraint :: _ => constraint(field)
+    }
   }
 }

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +12,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package controllers
+@this(
+layout: templates.Layout,
+govukButton: GovukButton,
+formHelper: FormWithCSRF,
+)
 
-import controllers.actions.IdentifierAction
+@()(implicit request: Request[_], messages: Messages)
 
-import javax.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
+@layout(
+    pageTitle = titleNoForm(messages("dashboard.title")),
+    breadcrumbContribution = Seq(),
+    showBackLink = true,
+    showSignOut = false,
+    backLinkUrl = "#"
+) {
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
 
-class IndexController @Inject() (
-  override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: GuidancePageView
-) extends BaseController  {
+      @govukButton(
+        ButtonViewModel(messages("site.continue"))
+      )
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+  </div>
+</div>
 }

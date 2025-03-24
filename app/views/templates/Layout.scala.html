@@ -32,15 +32,18 @@
     hmrcStandardPage: HmrcStandardPage,
     twoThirdsOneThirdMainContent: TwoThirdsOneThirdMainContent,
     fullWidthMainContent: fullWidthMainContent,
-    govukBreadcrumbs: GovukBreadcrumbs
+    govukBreadcrumbs: GovukBreadcrumbs,
+    govukBackLink: GovukBackLink
 )
 
 @(
     pageTitle: String,
+    backLinkUrl: String = "#",
+    backLinkMessageKey: String = "site.back",
     sidebar: Option[Html] = None,
     breadcrumbContribution: Seq[BreadcrumbsItem] = Seq(),
     isFullWidth: Boolean = false,
-    showBackLink: Boolean = true,
+    showBackLink: Boolean = false,
     timeout: Boolean = true,
     showSignOut: Boolean = true,
     showHmrcBanner: Boolean = false
@@ -75,14 +78,15 @@
             ) ++ breadcrumbContribution
         ))
     }
+    @if(showBackLink) {
+        @govukBackLink(BackLinkViewModel(href = backLinkUrl).withCssClass("js-visible"))
+    }
 }
-
 
 @content = {
     @contentBlock
     @hmrcReportTechnicalIssueHelper()
 }
-
 
 @hmrcStandardPage(HmrcStandardPageParams(
     pageTitle = Some(pageTitle),
@@ -100,5 +104,4 @@
         phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
     ),
     isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
-    backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
 ))(content)

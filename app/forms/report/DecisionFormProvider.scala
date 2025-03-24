@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package forms.report
 
-import controllers.actions.IdentifierAction
+import forms.mappings.Mappings
+import play.api.data.Form
+import forms.helper.StopOnFirstFail
+import play.api.data.validation.Constraints.nonEmpty
 
 import javax.inject.Inject
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
 
-class IndexController @Inject() (
-  override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: GuidancePageView
-) extends BaseController  {
-
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
+class DecisionFormProvider @Inject() extends Mappings {
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("decisionPage.error.required")
+        .verifying(
+          StopOnFirstFail[String](
+            nonEmpty("view.error.required")
+        ))
+    )
 }

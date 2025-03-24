@@ -1,0 +1,60 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import viewmodels.LegendSize._
+
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    govukRadios : GovukRadios,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary
+)
+
+@(form: Form[_], action: Call)(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = titleNoForm(messages("dashboard.title")),
+    breadcrumbContribution = Seq(),
+    showBackLink = true,
+    showSignOut = false,
+    backLinkUrl = routes.DashboardController.onPageLoad().url
+) {
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @formHelper(action = controllers.report.routes.DecisionController.onSubmit()) {
+                @govukRadios(
+                    RadiosViewModel.apply(
+                        field = form("value"),
+                        legend = Legend(content = "reportRequest.decision.heading"),
+                        items = Seq(
+                            RadioItem(content = messages("reportRequest.decision.import"), value = Some("import"),id = Some(s"value")),
+                            RadioItem(content = messages("reportRequest.decision.export"), value = Some("export"),id = Some(s"value-no"))
+                        )
+                    )
+                )
+                @govukButton(
+                    ButtonViewModel(messages("site.continue"))
+                )
+            }
+        </div>
+    </div>
+}
