@@ -44,7 +44,7 @@
                 @govukRadios(
                     RadiosViewModel.apply(
                         field = form("value"),
-                        legend = Legend(content = "reportRequest.decision.heading"),
+                        legend = Legend(content = "reportRequest.decision.heading", classes = "govuk-fieldset__legend--l"),
                         items = Seq(
                             RadioItem(content = messages("reportRequest.decision.import"), value = Some("import"),id = Some(s"value")),
                             RadioItem(content = messages("reportRequest.decision.export"), value = Some("export"),id = Some(s"value-no"))
