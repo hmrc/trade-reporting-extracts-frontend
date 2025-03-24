@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package models.requests
+package base
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, CredentialRole}
+import java.time.Instant
 
-case class IdentifierRequest[A](
-  request: Request[A],
-  userId: String,
-  eori: String,
-  affinityGroup: AffinityGroup,
-  credentialRole: Option[CredentialRole]
-) extends WrappedRequest[A](request)
+object TestConstants {
+  val testEori: String      = "eori"
+  val userAnswersId: String = "id"
+}

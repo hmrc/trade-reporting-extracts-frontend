@@ -25,6 +25,7 @@ import play.api.mvc.Results.*
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -44,41 +45,53 @@ class AuthenticatedIdentifierAction @Inject() (
     with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val predicates                 =
+
+    val predicates =
       Enrolment(config.cdsEnrolmentIdentifier.key) and (AffinityGroup.Organisation or AffinityGroup.Individual)
 
-    authorised().retrieve(Retrievals.allEnrolments) { allEnrolments =>
-      allEnrolments.getEnrolment("HMRC-CUS-ORG").flatMap(_.getIdentifier("EORINumber")) match {
-        case Some(eori) =>
-          block(IdentifierRequest(request, eori.value))
-        case None => throw new UnauthorizedException("Unable to retrieve internal Id")
-      }
-    } recover {
-      case _: NoActiveSession        =>
-        Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-      case _: AuthorisationException =>
-        Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad())
-    }
-
+    authorised(predicates)
+      .retrieve(
+        Retrievals.internalId and Retrievals.affinityGroup and Retrievals.credentialRole and Retrievals.authorisedEnrolments
+      ) {
+        case Some(internalId) ~ Some(affinityGroup) ~ credentialRole ~ authorisedEnrolments =>
+          handleEnrolments(internalId, affinityGroup, credentialRole, authorisedEnrolments, request, block)
+        case _                                                                              =>
+          throw InternalError("Undefined authorisation error")
+      } recover handleAuthorisationFailures
   }
-}
 
-class SessionIdentifierAction @Inject() (
-  val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends IdentifierAction {
+  private def handleEnrolments[A](
+    internalId: String,
+    affinityGroup: AffinityGroup,
+    credentialRole: Option[CredentialRole],
+    authorisedEnrolments: Enrolments,
+    request: Request[A],
+    block: IdentifierRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier): Future[Result] =
+    authorisedEnrolments
+      .getEnrolment(config.cdsEnrolmentIdentifier.key)
+      .flatMap(_.getIdentifier(config.cdsEnrolmentIdentifier.identifier)) match {
+      case Some(enrolment) if enrolment.value.nonEmpty =>
+        block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    hc.sessionId match {
-      case Some(session) =>
-        block(IdentifierRequest(request, session.value))
-      case None          =>
-        Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+      case Some(_) =>
+        throw InternalError("EORI is empty")
+      case None    =>
+        throw InsufficientEnrolments("Unable to retrieve Enrolment")
     }
+
+  private def handleAuthorisationFailures: PartialFunction[Throwable, Result] = {
+    case _: NoActiveSession                =>
+      logger.info(s"No Active Session. Redirecting to ${config.loginContinueUrl}.")
+      Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _: InsufficientEnrolments         =>
+      logger.info(
+        "Authorisation failure: No enrolments found for CDS. Redirecting to UnauthorisedCdsEnrolmentController."
+      )
+      Redirect(routes.UnauthorisedController.onPageLoad())
+    case exception: AuthorisationException =>
+      logger.info(s"Authorisation failure: ${exception.reason}. Redirecting to UnauthorisedCdsEnrolmentController.")
+      Redirect(routes.UnauthorisedController.onPageLoad())
   }
 }
