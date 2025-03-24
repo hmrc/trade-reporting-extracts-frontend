@@ -21,16 +21,16 @@ import play.api.data.{Form, FormError}
 
 class DecisionFormProviderSpec extends StringFieldBehaviours {
 
-  private val formProvider = new DecisionFormProvider()
+  private val formProvider       = new DecisionFormProvider()
   private val form: Form[String] = formProvider()
-  private val requiredKey = "decisionPage.error.required"
-  private val fieldName = "value"
+  private val requiredKey        = "decisionPage.error.required"
+  private val fieldName          = "value"
 
   ".value" - {
 
     "must bind valid data" in {
       val validData = "Some decision"
-      val result = form.bind(Map(fieldName -> validData)).apply(fieldName)
+      val result    = form.bind(Map(fieldName -> validData)).apply(fieldName)
       result.value.value mustEqual validData
     }
 
