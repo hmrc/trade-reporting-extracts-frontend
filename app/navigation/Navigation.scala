@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package models.requests
+package navigation
 
-import play.api.mvc.{Request, WrappedRequest}
 import models.UserAnswers
-import uk.gov.hmrc.auth.core.AffinityGroup
+import pages.Page
+import play.api.mvc.Call
+import controllers.routes
 
-case class OptionalDataRequest[A](request: Request[A], userId: String, eori: String, affinityGroup: AffinityGroup, userAnswers: Option[UserAnswers])
-    extends WrappedRequest[A](request)
+import javax.inject.{Inject, Singleton}
 
-case class DataRequest[A](request: Request[A], userId: String,  eori: String, affinityGroup: AffinityGroup,userAnswers: UserAnswers)
-    extends WrappedRequest[A](request)
+@Singleton
+class Navigation  @Inject() extends Navigator {
+
+  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
+  override val checkRoutes: Page => UserAnswers => Call = _ => _ => routes.CheckYourAnswersController.onPageLoad()
+}

@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package models.requests
+package forms.report
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
-import uk.gov.hmrc.auth.core.AffinityGroup
+import forms.mappings.Mappings
+import play.api.data.Form
+import forms.helper.StopOnFirstFail
+import play.api.data.validation.Constraints.nonEmpty
 
-case class OptionalDataRequest[A](request: Request[A], userId: String, eori: String, affinityGroup: AffinityGroup, userAnswers: Option[UserAnswers])
-    extends WrappedRequest[A](request)
+import javax.inject.Inject
 
-case class DataRequest[A](request: Request[A], userId: String,  eori: String, affinityGroup: AffinityGroup,userAnswers: UserAnswers)
-    extends WrappedRequest[A](request)
+class DecisionFormProvider @Inject() extends Mappings {
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("decisionPage.error.required")
+        .verifying(
+          StopOnFirstFail[String](
+            nonEmpty("view.error.required")
+        ))
+    )
+}
