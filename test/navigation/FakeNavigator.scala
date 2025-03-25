@@ -28,3 +28,5 @@ class FakeNavigator(desiredRoute: Call) extends Navigator {
   override val normalRoutes: Page => UserAnswers => Call = _ => _ => desiredRoute
   override val checkRoutes: Page => UserAnswers => Call  = _ => _ => desiredRoute
 }
+
+class FakeNavigation() extends Navigation()

@@ -33,11 +33,11 @@ class DataRetrievalOrCreateActionImpl @Inject() (
   override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
     sessionRepository.get(request.userId).flatMap {
       case Some(answers) =>
-        Future.successful(DataRequest(request.request, request.userId, answers))
+        Future.successful(DataRequest(request.request, request.userId,request.eori, request.affinityGroup, answers))
       case None          =>
         val answers = UserAnswers(request.userId)
         sessionRepository.set(answers).map { _ =>
-          DataRequest(request.request, request.userId, answers)
+          DataRequest(request.request, request.userId, request.eori, request.affinityGroup,answers)
         }
     }
 }
