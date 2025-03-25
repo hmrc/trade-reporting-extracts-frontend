@@ -25,13 +25,15 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TradeReportingExtractsService @Inject()(httpClient: HttpClientV2)
-                          (implicit appConfig: FrontendAppConfig, ec: ExecutionContext) {
+class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implicit
+  appConfig: FrontendAppConfig,
+  ec: ExecutionContext
+) {
 
-  def getCompanyInformation(eori: String)(implicit hc: HeaderCarrier): Future[CompanyInformation] = {
-    httpClient.get(url"${appConfig.tradeReportingExtractsApi}/eori/$eori/company-information")
+  def getCompanyInformation(eori: String)(implicit hc: HeaderCarrier): Future[CompanyInformation] =
+    httpClient
+      .get(url"${appConfig.tradeReportingExtractsApi}/eori/$eori/company-information")
       .execute[CompanyInformation]
       .flatMap:
-        response => Future.successful(response)
-  }
+      response => Future.successful(response)
 }

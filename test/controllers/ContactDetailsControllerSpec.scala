@@ -41,10 +41,10 @@ class ContactDetailsControllerSpec extends SpecBase {
 
   trait Setup {
     val mockApiService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-    val companyInformation: CompanyInformation = CompanyInformation("ABC Company", "1",
-      AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB"))
-    val eori = "GB123456789002"
-    val application: Application = applicationBuilder()
+    val companyInformation: CompanyInformation        =
+      CompanyInformation("ABC Company", "1", AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB"))
+    val eori                                          = "GB123456789002"
+    val application: Application                      = applicationBuilder()
       .overrides(
         inject.bind[TradeReportingExtractsService].toInstance(mockApiService)
       )

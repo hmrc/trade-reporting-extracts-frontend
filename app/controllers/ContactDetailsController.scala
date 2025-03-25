@@ -35,12 +35,13 @@ class ContactDetailsController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ContactDetailsView
-) (implicit ec: ExecutionContext) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify async { implicit request =>
-    tradeReportingExtractsService.getCompanyInformation(request.userId).map(companyInformation => {
+    tradeReportingExtractsService.getCompanyInformation(request.userId).map { companyInformation =>
       Ok(view(companyInformation, "GB123456789002"))
-    })
+    }
   }
 }
