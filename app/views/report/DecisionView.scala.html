@@ -33,7 +33,7 @@
     breadcrumbContribution = Seq(),
     showBackLink = true,
     showSignOut = false,
-    backLinkUrl = routes.DashboardController.onPageLoad().url
+    backLinkUrl = controllers.report.routes.ReportStartController.onPageLoad().url
 ) {
     @if(form.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummaryViewModel(form))
