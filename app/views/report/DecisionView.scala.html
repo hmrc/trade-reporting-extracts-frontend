@@ -29,11 +29,11 @@
 @(form: Form[_], action: Call)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("dashboard.title")),
+    pageTitle = titleNoForm(messages("reportRequest.title")),
     breadcrumbContribution = Seq(),
     showBackLink = true,
     showSignOut = false,
-    backLinkUrl = routes.DashboardController.onPageLoad().url
+    backLinkUrl = controllers.report.routes.ReportStartController.onPageLoad().url
 ) {
     @if(form.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummaryViewModel(form))

@@ -19,26 +19,28 @@ package controllers.report
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import views.html.report.DecisionView
-import play.api.mvc.{Action, AnyContent}
-
-import javax.inject.Inject
-import play.api.mvc.MessagesControllerComponents
-import forms.report.DecisionFormProvider
 import models.NormalMode
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import javax.inject.Inject
+import forms.report.DecisionFormProvider
 import navigation.ReportNavigator
 import pages.report.DecisionPage
-import controllers.report.routes._
+import controllers.report.routes.*
+import repositories.SessionRepository
+import scala.concurrent.{ExecutionContext, Future}
+
 
 
 class DecisionController @Inject()(
-  identify: IdentifierAction,
-  view: DecisionView,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
-  formProvider: DecisionFormProvider,
-  navigator: ReportNavigator,
-  val controllerComponents: MessagesControllerComponents
-  ) extends BaseController {
+                                    sessionRepository: SessionRepository,
+                                    identify: IdentifierAction,
+                                    view: DecisionView,
+                                    getData: DataRetrievalAction,
+                                    requireData: DataRequiredAction,
+                                    formProvider: DecisionFormProvider,
+                                    navigator: ReportNavigator,
+                                    val controllerComponents: MessagesControllerComponents
+  ) (implicit ec: ExecutionContext) extends BaseController {
 
   private val form = formProvider()
 
@@ -50,14 +52,16 @@ class DecisionController @Inject()(
     Ok(view(preparedForm, DecisionController.onSubmit()))
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form.bindFromRequest().fold(
-      formWithErrors => {
-        BadRequest(view(formWithErrors,DecisionController.onSubmit()))      },
-      value => {
-        Redirect(navigator.nextPage(DecisionPage, NormalMode, request.userAnswers))
-      }
-    )
+      formWithErrors =>
+        Future.successful(BadRequest(view(formWithErrors, routes.DecisionController.onSubmit()))),
+      value =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(DecisionPage, value))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(DecisionPage, NormalMode, updatedAnswers))
+        )
   }
   
 }
