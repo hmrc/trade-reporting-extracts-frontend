@@ -31,5 +31,6 @@ class ReportNavigator @Inject() extends Navigator {
     case ChooseEoriPage =>
       _ => controllers.routes.ContactDetailsController.onPageLoad()
   }
-  override val checkRoutes: Page => UserAnswers => Call = _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+  override val checkRoutes: Page => UserAnswers => Call  = _ =>
+    _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
 }
