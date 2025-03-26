@@ -16,8 +16,16 @@
 
 package generators
 
-import models._
+import models.*
+import models.report.Decision
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
-trait ModelGenerators {}
+trait ModelGenerators {
+
+  implicit val arbitraryDecision: Arbitrary[Decision] =
+    Arbitrary {
+      Gen.oneOf(Decision.values.toSeq)
+    }
+
+}

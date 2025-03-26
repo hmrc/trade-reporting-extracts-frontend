@@ -16,7 +16,7 @@
 
 package navigation
 
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import pages.Page
 import pages.report.{ChooseEoriPage, DecisionPage, ReportStartPage}
 import play.api.mvc.Call
@@ -27,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 class ReportNavigator @Inject() extends Navigator {
   override val normalRoutes: Page => UserAnswers => Call = {
     case ReportStartPage =>
-      _ => controllers.report.routes.DecisionController.onPageLoad()
+      _ => controllers.report.routes.DecisionController.onPageLoad(NormalMode)
     case DecisionPage =>
         _ => controllers.report.routes.ChooseEoriController.onPageLoad()
     case ChooseEoriPage =>

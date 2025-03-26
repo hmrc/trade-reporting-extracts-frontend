@@ -16,32 +16,30 @@
 
 package forms.report
 
-import forms.behaviours.StringFieldBehaviours
+import forms.behaviours.{OptionFieldBehaviours, StringFieldBehaviours}
+import models.report.Decision
 import play.api.data.{Form, FormError}
 
-class DecisionFormProviderSpec extends StringFieldBehaviours {
+class DecisionFormProviderSpec extends OptionFieldBehaviours {
 
-  private val formProvider       = new DecisionFormProvider()
-  private val form: Form[String] = formProvider()
-  private val requiredKey        = "decisionPage.error.required"
-  private val fieldName          = "value"
+  val form = new DecisionFormProvider()()
 
   ".value" - {
 
-    "must bind valid data" in {
-      val validData = "Some decision"
-      val result    = form.bind(Map(fieldName -> validData)).apply(fieldName)
-      result.value.value mustEqual validData
-    }
+    val fieldName   = "value"
+    val requiredKey = "decision.error.required"
 
-    "must not bind empty data" in {
-      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
-      result.errors must contain only FormError(fieldName, requiredKey)
-    }
+    behave like optionsField[Decision](
+      form,
+      fieldName,
+      validValues = Decision.values,
+      invalidError = FormError(fieldName, "error.invalid")
+    )
 
-    "must not bind data with only spaces" in {
-      val result = form.bind(Map(fieldName -> "   ")).apply(fieldName)
-      result.errors must contain only FormError(fieldName, requiredKey)
-    }
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
   }
 }

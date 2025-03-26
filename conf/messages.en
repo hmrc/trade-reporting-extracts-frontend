@@ -126,8 +126,8 @@ unauthorisedCdsEnrolment.p2.part1 = If you are subscribed to CDS,
 unauthorisedCdsEnrolment.p2.linkText = sign out
 unauthorisedCdsEnrolment.p2.part2 = and sign in with the correct details.
 
-reportRequest.title = Question page template
-reportRequest.decision.heading = What type of data do you want to download?
-reportRequest.decision.import = Import
-reportRequest.decision.export = Export
-decisionPage.error.required = Select the type of report you want to download
+decision.title = Question page template
+decision.heading = What type of data do you want to download?
+decision.import = Import
+decision.export = Export
+decision.error.required = Select the type of report you want to download

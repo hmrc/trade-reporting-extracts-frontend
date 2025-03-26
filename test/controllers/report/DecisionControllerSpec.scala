@@ -18,24 +18,31 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.DecisionFormProvider
-import navigation.{FakeReportNavigator, ReportNavigator}
+import models.report.Decision
+import models.{NormalMode, UserAnswers}
+import navigation.{FakeNavigator, FakeReportNavigator, Navigator, ReportNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.report.DecisionPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
 
+import controllers.problem.routes
 import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
+  def onwardRoute = Call("GET", "/foo")
+
+  lazy val decisionRoute = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
+
   val formProvider = new DecisionFormProvider()
-  val form = formProvider()
-  val onwardRoute = Call("GET", "/foo")
+  val form         = formProvider()
 
   "Decision Controller" - {
 
@@ -44,57 +51,112 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.DecisionController.onPageLoad().url)
+        val request = FakeRequest(GET, decisionRoute)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[DecisionView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, routes.DecisionController.onSubmit())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(DecisionPage, Decision.values.head).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, decisionRoute)
+
+        val view = application.injector.instanceOf[DecisionView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(Decision.values.head), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[ReportNavigator].toInstance(new FakeReportNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.DecisionController.onSubmit().url)
-          .withFormUrlEncodedBody(("value", "import"))
+        val request =
+          FakeRequest(POST, decisionRoute)
+            .withFormUrlEncodedBody(("value", Decision.values.head.toString))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockSessionRepository, times(1)).set(any())
       }
     }
 
-    "must return a Bad Request and errors when no value is selected" in {
+    "must return a Bad Request and errors when invalid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.DecisionController.onSubmit().url)
-          .withFormUrlEncodedBody(("value", ""))
+        val request =
+          FakeRequest(POST, decisionRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> ""))
-
-        val result = route(application, request).value
+        val boundForm = form.bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[DecisionView]
 
+        val result = route(application, request).value
+
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, routes.DecisionController.onSubmit())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, decisionRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, decisionRoute)
+            .withFormUrlEncodedBody(("value", Decision.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

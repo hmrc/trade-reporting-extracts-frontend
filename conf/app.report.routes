@@ -1,8 +1,10 @@
 GET         /request-cds-report                                   controllers.report.ReportStartController.onPageLoad()
 POST        /request-cds-report                                   controllers.report.ReportStartController.onSubmit()
 
-GET         /request-cds-report/decision-page                                        controllers.report.DecisionController.onPageLoad()
-POST        /request-cds-report/decision-page                                        controllers.report.DecisionController.onSubmit()
+GET        /data-download                                       controllers.report.DecisionController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-download                                       controllers.report.DecisionController.onSubmit(mode: Mode = NormalMode)
+GET        /data-download                                       controllers.report.DecisionController.onPageLoad(mode: Mode = CheckMode)
+POST       /data-download                                       controllers.report.DecisionController.onSubmit(mode: Mode = CheckMode)
 
 GET         /request-cds-report/eori-number-selection-export                       controllers.report.ChooseEoriController.onPageLoad()
 
