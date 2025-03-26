@@ -38,7 +38,7 @@
             heading = Messages("dashboard.reports.heading"),
             subHeading = Some(Messages("dashboard.reports.subHeading")),
             links = Seq(
-                (Messages("dashboard.reports.requestNewReport"), controllers.report.routes.ReportStartController.onPageLoad().url, None),
+                (Messages("dashboard.reports.requestNewReport"), controllers.report.routes.ReportGuidanceController.onPageLoad().url, None),
                 (Messages("dashboard.reports.requestedReports"), "#", None),
                 (Messages("dashboard.reports.availableForDownload"), "#", None)
             ),

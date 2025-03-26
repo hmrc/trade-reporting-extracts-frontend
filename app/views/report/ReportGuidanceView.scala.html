@@ -1,0 +1,79 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    formHelper: FormWithCSRF,
+)
+
+@()(implicit request: Request[_], messages: Messages)
+
+@sidebarContent = {
+<h3 class="govuk-heading-m top-border-heading">@messages("reportGuidance.subsection.heading")</h3>
+<ul class="govuk-list govuk-list--spaced govuk-!-font-size-16">
+    <li><a href="" class="govuk-link govuk-link--no-visited-state">@messages("reportGuidance.subsection.linkText1")</a></li>
+    <li><a href="" class="govuk-link govuk-link--no-visited-state">@messages("reportGuidance.subsection.linkText2")</a></li>
+    <li><a href="" class="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold">@messages("reportGuidance.subsection.linkText3")</a></li>
+</ul>
+}
+
+@layout(
+    pageTitle = titleNoForm(messages("reportGuidance.title")),
+    breadcrumbContribution = Seq(
+        BreadcrumbsItem(content = Text(messages("reportGuidance.title")), href = Some(s"#"))
+    ),
+    showSignOut = true,
+    sidebar = Some(sidebarContent)
+) {
+    <h1 class="govuk-heading-xl">@messages("reportGuidance.heading")</h1>
+    <h3 class="govuk-heading-m">@messages("reportGuidance.instructions.title")</h3>
+    <p class="govuk-body govuk-!-font-weight-bold">@messages("reportGuidance.instructions.chooseReport")</p>
+    <div class="govuk-body">
+        @messages("reportGuidance.select.title")
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("reportGuidance.select.importItem")</li>
+            <li>@messages("reportGuidance.select.importHeader")</li>
+            <li>@messages("reportGuidance.select.importTaxLine")</li>
+            <li>@messages("reportGuidance.select.exportItem")</li>
+        </ul>
+    </div>
+    <p class="govuk-body">
+        <strong>@messages("reportGuidance.thirdParty.title")</strong><br>
+        @messages("reportGuidance.thirdParty.details")
+    </p>
+    <p class="govuk-body">
+        <strong>@messages("reportGuidance.dateRange.title")</strong><br>
+        @messages("reportGuidance.dateRange.details")
+    </p>
+    <p class="govuk-body">
+        <strong>@messages("reportGuidance.reportName.title")</strong><br>
+        @messages("reportGuidance.reportName.details")
+    </p>
+    <p class="govuk-body">
+        <strong>@messages("reportGuidance.notifications.title")</strong><br>
+        @messages("reportGuidance.notifications.details")
+    </p>
+    <p class="govuk-body">
+        <strong>@messages("reportGuidance.download.title")</strong><br>
+        @messages("reportGuidance.download.details")
+    </p>
+    <div class="govuk-button-group">
+        @govukButton(
+        ButtonViewModel(messages("guidancePage.start")).asLink(controllers.report.routes.DecisionController.onPageLoad().url)
+        )
+    </div>
+}
