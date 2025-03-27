@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.problem
+
+import controllers.BaseController
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import views.html.problem.UnauthorisedView
 
 import config.FrontendAppConfig
 import javax.inject.Inject
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UnauthorisedView
 
 class UnauthorisedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   config: FrontendAppConfig,
   view: UnauthorisedView
-) extends FrontendBaseController
-    with I18nSupport {
+) extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view(config.cdsSubscribeUrl))

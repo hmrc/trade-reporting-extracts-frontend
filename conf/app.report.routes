@@ -1,0 +1,8 @@
+GET         /request-cds-report                                   controllers.report.ReportStartController.onPageLoad()
+POST        /request-cds-report                                   controllers.report.ReportStartController.onSubmit()
+
+GET         /request-cds-report/decision-page                                        controllers.report.DecisionController.onPageLoad()
+POST        /request-cds-report/decision-page                                        controllers.report.DecisionController.onSubmit()
+
+GET         /request-cds-report/eori-number-selection-export                       controllers.report.ChooseEoriController.onPageLoad()
+

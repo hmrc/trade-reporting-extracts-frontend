@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package models.requests
+package forms.helper
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
-import uk.gov.hmrc.auth.core.AffinityGroup
+import play.api.data.validation.{Constraint, Valid}
 
-case class OptionalDataRequest[A](request: Request[A], userId: String, eori: String, affinityGroup: AffinityGroup, userAnswers: Option[UserAnswers])
-    extends WrappedRequest[A](request)
+object StopOnFirstFail {
 
-case class DataRequest[A](request: Request[A], userId: String,  eori: String, affinityGroup: AffinityGroup,userAnswers: UserAnswers)
-    extends WrappedRequest[A](request)
+  def apply[T](constraints: Constraint[T]*): Constraint[T] = Constraint { field =>
+    constraints.toList dropWhile (_(field) == Valid) match {
+      case Nil             => Valid
+      case constraint :: _ => constraint(field)
+    }
+  }
+}

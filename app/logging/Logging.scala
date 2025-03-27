@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package logging
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
-import uk.gov.hmrc.auth.core.AffinityGroup
+import org.slf4j.{Logger, LoggerFactory}
 
-case class OptionalDataRequest[A](request: Request[A], userId: String, eori: String, affinityGroup: AffinityGroup, userAnswers: Option[UserAnswers])
-    extends WrappedRequest[A](request)
+trait Logging {
 
-case class DataRequest[A](request: Request[A], userId: String,  eori: String, affinityGroup: AffinityGroup,userAnswers: UserAnswers)
-    extends WrappedRequest[A](request)
+  protected val logger: Logger =
+    LoggerFactory.getLogger("application." + getClass.getCanonicalName)
+}

@@ -19,9 +19,8 @@ package controllers
 import controllers.actions.IdentifierAction
 
 import javax.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.GuidancePageView
 
 class IndexController @Inject() (
@@ -29,8 +28,7 @@ class IndexController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   identify: IdentifierAction,
   view: GuidancePageView
-) extends FrontendBaseController
-    with I18nSupport {
+) extends BaseController  {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view())
