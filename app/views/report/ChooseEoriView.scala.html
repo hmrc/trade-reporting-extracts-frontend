@@ -14,28 +14,43 @@
  * limitations under the License.
  *@
 
+@import models.report.ChooseEori
+
 @this(
 layout: templates.Layout,
-govukButton: GovukButton,
 formHelper: FormWithCSRF,
+govukErrorSummary: GovukErrorSummary,
+govukRadios: GovukRadios,
+govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, eori:String)(implicit request: Request[_], messages: Messages)
+
 
 @layout(
-    pageTitle = titleNoForm(messages("dashboard.title")),
+    pageTitle = titleNoForm(messages("chooseEori.title")),
     breadcrumbContribution = Seq(),
     showBackLink = true,
-    showSignOut = false,
-    backLinkUrl = "#"
+    showSignOut = true,
+    backLinkUrl = controllers.report.routes.DecisionController.onPageLoad(mode).url
 ) {
-<div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
 
-      @govukButton(
-        ButtonViewModel(messages("site.continue"))
-      )
+@formHelper(action = controllers.report.routes.ChooseEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-  </div>
-</div>
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+        }
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("chooseEori.heading")).asPageHeading(),
+                items  = ChooseEori.options(eori)
+            )
+        )
+        
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
 }

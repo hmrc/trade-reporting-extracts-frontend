@@ -16,7 +16,6 @@
 
 package models.report
 
-import models.report.Decision
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
@@ -25,34 +24,40 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
-class DecisionSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
+class ChooseEoriSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
-  "Decision" - {
+  "ChooseEori" - {
 
     "must deserialise valid values" in {
 
-      val gen = Gen.oneOf(Decision.values.toSeq)
+      val gen = Gen.oneOf(ChooseEori.values.toSeq)
 
-      forAll(gen) { decision =>
-        JsString(decision.toString).validate[Decision].asOpt.value mustEqual decision
+      forAll(gen) {
+        chooseEori =>
+
+          JsString(chooseEori.toString).validate[ChooseEori].asOpt.value mustEqual chooseEori
       }
     }
 
     "must fail to deserialise invalid values" in {
 
-      val gen = arbitrary[String] suchThat (!Decision.values.map(_.toString).contains(_))
+      val gen = arbitrary[String] suchThat (!ChooseEori.values.map(_.toString).contains(_))
 
-      forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[Decision] mustEqual JsError("error.invalid")
+      forAll(gen) {
+        invalidValue =>
+
+          JsString(invalidValue).validate[ChooseEori] mustEqual JsError("error.invalid")
       }
     }
 
     "must serialise" in {
 
-      val gen = Gen.oneOf(Decision.values.toSeq)
+      val gen = Gen.oneOf(ChooseEori.values.toSeq)
 
-      forAll(gen) { decision =>
-        Json.toJson(decision) mustEqual JsString(decision.toString)
+      forAll(gen) {
+        chooseEori =>
+
+          Json.toJson(chooseEori) mustEqual JsString(chooseEori.toString)
       }
     }
   }

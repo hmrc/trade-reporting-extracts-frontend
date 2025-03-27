@@ -27,17 +27,21 @@ import forms.report.DecisionFormProvider
 import models.Mode
 import navigation.ReportNavigator
 import pages.report.DecisionPage
+import repositories.SessionRepository
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class DecisionController @Inject()(
   identify: IdentifierAction,
+  sessionRepository: SessionRepository,
   view: DecisionView,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
   val controllerComponents: MessagesControllerComponents
-  ) extends BaseController {
+  ) (implicit ec: ExecutionContext) extends BaseController {
 
   private val form = formProvider()
 
@@ -49,15 +53,15 @@ class DecisionController @Inject()(
     Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     form.bindFromRequest().fold(
-      formWithErrors => {
-        BadRequest(view(formWithErrors,mode))
-        },
-      value => {
-        Redirect(navigator.nextPage(DecisionPage, mode, request.userAnswers))
-      }
+      formWithErrors =>
+        Future.successful(BadRequest(view(formWithErrors, mode))),
+      value =>
+        for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(DecisionPage, value))
+          _ <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
     )
   }
-  
 }

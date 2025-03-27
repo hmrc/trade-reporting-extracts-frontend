@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+package forms.report
 
-import javax.inject.{Inject, Singleton}
+import forms.mappings.Mappings
+import models.report.ChooseEori
+import play.api.data.Form
 
-@Singleton
-class Navigation  @Inject() extends Navigator {
+import javax.inject.Inject
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call = _ => _ => routes.CheckYourAnswersController.onPageLoad()
+class ChooseEoriFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[ChooseEori] =
+    Form(
+      "value" -> enumerable[ChooseEori]("chooseEori.error.required")
+    )
 }
