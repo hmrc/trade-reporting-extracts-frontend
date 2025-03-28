@@ -17,45 +17,44 @@
 package controllers.report
 
 import base.SpecBase
-import forms.report.DecisionFormProvider
-import models.report.Decision
+import forms.report.ChooseEoriFormProvider
+import models.report.ChooseEori
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, FakeReportNavigator, Navigator, ReportNavigator}
+import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.DecisionPage
+import pages.report.ChooseEoriPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.report.DecisionView
+import views.html.report.ChooseEoriView
 
-import controllers.problem.routes
 import scala.concurrent.Future
 
-class DecisionControllerSpec extends SpecBase with MockitoSugar {
+class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val decisionRoute = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
+  lazy val chooseEoriRoute = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
 
-  val formProvider = new DecisionFormProvider()
-  val form         = formProvider()
+  val formProvider = new ChooseEoriFormProvider()
+  val form = formProvider()
 
-  "Decision Controller" - {
+  "ChooseEori Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, decisionRoute)
+        val request = FakeRequest(GET, chooseEoriRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[DecisionView]
+        val view = application.injector.instanceOf[ChooseEoriView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -64,22 +63,19 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(DecisionPage, Decision.values.head).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(ChooseEoriPage, ChooseEori.values.head).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, decisionRoute)
+        val request = FakeRequest(GET, chooseEoriRoute)
 
-        val view = application.injector.instanceOf[DecisionView]
+        val view = application.injector.instanceOf[ChooseEoriView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Decision.values.head), NormalMode)(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -99,8 +95,8 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, decisionRoute)
-            .withFormUrlEncodedBody(("value", Decision.values.head.toString))
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
 
         val result = route(application, request).value
 
@@ -115,12 +111,12 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, decisionRoute)
+          FakeRequest(POST, chooseEoriRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[DecisionView]
+        val view = application.injector.instanceOf[ChooseEoriView]
 
         val result = route(application, request).value
 
@@ -134,7 +130,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, decisionRoute)
+        val request = FakeRequest(GET, chooseEoriRoute)
 
         val result = route(application, request).value
 
@@ -149,14 +145,14 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, decisionRoute)
-            .withFormUrlEncodedBody(("value", Decision.values.head.toString))
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package pages.report
+package forms.report
 
-import models.report.Decision
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import models.report.ChooseEori
+import play.api.data.Form
 
-case object DecisionPage extends QuestionPage[Decision] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class ChooseEoriFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "decision"
+  def apply(): Form[ChooseEori] =
+    Form(
+      "value" -> enumerable[ChooseEori]("chooseEori.error.required")
+    )
 }
