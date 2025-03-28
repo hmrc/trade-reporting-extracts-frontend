@@ -14,3 +14,7 @@ GET        /which-eori                                          controllers.repo
 POST       /which-eori                                          controllers.report.ChooseEoriController.onSubmit(mode: Mode = NormalMode)
 GET        /which-eori                                          controllers.report.ChooseEoriController.onPageLoad(mode: Mode = CheckMode)
 POST       /which-eori                                          controllers.report.ChooseEoriController.onSubmit(mode: Mode = CheckMode)
+GET        /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onPageLoad(mode: Mode = NormalMode)
+POST       /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
+GET        /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
+POST       /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
