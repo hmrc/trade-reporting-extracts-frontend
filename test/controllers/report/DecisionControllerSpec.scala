@@ -22,10 +22,11 @@ import navigation.{FakeReportNavigator, ReportNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
 
@@ -33,9 +34,9 @@ import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new DecisionFormProvider()
-  val form = formProvider()
-  val onwardRoute = Call("GET", "/foo")
+  val formProvider       = new DecisionFormProvider()
+  val form: Form[String] = formProvider()
+  val onwardRoute: Call  = Call("GET", "/foo")
 
   "Decision Controller" - {
 
@@ -51,7 +52,10 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DecisionView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, routes.DecisionController.onSubmit())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, routes.DecisionController.onSubmit())(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -94,7 +98,10 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DecisionView]
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, routes.DecisionController.onSubmit())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, routes.DecisionController.onSubmit())(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }

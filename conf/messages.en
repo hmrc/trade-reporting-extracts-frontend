@@ -155,3 +155,11 @@ reportRequest.decision.heading = What type of data do you want to download?
 reportRequest.decision.import = Import
 reportRequest.decision.export = Export
 decisionPage.error.required = Select the type of report you want to download
+
+eoriRole.title = What is the owner of the EORI number’s role in the report?
+eoriRole.heading = What is the owner of the EORI number’s role in the report?
+eoriRole.declarant = Declarant
+eoriRole.exporter = Exporter
+eoriRole.checkYourAnswersLabel = What is the owner of the EORI number’s role in the report?
+eoriRole.error.required = Select EORI role
+eoriRole.change.hidden = EoriRole

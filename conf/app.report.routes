@@ -5,3 +5,7 @@ POST        /request-cds-report/decision-page                                   
 
 GET         /request-cds-report/eori-number-selection-export                       controllers.report.ChooseEoriController.onPageLoad()
 
+GET        /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onPageLoad(mode: Mode = NormalMode)
+POST       /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
+GET        /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
+POST       /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
