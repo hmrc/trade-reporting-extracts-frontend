@@ -1,5 +1,4 @@
-GET         /request-cds-report                                   controllers.report.ReportStartController.onPageLoad()
-POST        /request-cds-report                                   controllers.report.ReportStartController.onSubmit()
+GET         /request-cds-report                                   controllers.report.ReportGuidanceController.onPageLoad()
 
 GET         /request-cds-report/decision-page                                        controllers.report.DecisionController.onPageLoad()
 POST        /request-cds-report/decision-page                                        controllers.report.DecisionController.onSubmit()
