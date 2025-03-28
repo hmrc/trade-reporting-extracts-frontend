@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package generators
+package pages.report
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import models.EoriRole
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-trait ModelGenerators {}
+case object EoriRolePage extends QuestionPage[Set[EoriRole]] {
 
-implicit lazy val arbitraryEoriRole: Arbitrary[EoriRole] =
-  Arbitrary {
-    Gen.oneOf(EoriRole.values)
-  }
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "eoriRole"
+}
