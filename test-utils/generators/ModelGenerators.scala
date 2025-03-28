@@ -39,3 +39,8 @@ trait ModelGenerators {
     }
 
 }
+
+implicit lazy val arbitraryEoriRole: Arbitrary[EoriRole] =
+  Arbitrary {
+    Gen.oneOf(EoriRole.values)
+  }
