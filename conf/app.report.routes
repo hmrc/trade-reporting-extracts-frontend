@@ -9,6 +9,7 @@ GET        /request-cds-report/eoriRole                        controllers.repor
 POST       /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
 GET        /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
 POST       /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
+
 GET        /which-eori                                          controllers.report.ChooseEoriController.onPageLoad(mode: Mode = NormalMode)
 POST       /which-eori                                          controllers.report.ChooseEoriController.onSubmit(mode: Mode = NormalMode)
 GET        /which-eori                                          controllers.report.ChooseEoriController.onPageLoad(mode: Mode = CheckMode)
