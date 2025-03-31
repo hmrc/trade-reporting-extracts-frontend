@@ -16,7 +16,6 @@
 
 package models.report
 
-import models.requests.DataRequest
 import models.{Enumerable, WithName}
 import play.api.i18n.Messages
 import play.api.mvc.Request
@@ -31,17 +30,18 @@ object ChooseEori extends Enumerable.Implicits {
   case object Myauthority extends WithName("myAuthority") with ChooseEori
 
   val values: Seq[ChooseEori] = Seq(
-    Myeori, Myauthority
+    Myeori,
+    Myauthority
   )
 
-  def options(eori: String)(implicit request: Request[_], messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
-    case (value, index) =>
+  def options(eori: String)(implicit request: Request[_], messages: Messages): Seq[RadioItem] =
+    values.zipWithIndex.map { case (value, index) =>
       RadioItem(
         content = Text(messages(s"chooseEori.${value.toString}", eori)),
-        value   = Some(value.toString),
-        id      = Some(s"value_$index")
+        value = Some(value.toString),
+        id = Some(s"value_$index")
       )
-  }
+    }
 
   implicit val enumerable: Enumerable[ChooseEori] =
     Enumerable(values.map(v => v.toString -> v): _*)

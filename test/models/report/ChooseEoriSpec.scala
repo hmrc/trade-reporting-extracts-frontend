@@ -32,10 +32,8 @@ class ChooseEoriSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
 
       val gen = Gen.oneOf(ChooseEori.values.toSeq)
 
-      forAll(gen) {
-        chooseEori =>
-
-          JsString(chooseEori.toString).validate[ChooseEori].asOpt.value mustEqual chooseEori
+      forAll(gen) { chooseEori =>
+        JsString(chooseEori.toString).validate[ChooseEori].asOpt.value mustEqual chooseEori
       }
     }
 
@@ -43,10 +41,8 @@ class ChooseEoriSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
 
       val gen = arbitrary[String] suchThat (!ChooseEori.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
-
-          JsString(invalidValue).validate[ChooseEori] mustEqual JsError("error.invalid")
+      forAll(gen) { invalidValue =>
+        JsString(invalidValue).validate[ChooseEori] mustEqual JsError("error.invalid")
       }
     }
 
@@ -54,10 +50,8 @@ class ChooseEoriSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
 
       val gen = Gen.oneOf(ChooseEori.values.toSeq)
 
-      forAll(gen) {
-        chooseEori =>
-
-          Json.toJson(chooseEori) mustEqual JsString(chooseEori.toString)
+      forAll(gen) { chooseEori =>
+        Json.toJson(chooseEori) mustEqual JsString(chooseEori.toString)
       }
     }
   }

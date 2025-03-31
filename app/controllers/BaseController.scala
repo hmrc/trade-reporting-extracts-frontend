@@ -29,15 +29,15 @@ trait BaseController extends FrontendBaseController with I18nSupport with Loggin
   def getMessage(key: String)(implicit messages: Messages): String = messages(key)
 
   def createFormWithErrors[T](form: Form[T], value: T, errorMessageKey: String, field: String = "value")(implicit
-                                                                                                         messages: Messages
+    messages: Messages
   ): Form[T] =
     form
       .fill(value)
       .copy(errors = Seq(FormError(field, messages(errorMessageKey))))
 
   def prepareForm[T, T2](page: QuestionPage[T], form: Form[T2])(implicit
-                                                                request: DataRequest[AnyContent],
-                                                                reads: Reads[T2]
+    request: DataRequest[AnyContent],
+    reads: Reads[T2]
   ): Form[T2] =
     page match {
       case _ =>

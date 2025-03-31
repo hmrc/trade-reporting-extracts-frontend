@@ -20,7 +20,7 @@ import base.SpecBase
 import forms.report.ChooseEoriFormProvider
 import models.report.ChooseEori
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,12 +36,12 @@ import scala.concurrent.Future
 
 class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/request-cds-report")
 
   lazy val chooseEoriRoute = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
 
   val formProvider = new ChooseEoriFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   "ChooseEori Controller" - {
 
@@ -57,7 +57,7 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ChooseEoriView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, "eori")(request, messages(application)).toString
       }
     }
 
@@ -75,7 +75,10 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "eori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -88,7 +91,7 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
@@ -121,7 +124,10 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "eori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

@@ -16,11 +16,10 @@
 
 @this(
     layout: templates.Layout,
-    govukButton: GovukButton,
-    formHelper: FormWithCSRF,
+    govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @sidebarContent = {
 <h3 class="govuk-heading-m top-border-heading">@messages("reportGuidance.subsection.heading")</h3>
@@ -72,8 +71,9 @@
         @messages("reportGuidance.download.details")
     </p>
     <div class="govuk-button-group">
+
         @govukButton(
-        ButtonViewModel(messages("guidancePage.start")).asLink(controllers.report.routes.DecisionController.onPageLoad().url)
+            ButtonViewModel(messages("guidancePage.start")).asLink(controllers.report.routes.DecisionController.onPageLoad(mode).url)
         )
     </div>
 }

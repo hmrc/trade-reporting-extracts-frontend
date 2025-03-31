@@ -23,8 +23,8 @@ import play.api.mvc.Call
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class Navigation  @Inject() extends Navigator {
+class Navigation @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call = _ => _ => routes.CheckYourAnswersController.onPageLoad()
+  override val checkRoutes: Page => UserAnswers => Call  = _ => _ => routes.CheckYourAnswersController.onPageLoad()
 }

@@ -150,21 +150,17 @@ reportGuidance.subsection.linkText1 = Example of CDS Reports
 reportGuidance.subsection.linkText2 = Guidance on Report Types
 reportGuidance.subsection.linkText3 = More Information
 
-reportRequest.title = Question page template
-reportRequest.decision.heading = What type of data do you want to download?
-reportRequest.decision.import = Import
-reportRequest.decision.export = Export
-decisionPage.error.required = Select the type of report you want to download
 decision.title = Question page template
 decision.heading = What type of data do you want to download?
 decision.import = Import
 decision.export = Export
 decision.error.required = Select the type of report you want to download
+decision.change.hidden = Decision
 
 chooseEori.title = Which EORI number do you want to use?
 chooseEori.heading = Which EORI number do you want to use?
 chooseEori.myEori = My EORI, {0}
 chooseEori.myAuthority = Accounts I have authority over
 chooseEori.checkYourAnswersLabel = Which EORI number do you want to use?
-chooseEori.error.required = Select chooseEori
+chooseEori.error.required = Select Eori number you want to use
 chooseEori.change.hidden = ChooseEori

@@ -54,3 +54,7 @@ lazy val it =
   (project in file("it"))
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
+
+addCommandAlias("testAndCoverage", ";clean;coverage;test;it/test;coverageReport")
+addCommandAlias("prePR", ";scalafmt;test:scalafmt;testAndCoverage")
+addCommandAlias("preMerge", ";scalafmtCheckAll;testAndCoverage")

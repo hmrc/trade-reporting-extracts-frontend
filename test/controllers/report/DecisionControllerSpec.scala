@@ -37,7 +37,7 @@ import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/which-eori")
 
   lazy val decisionRoute = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
 
