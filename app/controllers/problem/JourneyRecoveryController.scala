@@ -26,11 +26,11 @@ import views.html.problem.{JourneyRecoveryContinueView, JourneyRecoveryStartAgai
 import javax.inject.Inject
 
 class JourneyRecoveryController @Inject() (
-                                            val controllerComponents: MessagesControllerComponents,
-                                            identify: IdentifierAction,
-                                            continueView: JourneyRecoveryContinueView,
-                                            startAgainView: JourneyRecoveryStartAgainView
-                                          ) extends BaseController  {
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  continueView: JourneyRecoveryContinueView,
+  startAgainView: JourneyRecoveryStartAgainView
+) extends BaseController {
 
   def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = identify { implicit request =>
     val safeUrl: Option[String] = continueUrl.flatMap { unsafeUrl =>

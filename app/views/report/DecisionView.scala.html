@@ -14,9 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import viewmodels.LegendSize._
-
+@import models.report.Decision
 
 @this(
     layout: templates.Layout,
@@ -26,35 +24,29 @@
     govukErrorSummary: GovukErrorSummary
 )
 
-@(form: Form[_], action: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[_],  mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("reportRequest.title")),
+    pageTitle = titleNoForm(messages("decision.title")),
     breadcrumbContribution = Seq(),
     showBackLink = true,
-    showSignOut = false,
+    showSignOut = true,
     backLinkUrl = controllers.report.routes.ReportGuidanceController.onPageLoad().url
 ) {
-    @if(form.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
-    }
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            @formHelper(action = controllers.report.routes.DecisionController.onSubmit()) {
-                @govukRadios(
-                    RadiosViewModel.apply(
-                        field = form("value"),
-                        legend = Legend(content = "reportRequest.decision.heading", classes = "govuk-fieldset__legend--l"),
-                        items = Seq(
-                            RadioItem(content = messages("reportRequest.decision.import"), value = Some("import"),id = Some(s"value")),
-                            RadioItem(content = messages("reportRequest.decision.export"), value = Some("export"),id = Some(s"value-no"))
-                        )
-                    )
-                )
-                @govukButton(
-                    ButtonViewModel(messages("site.continue"))
-                )
+
+        @formHelper(action = controllers.report.routes.DecisionController.onSubmit(mode)) {
+            @if(form.errors.nonEmpty) {
+                @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
             }
-        </div>
-    </div>
+            @govukRadios(
+                RadiosViewModel.apply(
+                    field = form("value"),
+                    legend = LegendViewModel(messages("decision.heading")).asPageHeading(),
+                    items  = Decision.options
+                )
+            )
+            @govukButton(
+                ButtonViewModel(messages("site.continue"))
+            )
+        }
 }

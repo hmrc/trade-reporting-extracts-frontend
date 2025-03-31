@@ -16,8 +16,21 @@
 
 package generators
 
-import models._
+import models.*
+import models.report.{ChooseEori, Decision}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
-trait ModelGenerators {}
+trait ModelGenerators {
+
+  implicit lazy val arbitraryChooseEori: Arbitrary[ChooseEori] =
+    Arbitrary {
+      Gen.oneOf(ChooseEori.values.toSeq)
+    }
+
+  implicit val arbitraryDecision: Arbitrary[Decision] =
+    Arbitrary {
+      Gen.oneOf(Decision.values.toSeq)
+    }
+
+}

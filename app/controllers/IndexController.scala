@@ -28,7 +28,7 @@ class IndexController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   identify: IdentifierAction,
   view: GuidancePageView
-) extends BaseController  {
+) extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view())

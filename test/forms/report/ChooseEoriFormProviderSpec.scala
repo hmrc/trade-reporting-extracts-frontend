@@ -16,23 +16,24 @@
 
 package forms.report
 
-import forms.behaviours.{OptionFieldBehaviours, StringFieldBehaviours}
-import models.report.Decision
-import play.api.data.{Form, FormError}
+import forms.behaviours.OptionFieldBehaviours
+import forms.report.ChooseEoriFormProvider
+import models.report.ChooseEori
+import play.api.data.FormError
 
-class DecisionFormProviderSpec extends OptionFieldBehaviours {
+class ChooseEoriFormProviderSpec extends OptionFieldBehaviours {
 
-  val form = new DecisionFormProvider()()
+  val form = new ChooseEoriFormProvider()()
 
   ".value" - {
 
     val fieldName   = "value"
-    val requiredKey = "decision.error.required"
+    val requiredKey = "chooseEori.error.required"
 
-    behave like optionsField[Decision](
+    behave like optionsField[ChooseEori](
       form,
       fieldName,
-      validValues = Decision.values,
+      validValues = ChooseEori.values,
       invalidError = FormError(fieldName, "error.invalid")
     )
 

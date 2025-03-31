@@ -17,19 +17,14 @@
 package forms.report
 
 import forms.mappings.Mappings
+import models.report.Decision
 import play.api.data.Form
-import forms.helper.StopOnFirstFail
-import play.api.data.validation.Constraints.nonEmpty
 
 import javax.inject.Inject
 
 class DecisionFormProvider @Inject() extends Mappings {
-  def apply(): Form[String] =
+  def apply(): Form[Decision] =
     Form(
-      "value" -> text("decisionPage.error.required")
-        .verifying(
-          StopOnFirstFail[String](
-            nonEmpty("view.error.required")
-        ))
+      "value" -> enumerable[Decision]("decision.error.required")
     )
 }

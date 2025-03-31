@@ -18,30 +18,51 @@ package controllers.report
 
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.NormalMode
+import forms.report.ChooseEoriFormProvider
+import models.Mode
 import navigation.ReportNavigator
 import pages.report.ChooseEoriPage
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import views.html.report.ChooseEoriView
 
-
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class ChooseEoriController @Inject()(
-                                  identify: IdentifierAction,
-                                  view: ChooseEoriView,
-                                  getData: DataRetrievalAction,
-                                  requireData: DataRequiredAction,
-                                  navigator: ReportNavigator,
-                                  val controllerComponents: MessagesControllerComponents
-                                ) extends BaseController {
+class ChooseEoriController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: ReportNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ChooseEoriFormProvider,
+  view: ChooseEoriView,
+  val controllerComponents: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view())
+  private val form                               = formProvider()
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val preparedForm = request.userAnswers.get(ChooseEoriPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
+    Ok(view(preparedForm, mode, request.eori))
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Redirect(navigator.nextPage(ChooseEoriPage, NormalMode, request.userAnswers))
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, request.eori))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, updatedAnswers))
+        )
   }
-
 }

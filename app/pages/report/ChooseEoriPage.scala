@@ -16,6 +16,13 @@
 
 package pages.report
 
-import pages.Page
+import models.report.ChooseEori
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case object ChooseEoriPage extends Page
+case object ChooseEoriPage extends QuestionPage[ChooseEori] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "chooseEori"
+}

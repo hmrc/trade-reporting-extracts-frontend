@@ -20,6 +20,7 @@ import controllers.BaseController
 import controllers.actions.{DataRetrievalOrCreateAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.report.ReportGuidanceView
+import models.NormalMode
 
 import javax.inject.Inject
 
@@ -31,7 +32,6 @@ class ReportGuidanceController @Inject() (
 ) extends BaseController {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getOrCreate) { implicit request =>
-    Ok(view())
+    Ok(view(NormalMode))
   }
-
 }
