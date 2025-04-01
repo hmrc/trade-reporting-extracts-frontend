@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package generators
+package forms.report
 
-import models.*
-import models.report.{ChooseEori, Decision}
-import org.scalacheck.{Arbitrary, Gen}
+import forms.mappings.Mappings
+import models.EoriRole
+import play.api.data.Form
+import play.api.data.Forms.set
 
-trait ModelGenerators {
+import javax.inject.Inject
 
-  implicit lazy val arbitraryChooseEori: Arbitrary[ChooseEori] =
-    Arbitrary {
-      Gen.oneOf(ChooseEori.values)
-    }
+class EoriRoleFormProvider @Inject() extends Mappings {
 
-  implicit val arbitraryDecision: Arbitrary[Decision] =
-    Arbitrary {
-      Gen.oneOf(Decision.values)
-    }
-
-  implicit lazy val arbitraryEoriRole: Arbitrary[EoriRole] =
-    Arbitrary {
-      Gen.oneOf(EoriRole.values)
-    }
-
+  def apply(): Form[Set[EoriRole]] =
+    Form(
+      "value" -> set(enumerable[EoriRole]("eoriRole.error.required")).verifying(nonEmptySet("eoriRole.error.required"))
+    )
 }

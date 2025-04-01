@@ -17,66 +17,66 @@
 package controllers.report
 
 import base.SpecBase
-import forms.report.ChooseEoriFormProvider
-import models.report.ChooseEori
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeReportNavigator, Navigator}
+import forms.report.EoriRoleFormProvider
+import models.{EoriRole, NormalMode, UserAnswers}
+import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.ChooseEoriPage
+import pages.report.EoriRolePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.report.ChooseEoriView
+import views.html.report.EoriRoleView
 
 import scala.concurrent.Future
 
-class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
+class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report/eoriRole")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report")
 
-  lazy val chooseEoriRoute: String = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
+  lazy val eoriRoleRoute: String = controllers.report.routes.EoriRoleController.onPageLoad(NormalMode).url
 
-  val formProvider           = new ChooseEoriFormProvider()
-  val form: Form[ChooseEori] = formProvider()
+  val formProvider              = new EoriRoleFormProvider()
+  val form: Form[Set[EoriRole]] = formProvider()
 
-  "ChooseEori Controller" - {
+  "EoriRole Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+        val request = FakeRequest(GET, eoriRoleRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+        val view = application.injector.instanceOf[EoriRoleView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "eori")(request, messages(application)).toString
+
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ChooseEoriPage, ChooseEori.values.head).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(EoriRolePage, EoriRole.values.toSet).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+        val request = FakeRequest(GET, eoriRoleRoute)
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+        val view = application.injector.instanceOf[EoriRoleView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "eori")(
+        contentAsString(result) mustEqual view(form.fill(EoriRole.values.toSet), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -92,15 +92,15 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
       running(application) {
         val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
+          FakeRequest(POST, eoriRoleRoute)
+            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
 
         val result = route(application, request).value
 
@@ -115,20 +115,17 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, chooseEoriRoute)
+          FakeRequest(POST, eoriRoleRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+        val view = application.injector.instanceOf[EoriRoleView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "eori")(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -137,7 +134,7 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+        val request = FakeRequest(GET, eoriRoleRoute)
 
         val result = route(application, request).value
 
@@ -146,19 +143,18 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
+          FakeRequest(POST, eoriRoleRoute)
+            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
