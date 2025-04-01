@@ -25,6 +25,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.ChooseEoriPage
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -36,12 +37,12 @@ import scala.concurrent.Future
 
 class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/request-cds-report")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report/eoriRole")
 
-  lazy val chooseEoriRoute = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
+  lazy val chooseEoriRoute: String = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
 
-  val formProvider = new ChooseEoriFormProvider()
-  val form         = formProvider()
+  val formProvider           = new ChooseEoriFormProvider()
+  val form: Form[ChooseEori] = formProvider()
 
   "ChooseEori Controller" - {
 
