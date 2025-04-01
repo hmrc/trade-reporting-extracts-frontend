@@ -17,7 +17,6 @@
 package models
 
 import generators.ModelGenerators
-import generators.arbitraryEoriRole
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec

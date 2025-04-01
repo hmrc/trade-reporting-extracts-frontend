@@ -18,19 +18,18 @@ package generators
 
 import models.*
 import models.report.{ChooseEori, Decision}
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
   implicit lazy val arbitraryChooseEori: Arbitrary[ChooseEori] =
     Arbitrary {
-      Gen.oneOf(ChooseEori.values.toSeq)
+      Gen.oneOf(ChooseEori.values)
     }
 
   implicit val arbitraryDecision: Arbitrary[Decision] =
     Arbitrary {
-      Gen.oneOf(Decision.values.toSeq)
+      Gen.oneOf(Decision.values)
     }
 
   implicit lazy val arbitraryEoriRole: Arbitrary[EoriRole] =
@@ -39,8 +38,3 @@ trait ModelGenerators {
     }
 
 }
-
-implicit lazy val arbitraryEoriRole: Arbitrary[EoriRole] =
-  Arbitrary {
-    Gen.oneOf(EoriRole.values)
-  }
