@@ -19,7 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.EoriRoleFormProvider
 import models.{EoriRole, Mode}
-import navigation.Navigator
+import navigation.ReportNavigator
 import pages.report.EoriRolePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EoriRoleController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
