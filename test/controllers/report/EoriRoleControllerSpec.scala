@@ -17,7 +17,6 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
 import forms.report.EoriRoleFormProvider
 import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -37,7 +36,7 @@ import scala.concurrent.Future
 
 class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report")
 
   lazy val eoriRoleRoute: String = controllers.report.routes.EoriRoleController.onPageLoad(NormalMode).url
 
