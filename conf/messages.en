@@ -172,3 +172,4 @@ eoriRole.exporter = Exporter
 eoriRole.checkYourAnswersLabel = What is the owner of the EORI number’s role in the report?
 eoriRole.error.required = Select EORI role
 eoriRole.change.hidden = EoriRole
+eoriRole.hint = Select all that apply
