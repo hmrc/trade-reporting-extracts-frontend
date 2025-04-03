@@ -14,3 +14,8 @@ GET        /request-cds-report/eoriRole                        controllers.repor
 POST       /request-cds-report/eoriRole                        controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
 GET        /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
 POST       /request-cds-report/changeEoriRole                  controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
+
+GET        /date-rage                        controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = NormalMode)
+POST       /date-rage                       controllers.report.ReportDateRangeController.onSubmit(mode: Mode = NormalMode)
+GET        /change-date-range                  controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-date-range                   controllers.report.ReportDateRangeController.onSubmit(mode: Mode = CheckMode)

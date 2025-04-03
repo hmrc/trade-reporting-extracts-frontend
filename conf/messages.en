@@ -173,3 +173,12 @@ eoriRole.checkYourAnswersLabel = What is the owner of the EORI number’s role i
 eoriRole.error.required = Select EORI role
 eoriRole.change.hidden = EoriRole
 eoriRole.hint = Select all that apply
+
+reportDateRange.title = What date range do you want the report to cover?
+reportDateRange.heading = What date range do you want the report to cover?
+reportDateRange.lastThirtyOneDays = Last 31 days (including today)
+reportDateRange.lastCalenderMonth = last calendar month (for example, 1 to 31st October)
+reportDateRange.CustomDateRange = Custom date range
+reportDateRange.checkYourAnswersLabel = What date range do you want the report to cover?
+reportDateRange.error.required = Select the date range you want the report to cover
+reportDateRange.change.hidden = Report Date Range
