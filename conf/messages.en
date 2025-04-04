@@ -173,3 +173,13 @@ eoriRole.checkYourAnswersLabel = What is the owner of the EORI number’s role i
 eoriRole.error.required = Select EORI role
 eoriRole.change.hidden = EoriRole
 eoriRole.hint = Select all that apply
+
+reportTypeImport.title = Which type of report do you need?
+reportTypeImport.heading = Which type of report do you need?
+reportTypeImport.importHeader = Import header
+reportTypeImport.importItem = Import item
+reportTypeImport.importTaxLine = Import tax line
+reportTypeImport.checkYourAnswersLabel = Which type of report do you need?
+reportTypeImport.error.required = Select reportTypeImport
+reportTypeImport.change.hidden = ReportTypeImport
+reportTypeImport.hint = Select all that apply

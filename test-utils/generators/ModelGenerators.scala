@@ -22,6 +22,11 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
+  implicit lazy val arbitraryReportTypeImport: Arbitrary[ReportTypeImport] =
+    Arbitrary {
+      Gen.oneOf(ReportTypeImport.values)
+    }
+
   implicit lazy val arbitraryChooseEori: Arbitrary[ChooseEori] =
     Arbitrary {
       Gen.oneOf(ChooseEori.values)

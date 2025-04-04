@@ -17,44 +17,44 @@
 package controllers.report
 
 import base.SpecBase
-import forms.report.EoriRoleFormProvider
-import models.{EoriRole, NormalMode, UserAnswers}
+import controllers.routes
+import forms.report.ReportTypeImportFormProvider
+import models.{NormalMode, ReportTypeImport, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.EoriRolePage
-import play.api.data.Form
+import pages.report.ReportTypeImportPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.report.EoriRoleView
+import views.html.report.ReportTypeImportView
 
 import scala.concurrent.Future
 
-class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
+class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/report-type-import")
+  def onwardRoute = Call("GET", "/foo")
 
-  lazy val eoriRoleRoute: String = controllers.report.routes.EoriRoleController.onPageLoad(NormalMode).url
+  lazy val reportTypeImportRoute = controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode).url
 
-  val formProvider              = new EoriRoleFormProvider()
-  val form: Form[Set[EoriRole]] = formProvider()
+  val formProvider = new ReportTypeImportFormProvider()
+  val form = formProvider()
 
-  "EoriRole Controller" - {
+  "ReportTypeImport Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+        val request = FakeRequest(GET, reportTypeImportRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EoriRoleView]
+        val view = application.injector.instanceOf[ReportTypeImportView]
 
         status(result) mustEqual OK
 
@@ -64,22 +64,19 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(EoriRolePage, EoriRole.values.toSet).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(ReportTypeImportPage, ReportTypeImport.values.toSet).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+        val request = FakeRequest(GET, reportTypeImportRoute)
 
-        val view = application.injector.instanceOf[EoriRoleView]
+        val view = application.injector.instanceOf[ReportTypeImportView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(EoriRole.values.toSet), NormalMode)(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual view(form.fill(ReportTypeImport.values.toSet), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -99,8 +96,8 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriRoleRoute)
-            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
+          FakeRequest(POST, reportTypeImportRoute)
+            .withFormUrlEncodedBody(("value[0]", ReportTypeImport.values.head.toString))
 
         val result = route(application, request).value
 
@@ -115,12 +112,12 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriRoleRoute)
+          FakeRequest(POST, reportTypeImportRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[EoriRoleView]
+        val view = application.injector.instanceOf[ReportTypeImportView]
 
         val result = route(application, request).value
 
@@ -134,7 +131,7 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+        val request = FakeRequest(GET, reportTypeImportRoute)
 
         val result = route(application, request).value
 
@@ -149,8 +146,8 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriRoleRoute)
-            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
+          FakeRequest(POST, reportTypeImportRoute)
+            .withFormUrlEncodedBody(("value[0]", ReportTypeImport.values.head.toString))
 
         val result = route(application, request).value
 
