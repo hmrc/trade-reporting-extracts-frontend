@@ -174,6 +174,15 @@ eoriRole.error.required = cy: Select EORI role
 eoriRole.change.hidden = cy: EoriRole
 eoriRole.hint = cy: Select all that apply
 
+reportDateRange.title = cy: What date range do you want the report to cover?
+reportDateRange.heading = cy: What date range do you want the report to cover?
+reportDateRange.lastThirtyOneDays = cy: Last 31 days (including today)
+reportDateRange.lastCalenderMonth = cy: last calendar month (for example, 1 to 31st October)
+reportDateRange.CustomDateRange = cy: Custom date range
+reportDateRange.checkYourAnswersLabel = cy: What date range do you want the report to cover?
+reportDateRange.error.required = cy: Select the date range you want the report to cover
+reportDateRange.change.hidden = cy: Report Date Range
+
 reportTypeImport.title = cy: Which type of report do you need?
 reportTypeImport.heading = cy: Which type of report do you need?
 reportTypeImport.importHeader = cy: Import header
