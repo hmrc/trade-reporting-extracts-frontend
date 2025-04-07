@@ -35,7 +35,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       "DecisionPage must navigate to which-eori with any answer" in {
 
-        val ua = emptyUserAnswers
+        val ua     = emptyUserAnswers
           .set(
             DecisionPage,
             Decision.values.head
@@ -49,7 +49,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       "ChooseEoriPage must navigate to EoriRole with any answer" in {
 
-        val ua = emptyUserAnswers
+        val ua     = emptyUserAnswers
           .set(
             ChooseEoriPage,
             ChooseEori.values.head
@@ -63,7 +63,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       "EoriRolePage must navigate to ReportTypeImport with any answer" in {
 
-        val ua = emptyUserAnswers
+        val ua     = emptyUserAnswers
           .set(
             EoriRolePage,
             EoriRole.values.toSet
@@ -77,7 +77,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       "ReportTypeImportPage must navigate to ReportGuidance with any answer" in {
 
-        val ua = emptyUserAnswers
+        val ua     = emptyUserAnswers
           .set(
             ReportTypeImportPage,
             ReportTypeImport.values.toSet

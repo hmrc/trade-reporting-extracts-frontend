@@ -41,7 +41,7 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
   lazy val reportTypeImportRoute = controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode).url
 
   val formProvider = new ReportTypeImportFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   "ReportTypeImport Controller" - {
 
@@ -64,7 +64,8 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ReportTypeImportPage, ReportTypeImport.values.toSet).success.value
+      val userAnswers =
+        UserAnswers(userAnswersId).set(ReportTypeImportPage, ReportTypeImport.values.toSet).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -76,7 +77,10 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ReportTypeImport.values.toSet), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(ReportTypeImport.values.toSet), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

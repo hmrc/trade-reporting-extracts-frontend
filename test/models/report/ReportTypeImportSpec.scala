@@ -25,7 +25,12 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
-class ReportTypeImportSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues with ModelGenerators {
+class ReportTypeImportSpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with OptionValues
+    with ModelGenerators {
 
   "ReportTypeImport" - {
 
@@ -33,10 +38,8 @@ class ReportTypeImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = arbitrary[ReportTypeImport]
 
-      forAll(gen) {
-        reportTypeImport =>
-
-          JsString(reportTypeImport.toString).validate[ReportTypeImport].asOpt.value mustEqual reportTypeImport
+      forAll(gen) { reportTypeImport =>
+        JsString(reportTypeImport.toString).validate[ReportTypeImport].asOpt.value mustEqual reportTypeImport
       }
     }
 
@@ -44,10 +47,8 @@ class ReportTypeImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = arbitrary[String] suchThat (!ReportTypeImport.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
-
-          JsString(invalidValue).validate[ReportTypeImport] mustEqual JsError("error.invalid")
+      forAll(gen) { invalidValue =>
+        JsString(invalidValue).validate[ReportTypeImport] mustEqual JsError("error.invalid")
       }
     }
 
@@ -55,10 +56,8 @@ class ReportTypeImportSpec extends AnyFreeSpec with Matchers with ScalaCheckProp
 
       val gen = arbitrary[ReportTypeImport]
 
-      forAll(gen) {
-        reportTypeImport =>
-
-          Json.toJson(reportTypeImport) mustEqual JsString(reportTypeImport.toString)
+      forAll(gen) { reportTypeImport =>
+        Json.toJson(reportTypeImport) mustEqual JsString(reportTypeImport.toString)
       }
     }
   }

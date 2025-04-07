@@ -27,13 +27,13 @@ class ReportTypeImportFormProviderSpec extends CheckboxFieldBehaviours {
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName   = "value"
     val requiredKey = "reportTypeImport.error.required"
 
     behave like checkboxField[ReportTypeImport](
       form,
       fieldName,
-      validValues  = ReportTypeImport.values,
+      validValues = ReportTypeImport.values,
       invalidError = FormError(s"$fieldName[0]", "error.invalid")
     )
 

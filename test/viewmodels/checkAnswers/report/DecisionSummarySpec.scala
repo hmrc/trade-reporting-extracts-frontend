@@ -36,7 +36,7 @@ class DecisionSummarySpec extends SpecBase {
   "DecisionSummary.row" - {
 
     "must return a SummaryListRow when an answer is present" in {
-      val answer = Decision.values.head
+      val answer  = Decision.values.head
       val answers = UserAnswers("id").set(DecisionPage, answer).get
 
       val result = DecisionSummary.row(answers)

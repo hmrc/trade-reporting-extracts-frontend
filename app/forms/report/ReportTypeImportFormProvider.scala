@@ -27,6 +27,7 @@ class ReportTypeImportFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Set[ReportTypeImport]] =
     Form(
-      "value" -> set(enumerable[ReportTypeImport]("reportTypeImport.error.required")).verifying(nonEmptySet("reportTypeImport.error.required"))
+      "value" -> set(enumerable[ReportTypeImport]("reportTypeImport.error.required"))
+        .verifying(nonEmptySet("reportTypeImport.error.required"))
     )
 }

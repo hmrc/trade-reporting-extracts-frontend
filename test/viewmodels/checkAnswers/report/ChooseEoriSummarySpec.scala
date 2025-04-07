@@ -36,7 +36,7 @@ class ChooseEoriSummarySpec extends SpecBase {
   "ChooseEoriSummary.row" - {
 
     "must return a SummaryListRow when an answer is present" in {
-      val answer = ChooseEori.Myeori
+      val answer  = ChooseEori.Myeori
       val answers = UserAnswers("id").set(ChooseEoriPage, answer).get
 
       val result = ChooseEoriSummary.row(answers)

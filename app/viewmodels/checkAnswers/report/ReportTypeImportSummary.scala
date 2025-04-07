@@ -26,28 +26,31 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object ReportTypeImportSummary  {
+object ReportTypeImportSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ReportTypeImportPage).map {
-      answers =>
+    answers.get(ReportTypeImportPage).map { answers =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            answers.map {
-              answer => HtmlFormat.escape(messages(s"reportTypeImport.$answer")).toString
+      val value = ValueViewModel(
+        HtmlContent(
+          answers
+            .map { answer =>
+              HtmlFormat.escape(messages(s"reportTypeImport.$answer")).toString
             }
             .mkString(",<br>")
-          )
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "reportTypeImport.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("reportTypeImport.change.hidden"))
+      SummaryListRowViewModel(
+        key = "reportTypeImport.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("reportTypeImport.change.hidden"))
         )
+      )
     }
 }
