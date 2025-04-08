@@ -18,8 +18,10 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import pages._
-import models._
+import models.*
+import pages.*
+import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 class NavigatorSpec extends SpecBase {
 
@@ -45,5 +47,20 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
     }
+
+    "navigator journeyRecovery must redirect to journey recovery page" in {
+      val continueUrl = Some(RedirectUrl("https://foo.com"))
+      val result      = navigator.journeyRecovery(continueUrl)
+
+      result mustBe Redirect(
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad(continueUrl)
+      )
+    }
+
+    def checkNavigation(nextUrl: String, expectedUrl: String) = {
+      val urlWithNoContext = nextUrl.replace("/public-pension-adjustment", "")
+      urlWithNoContext mustBe expectedUrl
+    }
   }
+
 }

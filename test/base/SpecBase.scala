@@ -40,6 +40,11 @@ trait SpecBase
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
+  def checkNavigation(nextUrl: String, expectedUrl: String) = {
+    val urlWithNoContext = nextUrl.replace("/request-customs-declaration-data", "")
+    urlWithNoContext `must` `be`(expectedUrl)
+  }
+
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =

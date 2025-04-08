@@ -182,3 +182,13 @@ reportDateRange.CustomDateRange = Custom date range
 reportDateRange.checkYourAnswersLabel = What date range do you want the report to cover?
 reportDateRange.error.required = Select the date range you want the report to cover
 reportDateRange.change.hidden = Report Date Range
+
+reportTypeImport.title = Which type of report do you need?
+reportTypeImport.heading = Which type of report do you need?
+reportTypeImport.importHeader = Import header
+reportTypeImport.importItem = Import item
+reportTypeImport.importTaxLine = Import tax line
+reportTypeImport.checkYourAnswersLabel = Which type of report do you need?
+reportTypeImport.error.required = Select the type of report you want
+reportTypeImport.change.hidden = types of report you want
+reportTypeImport.hint = Select all that apply

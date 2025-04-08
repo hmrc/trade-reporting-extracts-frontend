@@ -31,6 +31,8 @@ class FakeNavigator(desiredRoute: Call) extends Navigator {
 
 class FakeNavigation() extends Navigation()
 
+class FakeReportNavigation() extends ReportNavigator()
+
 class FakeReportNavigator(desiredRoute: Call) extends ReportNavigator {
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = desiredRoute
 }
