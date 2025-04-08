@@ -75,7 +75,7 @@ class ReportNavigatorSpec extends SpecBase {
         checkNavigation(result, "/report-type-import")
       }
 
-      "ReportTypeImportPage must navigate to ReportGuidance with any answer" in {
+      "ReportTypeImportPage must navigate to ReportDateRangePage with any answer" in {
 
         val ua     = emptyUserAnswers
           .set(
@@ -86,7 +86,7 @@ class ReportNavigatorSpec extends SpecBase {
           .value
         val result = navigator.nextPage(ReportTypeImportPage, NormalMode, ua).url
 
-        checkNavigation(result, "/request-cds-report")
+        checkNavigation(result, "/date-rage")
       }
     }
 

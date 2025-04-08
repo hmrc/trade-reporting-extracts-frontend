@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package forms.behaviours
+package forms.report
 
-import play.api.data.{Form, FormError}
+import forms.mappings.Mappings
+import models.StringFieldRegex
+import play.api.data.Form
+import utils.Constants.maxNameLength
 
-trait StringFieldBehaviours extends FieldBehaviours {
+import javax.inject.Inject
 
-  def fieldWithMaxLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: FormError): Unit =
-    s"not bind strings longer than $maxLength characters" in {
+class ReportNameFormProvider @Inject() extends Mappings {
 
-      forAll(stringsLongerThan(maxLength) -> "longString") { (string: String) =>
-        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-        result.errors.find(_ == lengthError) mustBe defined
-      }
-    }
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("reportName.error.required")
+        .verifying(maxLength(maxNameLength, "reportName.error.length"))
+        .verifying(
+          regexp(StringFieldRegex.reportNameRegex, "reportName.error.invalidCharacters")
+        )
+    )
 }

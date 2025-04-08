@@ -17,40 +17,39 @@
 package controllers.report
 
 import controllers.actions.*
-import forms.report.ReportDateRangeFormProvider
+import forms.report.ReportNameFormProvider
 import models.Mode
-import models.report.ReportDateRange
-import navigation.ReportNavigator
-import pages.report.ReportDateRangePage
+import navigation.Navigator
+import pages.report.ReportNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.report.ReportDateRangeView
+import views.html.report.ReportNameView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportDateRangeController @Inject() (
+class ReportNameController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: ReportNavigator,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: ReportDateRangeFormProvider,
+  formProvider: ReportNameFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: ReportDateRangeView
+  view: ReportNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[ReportDateRange] = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(ReportDateRangePage) match {
+    val preparedForm = request.userAnswers.get(ReportNamePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
@@ -66,9 +65,9 @@ class ReportDateRangeController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportDateRangePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportNamePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(ReportNamePage, mode, updatedAnswers))
         )
   }
 }

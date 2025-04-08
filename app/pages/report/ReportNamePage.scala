@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package forms.behaviours
+package pages.report
 
-import play.api.data.{Form, FormError}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-trait StringFieldBehaviours extends FieldBehaviours {
+case object ReportNamePage extends QuestionPage[String] {
 
-  def fieldWithMaxLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: FormError): Unit =
-    s"not bind strings longer than $maxLength characters" in {
+  override def path: JsPath = JsPath \ toString
 
-      forAll(stringsLongerThan(maxLength) -> "longString") { (string: String) =>
-        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-        result.errors.find(_ == lengthError) mustBe defined
-      }
-    }
+  override def toString: String = "reportName"
 }
