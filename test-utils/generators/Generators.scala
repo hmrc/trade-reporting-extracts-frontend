@@ -17,10 +17,11 @@
 package generators
 
 import java.time.{Instant, LocalDate, ZoneOffset}
-
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen._
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Gen.*
 import org.scalacheck.{Gen, Shrink}
+
+import scala.util.matching.Regex
 
 trait Generators extends ModelGenerators {
 
@@ -84,6 +85,15 @@ trait Generators extends ModelGenerators {
       length <- choose(1, maxLength)
       chars  <- listOfN(length, arbitrary[Char])
     } yield chars.mkString
+
+  def stringsMatchingRegexWithMaxLength(regexString: String, maxLength: Int): Gen[String] = {
+    val regex = new Regex(regexString)
+
+    for {
+      length <- Gen.choose(1, maxLength)
+      chars  <- Gen.listOfN(length, Gen.alphaNumChar.suchThat(c => regex.pattern.matcher(c.toString).matches))
+    } yield chars.mkString
+  }
 
   def stringsLongerThan(minLength: Int): Gen[String] = for {
     maxLength <- (minLength * 2).max(100)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package forms.behaviours
+package models
 
-import play.api.data.{Form, FormError}
-
-trait StringFieldBehaviours extends FieldBehaviours {
-
-  def fieldWithMaxLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: FormError): Unit =
-    s"not bind strings longer than $maxLength characters" in {
-
-      forAll(stringsLongerThan(maxLength) -> "longString") { (string: String) =>
-        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-        result.errors.find(_ == lengthError) mustBe defined
-      }
-    }
+object StringFieldRegex {
+  val reportNameRegex = """^[a-zA-Z0-9]*$"""
 }

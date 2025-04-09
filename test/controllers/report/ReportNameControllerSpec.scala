@@ -17,45 +17,45 @@
 package controllers.report
 
 import base.SpecBase
-import forms.report.ReportDateRangeFormProvider
-import models.report.ReportDateRange
+import controllers.routes
+import forms.report.ReportNameFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.ReportDateRangePage
+import pages.report.ReportNamePage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.report.ReportDateRangeView
+import views.html.report.ReportNameView
 
 import scala.concurrent.Future
 
-class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
+class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/report-name")
+  def onwardRoute: Call = Call("GET", "/foo")
 
-  lazy val reportDateRangeRoute: String = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
+  val formProvider       = new ReportNameFormProvider()
+  val form: Form[String] = formProvider()
 
-  val formProvider                = new ReportDateRangeFormProvider()
-  val form: Form[ReportDateRange] = formProvider()
+  lazy val reportNameRoute: String = controllers.report.routes.ReportNameController.onPageLoad(NormalMode).url
 
-  "ReportDateRange Controller" - {
+  "ReportName Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+        val request = FakeRequest(GET, reportNameRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+        val view = application.injector.instanceOf[ReportNameView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -64,22 +64,19 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ReportDateRangePage, ReportDateRange.values.head).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(ReportNamePage, "answer").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+        val request = FakeRequest(GET, reportNameRoute)
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+        val view = application.injector.instanceOf[ReportNameView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ReportDateRange.values.head), NormalMode)(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -99,8 +96,8 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
+          FakeRequest(POST, reportNameRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
 
@@ -115,12 +112,12 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+          FakeRequest(POST, reportNameRoute)
+            .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+        val view = application.injector.instanceOf[ReportNameView]
 
         val result = route(application, request).value
 
@@ -134,7 +131,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+        val request = FakeRequest(GET, reportNameRoute)
 
         val result = route(application, request).value
 
@@ -143,19 +140,18 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
+          FakeRequest(POST, reportNameRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
