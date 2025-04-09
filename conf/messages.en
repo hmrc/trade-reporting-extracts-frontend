@@ -202,3 +202,9 @@ reportTypeImport.checkYourAnswersLabel = Which type of report do you need?
 reportTypeImport.error.required = Select the type of report you want
 reportTypeImport.change.hidden = types of report you want
 reportTypeImport.hint = Select all that apply
+
+maybeAdditionalEmail.title = Do you want to add another email for notifications?
+maybeAdditionalEmail.heading = Do you want to add another email for notifications?
+maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email for notifications?
+maybeAdditionalEmail.error.required = XXYYZZ
+maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
