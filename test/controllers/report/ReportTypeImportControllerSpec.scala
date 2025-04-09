@@ -39,9 +39,10 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
-  lazy val reportTypeImportRoute: String = controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode).url
+  lazy val reportTypeImportRoute: String =
+    controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode).url
 
-  val formProvider = new ReportTypeImportFormProvider()
+  val formProvider                      = new ReportTypeImportFormProvider()
   val form: Form[Set[ReportTypeImport]] = formProvider()
 
   "ReportTypeImport Controller" - {
