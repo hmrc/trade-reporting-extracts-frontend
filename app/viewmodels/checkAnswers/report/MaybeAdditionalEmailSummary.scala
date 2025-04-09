@@ -24,21 +24,23 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object MaybeAdditionalEmailSummary  {
+object MaybeAdditionalEmailSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(MaybeAdditionalEmailPage).map {
-      answer =>
+    answers.get(MaybeAdditionalEmailPage).map { answer =>
 
-        val value = if (answer) "site.yes" else "site.no"
+      val value = if (answer) "site.yes" else "site.no"
 
-        SummaryListRowViewModel(
-          key     = "maybeAdditionalEmail.checkYourAnswersLabel",
-          value   = ValueViewModel(value),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("maybeAdditionalEmail.change.hidden"))
+      SummaryListRowViewModel(
+        key = "maybeAdditionalEmail.checkYourAnswersLabel",
+        value = ValueViewModel(value),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("maybeAdditionalEmail.change.hidden"))
         )
+      )
     }
 }

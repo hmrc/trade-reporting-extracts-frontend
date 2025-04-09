@@ -39,9 +39,10 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new MaybeAdditionalEmailFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
-  lazy val maybeAdditionalEmailRoute = controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode).url
+  lazy val maybeAdditionalEmailRoute =
+    controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode).url
 
   "MaybeAdditionalEmail Controller" - {
 

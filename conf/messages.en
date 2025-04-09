@@ -206,5 +206,5 @@ reportTypeImport.hint = Select all that apply
 maybeAdditionalEmail.title = Do you want to add another email for notifications?
 maybeAdditionalEmail.heading = Do you want to add another email for notifications?
 maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email for notifications?
-maybeAdditionalEmail.error.required = XXYYZZ
+maybeAdditionalEmail.error.required = Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
