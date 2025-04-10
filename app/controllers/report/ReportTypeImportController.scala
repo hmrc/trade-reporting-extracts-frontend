@@ -18,9 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.ReportTypeImportFormProvider
-import models.Mode
-import navigation.Navigator
+import models.{Mode, ReportTypeImport}
+import navigation.ReportNavigator
 import pages.report.ReportTypeImportPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -33,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReportTypeImportController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -44,7 +45,7 @@ class ReportTypeImportController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Set[ReportTypeImport]] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

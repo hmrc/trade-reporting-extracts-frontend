@@ -183,6 +183,15 @@ reportDateRange.checkYourAnswersLabel = cy: What date range do you want the repo
 reportDateRange.error.required = cy: Select the date range you want the report to cover
 reportDateRange.change.hidden = cy: Report Date Range
 
+reportName.title = cy: report Name
+reportName.heading = cy: What name will you use to identify this report?
+reportName.checkYourAnswersLabel = cy: What name will you use to identify this report?
+reportName.hint = cy: This name is only used to help you manage your reports
+reportName.error.required = cy: Enter the name you will use to identify this report
+reportName.error.length = cy: ReportName must be 70 characters or less
+reportName.error.invalidCharacters =  cy: The name you will use to identify this report must only include letters a to z, numbers 0 to 9
+reportName.change.hidden = cy: Report name
+
 reportTypeImport.title = cy: Which type of report do you need?
 reportTypeImport.heading = cy: Which type of report do you need?
 reportTypeImport.importHeader = cy: Import header
