@@ -27,6 +27,7 @@ import forms.report.DecisionFormProvider
 import models.Mode
 import navigation.ReportNavigator
 import pages.report.DecisionPage
+import play.api.i18n.MessagesApi
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,6 +40,7 @@ class DecisionController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
+  override val messagesApi: MessagesApi,
   val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController {
