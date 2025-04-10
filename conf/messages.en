@@ -163,7 +163,7 @@ chooseEori.heading = Which EORI number do you want to use?
 chooseEori.myEori = My EORI, {0}
 chooseEori.myAuthority = Accounts I have authority over
 chooseEori.checkYourAnswersLabel = Which EORI number do you want to use?
-chooseEori.error.required = Select EORI number you want to use
+chooseEori.error.required = Select Eori number you want to use
 chooseEori.change.hidden = ChooseEori
 
 eoriRole.title = What is the owner of the EORI number’s role in the report?
