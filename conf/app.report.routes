@@ -20,10 +20,10 @@ POST       /date-rage                       controllers.report.ReportDateRangeCo
 GET        /change-date-range                  controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-date-range                   controllers.report.ReportDateRangeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /report-type-import                        controllers.report.ReportTypeImportController.onPageLoad(mode: Mode = NormalMode)
-POST       /report-type-import                        controllers.report.ReportTypeImportController.onSubmit(mode: Mode = NormalMode)
-GET        /change-report-type-import                  controllers.report.ReportTypeImportController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-report-type-import                  controllers.report.ReportTypeImportController.onSubmit(mode: Mode = CheckMode)
+GET        /report-type                        controllers.report.ReportTypeImportController.onPageLoad(mode: Mode = NormalMode)
+POST       /report-type                        controllers.report.ReportTypeImportController.onSubmit(mode: Mode = NormalMode)
+GET        /change-report-type                  controllers.report.ReportTypeImportController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-report-type                  controllers.report.ReportTypeImportController.onSubmit(mode: Mode = CheckMode)
 
 GET        /report-name                         controllers.report.ReportNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /report-name                         controllers.report.ReportNameController.onSubmit(mode: Mode = NormalMode)
