@@ -30,9 +30,9 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
   ec: ExecutionContext
 ) {
 
-  def getCompanyInformation(eori: String)(implicit hc: HeaderCarrier): Future[CompanyInformation] =
+  def getCompanyInformation()(implicit hc: HeaderCarrier): Future[CompanyInformation] =
     httpClient
-      .get(url"${appConfig.tradeReportingExtractsApi}/eori/$eori/company-information")
+      .get(url"${appConfig.tradeReportingExtractsApi}/eori/company-information")
       .execute[CompanyInformation]
       .flatMap:
       response => Future.successful(response)

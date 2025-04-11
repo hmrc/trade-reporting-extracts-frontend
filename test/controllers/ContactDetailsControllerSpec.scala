@@ -19,19 +19,17 @@ package controllers
 import base.SpecBase
 import models.{AddressInformation, CompanyInformation}
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.{any, anyString}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.{Application, inject}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import play.api.{Application, inject}
 import services.TradeReportingExtractsService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ContactDetailsView
 
-import java.net.URL
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ContactDetailsControllerSpec extends SpecBase {
 
@@ -40,7 +38,7 @@ class ContactDetailsControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in new Setup {
 
       running(application) {
-        when(mockApiService.getCompanyInformation(any[String])(any[HeaderCarrier]))
+        when(mockApiService.getCompanyInformation()(any[HeaderCarrier]))
           .thenReturn(Future.successful(companyInformation))
 
         val request = FakeRequest(GET, routes.ContactDetailsController.onPageLoad().url)
