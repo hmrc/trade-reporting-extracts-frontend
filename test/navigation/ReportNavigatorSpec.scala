@@ -72,7 +72,7 @@ class ReportNavigatorSpec extends SpecBase {
           .value
         val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
 
-        checkNavigation(result, "/report-type-import")
+        checkNavigation(result, "/report-type")
       }
 
       "ReportTypeImportPage must navigate to ReportDateRangePage with any answer" in {
