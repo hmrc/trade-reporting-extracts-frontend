@@ -38,7 +38,7 @@ class ContactDetailsController @Inject() (
     extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify async { implicit request =>
-    tradeReportingExtractsService.getCompanyInformation(request.userId).map { companyInformation =>
+    tradeReportingExtractsService.getCompanyInformation().map { companyInformation =>
       Ok(view(companyInformation, "GB123456789002"))
     }
   }
