@@ -29,3 +29,8 @@ GET        /report-name                         controllers.report.ReportNameCon
 POST       /report-name                         controllers.report.ReportNameController.onSubmit(mode: Mode = NormalMode)
 GET        /change-report-name                  controllers.report.ReportNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-report-name                  controllers.report.ReportNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /choose-email-address                       controllers.report.MaybeAdditionalEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /choose-email-address                       controllers.report.MaybeAdditionalEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /change-choose-email-address                  controllers.report.MaybeAdditionalEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-choose-email-address                  controllers.report.MaybeAdditionalEmailController.onSubmit(mode: Mode = CheckMode)

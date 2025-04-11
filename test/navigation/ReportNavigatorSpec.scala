@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.report.{ChooseEori, Decision}
 import pages.*
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportNamePage, ReportTypeImportPage}
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
@@ -87,6 +87,18 @@ class ReportNavigatorSpec extends SpecBase {
         val result = navigator.nextPage(ReportTypeImportPage, NormalMode, ua).url
 
         checkNavigation(result, "/date-rage")
+      }
+
+      "ReportNamePage must navigate to MaybeAdditionalEmail" in {
+
+        val ua = emptyUserAnswers
+          .set(ReportNamePage, "name")
+          .success
+          .value
+
+        val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
+
+        checkNavigation(result, "/choose-email-address")
       }
     }
 
