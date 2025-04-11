@@ -19,7 +19,7 @@ package forms.report
 import forms.mappings.Mappings
 import models.StringFieldRegex
 import play.api.data.Form
-import utils.Constants.maxNameLength
+import utils.Constants.{maxNameLength, minNameLength}
 
 import javax.inject.Inject
 
@@ -28,7 +28,8 @@ class ReportNameFormProvider @Inject() extends Mappings {
   def apply(): Form[String] =
     Form(
       "value" -> text("reportName.error.required")
-        .verifying(maxLength(maxNameLength, "reportName.error.length"))
+        .verifying(maxLength(maxNameLength, "reportName.error.maxLength"))
+        .verifying(minLength(minNameLength, "reportName.error.minLength"))
         .verifying(
           regexp(StringFieldRegex.reportNameRegex, "reportName.error.invalidCharacters")
         )

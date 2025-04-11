@@ -188,7 +188,8 @@ reportName.heading = cy: What name will you use to identify this report?
 reportName.checkYourAnswersLabel = cy: What name will you use to identify this report?
 reportName.hint = cy: This name is only used to help you manage your reports
 reportName.error.required = cy: Enter the name you will use to identify this report
-reportName.error.length = cy: The name you will use to identify this report must be 70 characters or fewer
+reportName.error.maxLength = cy: The name you will use to identify this report must be 70 characters or fewer
+reportName.error.minLength = cy: The name you will use to identify this report must be 5 characters or more
 reportName.error.invalidCharacters =  cy: The name you will use to identify this report must only include letters a to z and numbers 0 to 9
 reportName.change.hidden = cy: What name will you use to identify this report?
 
