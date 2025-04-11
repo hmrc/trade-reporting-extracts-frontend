@@ -97,7 +97,7 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, reportNameRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "answer1"))
 
         val result = route(application, request).value
 

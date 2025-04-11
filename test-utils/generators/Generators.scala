@@ -86,11 +86,21 @@ trait Generators extends ModelGenerators {
       chars  <- listOfN(length, arbitrary[Char])
     } yield chars.mkString
 
-  def stringsMatchingRegexWithMaxLength(regexString: String, maxLength: Int): Gen[String] = {
+  def stringsWithMinAndMaxLength(minLength: Int, maxLength: Int): Gen[String] =
+    for {
+      length <- choose(minLength, maxLength)
+      chars  <- listOfN(length, arbitrary[Char])
+    } yield chars.mkString
+
+  def stringsMatchingRegexWithMinLengthAndMaxLength(
+    regexString: String,
+    minLength: Int,
+    maxLength: Int
+  ): Gen[String] = {
     val regex = new Regex(regexString)
 
     for {
-      length <- Gen.choose(1, maxLength)
+      length <- Gen.choose(minLength, maxLength)
       chars  <- Gen.listOfN(length, Gen.alphaNumChar.suchThat(c => regex.pattern.matcher(c.toString).matches))
     } yield chars.mkString
   }

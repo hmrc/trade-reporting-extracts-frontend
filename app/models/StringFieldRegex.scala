@@ -17,5 +17,5 @@
 package models
 
 object StringFieldRegex {
-  val reportNameRegex = """^[a-zA-Z0-9]*$"""
+  val reportNameRegex = """^(?=.*[a-zA-Z])[a-zA-Z0-9 _-]*$"""
 }

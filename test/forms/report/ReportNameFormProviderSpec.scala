@@ -19,14 +19,15 @@ package forms.report
 import forms.behaviours.StringFieldBehaviours
 import models.StringFieldRegex
 import play.api.data.FormError
-import utils.Constants.maxNameLength
+import utils.Constants.{maxNameLength, minNameLength}
 
 class ReportNameFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey          = "reportName.error.required"
-  val lengthKey            = "reportName.error.length"
+  val lengthKey            = "reportName.error.maxLength"
   val invalidCharactersKey = "reportName.error.invalidCharacters"
   val maxLength: Int       = maxNameLength
+  val minLength: Int       = minNameLength
 
   val form = new ReportNameFormProvider()()
 
@@ -37,7 +38,7 @@ class ReportNameFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsMatchingRegexWithMaxLength(StringFieldRegex.reportNameRegex, maxLength)
+      stringsMatchingRegexWithMinLengthAndMaxLength(StringFieldRegex.reportNameRegex, minLength, maxLength)
     )
 
     behave like mandatoryField(
@@ -56,7 +57,7 @@ class ReportNameFormProviderSpec extends StringFieldBehaviours {
       behave like fieldThatErrorsOnInvalidData(
         form,
         fieldName,
-        stringsWithMaxLength(maxLength),
+        stringsWithMinAndMaxLength(minLength, maxLength),
         FormError(fieldName, invalidCharactersKey)
       )
     }
