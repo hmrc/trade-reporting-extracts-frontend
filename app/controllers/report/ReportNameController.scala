@@ -65,7 +65,7 @@ class ReportNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportNamePage, value.trim))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(ReportNamePage, mode, updatedAnswers))
         )
