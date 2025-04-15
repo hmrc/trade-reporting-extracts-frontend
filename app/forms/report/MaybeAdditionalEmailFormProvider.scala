@@ -16,16 +16,15 @@
 
 package forms.report
 
-import javax.inject.Inject
-
 import forms.mappings.Mappings
 import play.api.data.Form
-import models.report.Decision
 
-class DecisionFormProvider @Inject() extends Mappings {
+import javax.inject.Inject
 
-  def apply(): Form[Decision] =
+class MaybeAdditionalEmailFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
     Form(
-      "value" -> enumerable[Decision]("decision.error.required")
+      "value" -> boolean("maybeAdditionalEmail.error.required")
     )
 }

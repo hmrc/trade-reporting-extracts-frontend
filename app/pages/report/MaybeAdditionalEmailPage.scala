@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package forms.report
+package pages.report
 
-import javax.inject.Inject
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import forms.mappings.Mappings
-import play.api.data.Form
-import models.report.Decision
+case object MaybeAdditionalEmailPage extends QuestionPage[Boolean] {
 
-class DecisionFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  def apply(): Form[Decision] =
-    Form(
-      "value" -> enumerable[Decision]("decision.error.required")
-    )
+  override def toString: String = "maybeAdditionalEmail"
 }

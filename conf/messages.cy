@@ -150,12 +150,13 @@ reportGuidance.subsection.linkText1 = cy: Example of CDS Reports
 reportGuidance.subsection.linkText2 = cy: Guidance on Report Types
 reportGuidance.subsection.linkText3 = cy: More Information
 
-decision.title = cy: Question page template
+decision.title = cy: What type of data do you want to download?
 decision.heading = cy: What type of data do you want to download?
 decision.import = cy: Import
 decision.export = cy: Export
 decision.error.required = cy: Select the type of report you want to download
-decision.change.hidden = cy: Decision
+decision.checkYourAnswersLabel = cy: What type of data do you want to download?
+decision.change.hidden = cy: What type of data do you want to download?
 
 chooseEori.title = cy: Which EORI number do you want to use?
 chooseEori.heading = cy: Which EORI number do you want to use?
@@ -201,3 +202,9 @@ reportTypeImport.checkYourAnswersLabel = cy: Which type of report do you need?
 reportTypeImport.error.required = cy: Select the type of report you want
 reportTypeImport.change.hidden = cy: types of report you want
 reportTypeImport.hint = cy: Select all that apply
+
+maybeAdditionalEmail.title = cy: Do you want to add another email for notifications?
+maybeAdditionalEmail.heading = cy: Do you want to add another email for notifications?
+maybeAdditionalEmail.checkYourAnswersLabel = cy: Do you want to add another email for notifications?
+maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
+maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications

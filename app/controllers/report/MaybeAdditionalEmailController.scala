@@ -16,42 +16,43 @@
 
 package controllers.report
 
-import controllers.BaseController
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import views.html.report.DecisionView
-import play.api.mvc.{Action, AnyContent}
+import controllers.actions.*
+import forms.report.MaybeAdditionalEmailFormProvider
+import models.Mode
+import navigation.Navigator
+import pages.report.MaybeAdditionalEmailPage
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.report.MaybeAdditionalEmailView
 
 import javax.inject.Inject
-import play.api.mvc.MessagesControllerComponents
-import forms.report.DecisionFormProvider
-import models.Mode
-import navigation.ReportNavigator
-import pages.report.DecisionPage
-import play.api.i18n.MessagesApi
-import repositories.SessionRepository
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class DecisionController @Inject() (
-  identify: IdentifierAction,
+class MaybeAdditionalEmailController @Inject() (
+  override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  view: DecisionView,
+  navigator: Navigator,
+  identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: DecisionFormProvider,
-  navigator: ReportNavigator,
-  override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents
+  formProvider: MaybeAdditionalEmailFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: MaybeAdditionalEmailView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends FrontendBaseController
+    with I18nSupport {
 
-  private val form = formProvider()
+  val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(DecisionPage) match {
+
+    val preparedForm = request.userAnswers.get(MaybeAdditionalEmailPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
+
     Ok(view(preparedForm, mode))
   }
 
@@ -63,9 +64,9 @@ class DecisionController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(DecisionPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
         )
   }
 }

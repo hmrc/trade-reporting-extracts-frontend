@@ -18,7 +18,7 @@ package navigation
 
 import models.{NormalMode, UserAnswers}
 import pages.Page
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportDateRangePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -36,6 +36,8 @@ class ReportNavigator @Inject() extends Navigator {
       _ => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
     case ReportDateRangePage  =>
       _ => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
+    case ReportNamePage       =>
+      _ => controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode)
   }
   override val checkRoutes: Page => UserAnswers => Call  = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
