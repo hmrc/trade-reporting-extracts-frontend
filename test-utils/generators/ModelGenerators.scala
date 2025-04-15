@@ -22,6 +22,11 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
+  implicit lazy val arbitraryEmailSelection: Arbitrary[EmailSelection] =
+    Arbitrary {
+      Gen.oneOf(EmailSelection.values)
+    }
+
   implicit lazy val arbitraryReportDateRange: Arbitrary[ReportDateRange] =
     Arbitrary {
       Gen.oneOf(ReportDateRange.values)
