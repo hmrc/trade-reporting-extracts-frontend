@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.report
 
-import models.EmailSelection
+import models.report.EmailSelection
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object EmailSelectionPage extends QuestionPage[Set[EmailSelection]] {

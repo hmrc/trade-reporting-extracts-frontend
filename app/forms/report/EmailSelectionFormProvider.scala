@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package forms
-
-import javax.inject.Inject
+package forms.report
 
 import forms.mappings.Mappings
+import models.report.EmailSelection
 import play.api.data.Form
 import play.api.data.Forms.set
-import models.EmailSelection
+
+import javax.inject.Inject
 
 class EmailSelectionFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Set[EmailSelection]] =
     Form(
-      "value" -> set(enumerable[EmailSelection]("emailSelection.error.required")).verifying(nonEmptySet("emailSelection.error.required"))
+      "value" -> set(enumerable[EmailSelection]("emailSelection.error.required"))
+        .verifying(nonEmptySet("emailSelection.error.required"))
     )
 }

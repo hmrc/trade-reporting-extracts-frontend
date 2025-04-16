@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/notification-email")
 
   val formProvider = new MaybeAdditionalEmailFormProvider()
   val form         = formProvider()

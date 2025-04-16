@@ -14,40 +14,42 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.report
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.EmailSelectionPage
+import pages.report.EmailSelectionPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object EmailSelectionSummary  {
+object EmailSelectionSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EmailSelectionPage).map {
-      answers =>
+    answers.get(EmailSelectionPage).map { answers =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            answers.map {
-              answer => HtmlFormat.escape(messages(s"emailSelection.$answer")).toString
+      val value = ValueViewModel(
+        HtmlContent(
+          answers
+            .map { answer =>
+              HtmlFormat.escape(messages(s"emailSelection.$answer")).toString
             }
             .mkString(",<br>")
-          )
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "emailSelection.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.EmailSelectionController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
+      SummaryListRowViewModel(
+        key = "emailSelection.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
         )
+      )
     }
 }

@@ -21,7 +21,3 @@ GET        /dashboard                                    controllers.DashboardCo
 
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
 
-GET        /emailSelection                        controllers.EmailSelectionController.onPageLoad(mode: Mode = NormalMode)
-POST       /emailSelection                        controllers.EmailSelectionController.onSubmit(mode: Mode = NormalMode)
-GET        /changeEmailSelection                  controllers.EmailSelectionController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeEmailSelection                  controllers.EmailSelectionController.onSubmit(mode: Mode = CheckMode)

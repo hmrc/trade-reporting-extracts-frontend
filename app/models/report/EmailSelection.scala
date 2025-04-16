@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-package models
+package models.report
 
+import models.{Enumerable, WithName}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import viewmodels.govuk.checkbox._
+import viewmodels.govuk.checkbox.*
 
 sealed trait EmailSelection
 
 object EmailSelection extends Enumerable.Implicits {
 
-  case object Email1examplecom extends WithName("email1@example.com") with EmailSelection
-  case object Email2examplecom extends WithName("email2@example.com") with EmailSelection
+  case object Email1 extends WithName("email1") with EmailSelection
+  case object Email2 extends WithName("email2") with EmailSelection
+  case object Email3 extends WithName("email3") with EmailSelection
 
   val values: Seq[EmailSelection] = Seq(
-    Email1examplecom,
-    Email2examplecom
+    Email1,
+    Email2,
+    Email3
   )
 
   def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
-    values.zipWithIndex.map {
-      case (value, index) =>
-        CheckboxItemViewModel(
-          content = Text(messages(s"emailSelection.${value.toString}")),
-          fieldId = "value",
-          index   = index,
-          value   = value.toString
-        )
+    values.zipWithIndex.map { case (value, index) =>
+      CheckboxItemViewModel(
+        content = Text(messages(s"emailSelection.${value.toString}")),
+        fieldId = "value",
+        index = index,
+        value = value.toString
+      )
     }
 
   implicit val enumerable: Enumerable[EmailSelection] =
