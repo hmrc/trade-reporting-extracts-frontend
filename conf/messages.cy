@@ -208,3 +208,13 @@ maybeAdditionalEmail.heading = cy: Do you want to add another email for notifica
 maybeAdditionalEmail.checkYourAnswersLabel = cy: Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
+
+emailSelection.title = cy: Which email address do you want to receive notifications?
+emailSelection.heading = cy: Which email address do you want to receive notifications?
+emailSelection.email1 = cy: email1@example.com
+emailSelection.email2 = cy: email2@example.com
+emailSelection.email3 = cy: Add a new email address
+emailSelection.checkYourAnswersLabel = cy: Which email address do you want to receive notifications?
+emailSelection.error.required = cy: Select at least one email address to receive notifications
+emailSelection.change.hidden = cy: Which email address do you want to receive notifications?
+emailSelection.hint = cy: Select all that apply
