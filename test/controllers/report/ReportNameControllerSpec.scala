@@ -37,7 +37,7 @@ import scala.concurrent.Future
 
 class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/choose-email-address")
 
   val formProvider       = new ReportNameFormProvider()
   val form: Form[String] = formProvider()

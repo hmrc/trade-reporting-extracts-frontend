@@ -17,13 +17,10 @@
 package navigation
 
 import base.SpecBase
-import controllers.routes
 import models.*
 import models.report.{ChooseEori, Decision}
 import pages.*
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportNamePage, ReportTypeImportPage}
-import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, MaybeAdditionalEmailPage, ReportNamePage, ReportTypeImportPage}
 
 class ReportNavigatorSpec extends SpecBase {
 
@@ -100,6 +97,18 @@ class ReportNavigatorSpec extends SpecBase {
 
         checkNavigation(result, "/choose-email-address")
       }
+    }
+
+    "MaybeAdditionalEmailPage must navigate to EmailSelectionPage" in {
+
+      val ua = emptyUserAnswers
+        .set(MaybeAdditionalEmailPage, true)
+        .success
+        .value
+
+      val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
+
+      checkNavigation(result, "/notification-email")
     }
 
     "in Check mode" - {

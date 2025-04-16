@@ -18,65 +18,69 @@ package controllers.report
 
 import base.SpecBase
 import controllers.routes
-import forms.report.MaybeAdditionalEmailFormProvider
+import forms.report.EmailSelectionFormProvider
+import models.report.EmailSelection
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.MaybeAdditionalEmailPage
+import pages.report.EmailSelectionPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.report.MaybeAdditionalEmailView
+import views.html.report.EmailSelectionView
 
 import scala.concurrent.Future
 
-class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
+class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/request-customs-declaration-data/notification-email")
 
-  val formProvider = new MaybeAdditionalEmailFormProvider()
+  lazy val emailSelectionRoute = controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode).url
+
+  val formProvider = new EmailSelectionFormProvider()
   val form         = formProvider()
 
-  lazy val maybeAdditionalEmailRoute =
-    controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode).url
-
-  "MaybeAdditionalEmail Controller" - {
+  "EmailSelection Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+        val request = FakeRequest(GET, emailSelectionRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+        val view = application.injector.instanceOf[EmailSelectionView]
 
         status(result) mustEqual OK
+
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(MaybeAdditionalEmailPage, true).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(EmailSelectionPage, EmailSelection.values.toSet).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+        val request = FakeRequest(GET, emailSelectionRoute)
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+        val view = application.injector.instanceOf[EmailSelectionView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(EmailSelection.values.toSet), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -96,8 +100,8 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+          FakeRequest(POST, emailSelectionRoute)
+            .withFormUrlEncodedBody(("value[0]", EmailSelection.values.head.toString))
 
         val result = route(application, request).value
 
@@ -112,12 +116,12 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", ""))
+          FakeRequest(POST, emailSelectionRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> ""))
+        val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+        val view = application.injector.instanceOf[EmailSelectionView]
 
         val result = route(application, request).value
 
@@ -131,7 +135,7 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+        val request = FakeRequest(GET, emailSelectionRoute)
 
         val result = route(application, request).value
 
@@ -146,8 +150,8 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+          FakeRequest(POST, emailSelectionRoute)
+            .withFormUrlEncodedBody(("value[0]", EmailSelection.values.head.toString))
 
         val result = route(application, request).value
 

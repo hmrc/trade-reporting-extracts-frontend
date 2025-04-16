@@ -16,40 +16,38 @@
 
 package controllers.report
 
+import controllers.BaseController
 import controllers.actions.*
-import forms.report.ReportNameFormProvider
+import forms.report.EmailSelectionFormProvider
 import models.Mode
-import navigation.ReportNavigator
-import pages.report.ReportNamePage
-import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import navigation.Navigator
+import pages.report.EmailSelectionPage
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.report.ReportNameView
+import views.html.report.EmailSelectionView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportNameController @Inject() (
+class EmailSelectionController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: ReportNavigator,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: ReportNameFormProvider,
+  formProvider: EmailSelectionFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: ReportNameView
+  view: EmailSelectionView
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport {
+    extends BaseController {
 
-  val form: Form[String] = formProvider()
+  val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(ReportNamePage) match {
+    val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
@@ -65,9 +63,9 @@ class ReportNameController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportNamePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ReportNamePage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
         )
   }
 }
