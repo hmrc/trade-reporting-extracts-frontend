@@ -17,6 +17,5 @@
 package utils
 
 case object Constants {
-  val maxNameLength: Int = 15
-  val minNameLength: Int = 7
+  val maxNameLength: Int = 100
 }

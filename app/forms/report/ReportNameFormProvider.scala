@@ -17,9 +17,8 @@
 package forms.report
 
 import forms.mappings.Mappings
-import models.StringFieldRegex
 import play.api.data.Form
-import utils.Constants.{maxNameLength, minNameLength}
+import utils.Constants.maxNameLength
 
 import javax.inject.Inject
 
@@ -29,9 +28,5 @@ class ReportNameFormProvider @Inject() extends Mappings {
     Form(
       "value" -> text("reportName.error.required")
         .verifying(maxLength(maxNameLength, "reportName.error.maxLength"))
-        .verifying(minLength(minNameLength, "reportName.error.minLength"))
-        .verifying(
-          regexp(StringFieldRegex.reportNameRegex, "reportName.error.invalidCharacters")
-        )
     )
 }
