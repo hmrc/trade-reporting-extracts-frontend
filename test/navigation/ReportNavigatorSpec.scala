@@ -18,9 +18,10 @@ package navigation
 
 import base.SpecBase
 import models.*
-import models.report.{ChooseEori, Decision, EmailSelection}
+import models.report._
 import pages.*
-import pages.report.{ChooseEoriPage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportNamePage, ReportTypeImportPage}
+import pages.report._
+import java.time.{LocalDate, ZoneOffset}
 
 class ReportNavigatorSpec extends SpecBase {
 
@@ -96,6 +97,77 @@ class ReportNavigatorSpec extends SpecBase {
         val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
 
         checkNavigation(result, "/choose-email-address")
+      }
+
+      "ReportDateRangePage" - {
+        "when custom date range, navigate to CustomRequestStartDatePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/start-date")
+        }
+
+        "when last 31 days, navigate to ReportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.Last31Days)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
+
+        "when last calendar month, navigate to ReportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
+      }
+
+      "customRequestStartDate" - {
+
+        "when submitted must go to customRequestEndDatePage" in {
+
+          val ua = emptyUserAnswers
+            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
+            .success
+            .value
+
+          val result = navigator.nextPage(CustomRequestStartDatePage, NormalMode, ua).url
+
+          checkNavigation(result, "/end-date")
+        }
+      }
+
+      "customRequestEndDate" - {
+
+        "when submitted must go to reportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
+            .success
+            .value
+            .set(CustomRequestEndDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(4))
+            .success
+            .value
+
+          val result = navigator.nextPage(CustomRequestEndDatePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
       }
     }
 

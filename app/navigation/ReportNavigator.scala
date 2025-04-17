@@ -16,6 +16,8 @@
 
 package navigation
 
+import controllers.routes
+import models.report.ReportDateRange
 import models.{NormalMode, UserAnswers}
 import models.report.EmailSelection
 import pages.Page
@@ -32,7 +34,9 @@ class ReportNavigator @Inject() extends Navigator {
     case ChooseEoriPage           => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
     case EoriRolePage             => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
     case ReportTypeImportPage     => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
-    case ReportDateRangePage      => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
+    case ReportDateRangePage      => reportDateRangePageNormalRoutes
+    case CustomRequestStartDatePage => navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
+    case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
     case ReportNamePage           => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
     case MaybeAdditionalEmailPage =>
       conditionalNavigate(
@@ -56,6 +60,18 @@ class ReportNavigator @Inject() extends Navigator {
 
   private def isAddNewEmail(answers: UserAnswers): Boolean =
     answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.Email3))
+
+  override val checkRoutes: Page => UserAnswers => Call = _ =>
+
+  private def reportDateRangePageNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(ReportDateRangePage)
+      .map {
+        case ReportDateRange.CustomDateRange =>
+          controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+        case _                               => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 
   override val checkRoutes: Page => UserAnswers => Call = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
