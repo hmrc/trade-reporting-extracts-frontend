@@ -21,3 +21,5 @@ GET        /dashboard                                    controllers.DashboardCo
 
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
 
+
+GET        /report-request-confirmation                   controllers.RequestConfirmationController.onPageLoad()
