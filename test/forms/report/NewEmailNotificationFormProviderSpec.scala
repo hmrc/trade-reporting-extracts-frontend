@@ -23,9 +23,9 @@ import utils.Constants.maxNameLength
 
 class NewEmailNotificationFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "newEmailNotification.error.required"
-  val lengthKey = "newEmailNotification.error.length"
-  val invalidEmail = "newEmailNotification.error.invalidFormat"
+  val requiredKey    = "newEmailNotification.error.required"
+  val lengthKey      = "newEmailNotification.error.length"
+  val invalidEmail   = "newEmailNotification.error.invalidFormat"
   val maxLength: Int = 100
 
   val form = new NewEmailNotificationFormProvider()()

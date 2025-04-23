@@ -34,7 +34,7 @@ class NewEmailNotificationSummarySpec extends SpecBase {
   "NewEmailNotificationSummary.row" - {
 
     "must return a SummaryListRow when an answer is present" in {
-      val answer  = "test@example.com"
+      val answer      = "test@example.com"
       val userAnswers = UserAnswers("id").set(NewEmailNotificationPage, answer).success.value
 
       val result = NewEmailNotificationSummary.row(userAnswers)

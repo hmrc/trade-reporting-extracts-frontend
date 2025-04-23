@@ -38,9 +38,10 @@ class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/request-customs-declaration-data/request-cds-report")
 
   val formProvider = new NewEmailNotificationFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
-  lazy val newEmailNotificationRoute = controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode).url
+  lazy val newEmailNotificationRoute =
+    controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode).url
 
   "NewEmailNotification Controller" - {
 
