@@ -17,30 +17,46 @@
 package navigation
 
 import models.{NormalMode, UserAnswers}
+import models.report.EmailSelection
 import pages.Page
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, MaybeAdditionalEmailPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import pages.report._
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ReportNavigator @Inject() extends Navigator {
+
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage             =>
-      _ => controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode)
-    case ChooseEoriPage           =>
-      _ => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
-    case EoriRolePage             =>
-      _ => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-    case ReportTypeImportPage     =>
-      _ => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-    case ReportDateRangePage      =>
-      _ => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
-    case ReportNamePage           =>
-      _ => controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode)
+    case DecisionPage             => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
+    case ChooseEoriPage           => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
+    case EoriRolePage             => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
+    case ReportTypeImportPage     => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
+    case ReportDateRangePage      => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
+    case ReportNamePage           => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
     case MaybeAdditionalEmailPage =>
-      _ => controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
+      conditionalNavigate(
+        hasAdditionalEmailRequest,
+        controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
+      )
+    case EmailSelectionPage       =>
+      conditionalNavigate(
+        isAddNewEmail,
+        controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
+      )
   }
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
+
+  private def navigateTo(call: => Call): UserAnswers => Call = _ => call
+
+  private def conditionalNavigate(condition: UserAnswers => Boolean, successCall: => Call): UserAnswers => Call =
+    answers => if (condition(answers)) successCall else controllers.report.routes.ReportGuidanceController.onPageLoad()
+
+  private def hasAdditionalEmailRequest(answers: UserAnswers): Boolean =
+    answers.get(MaybeAdditionalEmailPage).getOrElse(false)
+
+  private def isAddNewEmail(answers: UserAnswers): Boolean =
+    answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.Email3))
+
+  override val checkRoutes: Page => UserAnswers => Call = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
 }

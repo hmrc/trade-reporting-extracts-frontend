@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages.report
 
-object StringFieldRegex {
-  val reportNameRegex = """^[a-zA-Z0-9]*$"""
-  val emailRegex      = """^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"""
+import pages.QuestionPage
+import play.api.libs.json.JsPath
+
+case object NewEmailNotificationPage extends QuestionPage[String] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "newEmailNotification"
 }

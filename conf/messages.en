@@ -218,3 +218,12 @@ maybeAdditionalEmail.heading = Do you want to add another email for notification
 maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
+
+newEmailNotification.title = Enter a new email address to receive notifications
+newEmailNotification.heading = Enter a new email address to receive notifications
+newEmailNotification.checkYourAnswersLabel = Enter a new email address to receive notifications
+newEmailNotification.error.required = Enter a new email address to receive notifications
+newEmailNotification.error.length =  Enter a new email address not greater than 100 characters
+newEmailNotification.error.invalidFormat =  Enter a new email address in the correct format, like name@example.com
+newEmailNotification.change.hidden = NewEmailNotification
+newEmailNotification.hint = This email will only be used for this report request.

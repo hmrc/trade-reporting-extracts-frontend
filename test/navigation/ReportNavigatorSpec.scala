@@ -18,9 +18,9 @@ package navigation
 
 import base.SpecBase
 import models.*
-import models.report.{ChooseEori, Decision}
+import models.report.{ChooseEori, Decision, EmailSelection}
 import pages.*
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, MaybeAdditionalEmailPage, ReportNamePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportNamePage, ReportTypeImportPage}
 
 class ReportNavigatorSpec extends SpecBase {
 
@@ -109,6 +109,43 @@ class ReportNavigatorSpec extends SpecBase {
       val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
 
       checkNavigation(result, "/notification-email")
+    }
+
+//:TODO this navigation need to be changed to the correct page once after implementation of other pages
+    "MaybeAdditionalEmailPage must navigate to ReportGuidanceController" in {
+
+      val ua = emptyUserAnswers
+        .set(MaybeAdditionalEmailPage, false)
+        .success
+        .value
+
+      val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
+
+      checkNavigation(result, "/request-cds-report")
+    }
+
+    "EmailSelectionPage must navigate to NewEmailNotificationPage" in {
+      val addEmailSelected: Set[EmailSelection] = Set(EmailSelection.Email3)
+      val ua                                    = emptyUserAnswers
+        .set(EmailSelectionPage, addEmailSelected)
+        .success
+        .value
+
+      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
+
+      checkNavigation(result, "/new-notification-email")
+    }
+//:TODO this navigation need to be changed to the correct page once after implementation of other pages
+    "EmailSelectionPage must navigate to ReportGuidanceController" in {
+      val emailSelected: Set[EmailSelection] = Set(EmailSelection.Email1)
+      val ua                                 = emptyUserAnswers
+        .set(EmailSelectionPage, emailSelected)
+        .success
+        .value
+
+      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
+
+      checkNavigation(result, "/request-cds-report")
     }
 
     "in Check mode" - {
