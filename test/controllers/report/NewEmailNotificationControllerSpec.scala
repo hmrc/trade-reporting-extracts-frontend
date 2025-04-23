@@ -17,70 +17,64 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
-import forms.report.EmailSelectionFormProvider
-import models.report.EmailSelection
+import forms.report.NewEmailNotificationFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.EmailSelectionPage
+import pages.report.NewEmailNotificationPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.report.EmailSelectionView
+import views.html.report.NewEmailNotificationView
 
 import scala.concurrent.Future
 
-class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
+class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/new-notification-email")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/request-cds-report")
 
-  lazy val emailSelectionRoute = controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode).url
+  val formProvider = new NewEmailNotificationFormProvider()
+  val form = formProvider()
 
-  val formProvider = new EmailSelectionFormProvider()
-  val form         = formProvider()
+  lazy val newEmailNotificationRoute = controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode).url
 
-  "EmailSelection Controller" - {
+  "NewEmailNotification Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailSelectionRoute)
+        val request = FakeRequest(GET, newEmailNotificationRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EmailSelectionView]
+        val view = application.injector.instanceOf[NewEmailNotificationView]
 
         status(result) mustEqual OK
-
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(EmailSelectionPage, EmailSelection.values.toSet).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(NewEmailNotificationPage, "answer").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailSelectionRoute)
+        val request = FakeRequest(GET, newEmailNotificationRoute)
 
-        val view = application.injector.instanceOf[EmailSelectionView]
+        val view = application.injector.instanceOf[NewEmailNotificationView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(EmailSelection.values.toSet), NormalMode)(
-          request,
-          messages(application)
-        ).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -100,8 +94,8 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value[1]", EmailSelection.Email3.toString))
+          FakeRequest(POST, newEmailNotificationRoute)
+            .withFormUrlEncodedBody(("value", "answer@test.com"))
 
         val result = route(application, request).value
 
@@ -116,12 +110,12 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+          FakeRequest(POST, newEmailNotificationRoute)
+            .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[EmailSelectionView]
+        val view = application.injector.instanceOf[NewEmailNotificationView]
 
         val result = route(application, request).value
 
@@ -135,7 +129,7 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailSelectionRoute)
+        val request = FakeRequest(GET, newEmailNotificationRoute)
 
         val result = route(application, request).value
 
@@ -150,8 +144,8 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value[0]", EmailSelection.values.head.toString))
+          FakeRequest(POST, newEmailNotificationRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
 

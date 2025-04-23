@@ -20,7 +20,7 @@ import controllers.BaseController
 import controllers.actions.*
 import forms.report.EmailSelectionFormProvider
 import models.Mode
-import navigation.Navigator
+import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EmailSelectionController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,

@@ -21,24 +21,19 @@ import models.StringFieldRegex
 import play.api.data.FormError
 import utils.Constants.maxNameLength
 
-class ReportNameFormProviderSpec extends StringFieldBehaviours {
+class NewEmailNotificationFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey          = "reportName.error.required"
-  val lengthKey            = "reportName.error.length"
-  val invalidCharactersKey = "reportName.error.invalidCharacters"
-  val maxLength: Int       = maxNameLength
+  val requiredKey = "newEmailNotification.error.required"
+  val lengthKey = "newEmailNotification.error.length"
+  val invalidEmail = "newEmailNotification.error.invalidFormat"
+  val maxLength: Int = 100
 
-  val form = new ReportNameFormProvider()()
+  val form = new NewEmailNotificationFormProvider()()
 
   ".value" - {
 
     val fieldName = "value"
 
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
     behave like fieldWithMaxLength(
       form,
       fieldName,
@@ -46,13 +41,20 @@ class ReportNameFormProviderSpec extends StringFieldBehaviours {
       lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
-    "with invalid characters" - {
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+
+    "with invalid email" - {
       behave like fieldThatErrorsOnInvalidData(
         form,
         fieldName,
         stringsWithMaxLength(maxLength),
-        FormError(fieldName, invalidCharactersKey)
+        FormError(fieldName, invalidEmail)
       )
     }
   }
+
 }

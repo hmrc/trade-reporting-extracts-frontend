@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.report
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.report.NewEmailNotificationPage
 import play.api.i18n.Messages
@@ -25,19 +24,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object NewEmailNotificationSummary  {
+object NewEmailNotificationSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(NewEmailNotificationPage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "newEmailNotification.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("newEmailNotification.change.hidden"))
+    answers.get(NewEmailNotificationPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "newEmailNotification.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("newEmailNotification.change.hidden"))
         )
+      )
     }
 }
