@@ -54,3 +54,8 @@ GET        /end-date                 controllers.report.CustomRequestEndDateCont
 POST       /end-date                  controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = NormalMode)
 GET        /change-end-date                        controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-end-date                         controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /accounts-you-have-authority-over-import                        controllers.report.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode: Mode = NormalMode)
+POST       /accounts-you-have-authority-over-import                        controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = NormalMode)
+GET        /change-accounts-you-have-authority-over-import                  controllers.report.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-accounts-you-have-authority-over-import                  controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = CheckMode)
