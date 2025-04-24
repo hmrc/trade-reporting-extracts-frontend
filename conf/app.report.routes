@@ -44,3 +44,13 @@ GET        /new-notification-email                        controllers.report.New
 POST       /new-notification-email                        controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = NormalMode)
 GET        /change-new-notification-email                  controllers.report.NewEmailNotificationController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-new-notification-email                  controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = CheckMode)
+
+GET        /start-date                 controllers.report.CustomRequestStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /start-date                  controllers.report.CustomRequestStartDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-start-date                        controllers.report.CustomRequestStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-start-date                        controllers.report.CustomRequestStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /end-date                 controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /end-date                  controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-end-date                        controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-end-date                         controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = CheckMode)

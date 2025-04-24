@@ -16,6 +16,8 @@
 
 package navigation
 
+import controllers.routes
+import models.report.ReportDateRange
 import models.{NormalMode, UserAnswers}
 import models.report.EmailSelection
 import pages.Page
@@ -28,18 +30,21 @@ import javax.inject.{Inject, Singleton}
 class ReportNavigator @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage             => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
-    case ChooseEoriPage           => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
-    case EoriRolePage             => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
-    case ReportTypeImportPage     => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
-    case ReportDateRangePage      => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-    case ReportNamePage           => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
-    case MaybeAdditionalEmailPage =>
+    case DecisionPage               => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
+    case ChooseEoriPage             => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
+    case EoriRolePage               => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
+    case ReportTypeImportPage       => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
+    case ReportDateRangePage        => reportDateRangePageNormalRoutes
+    case CustomRequestStartDatePage =>
+      navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
+    case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
+    case ReportNamePage             => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
+    case MaybeAdditionalEmailPage   =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
         controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
       )
-    case EmailSelectionPage       =>
+    case EmailSelectionPage         =>
       conditionalNavigate(
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
@@ -56,6 +61,16 @@ class ReportNavigator @Inject() extends Navigator {
 
   private def isAddNewEmail(answers: UserAnswers): Boolean =
     answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.Email3))
+
+  private def reportDateRangePageNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(ReportDateRangePage)
+      .map {
+        case ReportDateRange.CustomDateRange =>
+          controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+        case _                               => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 
   override val checkRoutes: Page => UserAnswers => Call = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
