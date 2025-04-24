@@ -39,3 +39,8 @@ GET        /notification-email                              controllers.report.E
 POST       /notification-email                              controllers.report.EmailSelectionController.onSubmit(mode: Mode = NormalMode)
 GET        /change-notification-email                       controllers.report.EmailSelectionController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-notification-email                       controllers.report.EmailSelectionController.onSubmit(mode: Mode = CheckMode)
+
+GET        /new-notification-email                        controllers.report.NewEmailNotificationController.onPageLoad(mode: Mode = NormalMode)
+POST       /new-notification-email                        controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = NormalMode)
+GET        /change-new-notification-email                  controllers.report.NewEmailNotificationController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-new-notification-email                  controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = CheckMode)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package forms.report
 
-object StringFieldRegex {
-  val reportNameRegex = """^[a-zA-Z0-9]*$"""
-  val emailRegex      = """^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"""
+import javax.inject.Inject
+import forms.mappings.Mappings
+import models.StringFieldRegex
+import play.api.data.Form
+
+class NewEmailNotificationFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("newEmailNotification.error.required")
+        .verifying(
+          maxLength(100, "newEmailNotification.error.length")
+        )
+        .verifying(
+          regexp(StringFieldRegex.emailRegex, "newEmailNotification.error.invalidFormat")
+        )
+    )
 }

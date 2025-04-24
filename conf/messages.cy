@@ -218,3 +218,12 @@ emailSelection.checkYourAnswersLabel = cy: Which email address do you want to re
 emailSelection.error.required = cy: Select at least one email address to receive notifications
 emailSelection.change.hidden = cy: Which email address do you want to receive notifications?
 emailSelection.hint = cy: Select all that apply
+
+newEmailNotification.title = cy: Enter a new email address to receive notifications
+newEmailNotification.heading = cy: Enter a new email address to receive notifications
+newEmailNotification.checkYourAnswersLabel = cy: Enter a new email address to receive notifications
+newEmailNotification.error.required = cy: Enter a new email address to receive notifications
+newEmailNotification.error.length = cy: Enter a new email address not greater than 100 characters
+newEmailNotification.error.invalidFormat = cy: Enter a new email address in the correct format, like name@example.com
+newEmailNotification.change.hidden = cy: NewEmailNotification
+newEmailNotification.hint = cy: This email will only be used for this report request.

@@ -16,38 +16,39 @@
 
 package controllers.report
 
-import controllers.BaseController
-import controllers.actions.*
-import forms.report.EmailSelectionFormProvider
+import controllers.actions._
+import forms.report.NewEmailNotificationFormProvider
+import javax.inject.Inject
 import models.Mode
-import navigation.ReportNavigator
-import pages.report.EmailSelectionPage
-import play.api.i18n.MessagesApi
+import navigation.Navigator
+import pages.report.NewEmailNotificationPage
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.report.EmailSelectionView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.report.NewEmailNotificationView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailSelectionController @Inject() (
+class NewEmailNotificationController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: ReportNavigator,
+  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: EmailSelectionFormProvider,
+  formProvider: NewEmailNotificationFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: EmailSelectionView
+  view: NewEmailNotificationView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
+    val preparedForm = request.userAnswers.get(NewEmailNotificationPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
@@ -63,9 +64,9 @@ class EmailSelectionController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(NewEmailNotificationPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
+            } yield Redirect(navigator.nextPage(NewEmailNotificationPage, mode, updatedAnswers))
         )
   }
 }
