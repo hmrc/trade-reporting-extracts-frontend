@@ -34,13 +34,12 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
     val mockConnector = mock[TradeReportingExtractsConnector]
-    val mockMessages = mock[Messages]
-    val httpClient = mock[HttpClientV2]
-    val appConfig = mock[FrontendAppConfig]
+    val mockMessages  = mock[Messages]
+    val httpClient    = mock[HttpClientV2]
+    val appConfig     = mock[FrontendAppConfig]
 
     when(mockMessages("accountsYouHaveAuthorityOverImport.defaultValue")).thenReturn("Default EORI")
     val service = new TradeReportingExtractsService(httpClient)(appConfig, ec, mockConnector)
-
 
     "getEoriList" - {
       "should call connector.getEoriList and return the transformed list" in {
