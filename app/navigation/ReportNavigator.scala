@@ -56,7 +56,8 @@ class ReportNavigator @Inject() extends Navigator {
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
 
   private def conditionalNavigate(condition: UserAnswers => Boolean, successCall: => Call): UserAnswers => Call =
-    answers => if (condition(answers)) successCall else controllers.report.routes.CheckYourAnswersController.onPageLoad()
+    answers =>
+      if (condition(answers)) successCall else controllers.report.routes.CheckYourAnswersController.onPageLoad()
 
   private def hasAdditionalEmailRequest(answers: UserAnswers): Boolean =
     answers.get(MaybeAdditionalEmailPage).getOrElse(false)

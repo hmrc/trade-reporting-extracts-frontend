@@ -52,17 +52,16 @@ class CheckYourAnswersController @Inject() (
       ReportNameSummary.row(request.userAnswers),
       MaybeAdditionalEmailSummary.row(request.userAnswers)
     )
-    val list = SummaryListViewModel(
+    val list                              = SummaryListViewModel(
       rows = rows.flatten
     )
-
-
     Ok(view(list))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request => Future.successful {
-      Redirect(navigator.nextPage(CheckYourAnswersPage, mode, userAnswers = request.userAnswers))
-    }
+    implicit request =>
+      Future.successful {
+        Redirect(navigator.nextPage(CheckYourAnswersPage, mode, userAnswers = request.userAnswers))
+      }
   }
 }

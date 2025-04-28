@@ -29,16 +29,17 @@ import viewmodels.implicits.*
 object MaybeAdditionalEmailSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-
     answers.get(MaybeAdditionalEmailPage).getOrElse(false) match {
       case true  =>
         answers.get(EmailSelectionPage).map { answer =>
 
           val value = ValueViewModel(
             HtmlContent(
-              answer.map {
+              answer
+                .map {
                   case EmailSelection.Email3 =>
-                    answers.get(NewEmailNotificationPage)
+                    answers
+                      .get(NewEmailNotificationPage)
                       .map(email => HtmlFormat.escape(email).toString)
                       .getOrElse("")
 

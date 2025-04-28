@@ -37,14 +37,16 @@ object ReportDateRangeSummary {
       val value = ValueViewModel(
         answer match
           case ReportDateRange.CustomDateRange =>
-            val startDate = answers.get(CustomRequestStartDatePage)
+            val startDate = answers
+              .get(CustomRequestStartDatePage)
               .map(_.format(dateTimeFormat()(lang = messages.lang)))
               .getOrElse("")
-            val endDate = answers.get(CustomRequestEndDatePage)
-                .map(_.format(dateTimeFormat()(lang = messages.lang)))
-                .getOrElse("")
+            val endDate   = answers
+              .get(CustomRequestEndDatePage)
+              .map(_.format(dateTimeFormat()(lang = messages.lang)))
+              .getOrElse("")
             HtmlContent(HtmlFormat.escape(startDate + " to " + endDate))
-          case _ =>
+          case _                               =>
             HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer")))
       )
 
