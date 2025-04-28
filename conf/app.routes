@@ -18,6 +18,3 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET        /dashboard                                    controllers.DashboardController.onPageLoad()
 
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
-
-
-GET        /report-request-confirmation                   controllers.RequestConfirmationController.onPageLoad()

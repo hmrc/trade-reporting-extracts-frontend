@@ -20,7 +20,7 @@
         govukPanel: GovukPanel
 )
 
-@(companyInformation: CompanyInformation)(implicit request: Request[_], messages: Messages)
+@(list : Seq[String])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title"))) {
 
@@ -30,6 +30,14 @@
 
 <p class="govuk-body">@messages("requestConfirmation.emailSent", "your.email@address.com")</p>
 
+@if(list.nonEmpty) {
+    <p class="govuk-body">@messages("requestConfirmation.additionalEmail")</p>
+    <ul class="govuk-list">
+        @list.map { item =>
+        <li>@messages(item)</li>
+         }
+    </ul>
+}
 <h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
 
 <p class="govuk-body">@messages("requestConfirmation.processingRequest")</p>

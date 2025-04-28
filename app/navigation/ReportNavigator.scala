@@ -50,7 +50,7 @@ class ReportNavigator @Inject() extends Navigator {
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
     case NewEmailNotificationPage   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case CheckYourAnswersPage       => navigateTo(controllers.report.routes.ReportGuidanceController.onPageLoad())
+    case CheckYourAnswersPage       => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call

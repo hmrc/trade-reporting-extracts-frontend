@@ -56,5 +56,9 @@ GET        /change-end-date                        controllers.report.CustomRequ
 POST       /change-end-date                         controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
-POST       /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+POST       /check-your-answers        controllers.report.CheckYourAnswersController.onSubmit()
+
+
+
+GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
 

@@ -17,23 +17,25 @@
 @this(
     layout: templates.Layout,
     govukButton: GovukButton,
-    govukSummaryList: GovukSummaryList
+    govukSummaryList: GovukSummaryList,
+    formHelper: FormWithCSRF
 )
 
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+    @formHelper(action = controllers.report.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
-    <h3 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h3>
+        <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
+        <h3 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h3>
 
+        @govukSummaryList(list)
 
-    @govukSummaryList(list)
+        <h3 class="govuk-heading-m">@messages("checkYourAnswers.sendRequest")</h3>
+        <p class="govuk-body">@messages("checkYourAnswers.sendRequest.confirmation")</p>
 
-    <h3 class="govuk-heading-m">@messages("checkYourAnswers.sendRequest")</h3>
-    <p class="govuk-body">@messages("checkYourAnswers.sendRequest.confirmation")</p>
-
-    @govukButton(
-      ButtonViewModel(messages("site.submit"))
-    )
+        @govukButton(
+          ButtonViewModel(messages("site.submit"))
+        )
+    }
 }
