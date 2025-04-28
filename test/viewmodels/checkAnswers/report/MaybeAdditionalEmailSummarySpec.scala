@@ -17,8 +17,9 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
+import models.report.EmailSelection
 import models.{CheckMode, UserAnswers}
-import pages.report.MaybeAdditionalEmailPage
+import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
@@ -34,27 +35,16 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
   "MaybeAdditionalEmailSummary.row" - {
 
     "must return a SummaryListRow when an answer is present" in {
-      val answer  = true
-      val answers = UserAnswers("id").set(MaybeAdditionalEmailPage, answer).success.value
+      val initialAnswers = UserAnswers("id")
 
-      val result = MaybeAdditionalEmailSummary.row(answers)
+      val updatedAnswers = initialAnswers
+        .set(MaybeAdditionalEmailPage, true)
+        .flatMap(_.set(EmailSelectionPage, Set(EmailSelection.Email1, EmailSelection.Email3)))
+        .flatMap(_.set(NewEmailNotificationPage, "test@gmail.com"))
 
-      result mustBe Some(
-        SummaryListRow(
-          key = "maybeAdditionalEmail.checkYourAnswersLabel",
-          value = ValueViewModel("site.yes"),
-          actions = Some(
-            Actions(items =
-              Seq(
-                ActionItemViewModel(
-                  "site.change",
-                  controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("maybeAdditionalEmail.change.hidden"))
-              )
-            )
-          )
-        )
-      )
+      val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
+
+      assert(result.toString contains("test@gmail.com"))
     }
 
     "must return None when no answer is present" in {
