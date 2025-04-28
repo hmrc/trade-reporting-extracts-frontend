@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package connectors.TradeReportingExtractsConnector
+package connectors
 
 import play.api.Logging
 import play.api.libs.json.Json
-import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 
 import java.nio.file.{Files, Paths}
 import javax.inject.{Inject, Singleton}
@@ -26,11 +25,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class TradeReportingExtractsConnector @Inject()(implicit ec: ExecutionContext) extends Logging {
+class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext) extends Logging {
 
-  //TODO replace with a get request to the backend upon implementation of EORI list
-  def getEoriList(): Future[Seq[String]] = {
-    val path = Paths.get("conf/resources/eoriList.json")
+  private val defaultPath                                                = "conf/resources/eoriList.json"
+  // TODO replace with a get request to the backend upon implementation of EORI list
+  def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
+    val path = Paths.get(pathString)
 
     Try {
       val jsonString = new String(Files.readAllBytes(path), "UTF-8")

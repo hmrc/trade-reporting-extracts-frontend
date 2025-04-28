@@ -265,6 +265,7 @@ customRequestEndDate.pluralReport.change.hidden = end date reports will cover
 
 accountsYouHaveAuthorityOverImport.title = Which EORI number do you want to use?
 accountsYouHaveAuthorityOverImport.heading = Which EORI number do you want to use?
+accountsYouHaveAuthorityOverImport.defaultValue = Select an EORI
 accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = EORI for request
 accountsYouHaveAuthorityOverImport.error.required = Select an EORI
 accountsYouHaveAuthorityOverImport.change.hidden = the EORI number you want to use

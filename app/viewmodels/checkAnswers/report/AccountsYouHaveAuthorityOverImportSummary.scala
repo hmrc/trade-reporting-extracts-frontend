@@ -26,19 +26,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object AccountsYouHaveAuthorityOverImportSummary  {
+object AccountsYouHaveAuthorityOverImportSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(AccountsYouHaveAuthorityOverImportPage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "accountsYouHaveAuthorityOverImport.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("accountsYouHaveAuthorityOverImport.change.hidden"))
+    answers.get(AccountsYouHaveAuthorityOverImportPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "accountsYouHaveAuthorityOverImport.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("accountsYouHaveAuthorityOverImport.change.hidden"))
         )
+      )
     }
 }

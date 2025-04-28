@@ -17,9 +17,9 @@
 package controllers.report
 
 import controllers.actions.*
-import forms.AccountsYouHaveAuthorityOverImportFormProvider
+import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
 import models.Mode
-import navigation.Navigator
+import navigation.ReportNavigator
 import pages.report.AccountsYouHaveAuthorityOverImportPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,28 +32,29 @@ import views.html.report.AccountsYouHaveAuthorityOverImportView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountsYouHaveAuthorityOverImportController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: AccountsYouHaveAuthorityOverImportFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        govukInput: GovukInput,
-                                        view: AccountsYouHaveAuthorityOverImportView,
-                                        tradeReportingExtractsService: TradeReportingExtractsService,
-
-                                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
-
-  val form = formProvider()
+class AccountsYouHaveAuthorityOverImportController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: ReportNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: AccountsYouHaveAuthorityOverImportFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  govukInput: GovukInput,
+  view: AccountsYouHaveAuthorityOverImportView,
+  tradeReportingExtractsService: TradeReportingExtractsService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
+      val form = formProvider()
+
       val preparedForm = request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage) match {
-        case None => form
+        case None        => form
         case Some(value) => form.fill(value)
       }
 
@@ -62,20 +63,23 @@ class AccountsYouHaveAuthorityOverImportController @Inject()(
       }
   }
 
-def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-  implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
 
-    form.bindFromRequest().fold(
-      formWithErrors => {
-        tradeReportingExtractsService.getEoriList().map { eoriList =>
-          BadRequest(view(formWithErrors, mode, eoriList))
-        }
-      },
-      value =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
-          _              <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers))
-    )
-}
+      val form = formProvider()
+
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            tradeReportingExtractsService.getEoriList().map { eoriList =>
+              BadRequest(view(formWithErrors, mode, eoriList))
+            },
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers))
+        )
+  }
 }

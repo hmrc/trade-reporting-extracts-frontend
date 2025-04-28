@@ -17,9 +17,10 @@
 package services
 
 import config.FrontendAppConfig
-import connectors.TradeReportingExtractsConnector.TradeReportingExtractsConnector
+import connectors.TradeReportingExtractsConnector
 import models.CompanyInformation
 import play.api.Logging
+import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
@@ -41,9 +42,11 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
       .flatMap:
       response => Future.successful(response)
 
-  def getEoriList(): Future[Seq[SelectItem]] =
+  def getEoriList()(implicit messages: Messages): Future[Seq[SelectItem]] =
     connector.getEoriList().map { eoriStrings =>
-      SelectItem(text = "Select an EORI") +: eoriStrings.map(eori => SelectItem(text = eori))
+      SelectItem(text = messages("accountsYouHaveAuthorityOverImport.defaultValue")) +: eoriStrings.map(eori =>
+        SelectItem(text = eori)
+      )
     }
 
 }

@@ -45,18 +45,46 @@ class ReportNavigatorSpec extends SpecBase {
         checkNavigation(result, "/which-eori")
       }
 
-      "ChooseEoriPage must navigate to EoriRole with any answer" in {
+      "ChooseEoriPage must navigate to EoriRole when answered with Myeori" in {
 
         val ua     = emptyUserAnswers
           .set(
             ChooseEoriPage,
-            ChooseEori.values.head
+            ChooseEori.Myeori
           )
           .success
           .value
         val result = navigator.nextPage(ChooseEoriPage, NormalMode, ua).url
 
         checkNavigation(result, "/request-cds-report/eoriRole")
+      }
+
+      "ChooseEoriPage must navigate to AccountsYouHaveAuthorityOverImport when answered with Myauthority" in {
+
+        val ua     = emptyUserAnswers
+          .set(
+            ChooseEoriPage,
+            ChooseEori.Myauthority
+          )
+          .success
+          .value
+        val result = navigator.nextPage(ChooseEoriPage, NormalMode, ua).url
+
+        checkNavigation(result, "/accounts-you-have-authority-over-import")
+      }
+
+      "AccountsYouHaveAuthorityOverImportPage must navigate to ReportTypeImport with any answer" in {
+
+        val ua     = emptyUserAnswers
+          .set(
+            AccountsYouHaveAuthorityOverImportPage,
+            "eoriName"
+          )
+          .success
+          .value
+        val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+
+        checkNavigation(result, "/report-type")
       }
 
       "EoriRolePage must navigate to ReportTypeImport with any answer" in {

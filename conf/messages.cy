@@ -262,3 +262,10 @@ customRequestEndDate.singleReport.checkYourAnswersLabel = cy: End date report wi
 customRequestEndDate.pluralReport.checkYourAnswersLabel = cy: End date reports will cover
 customRequestEndDate.singleReport.change.hidden = cy: end date the report will cover
 customRequestEndDate.pluralReport.change.hidden = cy: end date reports will cover
+
+accountsYouHaveAuthorityOverImport.title = cy: Which EORI number do you want to use?
+accountsYouHaveAuthorityOverImport.heading = cy: Which EORI number do you want to use?
+accountsYouHaveAuthorityOverImport.defaultValue = cy: Select an EORI
+accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = cy: EORI for request
+accountsYouHaveAuthorityOverImport.error.required = cy: Select an EORI
+accountsYouHaveAuthorityOverImport.change.hidden = cy: the EORI number you want to use

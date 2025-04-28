@@ -31,7 +31,9 @@ class ReportNavigator @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
     case DecisionPage               => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
-    case ChooseEoriPage             => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
+    case ChooseEoriPage             => ChooseEoriNormalRoutes
+    case AccountsYouHaveAuthorityOverImportPage =>
+      _ => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
     case EoriRolePage               => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
     case ReportTypeImportPage       => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
     case ReportDateRangePage        => reportDateRangePageNormalRoutes
@@ -68,9 +70,19 @@ class ReportNavigator @Inject() extends Navigator {
       .map {
         case ReportDateRange.CustomDateRange =>
           controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
-        case _                               => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
+        case _ => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
       }
       .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+  private def ChooseEoriNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(ChooseEoriPage)
+      .map {
+        case ChooseEori.Myeori      => controllers.report.routes.EoriRoleController.onPageLoad(mode)
+        case ChooseEori.Myauthority =>
+          controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController
 
   override val checkRoutes: Page => UserAnswers => Call = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()

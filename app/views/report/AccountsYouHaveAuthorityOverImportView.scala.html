@@ -29,7 +29,13 @@
 
 @(form: Form[_], mode: Mode, accounts: Seq[SelectItem])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("accountsYouHaveAuthorityOverImport.title"))) {
+@layout(
+    pageTitle = title(form, messages("accountsYouHaveAuthorityOverImport.title")),
+    breadcrumbContribution = Seq(),
+    showBackLink = true,
+    showSignOut = true,
+    backLinkUrl = controllers.report.routes.ChooseEoriController.onPageLoad(mode).url
+) {
 
     @formHelper(action = controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onSubmit(mode)) {
 

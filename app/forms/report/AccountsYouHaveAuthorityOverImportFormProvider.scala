@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package forms
-
-import javax.inject.Inject
+package forms.report
 
 import forms.mappings.Mappings
 import play.api.data.Form
+import play.api.i18n.Messages
+
+import javax.inject.Inject
+import scala.util.matching.Regex
 
 class AccountsYouHaveAuthorityOverImportFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply()(implicit messages: Messages): Form[String] =
+    val defaultValue = messages("accountsYouHaveAuthorityOverImport.defaultValue")
     Form(
       "value" -> text("accountsYouHaveAuthorityOverImport.error.required")
-        .verifying(regexp("^(?!Select an EORI$).+"
-          , "accountsYouHaveAuthorityOverImport.error.required"))
+        .verifying(
+          regexp(s"^(?!${Regex.quote(defaultValue)}$$).+", "accountsYouHaveAuthorityOverImport.error.required")
+        )
     )
 }
