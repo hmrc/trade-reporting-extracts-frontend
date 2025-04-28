@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import controllers.report
+package utils
+
 import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+import pages.report.ReportTypeImportPage
 
-import javax.inject.{Inject, Singleton}
+class ReportHelpers {
 
-@Singleton
-class Navigation @Inject() extends Navigator {
+  def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(ReportTypeImportPage).exists(_.size > 1)
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
-    _ => report.routes.CheckYourAnswersController.onPageLoad()
 }

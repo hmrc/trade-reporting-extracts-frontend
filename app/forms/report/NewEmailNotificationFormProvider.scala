@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import controllers.report
-import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+package forms.report
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
+import forms.mappings.Mappings
+import models.StringFieldRegex
+import play.api.data.Form
 
-@Singleton
-class Navigation @Inject() extends Navigator {
+class NewEmailNotificationFormProvider @Inject() extends Mappings {
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
-    _ => report.routes.CheckYourAnswersController.onPageLoad()
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("newEmailNotification.error.required")
+        .verifying(
+          maxLength(100, "newEmailNotification.error.length")
+        )
+        .verifying(
+          regexp(StringFieldRegex.emailRegex, "newEmailNotification.error.invalidFormat")
+        )
+    )
 }

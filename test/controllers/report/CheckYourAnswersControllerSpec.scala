@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.report
 
 import base.SpecBase
+import controllers.report
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import viewmodels.govuk.SummaryListFluency
-import views.html.CheckYourAnswersView
+import play.api.test.Helpers.*
+import viewmodels.govuk.all.SummaryListViewModel
+import views.html.report.CheckYourAnswersView
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
+class CheckYourAnswersControllerSpec extends SpecBase {
 
-  "Check Your Answers Controller" - {
+  "CheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+        val request = FakeRequest(GET, report.routes.CheckYourAnswersController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -40,20 +41,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(list)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

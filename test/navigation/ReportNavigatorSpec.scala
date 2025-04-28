@@ -18,9 +18,10 @@ package navigation
 
 import base.SpecBase
 import models.*
-import models.report.{ChooseEori, Decision}
+import models.report._
 import pages.*
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, MaybeAdditionalEmailPage, ReportNamePage, ReportTypeImportPage}
+import pages.report._
+import java.time.{LocalDate, ZoneOffset}
 
 class ReportNavigatorSpec extends SpecBase {
 
@@ -97,6 +98,77 @@ class ReportNavigatorSpec extends SpecBase {
 
         checkNavigation(result, "/choose-email-address")
       }
+
+      "ReportDateRangePage" - {
+        "when custom date range, navigate to CustomRequestStartDatePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/start-date")
+        }
+
+        "when last 31 days, navigate to ReportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.Last31Days)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
+
+        "when last calendar month, navigate to ReportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
+      }
+
+      "customRequestStartDate" - {
+
+        "when submitted must go to customRequestEndDatePage" in {
+
+          val ua = emptyUserAnswers
+            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
+            .success
+            .value
+
+          val result = navigator.nextPage(CustomRequestStartDatePage, NormalMode, ua).url
+
+          checkNavigation(result, "/end-date")
+        }
+      }
+
+      "customRequestEndDate" - {
+
+        "when submitted must go to reportNamePage" in {
+
+          val ua = emptyUserAnswers
+            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
+            .success
+            .value
+            .set(CustomRequestEndDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(4))
+            .success
+            .value
+
+          val result = navigator.nextPage(CustomRequestEndDatePage, NormalMode, ua).url
+
+          checkNavigation(result, "/report-name")
+        }
+      }
     }
 
     "MaybeAdditionalEmailPage must navigate to EmailSelectionPage" in {
@@ -109,6 +181,43 @@ class ReportNavigatorSpec extends SpecBase {
       val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
 
       checkNavigation(result, "/notification-email")
+    }
+
+//:TODO this navigation need to be changed to the correct page once after implementation of other pages
+    "MaybeAdditionalEmailPage must navigate to CheckYourAnswersController" in {
+
+      val ua = emptyUserAnswers
+        .set(MaybeAdditionalEmailPage, false)
+        .success
+        .value
+
+      val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
+
+      checkNavigation(result, "/check-your-answers")
+    }
+
+    "EmailSelectionPage must navigate to NewEmailNotificationPage" in {
+      val addEmailSelected: Set[EmailSelection] = Set(EmailSelection.Email3)
+      val ua                                    = emptyUserAnswers
+        .set(EmailSelectionPage, addEmailSelected)
+        .success
+        .value
+
+      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
+
+      checkNavigation(result, "/new-notification-email")
+    }
+//:TODO this navigation need to be changed to the correct page once after implementation of other pages
+    "EmailSelectionPage must navigate to CheckYourAnswersController" in {
+      val emailSelected: Set[EmailSelection] = Set(EmailSelection.Email1)
+      val ua                                 = emptyUserAnswers
+        .set(EmailSelectionPage, emailSelected)
+        .success
+        .value
+
+      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
+
+      checkNavigation(result, "/check-your-answers")
     }
 
     "in Check mode" - {

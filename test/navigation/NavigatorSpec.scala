@@ -18,6 +18,7 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
+import controllers.report
 import models.*
 import pages.*
 import play.api.mvc.Results.Redirect
@@ -43,7 +44,7 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController
+        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe report.routes.CheckYourAnswersController
           .onPageLoad()
       }
     }

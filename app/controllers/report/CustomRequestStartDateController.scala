@@ -16,56 +16,65 @@
 
 package controllers.report
 
-import controllers.BaseController
 import controllers.actions.*
-import forms.report.EmailSelectionFormProvider
+import forms.report.CustomRequestStartDateFormProvider
 import models.Mode
-import navigation.ReportNavigator
-import pages.report.EmailSelectionPage
-import play.api.i18n.MessagesApi
+import navigation.{Navigator, ReportNavigator}
+import pages.report.CustomRequestStartDatePage
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.report.EmailSelectionView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReportHelpers
+import views.html.report.CustomRequestStartDateView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailSelectionController @Inject() (
+class CustomRequestStartDateController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: ReportNavigator,
+  reportNavigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: EmailSelectionFormProvider,
+  formProvider: CustomRequestStartDateFormProvider,
+  reportHelpers: ReportHelpers,
   val controllerComponents: MessagesControllerComponents,
-  view: EmailSelectionView
+  view: CustomRequestStartDateView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
-
-  val form = formProvider()
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
+    val form = formProvider()
+
+    val preparedForm = request.userAnswers.get(CustomRequestStartDatePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, reportHelpers.isMoreThanOneReport(request.userAnswers)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+
+      val form = formProvider()
+
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, mode, reportHelpers.isMoreThanOneReport(request.userAnswers)))
+            ),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
+            } yield Redirect(reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers))
         )
   }
 }

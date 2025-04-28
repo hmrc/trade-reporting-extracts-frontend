@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import controllers.report
-import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+package pages.report
 
-import javax.inject.{Inject, Singleton}
+import base.SpecBase
 
-@Singleton
-class Navigation @Inject() extends Navigator {
+import java.time.{LocalDate, ZoneOffset}
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
-    _ => report.routes.CheckYourAnswersController.onPageLoad()
+class CustomRequestStartDatePageSpec extends SpecBase {
+
+  "cleanup" - {
+    "must cleanup correctly" in {
+
+      val cleanedUserAnswers = emptyUserAnswers
+        .set(
+          CustomRequestEndDatePage,
+          LocalDate.now(ZoneOffset.UTC)
+        )
+        .success
+        .value
+        .set(
+          CustomRequestStartDatePage,
+          LocalDate.now(ZoneOffset.UTC)
+        )
+        .success
+        .value
+
+      cleanedUserAnswers.get(CustomRequestEndDatePage) mustBe None
+    }
+  }
+
 }

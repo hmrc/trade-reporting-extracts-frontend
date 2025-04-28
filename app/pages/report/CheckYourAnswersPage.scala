@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import controllers.report
-import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+package pages.report
 
-import javax.inject.{Inject, Singleton}
+import models.report.Decision
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-@Singleton
-class Navigation @Inject() extends Navigator {
+case object CheckYourAnswersPage extends QuestionPage[Decision] {
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
-    _ => report.routes.CheckYourAnswersController.onPageLoad()
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "checkYourAnswers"
 }

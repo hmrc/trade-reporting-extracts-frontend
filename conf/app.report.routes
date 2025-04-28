@@ -39,3 +39,22 @@ GET        /notification-email                              controllers.report.E
 POST       /notification-email                              controllers.report.EmailSelectionController.onSubmit(mode: Mode = NormalMode)
 GET        /change-notification-email                       controllers.report.EmailSelectionController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-notification-email                       controllers.report.EmailSelectionController.onSubmit(mode: Mode = CheckMode)
+
+GET        /new-notification-email                        controllers.report.NewEmailNotificationController.onPageLoad(mode: Mode = NormalMode)
+POST       /new-notification-email                        controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = NormalMode)
+GET        /change-new-notification-email                  controllers.report.NewEmailNotificationController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-new-notification-email                  controllers.report.NewEmailNotificationController.onSubmit(mode: Mode = CheckMode)
+
+GET        /start-date                 controllers.report.CustomRequestStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /start-date                  controllers.report.CustomRequestStartDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-start-date                        controllers.report.CustomRequestStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-start-date                        controllers.report.CustomRequestStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /end-date                 controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /end-date                  controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-end-date                        controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-end-date                         controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+POST       /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+

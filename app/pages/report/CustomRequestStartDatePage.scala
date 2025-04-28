@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package navigation
-import controllers.routes
-import controllers.report
+package pages.report
+
 import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import javax.inject.{Inject, Singleton}
+import java.time.LocalDate
+import scala.util.Try
 
-@Singleton
-class Navigation @Inject() extends Navigator {
+case object CustomRequestStartDatePage extends QuestionPage[LocalDate] {
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => routes.IndexController.onPageLoad()
-  override val checkRoutes: Page => UserAnswers => Call  = _ =>
-    _ => report.routes.CheckYourAnswersController.onPageLoad()
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "customRequestStartDate"
+
+  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
+    value
+      .map { _ =>
+        userAnswers
+          .remove(CustomRequestEndDatePage)
+      }
+      .getOrElse(super.cleanup(value, userAnswers))
+
 }
