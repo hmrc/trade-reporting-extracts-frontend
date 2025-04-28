@@ -44,7 +44,7 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
       val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
 
-      assert(result.toString contains("test@gmail.com"))
+      assert(result.toString contains "test@gmail.com")
     }
 
     "must return None when no answer is present" in {
