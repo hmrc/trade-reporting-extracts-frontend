@@ -22,7 +22,9 @@
 
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")),
+    showBackLink = true,
+    breadcrumbContribution = Seq()) {
 
     <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
     <h2 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h2>
