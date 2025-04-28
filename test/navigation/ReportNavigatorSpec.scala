@@ -184,7 +184,7 @@ class ReportNavigatorSpec extends SpecBase {
     }
 
 //:TODO this navigation need to be changed to the correct page once after implementation of other pages
-    "MaybeAdditionalEmailPage must navigate to ReportGuidanceController" in {
+    "MaybeAdditionalEmailPage must navigate to CheckYourAnswersController" in {
 
       val ua = emptyUserAnswers
         .set(MaybeAdditionalEmailPage, false)
@@ -193,7 +193,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
 
-      checkNavigation(result, "/request-cds-report")
+      checkNavigation(result, "/check-your-answers")
     }
 
     "EmailSelectionPage must navigate to NewEmailNotificationPage" in {
@@ -208,7 +208,7 @@ class ReportNavigatorSpec extends SpecBase {
       checkNavigation(result, "/new-notification-email")
     }
 //:TODO this navigation need to be changed to the correct page once after implementation of other pages
-    "EmailSelectionPage must navigate to ReportGuidanceController" in {
+    "EmailSelectionPage must navigate to CheckYourAnswersController" in {
       val emailSelected: Set[EmailSelection] = Set(EmailSelection.Email1)
       val ua                                 = emptyUserAnswers
         .set(EmailSelectionPage, emailSelected)
@@ -217,7 +217,7 @@ class ReportNavigatorSpec extends SpecBase {
 
       val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
 
-      checkNavigation(result, "/request-cds-report")
+      checkNavigation(result, "/check-your-answers")
     }
 
     "in Check mode" - {
