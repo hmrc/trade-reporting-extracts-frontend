@@ -14,29 +14,55 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.report
 
 import com.google.inject.Inject
+import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.Mode
+import navigation.ReportNavigator
+import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import viewmodels.govuk.summarylist._
-import views.html.CheckYourAnswersView
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import viewmodels.checkAnswers.report.*
+import viewmodels.govuk.summarylist.*
+import views.html.report.CheckYourAnswersView
+
+import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  navigator: ReportNavigator,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourAnswersView
 ) extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+
+    val rows: Seq[Option[SummaryListRow]] = Seq(
+      DecisionSummary.row(request.userAnswers),
+      ChooseEoriSummary.row(request.userAnswers),
+      EoriRoleSummary.row(request.userAnswers),
+      ReportTypeImportSummary.row(request.userAnswers),
+      ReportDateRangeSummary.row(request.userAnswers),
+      ReportNameSummary.row(request.userAnswers),
+      MaybeAdditionalEmailSummary.row(request.userAnswers)
+    )
     val list = SummaryListViewModel(
-      rows = Seq.empty
+      rows = rows.flatten
     )
 
+
     Ok(view(list))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request => Future.successful {
+      Redirect(navigator.nextPage(CheckYourAnswersPage, mode, userAnswers = request.userAnswers))
+    }
   }
 }

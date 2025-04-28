@@ -16,11 +16,12 @@
 
 package controllers.report
 
-import controllers.actions._
+import controllers.actions.*
 import forms.report.NewEmailNotificationFormProvider
+
 import javax.inject.Inject
 import models.Mode
-import navigation.Navigator
+import navigation.{Navigator, ReportNavigator}
 import pages.report.NewEmailNotificationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -33,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NewEmailNotificationController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
