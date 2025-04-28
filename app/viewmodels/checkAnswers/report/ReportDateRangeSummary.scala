@@ -17,12 +17,15 @@
 package viewmodels.checkAnswers.report
 
 import controllers.report.routes
+import models.report.ReportDateRange
 import models.{CheckMode, UserAnswers}
-import pages.report.ReportDateRangePage
-import play.api.i18n.Messages
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
+import play.api.i18n.{Lang, Messages}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.DateTimeFormats.dateTimeFormat
+import jakarta.inject.Inject
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -32,9 +35,19 @@ object ReportDateRangeSummary {
     answers.get(ReportDateRangePage).map { answer =>
 
       val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"reportDateRange.$answer"))
-        )
+        answer match
+          case ReportDateRange.CustomDateRange =>
+            val startDate = answers
+              .get(CustomRequestStartDatePage)
+              .map(_.format(dateTimeFormat()(lang = messages.lang)))
+              .getOrElse("")
+            val endDate   = answers
+              .get(CustomRequestEndDatePage)
+              .map(_.format(dateTimeFormat()(lang = messages.lang)))
+              .getOrElse("")
+            HtmlContent(HtmlFormat.escape(startDate + " to " + endDate))
+          case _                               =>
+            HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer")))
       )
 
       SummaryListRowViewModel(

@@ -59,3 +59,7 @@ GET        /accounts-you-have-authority-over-import                        contr
 POST       /accounts-you-have-authority-over-import                        controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = NormalMode)
 GET        /change-accounts-you-have-authority-over-import                  controllers.report.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-accounts-you-have-authority-over-import                  controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = CheckMode)
+
+GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+POST       /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+
