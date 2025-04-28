@@ -52,9 +52,7 @@ class CheckYourAnswersController @Inject() (
       ReportNameSummary.row(request.userAnswers),
       MaybeAdditionalEmailSummary.row(request.userAnswers)
     )
-    val list                              = SummaryListViewModel(
-      rows = rows.flatten
-    )
+    val list                              = SummaryListViewModel(rows = rows.flatten)
     Ok(view(list))
   }
 

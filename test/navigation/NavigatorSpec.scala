@@ -16,10 +16,9 @@
 
 package navigation
 
-import app.report
-import app.report.routes
 import base.SpecBase
 import controllers.routes
+import controllers.report
 import models.*
 import pages.*
 import play.api.mvc.Results.Redirect

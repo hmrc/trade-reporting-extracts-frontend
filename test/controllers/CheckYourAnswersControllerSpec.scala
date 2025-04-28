@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import viewmodels.govuk.all.SummaryListViewModel
 import views.html.report.CheckYourAnswersView
 
 class CheckYourAnswersControllerSpec extends SpecBase {
@@ -35,9 +36,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
+        val list = SummaryListViewModel(Seq.empty)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
       }
     }
   }
