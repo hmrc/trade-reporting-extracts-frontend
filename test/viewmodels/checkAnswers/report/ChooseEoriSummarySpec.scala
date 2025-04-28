@@ -39,7 +39,7 @@ class ChooseEoriSummarySpec extends SpecBase {
       val answer  = ChooseEori.Myeori
       val answers = UserAnswers("id").set(ChooseEoriPage, answer).get
 
-      val result = ChooseEoriSummary.row(answers)
+      val result = ChooseEoriSummary.row(answers, "GB1234567890")
 
       result mustBe Some(
         SummaryListRow(
@@ -62,7 +62,7 @@ class ChooseEoriSummarySpec extends SpecBase {
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
 
-      val result = ChooseEoriSummary.row(answers)
+      val result = ChooseEoriSummary.row(answers, "GB1234567890")
 
       result mustBe None
     }

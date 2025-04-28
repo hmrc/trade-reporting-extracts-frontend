@@ -17,8 +17,9 @@
 package viewmodels.checkAnswers.report
 
 import controllers.report.routes
+import models.report.ChooseEori
 import models.{CheckMode, UserAnswers}
-import pages.report.ChooseEoriPage
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -28,13 +29,22 @@ import viewmodels.implicits.*
 
 object ChooseEoriSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(answers: UserAnswers, eori: String)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ChooseEoriPage).map { answer =>
 
       val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"chooseEori.$answer"))
-        )
+        answer match
+          case ChooseEori.Myeori      =>
+            HtmlContent(HtmlFormat.escape(messages(s"chooseEori.$answer", eori)))
+          case ChooseEori.Myauthority =>
+            answers
+              .get(AccountsYouHaveAuthorityOverImportPage)
+              .map { accounts =>
+                HtmlContent(
+                  HtmlFormat.escape(accounts)
+                )
+              }
+              .getOrElse("")
       )
 
       SummaryListRowViewModel(

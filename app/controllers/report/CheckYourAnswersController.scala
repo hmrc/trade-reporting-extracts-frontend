@@ -45,7 +45,7 @@ class CheckYourAnswersController @Inject() (
 
     val rows: Seq[Option[SummaryListRow]] = Seq(
       DecisionSummary.row(request.userAnswers),
-      ChooseEoriSummary.row(request.userAnswers),
+      ChooseEoriSummary.row(request.userAnswers, request.eori),
       EoriRoleSummary.row(request.userAnswers),
       ReportTypeImportSummary.row(request.userAnswers),
       ReportDateRangeSummary.row(request.userAnswers),
