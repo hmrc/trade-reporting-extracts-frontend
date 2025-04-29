@@ -56,10 +56,9 @@ class CheckYourAnswersController @Inject() (
     Ok(view(list))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-      Future.successful {
-        Redirect(navigator.nextPage(CheckYourAnswersPage, mode, userAnswers = request.userAnswers))
-      }
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    Future.successful {
+      Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers))
+    }
   }
 }

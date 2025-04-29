@@ -61,5 +61,9 @@ GET        /change-accounts-you-have-authority-over-import                  cont
 POST       /change-accounts-you-have-authority-over-import                  controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = CheckMode)
 
 GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
-POST       /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
+POST       /check-your-answers        controllers.report.CheckYourAnswersController.onSubmit()
+
+
+
+GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
 
