@@ -24,6 +24,7 @@ import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
+import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
 import javax.inject.Inject
@@ -34,6 +35,7 @@ class RequestConfirmationController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  reportHelpers: ReportHelpers,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView
 )(implicit ec: ExecutionContext)
@@ -42,7 +44,8 @@ class RequestConfirmationController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val updatedList: Seq[String] = fetchUpdatedData(request)
-    Future.successful(Ok(view(updatedList)))
+
+    Future.successful(Ok(view(updatedList, reportHelpers.isMoreThanOneReport(request.userAnswers))))
   }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =

@@ -20,12 +20,13 @@
         govukPanel: GovukPanel
 )
 
-@(list : Seq[String])(implicit request: Request[_], messages: Messages)
+@(list : Seq[String], isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title"))) {
 
     @govukPanel(Panel(
-       title = messages("requestConfirmation.title"),
+       title = messages("requestConfirmation.heading"),
+       content = HtmlContent(messages("requestConfirmation.referenceNumber", "XXXX")),
     ))
 
 <p class="govuk-body">@messages("requestConfirmation.emailSent", "your.email@address.com")</p>
@@ -40,9 +41,13 @@
 }
 <h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
 
-<p class="govuk-body">@messages("requestConfirmation.processingRequest")</p>
-
-<p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.monitorStatusLink")</a></p>
+@if(isMoreThanOneReport) {
+    <p class="govuk-body">@messages("requestConfirmation.pluralReport.processingRequest")</p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a></p>
+} else {
+    <p class="govuk-body">@messages("requestConfirmation.singleReport.processingRequest")</p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a></p>
+}
 
 <p class="govuk-body"><a href="dashboard" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.goToHomepage")</a></p>
 

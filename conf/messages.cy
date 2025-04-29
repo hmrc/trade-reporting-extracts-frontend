@@ -220,6 +220,7 @@ emailSelection.hint = cy: Select all that apply
 requestConfirmation.title = cy: Report request submitted
 requestConfirmation.heading = cy: Report request submitted
 requestConfirmation.emailSent = cy: We have sent an email to your registered email {0}.
+requestConfirmation.referenceNumber = cy: Reference number: {0}
 requestConfirmation.additionalEmail = cy: An email will also be sent to:
 requestConfirmation.whatHappensNext = cy: What happens next
 requestConfirmation.processingRequest = cy: We are processing your request and any reports should be ready within 72 hours. You will receive an email when your reports are ready to download.

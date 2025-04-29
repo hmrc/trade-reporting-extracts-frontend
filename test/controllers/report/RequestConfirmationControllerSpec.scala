@@ -49,7 +49,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq("email1@example.com", "email2@example.com", newEmail))(
+        contentAsString(result) mustEqual view(Seq("email1@example.com", "email2@example.com", newEmail), false)(
           request,
           messages(application)
         ).toString
@@ -68,7 +68,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(Seq.empty, false)(request, messages(application)).toString
       }
     }
   }
