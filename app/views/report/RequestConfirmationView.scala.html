@@ -43,10 +43,10 @@
 
 @if(isMoreThanOneReport) {
     <p class="govuk-body">@messages("requestConfirmation.pluralReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a></p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a>.</p>
 } else {
     <p class="govuk-body">@messages("requestConfirmation.singleReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a></p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a>.</p>
 }
 
 <p class="govuk-body"><a href="dashboard" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.goToHomepage")</a></p>
