@@ -217,8 +217,8 @@ emailSelection.error.required = cy: Select at least one email address to receive
 emailSelection.change.hidden = cy: Which email address do you want to receive notifications?
 emailSelection.hint = cy: Select all that apply
 
-requestConfirmation.title = cy: Request submitted
-requestConfirmation.heading = cy: Request submitted
+requestConfirmation.title = cy: Report request submitted
+requestConfirmation.heading = cy: Report request submitted
 requestConfirmation.emailSent = cy: We have sent an email to your registered email {0}.
 requestConfirmation.additionalEmail = cy: An email will also be sent to:
 requestConfirmation.whatHappensNext = cy: What happens next
