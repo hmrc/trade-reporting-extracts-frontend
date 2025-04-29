@@ -17,41 +17,37 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
-import models.report.ChooseEori
 import models.{CheckMode, UserAnswers}
-import pages.report.ChooseEoriPage
+import pages.report.AccountsYouHaveAuthorityOverImportPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-class ChooseEoriSummarySpec extends SpecBase {
+class AccountsYouHaveAuthorityOverImportSummarySpec extends SpecBase {
 
   implicit private val messages: Messages = stubMessages()
 
-  "ChooseEoriSummary.row" - {
+  "AccountsYouHaveAuthorityOverImportSummary.row" - {
 
     "must return a SummaryListRow when an answer is present" in {
-      val answer  = ChooseEori.Myeori
-      val answers = UserAnswers("id").set(ChooseEoriPage, answer).get
+      val answer  = "EoriName"
+      val answers = UserAnswers("id").set(AccountsYouHaveAuthorityOverImportPage, answer).success.value
 
-      val result = ChooseEoriSummary.row(answers, "GB1234567890")
+      val result = AccountsYouHaveAuthorityOverImportSummary.row(answers)
 
       result mustBe Some(
         SummaryListRow(
-          key = "chooseEori.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(HtmlFormat.escape(messages(s"chooseEori.$answer")))),
+          key = "accountsYouHaveAuthorityOverImport.checkYourAnswersLabel",
+          value = ValueViewModel(answer),
           actions = Some(
             Actions(items =
               Seq(
                 ActionItemViewModel(
                   "site.change",
-                  controllers.report.routes.ChooseEoriController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("chooseEori.change.hidden"))
+                  controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(CheckMode).url
+                ).withVisuallyHiddenText(messages("accountsYouHaveAuthorityOverImport.change.hidden"))
               )
             )
           )
@@ -62,7 +58,7 @@ class ChooseEoriSummarySpec extends SpecBase {
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
 
-      val result = ChooseEoriSummary.row(answers, "GB1234567890")
+      val result = ReportNameSummary.row(answers)
 
       result mustBe None
     }

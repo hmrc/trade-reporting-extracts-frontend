@@ -6,7 +6,7 @@ site.change = cy: Change
 site.no = cy: No
 site.yes = cy: Yes
 site.continue = cy: Continue
-site.submit = cy: Submit
+site.submit = cy: Submit request
 site.start = cy: Start now
 site.startAgain = cy: Start again
 site.signIn = cy: Sign in
@@ -260,6 +260,14 @@ customRequestEndDate.singleReport.checkYourAnswersLabel = cy: End date
 customRequestEndDate.pluralReport.checkYourAnswersLabel = cy: End date
 customRequestEndDate.singleReport.change.hidden = cy: end date the report will cover
 customRequestEndDate.pluralReport.change.hidden = cy: end date reports will cover
+
+accountsYouHaveAuthorityOverImport.title = cy: Which EORI number do you want to use?
+accountsYouHaveAuthorityOverImport.heading = cy: Which EORI number do you want to use?
+accountsYouHaveAuthorityOverImport.defaultValue = cy: Select an EORI
+accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = cy: EORI for request
+accountsYouHaveAuthorityOverImport.error.required = cy: Select an EORI
+accountsYouHaveAuthorityOverImport.change.hidden = cy: the EORI number you want to use
+
 
 checkYourAnswers.title = cy: Check your answers before submitting your request
 checkYourAnswers.heading = cy: Check your answers before submitting your request

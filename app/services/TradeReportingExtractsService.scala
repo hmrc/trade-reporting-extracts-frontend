@@ -17,9 +17,13 @@
 package services
 
 import config.FrontendAppConfig
+import connectors.TradeReportingExtractsConnector
 import models.CompanyInformation
-import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import play.api.Logging
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,8 +31,9 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implicit
   appConfig: FrontendAppConfig,
-  ec: ExecutionContext
-) {
+  ec: ExecutionContext,
+  connector: TradeReportingExtractsConnector
+) extends Logging {
 
   def getCompanyInformation()(implicit hc: HeaderCarrier): Future[CompanyInformation] =
     httpClient
@@ -36,4 +41,12 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
       .execute[CompanyInformation]
       .flatMap:
       response => Future.successful(response)
+
+  def getEoriList()(implicit messages: Messages): Future[Seq[SelectItem]] =
+    connector.getEoriList().map { eoriStrings =>
+      SelectItem(text = messages("accountsYouHaveAuthorityOverImport.defaultValue")) +: eoriStrings.map(eori =>
+        SelectItem(text = eori)
+      )
+    }
+
 }
