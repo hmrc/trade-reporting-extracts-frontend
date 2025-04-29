@@ -17,7 +17,8 @@
 @this(
     layout: templates.Layout,
     govukButton: GovukButton,
-    govukSummaryList: GovukSummaryList
+    govukSummaryList: GovukSummaryList,
+    formHelper: FormWithCSRF
 )
 
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
@@ -25,15 +26,15 @@
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")),
     showBackLink = true,
     breadcrumbContribution = Seq()) {
+    @formHelper(action = controllers.report.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
+        <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h2>
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
-    <h2 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h2>
+        @govukSummaryList(list)
 
-
-    @govukSummaryList(list)
-
-    @govukButton(
-      ButtonViewModel(messages("site.submit"))
-    )
+        @govukButton(
+          ButtonViewModel(messages("site.submit"))
+        )
     <br/>
+    }
 }
