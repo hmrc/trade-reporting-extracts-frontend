@@ -23,28 +23,30 @@ import models.report.EmailSelection
 import pages.Page
 import pages.report._
 import play.api.mvc.Call
-
+import models.report.ChooseEori
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class ReportNavigator @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage               => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
-    case ChooseEoriPage             => navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))
-    case EoriRolePage               => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
-    case ReportTypeImportPage       => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
-    case ReportDateRangePage        => reportDateRangePageNormalRoutes
-    case CustomRequestStartDatePage =>
+    case DecisionPage                           => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
+    case ChooseEoriPage                         => ChooseEoriNormalRoutes
+    case AccountsYouHaveAuthorityOverImportPage =>
+      _ => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
+    case EoriRolePage                           => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
+    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
+    case ReportDateRangePage                    => reportDateRangePageNormalRoutes
+    case CustomRequestStartDatePage             =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
-    case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-    case ReportNamePage             => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
-    case MaybeAdditionalEmailPage   =>
+    case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
+    case ReportNamePage                         => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
+    case MaybeAdditionalEmailPage               =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
         controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
       )
-    case EmailSelectionPage         =>
+    case EmailSelectionPage                     =>
       conditionalNavigate(
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
@@ -72,6 +74,16 @@ class ReportNavigator @Inject() extends Navigator {
         case ReportDateRange.CustomDateRange =>
           controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
         case _                               => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+  private def ChooseEoriNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(ChooseEoriPage)
+      .map {
+        case ChooseEori.Myeori      => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
+        case ChooseEori.Myauthority =>
+          controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(NormalMode)
       }
       .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 

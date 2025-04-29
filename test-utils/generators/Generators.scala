@@ -95,6 +95,9 @@ trait Generators extends ModelGenerators {
     } yield chars.mkString
   }
 
+  def nonDefaultStrings(default: String): Gen[String] =
+    Gen.alphaStr.suchThat(s => s.nonEmpty && s != default)
+
   def stringsLongerThan(minLength: Int): Gen[String] = for {
     maxLength <- (minLength * 2).max(100)
     length    <- Gen.chooseNum(minLength + 1, maxLength)
