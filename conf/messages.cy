@@ -217,6 +217,18 @@ emailSelection.error.required = cy: Select at least one email address to receive
 emailSelection.change.hidden = cy: Which email address do you want to receive notifications?
 emailSelection.hint = cy: Select all that apply
 
+requestConfirmation.title = cy: Request submitted
+requestConfirmation.heading = cy: Request submitted
+requestConfirmation.emailSent = cy: We have sent an email to your registered email {0}.
+requestConfirmation.additionalEmail = cy: An email will also be sent to:
+requestConfirmation.whatHappensNext = cy: What happens next
+requestConfirmation.processingRequest = cy: We are processing your request and any reports should be ready within 72 hours. You will receive an email when your reports are ready to download.
+requestConfirmation.monitorStatus= cy: You can
+requestConfirmation.monitorStatusLink = cy: monitor the status of your reports.
+requestConfirmation.goToHomepage = cy: Go to homepage
+requestConfirmation.feedbackLink = cy: What did you think of this service?
+requestConfirmation.feedbackDuration= cy: (takes 30 seconds)
+
 newEmailNotification.title = cy: Enter a new email address to receive notifications
 newEmailNotification.heading = cy: Enter a new email address to receive notifications
 newEmailNotification.checkYourAnswersLabel = cy: Notification email
