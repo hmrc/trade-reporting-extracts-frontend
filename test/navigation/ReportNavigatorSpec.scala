@@ -56,7 +56,7 @@ class ReportNavigatorSpec extends SpecBase {
           .value
         val result = navigator.nextPage(ChooseEoriPage, NormalMode, ua).url
 
-        checkNavigation(result, "/request-cds-report/eoriRole")
+        checkNavigation(result, "/your-role")
       }
 
       "ChooseEoriPage must navigate to AccountsYouHaveAuthorityOverImport when answered with Myauthority" in {

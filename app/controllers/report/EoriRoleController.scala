@@ -18,9 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.EoriRoleFormProvider
+import models.report.Decision.Import
 import models.{EoriRole, Mode}
 import navigation.ReportNavigator
-import pages.report.EoriRolePage
+import pages.report.{DecisionPage, EoriRolePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -49,20 +50,22 @@ class EoriRoleController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val preparedForm = request.userAnswers.get(EoriRolePage) match {
+    val preparedForm        = request.userAnswers.get(EoriRolePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
-
-    Ok(view(preparedForm, mode))
+    val isImporter: Boolean = request.userAnswers.get(DecisionPage).contains(Import)
+    Ok(view(preparedForm, mode, isImporter))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      val isImporter: Boolean = request.userAnswers.get(DecisionPage).contains(Import)
+
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, isImporter))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriRolePage, value))

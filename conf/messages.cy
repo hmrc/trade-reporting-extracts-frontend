@@ -164,14 +164,16 @@ chooseEori.checkYourAnswersLabel = cy: EORI for request
 chooseEori.error.required = cy: Select Eori number you want to use
 chooseEori.change.hidden = cy: ChooseEori
 
-eoriRole.title = cy: What is the owner of the EORI number’s role in the report?
-eoriRole.heading = cy: What is the owner of the EORI number’s role in the report?
+eoriRole.title = cy: What is your role in the report?
+eoriRole.heading = cy: What is your role in the report?
 eoriRole.declarant = cy: Declarant
 eoriRole.exporter = cy: Exporter
-eoriRole.checkYourAnswersLabel = cy: EORI role
-eoriRole.error.required = cy: Select EORI role
-eoriRole.change.hidden = cy: EoriRole
-eoriRole.hint = cy: Select all that apply
+eoriRole.importer = cy: Importer
+eoriRole.checkYourAnswersLabel = cy: Your role in the report
+eoriRole.error.required = cy: Select your role in the report
+eoriRole.change.hidden = cy: your role in the report
+eoriRole.message = cy: If you select more than one role, all the data will be in one report.
+eoriRole.hint = cy: Select all that apply.
 
 reportDateRange.title = cy: What date range do you want the report to cover?
 reportDateRange.heading = cy: What date range do you want the report to cover?

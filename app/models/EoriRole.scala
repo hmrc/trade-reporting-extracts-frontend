@@ -27,14 +27,20 @@ object EoriRole extends Enumerable.Implicits {
 
   case object Declarant extends WithName("declarant") with EoriRole
   case object Exporter extends WithName("exporter") with EoriRole
+  case object Importer extends WithName("importer") with EoriRole
 
   val values: Seq[EoriRole] = Seq(
     Declarant,
-    Exporter
+    Exporter,
+    Importer
   )
 
-  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
-    values.zipWithIndex.map { case (value, index) =>
+  def checkboxItems(isImporter: Boolean)(implicit messages: Messages): Seq[CheckboxItem] = {
+    val filteredValues =
+      if (isImporter) values.filterNot(_ == Exporter)
+      else values.filterNot(_ == Importer)
+
+    filteredValues.zipWithIndex.map { case (value, index) =>
       CheckboxItemViewModel(
         content = Text(messages(s"eoriRole.${value.toString}")),
         fieldId = "value",
@@ -42,6 +48,7 @@ object EoriRole extends Enumerable.Implicits {
         value = value.toString
       )
     }
+  }
 
   implicit val enumerable: Enumerable[EoriRole] =
     Enumerable(values.map(v => v.toString -> v): _*)
