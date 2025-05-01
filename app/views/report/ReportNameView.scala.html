@@ -27,7 +27,7 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("reportName.title"))) {
+@layout(pageTitle = title(form, messages("reportName.title")), showBackLink = true) {
 
     @formHelper(action = controllers.report.routes.ReportNameController.onSubmit(mode)) {
 

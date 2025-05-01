@@ -30,8 +30,7 @@
     pageTitle = title(form, messages("decision.title")),
     breadcrumbContribution = Seq(),
     showBackLink = true,
-    showSignOut = true,
-    backLinkUrl = controllers.report.routes.ReportGuidanceController.onPageLoad().url
+    showSignOut = true
 ) {
 
         @formHelper(action = controllers.report.routes.DecisionController.onSubmit(mode), Symbol("autoComplete") -> "off") {

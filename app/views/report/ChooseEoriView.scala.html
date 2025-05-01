@@ -31,8 +31,7 @@
     pageTitle = title(form,messages("chooseEori.title")),
     breadcrumbContribution = Seq(),
     showBackLink = true,
-    showSignOut = true,
-    backLinkUrl = controllers.report.routes.DecisionController.onPageLoad(mode).url
+    showSignOut = true
 ) {
 
 @formHelper(action = controllers.report.routes.ChooseEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
