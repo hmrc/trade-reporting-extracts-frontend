@@ -1,0 +1,36 @@
+{
+  "userReports": [
+    {
+      "reportName": "Jan report",
+      "referenceNumber": "123456",
+      "reportType": "Import tax line",
+      "expiryDate": "13 Jan 2025",
+      "action": "Download file (CSV, 1.2mb)"
+    },
+    {
+      "reportName": "Dec import",
+      "referenceNumber": "234567",
+      "reportType": "Import item",
+      "expiryDate": "10 Jan 2025",
+      "action": "Download file (CSV, 856kb)"
+    }
+  ],
+  "thirdPartyReports": [
+    {
+      "reportName": "Cl jan report",
+      "referenceNumber": "345678",
+      "companyName": "Confidential Logistics",
+      "reportType": "Import item report",
+      "expiryDate": "14 Jan 2025",
+      "action": "Download file (CSV, 856kb)"
+    },
+    {
+      "reportName": "Export report",
+      "referenceNumber": "456789",
+      "companyName": "XYZ Logistics",
+      "reportType": "Export item",
+      "expiryDate": "2 Jan 2025",
+      "action": "Download file (CSV, 2mb)"
+    }
+  ]
+}
