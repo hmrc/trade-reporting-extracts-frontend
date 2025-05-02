@@ -24,7 +24,6 @@
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")),
-    showBackLink = true,
     breadcrumbContribution = Seq()) {
     @formHelper(action = controllers.report.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
         <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>

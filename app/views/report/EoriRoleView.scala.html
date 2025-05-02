@@ -25,9 +25,7 @@
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("eoriRole.title")),
-        showBackLink = true,
-        showSignOut = true,
-        backLinkUrl = controllers.report.routes.ChooseEoriController.onPageLoad(mode).url
+        showSignOut = true
 ) {
 
     @formHelper(action = controllers.report.routes.EoriRoleController.onSubmit(mode), Symbol("autoComplete") -> "off") {
