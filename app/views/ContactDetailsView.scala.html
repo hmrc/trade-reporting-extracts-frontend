@@ -21,7 +21,7 @@
 
 @(companyInformation: CompanyInformation, eori: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("contactDetails.title")),
+@layout(pageTitle = titleNoForm(messages("contactDetails.title")), showBackLink = false,
         breadcrumbContribution = Seq(
              BreadcrumbsItem(content = Text(messages("contactDetails.title")), href = Some(s"#"))
         ),

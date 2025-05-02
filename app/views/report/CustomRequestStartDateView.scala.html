@@ -32,7 +32,7 @@
 @layout(pageTitle = title(form,
     if(isMoreThanOneReport) messages("customRequestStartDate.pluralReport.title")
     else messages("customRequestStartDate.singleReport.title")
-),showBackLink = true) {
+)) {
 
     @formHelper(action = controllers.report.routes.CustomRequestStartDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

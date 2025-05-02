@@ -24,7 +24,7 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("maybeAdditionalEmail.title")),     showBackLink = true, breadcrumbContribution = Seq()) {
+@layout(pageTitle = title(form, messages("maybeAdditionalEmail.title")), breadcrumbContribution = Seq()) {
 
     @formHelper(action =  controllers.report.routes.MaybeAdditionalEmailController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

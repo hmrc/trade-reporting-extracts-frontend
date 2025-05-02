@@ -26,7 +26,7 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("newEmailNotification.title")),  showBackLink = true, breadcrumbContribution = Seq()) {
+@layout(pageTitle = title(form, messages("newEmailNotification.title")), breadcrumbContribution = Seq()) {
 
     @formHelper(action = controllers.report.routes.NewEmailNotificationController.onSubmit(mode)) {
 
