@@ -22,7 +22,12 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, isImporter: Boolean)(implicit request: Request[_], messages: Messages)
+
+@content = {
+<p class="govuk-body">@messages("eoriRole.message")</p>
+<p class="govuk-hint">@messages("eoriRole.hint")</p>
+}
 
 @layout(pageTitle = title(form, messages("eoriRole.title")),
         showSignOut = true
@@ -39,8 +44,8 @@
                 form   = form,
                 name   = "value",
                 legend = LegendViewModel(messages("eoriRole.heading")).asPageHeading(),
-                items  = EoriRole.checkboxItems
-            ).withHint(HintViewModel(messages("eoriRole.hint")))
+                items  = EoriRole.checkboxItems(isImporter)
+            ).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(

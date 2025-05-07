@@ -18,12 +18,13 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.EoriRoleFormProvider
+import models.report.Decision
 import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.EoriRolePage
+import pages.report.{DecisionPage, EoriRolePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -43,11 +44,26 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
   val formProvider              = new EoriRoleFormProvider()
   val form: Form[Set[EoriRole]] = formProvider()
 
+  val userAnswersImporter: UserAnswers = emptyUserAnswers
+    .set(
+      DecisionPage,
+      Decision.Import
+    )
+    .success
+    .value
+  val userAnswersExporter: UserAnswers = emptyUserAnswers
+    .set(
+      DecisionPage,
+      Decision.Export
+    )
+    .success
+    .value
+
   "EoriRole Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
 
       running(application) {
         val request = FakeRequest(GET, eoriRoleRoute)
@@ -58,13 +74,61 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, true)(request, messages(application)).toString
       }
+    }
+
+    "must populate the view correctly when Importer selected" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, eoriRoleRoute)
+
+        val view = application.injector.instanceOf[EoriRoleView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, true)(
+          request,
+          messages(application)
+        ).toString
+        contentAsString(result).contains("Importer") mustBe true
+        contentAsString(result).contains("Exporter") mustBe false
+        contentAsString(result).contains("Declarant") mustBe true
+
+      }
+
+    }
+
+    "must populate the view correctly when Exporter selected" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersExporter)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, eoriRoleRoute)
+
+        val view = application.injector.instanceOf[EoriRoleView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, false)(
+          request,
+          messages(application)
+        ).toString
+        contentAsString(result).contains("Importer") mustBe false
+        contentAsString(result).contains("Exporter") mustBe true
+        contentAsString(result).contains("Declarant") mustBe true
+
+      }
+
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(EoriRolePage, EoriRole.values.toSet).success.value
+      val userAnswers = userAnswersImporter.set(EoriRolePage, Set(EoriRole.Importer, EoriRole.Declarant)).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -76,7 +140,7 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(EoriRole.values.toSet), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(Set(EoriRole.Importer, EoriRole.Declarant)), NormalMode, true)(
           request,
           messages(application)
         ).toString
@@ -90,7 +154,7 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswersImporter))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -111,7 +175,7 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
 
       running(application) {
         val request =
@@ -125,7 +189,7 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, true)(request, messages(application)).toString
       }
     }
 
