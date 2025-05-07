@@ -19,12 +19,13 @@ package controllers.report
 import base.SpecBase
 import forms.report.EoriRoleFormProvider
 import models.report.Decision
-import models.{EoriRole, NormalMode, UserAnswers}
+import models.{EoriRole, NormalMode, ReportTypeImport, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{DecisionPage, EoriRolePage}
+import pages.report.{DecisionPage, EoriRolePage, ReportTypeImportPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -37,7 +38,8 @@ import scala.concurrent.Future
 
 class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
   lazy val eoriRoleRoute: String = controllers.report.routes.EoriRoleController.onPageLoad(NormalMode).url
 
@@ -147,16 +149,18 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and not set a user answer to ReportTypeImportPage when decision is import" in {
 
       val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
+      val userAnswers = userAnswersImporter
       val application =
-        applicationBuilder(userAnswers = Some(userAnswersImporter))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRouteImport)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
@@ -169,7 +173,42 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual onwardRouteImport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportTypeImportPage) mustBe None
+      }
+    }
+
+    "must redirect to the next page and set a user answer export to ReportTypeImportPage when decision is export" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val userAnswers = userAnswersExporter
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRouteExport)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, eoriRoleRoute)
+            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteExport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+
+        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
       }
     }
 

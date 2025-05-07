@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.report
 
-import controllers.routes
 import jakarta.inject.Inject
 import models.{CheckMode, UserAnswers}
 import pages.report.CustomRequestEndDatePage

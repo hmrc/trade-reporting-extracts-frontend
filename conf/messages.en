@@ -67,7 +67,7 @@ guidancePage.reports.note = These reports should meet the needs of most HMRC cus
 guidancePage.dataLimitations = Not all data items on the Customs Declaration Service are in the reports. There is information on the system which cannot be released because it could compromise HMRC control activities.
 
 guidancePage.dataDescriptions = Descriptions of the data available can be found in
-guidancePage.dataDescriptionsLinkText =Customs Declaration Service data import and export descriptions.
+guidancePage.dataDescriptionsLinkText = Customs Declaration Service data import and export descriptions.
 
 guidancePage.requestReport.title = How to request a report
 guidancePage.requestReport.trader = If you’re a trader
@@ -86,28 +86,28 @@ guidancePage.more = More
 dashboard.title = dashboard
 dashboard.heading = Trade reporting and extracts
 
-dashboard.reports.heading=Reports
-dashboard.reports.subHeading=Manage and view your reports
-dashboard.reports.requestNewReport=Request a new report
-dashboard.reports.requestedReports=Requested reports
-dashboard.reports.availableForDownload=Available for download
-dashboard.reports.reportHistory=Report history
+dashboard.reports.heading = Reports
+dashboard.reports.subHeading = Manage and view your reports
+dashboard.reports.requestNewReport = Request a new report
+dashboard.reports.requestedReports = Requested reports
+dashboard.reports.availableForDownload = Available for download
+dashboard.reports.reportHistory = Report history
 
-dashboard.account.heading=Your Account
-dashboard.account.subHeading=View your account information
-dashboard.account.yourDetails=Your Details
-dashboard.account.messages=Messages
+dashboard.account.heading = Your Account
+dashboard.account.subHeading = View your account information
+dashboard.account.yourDetails = Your Details
+dashboard.account.messages = Messages
 
-dashboard.thirdPartyAccess.heading=Third-party access
-dashboard.thirdPartyAccess.subHeading=Manage third-party access to your account
-dashboard.thirdPartyAccess.addNewThirdParty=Add a new third party
-dashboard.thirdPartyAccess.authorisedThirdParty=Authorised third parties
-dashboard.thirdPartyAccess.authorisedAccounts=Accounts you have authority over
+dashboard.thirdPartyAccess.heading = Third-party access
+dashboard.thirdPartyAccess.subHeading = Manage third-party access to your account
+dashboard.thirdPartyAccess.addNewThirdParty = Add a new third party
+dashboard.thirdPartyAccess.authorisedThirdParty = Authorised third parties
+dashboard.thirdPartyAccess.authorisedAccounts = Accounts you have authority over
 
-dashboard.help.heading=Help
-dashboard.help.fieldsInReport=What do the fields in my report mean?
-dashboard.help.reportTypes=What are the different report types?
-dashboard.help.dataMissing=Why is my data missing?
+dashboard.help.heading = Help
+dashboard.help.fieldsInReport = What do the fields in my report mean?
+dashboard.help.reportTypes = What are the different report types?
+dashboard.help.dataMissing = Why is my data missing?
 
 contactDetails.title = contactDetails
 contactDetails.heading = Your Details
@@ -198,6 +198,7 @@ reportTypeImport.heading = Which type of report do you need?
 reportTypeImport.importHeader = Import header
 reportTypeImport.importItem = Import item
 reportTypeImport.importTaxLine = Import tax line
+reportTypeImport.ExportItem = Export item
 reportTypeImport.checkYourAnswersLabel = Report type
 reportTypeImport.error.required = Select the type of report you want
 reportTypeImport.change.hidden = types of report you want
@@ -233,7 +234,6 @@ requestConfirmation.pluralReport.monitorStatusLink = monitor the status of your 
 requestConfirmation.goToHomepage = Go to homepage
 requestConfirmation.feedbackLink = What did you think of this service?
 requestConfirmation.feedbackDuration = (takes 30 seconds)
-
 
 newEmailNotification.title = Enter a new email address to receive notifications
 newEmailNotification.heading = Enter a new email address to receive notifications

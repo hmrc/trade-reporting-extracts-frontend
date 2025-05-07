@@ -20,12 +20,11 @@ import controllers.report.routes
 import models.report.ReportDateRange
 import models.{CheckMode, UserAnswers}
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
-import jakarta.inject.Inject
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 

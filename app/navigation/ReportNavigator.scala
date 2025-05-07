@@ -16,14 +16,12 @@
 
 package navigation
 
-import controllers.routes
-import models.report.ReportDateRange
+import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
 import models.{NormalMode, UserAnswers}
-import models.report.EmailSelection
 import pages.Page
-import pages.report._
+import pages.report.*
 import play.api.mvc.Call
-import models.report.ChooseEori
+
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -32,9 +30,8 @@ class ReportNavigator @Inject() extends Navigator {
   override val normalRoutes: Page => UserAnswers => Call = {
     case DecisionPage                           => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
     case ChooseEoriPage                         => ChooseEoriNormalRoutes
-    case AccountsYouHaveAuthorityOverImportPage =>
-      _ => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-    case EoriRolePage                           => navigateTo(controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode))
+    case AccountsYouHaveAuthorityOverImportPage => AccountsYouHaveAuthorityOverImportNormalRoutes
+    case EoriRolePage                           => EoriRoleNormalRoutes
     case ReportTypeImportPage                   => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
     case ReportDateRangePage                    => reportDateRangePageNormalRoutes
     case CustomRequestStartDatePage             =>
@@ -84,6 +81,24 @@ class ReportNavigator @Inject() extends Navigator {
         case ChooseEori.Myeori      => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
         case ChooseEori.Myauthority =>
           controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(NormalMode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+  private def AccountsYouHaveAuthorityOverImportNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(DecisionPage)
+      .map {
+        case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
+        case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+  private def EoriRoleNormalRoutes(answers: UserAnswers): Call =
+    answers
+      .get(DecisionPage)
+      .map {
+        case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
+        case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
       }
       .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 

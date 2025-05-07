@@ -72,33 +72,103 @@ class ReportNavigatorSpec extends SpecBase {
 
         checkNavigation(result, "/accounts-you-have-authority-over-import")
       }
+      "AccountsYouHaveAuthorityOverImportPage" - {
+        "must navigate to ReportTypeImport when decision is import" in {
 
-      "AccountsYouHaveAuthorityOverImportPage must navigate to ReportTypeImport with any answer" in {
+          val ua     = emptyUserAnswers
+            .set(
+              DecisionPage,
+              Decision.Import
+            )
+            .get
+            .set(
+              AccountsYouHaveAuthorityOverImportPage,
+              "eoriName"
+            )
+            .success
+            .value
+          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
 
-        val ua     = emptyUserAnswers
-          .set(
-            AccountsYouHaveAuthorityOverImportPage,
-            "eoriName"
-          )
-          .success
-          .value
-        val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+          checkNavigation(result, "/report-type")
+        }
 
-        checkNavigation(result, "/report-type")
+        "must navigate to ReportDateRange when decision is export" in {
+
+          val ua     = emptyUserAnswers
+            .set(
+              DecisionPage,
+              Decision.Export
+            )
+            .get
+            .set(
+              AccountsYouHaveAuthorityOverImportPage,
+              "eoriName"
+            )
+            .success
+            .value
+          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
+
+          checkNavigation(result, "/date-rage")
+        }
+
+        "must navigate to journey recover when decision is not set" in {
+
+          val ua     = emptyUserAnswers
+            .set(
+              AccountsYouHaveAuthorityOverImportPage,
+              "eoriName"
+            )
+            .success
+            .value
+          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
+
+          checkNavigation(result, "/problem/there-is-a-problem")
+        }
       }
 
-      "EoriRolePage must navigate to ReportTypeImport with any answer" in {
+      "EoriRolePage" - {
+        "must navigate to ReportTypeImport when decision is import" in {
 
-        val ua     = emptyUserAnswers
-          .set(
-            EoriRolePage,
-            EoriRole.values.toSet
-          )
-          .success
-          .value
-        val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+          val ua     = emptyUserAnswers
+            .set(
+              DecisionPage,
+              Decision.Import
+            )
+            .get
+            .set(EoriRolePage, EoriRole.values.toSet)
+            .success
+            .value
+          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
 
-        checkNavigation(result, "/report-type")
+          checkNavigation(result, "/report-type")
+        }
+
+        "must navigate to ReportDateRange when decision is export" in {
+
+          val ua     = emptyUserAnswers
+            .set(
+              DecisionPage,
+              Decision.Export
+            )
+            .get
+            .set(EoriRolePage, EoriRole.values.toSet)
+            .success
+            .value
+          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+
+          checkNavigation(result, "/date-rage")
+        }
+
+        "must navigate to journey recover when decision is not set" in {
+
+          val ua     = emptyUserAnswers
+            .set(EoriRolePage, EoriRole.values.toSet)
+            .success
+            .value
+          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+
+          checkNavigation(result, "/problem/there-is-a-problem")
+        }
       }
 
       "ReportTypeImportPage must navigate to ReportDateRangePage with any answer" in {
