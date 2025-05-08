@@ -44,7 +44,7 @@ class ReportTypeImportSummarySpec extends SpecBase {
           key = "reportTypeImport.checkYourAnswersLabel",
           value = ValueViewModel(
             HtmlContent(
-              "reportTypeImport.importHeader,<br>reportTypeImport.importItem,<br>reportTypeImport.importTaxLine"
+              "reportTypeImport.importHeader,<br>reportTypeImport.importItem,<br>reportTypeImport.importTaxLine,<br>reportTypeImport.exportItem"
             )
           ),
           actions = Some(

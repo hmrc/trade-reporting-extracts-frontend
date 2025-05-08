@@ -19,8 +19,6 @@ package forms.report
 import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.i18n.Messages
-import utils.DateTimeFormats
-import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.{LocalDate, ZoneOffset}
 import javax.inject.Inject

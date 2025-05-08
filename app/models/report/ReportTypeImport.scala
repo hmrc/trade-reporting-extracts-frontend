@@ -28,15 +28,18 @@ object ReportTypeImport extends Enumerable.Implicits {
   case object ImportHeader extends WithName("importHeader") with ReportTypeImport
   case object ImportItem extends WithName("importItem") with ReportTypeImport
   case object ImportTaxLine extends WithName("importTaxLine") with ReportTypeImport
+  case object ExportItem extends WithName("exportItem") with ReportTypeImport
 
   val values: Seq[ReportTypeImport] = Seq(
     ImportHeader,
     ImportItem,
-    ImportTaxLine
+    ImportTaxLine,
+    ExportItem
   )
 
-  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
-    values.zipWithIndex.map { case (value, index) =>
+  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] = {
+    val filteredValues = values.filterNot(_ == ExportItem)
+    filteredValues.zipWithIndex.map { case (value, index) =>
       CheckboxItemViewModel(
         content = Text(messages(s"reportTypeImport.${value.toString}")),
         fieldId = "value",
@@ -44,6 +47,7 @@ object ReportTypeImport extends Enumerable.Implicits {
         value = value.toString
       )
     }
+  }
 
   implicit val enumerable: Enumerable[ReportTypeImport] =
     Enumerable(values.map(v => v.toString -> v): _*)

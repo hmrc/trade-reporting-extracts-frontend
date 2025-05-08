@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.report
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.report.EoriRolePage
 import play.api.i18n.Messages

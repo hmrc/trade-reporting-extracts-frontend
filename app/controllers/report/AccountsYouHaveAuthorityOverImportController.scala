@@ -18,9 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.Mode
+import models.report.Decision
+import models.{Mode, ReportTypeImport}
 import navigation.ReportNavigator
-import pages.report.AccountsYouHaveAuthorityOverImportPage
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -77,7 +78,19 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers
+                                    .get(DecisionPage)
+                                    .map {
+                                      case Decision.Import =>
+                                        request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value)
+                                      case Decision.Export =>
+                                        request.userAnswers
+                                          .set(AccountsYouHaveAuthorityOverImportPage, value)
+                                          .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
+                                    }
+                                    .getOrElse(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
+                                )
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers))
         )

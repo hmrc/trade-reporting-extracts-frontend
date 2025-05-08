@@ -19,7 +19,6 @@ package controllers.report
 import com.google.inject.Inject
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.Mode
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi

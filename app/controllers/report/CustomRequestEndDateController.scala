@@ -17,11 +17,10 @@
 package controllers.report
 
 import controllers.actions.*
-import controllers.problem.JourneyRecoveryController
 import forms.report.CustomRequestEndDateFormProvider
-import models.{Mode, UserAnswers}
-import navigation.{Navigator, ReportNavigator}
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage}
+import models.Mode
+import navigation.ReportNavigator
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -29,8 +28,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReportHelpers
 import views.html.report.CustomRequestEndDateView
 
-import java.time.{LocalDate, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, ZoneOffset}
 import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

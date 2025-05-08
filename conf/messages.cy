@@ -67,7 +67,7 @@ guidancePage.reports.note = cy: These reports should meet the needs of most HMRC
 guidancePage.dataLimitations = cy: Not all data items on the Customs Declaration Service are in the reports. There is information on the system which cannot be released because it could compromise HMRC control activities.
 
 guidancePage.dataDescriptions = cy: Descriptions of the data available can be found in
-guidancePage.dataDescriptionsLinkText = cy:Customs Declaration Service data import and export descriptions.
+guidancePage.dataDescriptionsLinkText = cy: Customs Declaration Service data import and export descriptions.
 
 guidancePage.requestReport.title = cy: How to request a report
 guidancePage.requestReport.trader = cy: If you’re a trader
@@ -86,28 +86,28 @@ guidancePage.more = cy: More
 dashboard.title = cy: dashboard
 dashboard.heading = cy: Trade reporting and extracts
 
-dashboard.reports.heading= cy:Reports
-dashboard.reports.subHeading= cy:Manage and view your reports
-dashboard.reports.requestNewReport= cy:Request a new report
-dashboard.reports.requestedReports= cy:Requested reports
-dashboard.reports.availableForDownload= cy:Available for download
-dashboard.reports.reportHistory= cy:Report history
+dashboard.reports.heading = cy: Reports
+dashboard.reports.subHeading = cy: Manage and view your reports
+dashboard.reports.requestNewReport = cy: Request a new report
+dashboard.reports.requestedReports = cy: Requested reports
+dashboard.reports.availableForDownload = cy: Available for download
+dashboard.reports.reportHistory = cy: Report history
 
-dashboard.account.heading= cy:Your Account
-dashboard.account.subHeading= cy:View your account information
-dashboard.account.yourDetails= cy:Your Details
-dashboard.account.messages= cy:Messages
+dashboard.account.heading = cy: Your Account
+dashboard.account.subHeading = cy: View your account information
+dashboard.account.yourDetails = cy: Your Details
+dashboard.account.messages = cy: Messages
 
-dashboard.thirdPartyAccess.heading= cy:Third-party access
-dashboard.thirdPartyAccess.subHeading= cy:Manage third-party access to your account
-dashboard.thirdPartyAccess.addNewThirdParty= cy:Add a new third party
-dashboard.thirdPartyAccess.authorisedThirdParty= cy:Authorised third parties
-dashboard.thirdPartyAccess.authorisedAccounts= cy:Accounts you have authority over
+dashboard.thirdPartyAccess.heading = cy: Third-party access
+dashboard.thirdPartyAccess.subHeading = cy: Manage third-party access to your account
+dashboard.thirdPartyAccess.addNewThirdParty = cy: Add a new third party
+dashboard.thirdPartyAccess.authorisedThirdParty = cy: Authorised third parties
+dashboard.thirdPartyAccess.authorisedAccounts = cy: Accounts you have authority over
 
-dashboard.help.heading= cy:Help
-dashboard.help.fieldsInReport= cy:What do the fields in my report mean?
-dashboard.help.reportTypes= cy:What are the different report types?
-dashboard.help.dataMissing= cy:Why is my data missing?
+dashboard.help.heading = cy: Help
+dashboard.help.fieldsInReport = cy: What do the fields in my report mean?
+dashboard.help.reportTypes = cy: What are the different report types?
+dashboard.help.dataMissing = cy: Why is my data missing?
 
 contactDetails.title = cy: contactDetails
 contactDetails.heading = cy: Your Details
@@ -152,8 +152,8 @@ decision.title = cy: What type of data do you want to download?
 decision.heading = cy: What type of data do you want to download?
 decision.import = cy: Import
 decision.export = cy: Export
-decision.error.required = cy: Select the type of report you want to download
 decision.checkYourAnswersLabel = cy: Type of data
+decision.error.required = cy: Select the type of report you want to download
 decision.change.hidden = cy: What type of data do you want to download?
 
 chooseEori.title = cy: Which EORI number do you want to use?
@@ -190,7 +190,7 @@ reportName.checkYourAnswersLabel = cy: Report name
 reportName.hint = cy: This name is only used to help you manage your reports
 reportName.error.required = cy: Enter the name you will use to identify this report
 reportName.error.length = cy: ReportName must be 70 characters or less
-reportName.error.invalidCharacters =  cy: The name you will use to identify this report must only include letters a to z, numbers 0 to 9
+reportName.error.invalidCharacters = cy: The name you will use to identify this report must only include letters a to z, numbers 0 to 9
 reportName.change.hidden = cy: Report name
 
 reportTypeImport.title = cy: Which type of report do you need?
@@ -198,16 +198,11 @@ reportTypeImport.heading = cy: Which type of report do you need?
 reportTypeImport.importHeader = cy: Import header
 reportTypeImport.importItem = cy: Import item
 reportTypeImport.importTaxLine = cy: Import tax line
+reportTypeImport.ExportItem = cy: Export item
 reportTypeImport.checkYourAnswersLabel = cy: Report type
 reportTypeImport.error.required = cy: Select the type of report you want
 reportTypeImport.change.hidden = cy: types of report you want
 reportTypeImport.hint = cy: Select all that apply
-
-maybeAdditionalEmail.title = cy: Do you want to add another email for notifications?
-maybeAdditionalEmail.heading = cy: Do you want to add another email for notifications?
-maybeAdditionalEmail.checkYourAnswersLabel = cy: Notification email
-maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
-maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
 
 emailSelection.title = cy: Which email address do you want to receive notifications?
 emailSelection.heading = cy: Which email address do you want to receive notifications?
@@ -219,20 +214,26 @@ emailSelection.error.required = cy: Select at least one email address to receive
 emailSelection.change.hidden = cy: Which email address do you want to receive notifications?
 emailSelection.hint = cy: Select all that apply
 
+maybeAdditionalEmail.title = cy: Do you want to add another email for notifications?
+maybeAdditionalEmail.heading = cy: Do you want to add another email for notifications?
+maybeAdditionalEmail.checkYourAnswersLabel = cy: Notification email
+maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
+maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
+
 requestConfirmation.title = cy: Report request submitted
 requestConfirmation.heading = cy: Report request submitted
-requestConfirmation.emailSent = cy: We have sent an email to your registered email {0}.
 requestConfirmation.referenceNumber = cy: Reference number: {0}
+requestConfirmation.emailSent = cy: We have sent an email to your registered email {0}.
 requestConfirmation.additionalEmail = cy: An email will also be sent to:
 requestConfirmation.whatHappensNext = cy: What happens next
 requestConfirmation.pluralReport.processingRequest = cy: We are processing your request and any reports should be ready within 72 hours. You will receive an email when your reports are ready to download.
 requestConfirmation.singleReport.processingRequest = cy: We are processing your request and any report should be ready within 72 hours. You will receive an email when your report is ready to download.
-requestConfirmation.monitorStatus= cy: You can
+requestConfirmation.monitorStatus = cy: You can
 requestConfirmation.singleReport.monitorStatusLink = cy: monitor the status of your report
 requestConfirmation.pluralReport.monitorStatusLink = cy: monitor the status of your reports
 requestConfirmation.goToHomepage = cy: Go to homepage
 requestConfirmation.feedbackLink = cy: What did you think of this service?
-requestConfirmation.feedbackDuration= cy: (takes 30 seconds)
+requestConfirmation.feedbackDuration = cy: (takes 30 seconds)
 
 newEmailNotification.title = cy: Enter a new email address to receive notifications
 newEmailNotification.heading = cy: Enter a new email address to receive notifications
@@ -284,7 +285,6 @@ accountsYouHaveAuthorityOverImport.defaultValue = cy: Select an EORI
 accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = cy: EORI for request
 accountsYouHaveAuthorityOverImport.error.required = cy: Select an EORI
 accountsYouHaveAuthorityOverImport.change.hidden = cy: the EORI number you want to use
-
 
 checkYourAnswers.title = cy: Check your answers before submitting your request
 checkYourAnswers.heading = cy: Check your answers before submitting your request

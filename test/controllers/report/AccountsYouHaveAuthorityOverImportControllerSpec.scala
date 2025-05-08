@@ -18,12 +18,14 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, FakeReportNavigator, Navigator}
+import models.report.Decision
+import models.{NormalMode, ReportTypeImport, UserAnswers}
+import navigation.{FakeReportNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.AccountsYouHaveAuthorityOverImportPage
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
 import play.api.i18n.Messages
 import play.api.inject
 import play.api.inject.bind
@@ -40,7 +42,8 @@ import scala.concurrent.Future
 class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
   val formProvider = new AccountsYouHaveAuthorityOverImportFormProvider()
   val form         = formProvider()
@@ -111,18 +114,24 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to the next page and not set a user answer to ReportTypeImportPage when decision is import" in {
 
       val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getEoriList()(any[Messages])) thenReturn Future.successful(eoriList)
 
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRouteImport)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
@@ -136,7 +145,48 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
         val result = route(application, request).value
 
         status(result) `mustEqual` SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual onwardRouteImport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportTypeImportPage) mustBe None
+      }
+    }
+
+    "must redirect to the next page and set a user answer export to ReportTypeImportPage when decision is export" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      when(mockTradeReportingExtractsService.getEoriList()(any[Messages])) thenReturn Future.successful(eoriList)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(DecisionPage, Decision.Export)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRouteExport)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, accountsYouHaveAuthorityOverImportRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) `mustEqual` SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteExport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
       }
     }
 
