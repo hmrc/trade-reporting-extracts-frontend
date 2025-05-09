@@ -1,6 +1,20 @@
 @import "patterns/card";
 @import "patterns/flexbox";
+$tre-mobile-breakpoint: 640px;
 
+
+@media (max-width: $tre-mobile-breakpoint) {
+  .tre-scrollable-pane {
+    overflow-x: scroll;
+  }
+
+}
+@media (min-width: $tre-mobile-breakpoint) {
+.hmrc-responsive-table__value {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    }
+  }
 
 .js-visible {
   display: none !important;

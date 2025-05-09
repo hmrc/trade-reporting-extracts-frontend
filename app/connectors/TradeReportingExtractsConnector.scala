@@ -16,6 +16,7 @@
 
 package connectors
 
+import models.report.AvailableReportsViewModel
 import play.api.Logging
 import play.api.libs.json.Json
 
@@ -41,6 +42,25 @@ class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext) 
 
       case Failure(ex) =>
         val errMsg = s"Failed to read or parse EORI list from file: ${ex.getMessage}"
+        logger.error(errMsg)
+        Future.failed(new RuntimeException(errMsg, ex))
+    }
+  }
+
+  private val reportsPath: String                                                              = "conf/resources/availableReportsData.json"
+  // TODO replace with a get request to the backend upon implementation of available reports
+  def getAvailableReports(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
+    val path = Paths.get(pathString)
+
+    Try {
+      val jsonString = new String(Files.readAllBytes(path), "UTF-8")
+      Json.parse(jsonString).as[AvailableReportsViewModel]
+    } match {
+      case Success(reports) =>
+        Future.successful(reports)
+
+      case Failure(ex) =>
+        val errMsg = s"Failed to available reports from file: ${ex.getMessage}"
         logger.error(errMsg)
         Future.failed(new RuntimeException(errMsg, ex))
     }

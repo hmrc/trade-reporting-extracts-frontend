@@ -41,7 +41,7 @@
             links = Seq(
                 (Messages("dashboard.reports.requestNewReport"), controllers.report.routes.ReportGuidanceController.onPageLoad().url, None),
                 (Messages("dashboard.reports.requestedReports"), "#", None),
-                (Messages("dashboard.reports.availableForDownload"), "#", None)
+                (Messages("dashboard.reports.availableForDownload"), controllers.report.routes.AvailableReportsController.onPageLoad().url, None)
             ),
             extraSubHeading = Some( CardSubHeadingWithValue(Messages("dashboard.reports.availableForDownload"), 2))
         )
