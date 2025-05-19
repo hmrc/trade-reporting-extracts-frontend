@@ -31,10 +31,13 @@ import scala.util.{Failure, Success, Try}
 import play.api.libs.ws.writeableOf_JsValue
 import utils.Constants.eori
 
-
 @Singleton
-class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext,  appConfig: FrontendAppConfig, httpClient: HttpClientV2) extends Logging {
-  private implicit val hc: HeaderCarrier = HeaderCarrier()
+class TradeReportingExtractsConnector @Inject() (implicit
+  ec: ExecutionContext,
+  appConfig: FrontendAppConfig,
+  httpClient: HttpClientV2
+) extends Logging {
+  private implicit val hc: HeaderCarrier                                 = HeaderCarrier()
   private val defaultPath                                                = "conf/resources/eoriList.json"
   // TODO replace with a get request to the backend upon implementation of EORI list
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {

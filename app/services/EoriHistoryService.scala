@@ -25,9 +25,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import java.time.LocalDate
 
 class EoriHistoryService @Inject() (
-                                     tradeReportingExtractsConnector: TradeReportingExtractsConnector
-                                   )(using ec: ExecutionContext) {
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  tradeReportingExtractsConnector: TradeReportingExtractsConnector
+)(using ec: ExecutionContext) {
+  implicit val hc: HeaderCarrier                               = HeaderCarrier()
   def fetchEoriHistory(eori: String): Future[Seq[EoriHistory]] =
     tradeReportingExtractsConnector.getEoriHistory(eori).map(_.getOrElse(Seq.empty))
 
@@ -36,14 +36,13 @@ class EoriHistoryService @Inject() (
       .map(histories => filterHistoriesByDate(histories, from, until))
 
   private def filterHistoriesByDate(
-                                     histories: Seq[EoriHistory],
-                                     from: LocalDate,
-                                     until: LocalDate
-                                   ): Seq[EoriHistory] = {
+    histories: Seq[EoriHistory],
+    from: LocalDate,
+    until: LocalDate
+  ): Seq[EoriHistory] =
     histories.filter { h =>
-      val validFrom = h.validFrom.getOrElse(LocalDate.MIN)
+      val validFrom  = h.validFrom.getOrElse(LocalDate.MIN)
       val validUntil = h.validUntil.getOrElse(LocalDate.MAX)
       !validUntil.isBefore(from) && !validFrom.isAfter(until)
     }
-  }
 }
