@@ -17,7 +17,7 @@
 package services
 
 import connectors.TradeReportingExtractsConnector
-import models.EoriHistory
+import models.{EoriHistory, EoriHistoryResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -27,13 +27,16 @@ import java.time.LocalDate
 class EoriHistoryService @Inject() (
   tradeReportingExtractsConnector: TradeReportingExtractsConnector
 )(using ec: ExecutionContext) {
-  implicit val hc: HeaderCarrier                               = HeaderCarrier()
-  def fetchEoriHistory(eori: String): Future[Seq[EoriHistory]] =
-    tradeReportingExtractsConnector.getEoriHistory(eori).map(_.getOrElse(Seq.empty))
+  implicit val hc: HeaderCarrier                                          = HeaderCarrier()
+  def fetchEoriHistory(eori: String): Future[Option[EoriHistoryResponse]] =
+    tradeReportingExtractsConnector.getEoriHistory(eori)
 
   def getFilteredEoriHistory(eori: String, from: LocalDate, until: LocalDate): Future[Seq[EoriHistory]] =
     fetchEoriHistory(eori)
-      .map(histories => filterHistoriesByDate(histories, from, until))
+      .map {
+        case Some(histories) => filterHistoriesByDate(histories.eoriHistory, from, until)
+        case None            => Seq.empty
+      }
 
   private def filterHistoriesByDate(
     histories: Seq[EoriHistory],

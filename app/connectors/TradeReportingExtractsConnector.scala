@@ -17,7 +17,7 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.EoriHistory
+import models.EoriHistoryResponse
 import models.report.AvailableReportsViewModel
 import play.api.Logging
 import play.api.libs.json.Json
@@ -76,12 +76,12 @@ class TradeReportingExtractsConnector @Inject() (implicit
     }
   }
 
-  def getEoriHistory(eoriNumber: String): Future[Option[Seq[EoriHistory]]] =
+  def getEoriHistory(eoriNumber: String): Future[Option[EoriHistoryResponse]] =
     httpClient
       .get(url"${appConfig.tradeReportingExtractsApi}/eori/eori-history")
       .withBody(Json.obj(eori -> eoriNumber))
-      .execute[Seq[EoriHistory]]
-      .map(seq => if (seq.nonEmpty) Some(seq) else None)
+      .execute[EoriHistoryResponse]
+      .map(response => if (response.eoriHistory.nonEmpty) Some(response) else None)
       .recover { ex =>
         logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
         throw ex
