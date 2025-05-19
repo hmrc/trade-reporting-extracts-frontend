@@ -16,18 +16,25 @@
 
 package connectors
 
+import config.FrontendAppConfig
+import models.EoriHistory
 import models.report.AvailableReportsViewModel
 import play.api.Logging
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import java.nio.file.{Files, Paths}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+import play.api.libs.ws.writeableOf_JsValue
+import utils.Constants.eori
+
 
 @Singleton
-class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext) extends Logging {
-
+class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext,  appConfig: FrontendAppConfig, httpClient: HttpClientV2) extends Logging {
+  private implicit val hc: HeaderCarrier = HeaderCarrier()
   private val defaultPath                                                = "conf/resources/eoriList.json"
   // TODO replace with a get request to the backend upon implementation of EORI list
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
@@ -65,4 +72,15 @@ class TradeReportingExtractsConnector @Inject() (implicit ec: ExecutionContext) 
         Future.failed(new RuntimeException(errMsg, ex))
     }
   }
+
+  def getEoriHistory(eoriNumber: String): Future[Option[Seq[EoriHistory]]] =
+    httpClient
+      .get(url"${appConfig.tradeReportingExtractsApi}/eori/eori-history")
+      .withBody(Json.obj(eori -> eoriNumber))
+      .execute[Seq[EoriHistory]]
+      .map(seq => if (seq.nonEmpty) Some(seq) else None)
+      .recover { ex =>
+        logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
+        throw ex
+      }
 }
