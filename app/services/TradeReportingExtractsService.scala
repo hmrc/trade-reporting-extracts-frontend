@@ -19,7 +19,7 @@ package services
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
 import models.CompanyInformation
-import models.report.AvailableReportsViewModel
+import models.report.{AvailableReportsViewModel, ReportRequestUserAnswersModel}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
@@ -52,5 +52,10 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
 
   def getAvailableReports(): Future[AvailableReportsViewModel] =
     connector.getAvailableReports()
+
+  def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
+    hc: HeaderCarrier
+  ): Future[Seq[String]] =
+    connector.createReportRequest(reportRequestAnswers)
 
 }

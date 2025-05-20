@@ -23,7 +23,7 @@ import java.time.LocalDate
 
 case object CustomRequestEndDatePage extends QuestionPage[LocalDate] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "customRequestEndDate"
 }

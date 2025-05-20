@@ -47,6 +47,19 @@ final case class UserAnswers(
     }
   }
 
+  def removePath(jsPath: JsPath): Try[UserAnswers] = {
+    val updatedData: Success[JsObject] = data.removeObject(jsPath) match {
+      case JsSuccess(jsValue, _) =>
+        Success(jsValue)
+      case JsError(_)            =>
+        Success(data)
+    }
+
+    updatedData.flatMap { (d: JsObject) =>
+      Try(copy(data = d))
+    }
+  }
+
   def remove[A](page: Settable[A]): Try[UserAnswers] = {
 
     val updatedData = data.removeObject(page.path) match {
