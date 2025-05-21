@@ -34,9 +34,9 @@ class FileDownloadController @Inject() (
     extends BaseController {
 
   def downloadFile(): Action[AnyContent] = Action.async { implicit request =>
-    
-    val fileUrl = "https://github.com/hmrc/trade-reporting-extracts-frontend/raw/main/README.md"
-    val FileName = "README.md"
+
+    val fileUrl = "https://raw.githubusercontent.com/hmrc/trade-reporting-extracts-frontend/refs/heads/TRE-466/conf/resources/CDS-Report.csv"
+    val FileName = "CDS-Report.csv"
 
     ws.url(fileUrl).stream().map { response =>
       Result(
