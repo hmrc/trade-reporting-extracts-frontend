@@ -17,9 +17,10 @@
 package controllers.report
 
 import base.SpecBase
-import connectors.TradeReportingExtractsConnector
 import models.UserAnswers
 import models.report.{EmailSelection, ReportRequestUserAnswersModel}
+import org.apache.pekko.Done
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -27,12 +28,12 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.test.FakeRequest
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
-import org.mockito.ArgumentCaptor
 
 import scala.concurrent.Future
 
@@ -41,14 +42,14 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
   val mockSessionRepository             = mock[SessionRepository]
   val mockReportRequestDataService      = mock[ReportRequestDataService]
   val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  val mockReportHelpers                 = mock[ReportHelpers]
 
   "RequestConfirmationController" - {
 
     "must return OK and the correct view when EmailSelectionPage is defined" in {
 
-      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val emailSelection    = Seq(EmailSelection.Email1, EmailSelection.Email3)
-      val newEmail          = "new.email@example.com"
+      val emailSelection = Seq(EmailSelection.Email1, EmailSelection.Email3)
+      val newEmail       = "new.email@example.com"
 
       val userAnswers = UserAnswers("id")
         .set(EmailSelectionPage, EmailSelection.values.toSet)
@@ -73,6 +74,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
         .thenReturn(Future.successful(Seq("reference")))
+
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
