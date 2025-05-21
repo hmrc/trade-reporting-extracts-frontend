@@ -19,4 +19,5 @@ GET        /dashboard                                    controllers.DashboardCo
 
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
 
+GET        /file-download                                controllers.FileDownloadController.downloadFile()
 
