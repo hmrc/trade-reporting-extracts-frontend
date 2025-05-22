@@ -20,4 +20,6 @@ GET        /dashboard                                    controllers.DashboardCo
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
 
 GET        /file-download                                controllers.FileDownloadController.downloadFile()
+GET        /file-download-500mb                          controllers.FileDownloadController.download500MBFile()
+GET        /file-download-1gb                            controllers.FileDownloadController.download1GBFile()
 
