@@ -17,20 +17,30 @@
 package connectors
 
 import base.SpecBase
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, urlEqualTo}
+import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures {
+class TradeReportingExtractsConnectorSpec
+    extends SpecBase
+    with ScalaFutures
+    with WireMockHelper
+    with ScalaCheckPropertyChecks {
+
+  implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
   private def application: Application =
     new GuiceApplicationBuilder()
-      .configure("microservice.services.trade-reporting-extracts.port" -> 1234)
+      .configure("microservice.services.trade-reporting-extracts.port" -> server.port)
       .build()
 
   "TradeReportingExtractsConnector" - {
@@ -76,7 +86,113 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures {
           result mustBe Seq.empty
         }
       }
+    }
 
+    "createReportRequest" - {
+
+      val url = "/trade-reporting-extracts/create-report-request"
+
+      "must return an OK response and reference when JSON is valid" in {
+
+        val responseBody =
+          s"""{
+             |  "references" : [ "TR-00000001" ]
+             |}""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(ok(responseBody))
+          )
+
+          val result = connector
+            .createReportRequest(
+              ReportRequestUserAnswersModel(
+                eori = "eori",
+                dataType = "import",
+                whichEori = Some("eori"),
+                eoriRole = Set("declarant"),
+                reportType = Set("importHeader"),
+                reportStartDate = "2025-04-16",
+                reportEndDate = "2025-05-16",
+                reportName = "MyReport",
+                additionalEmail = Some(Set("email@email.com"))
+              )
+            )
+            .futureValue
+
+          result mustBe Seq("TR-00000001")
+        }
+      }
+
+      "must return a failed future when OK and JSON not valid" in {
+
+        val responseBody =
+          s"""{
+             |  "ref" : [ "TR-00000001" ]
+             |}""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(ok(responseBody))
+          )
+
+          val result = connector
+            .createReportRequest(
+              ReportRequestUserAnswersModel(
+                eori = "eori",
+                dataType = "import",
+                whichEori = Some("eori"),
+                eoriRole = Set("declarant"),
+                reportType = Set("importHeader"),
+                reportStartDate = "2025-04-16",
+                reportEndDate = "2025-05-16",
+                reportName = "MyReport",
+                additionalEmail = Some(Set("email@email.com"))
+              )
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
+
+      "must return a failed future when anything but OK" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(500))
+          )
+
+          val result = connector
+            .createReportRequest(
+              ReportRequestUserAnswersModel(
+                eori = "eori",
+                dataType = "import",
+                whichEori = Some("eori"),
+                eoriRole = Set("declarant"),
+                reportType = Set("importHeader"),
+                reportStartDate = "2025-04-16",
+                reportEndDate = "2025-05-16",
+                reportName = "MyReport",
+                additionalEmail = Some(Set("email@email.com"))
+              )
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
     }
   }
 }

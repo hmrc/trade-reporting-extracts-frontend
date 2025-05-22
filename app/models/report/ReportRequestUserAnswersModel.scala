@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package pages.report
+package models.report
 
-import models.UserAnswers
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
-import scala.util.Try
+case class ReportRequestUserAnswersModel(
+  eori: String,
+  dataType: String,
+  whichEori: Option[String],
+  eoriRole: Set[String],
+  reportType: Set[String],
+  reportStartDate: String,
+  reportEndDate: String,
+  reportName: String,
+  additionalEmail: Option[Set[String]]
+)
 
-case object CustomRequestStartDatePage extends QuestionPage[LocalDate] {
-
-  override def path: JsPath = JsPath \ "report" \ toString
-
-  override def toString: String = "customRequestStartDate"
-
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(CustomRequestEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
-
+object ReportRequestUserAnswersModel {
+  implicit val format: OFormat[ReportRequestUserAnswersModel] = Json.format[ReportRequestUserAnswersModel]
 }
