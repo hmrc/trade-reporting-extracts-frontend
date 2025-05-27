@@ -19,25 +19,36 @@ package connectors
 import config.FrontendAppConfig
 import models.EoriHistoryResponse
 import models.availableReports.AvailableReportsViewModel
+import config.FrontendAppConfig
+import models.report.ReportRequestUserAnswersModel
 import play.api.Logging
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import java.nio.file.{Files, Paths}
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import play.api.libs.ws.writeableOf_JsValue
 import utils.Constants.eori
+import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
+import play.api.http.Status.OK
+import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
+import play.api.libs.json.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+
+import javax.inject.Inject
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+
+import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.ws.writeableOf_JsValue
 
 @Singleton
-class TradeReportingExtractsConnector @Inject() (implicit
-  ec: ExecutionContext,
-  appConfig: FrontendAppConfig,
-  httpClient: HttpClientV2
+class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
+  implicit ec: ExecutionContext
 ) extends Logging {
-  private implicit val hc: HeaderCarrier                                 = HeaderCarrier()
+  implicit val hc: HeaderCarrier
   private val defaultPath                                                = "conf/resources/eoriList.json"
   // TODO replace with a get request to the backend upon implementation of EORI list
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
@@ -96,5 +107,41 @@ class TradeReportingExtractsConnector @Inject() (implicit
       .recover { ex =>
         logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
         throw ex
+      }
+
+  def createReportRequest(
+    reportRequestAnswers: ReportRequestUserAnswersModel
+  )(implicit hc: HeaderCarrier): Future[Seq[String]] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/create-report-request")
+      .withBody(Json.toJson(reportRequestAnswers))
+      .execute[HttpResponse]
+      .logFailureReason("Trade reporting extracts connector on createReportRequest")
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            val json = Json.parse(response.body)
+            (json \ "references").validate[Seq[String]] match {
+              case JsSuccess(references, _) => Future.successful(references)
+              case JsError(errors)          =>
+                logger.error(s"Failed to parse 'references' from response JSON: $errors")
+                Future.failed(
+                  UpstreamErrorResponse(
+                    "Unexpected response from /trade-reporting-extracts/create-report-request",
+                    response.status
+                  )
+                )
+            }
+          case _  =>
+            logger.error(
+              s"Unexpected response from call to /trade-reporting-extracts/create-report-request with status : ${response.status}"
+            )
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/create-report-request",
+                response.status
+              )
+            )
+        }
       }
 }

@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 case object ReportTypeImportPage extends QuestionPage[Set[ReportTypeImport]] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "reportTypeImport"
 }

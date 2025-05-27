@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 case object ReportDateRangePage extends QuestionPage[ReportDateRange] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "reportDateRange"
 }

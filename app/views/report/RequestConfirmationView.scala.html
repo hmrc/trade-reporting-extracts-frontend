@@ -20,13 +20,13 @@
         govukPanel: GovukPanel
 )
 
-@(list : Seq[String], isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
+@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
     @govukPanel(Panel(
        title = messages("requestConfirmation.heading"),
-       content = HtmlContent(messages("requestConfirmation.referenceNumber", "XXXX")),
+       content = HtmlContent(messages("requestConfirmation.referenceNumber", reqReference)),
     ))
 
 <p class="govuk-body">@messages("requestConfirmation.emailSent", "your.email@address.com")</p>

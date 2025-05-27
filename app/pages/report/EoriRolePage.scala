@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 case object EoriRolePage extends QuestionPage[Set[EoriRole]] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "eoriRole"
 }

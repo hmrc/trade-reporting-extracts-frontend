@@ -19,16 +19,21 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
+import models.report.ReportRequestUserAnswersModel
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
+
+  implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   "TradeReportingExtractsService" - {
     val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
@@ -59,6 +64,60 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         result.head.text `mustBe` "Default EORI"
       }
+    }
+
+    "createReportRequest" - {
+
+      "should return a reference when OK" in {
+
+        when(mockConnector.createReportRequest(any())(any())).thenReturn(Future.successful(Seq("Reference")))
+
+        val result = service
+          .createReportRequest(
+            ReportRequestUserAnswersModel(
+              eori = "eori",
+              dataType = "import",
+              whichEori = Some("eori"),
+              eoriRole = Set("declarant"),
+              reportType = Set("importHeader"),
+              reportStartDate = "2025-04-16",
+              reportEndDate = "2025-05-16",
+              reportName = "MyReport",
+              additionalEmail = Some(Set("email@email.com"))
+            )
+          )
+          .futureValue
+
+        result mustBe a[Seq[String]]
+        result mustBe Seq("Reference")
+
+      }
+    }
+
+    "should return an error when not OK" in {
+
+      when(mockConnector.createReportRequest(any())(any()))
+        .thenReturn(Future.failed(UpstreamErrorResponse("error", 400)))
+
+      val result = service
+        .createReportRequest(
+          ReportRequestUserAnswersModel(
+            eori = "eori",
+            dataType = "import",
+            whichEori = Some("eori"),
+            eoriRole = Set("declarant"),
+            reportType = Set("importHeader"),
+            reportStartDate = "2025-04-16",
+            reportEndDate = "2025-05-16",
+            reportName = "MyReport",
+            additionalEmail = Some(Set("email@email.com"))
+          )
+        )
+        .failed
+        .futureValue
+
+      result mustBe a[UpstreamErrorResponse]
+
     }
   }
 }
