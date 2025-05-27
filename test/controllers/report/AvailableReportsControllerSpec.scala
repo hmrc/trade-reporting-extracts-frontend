@@ -28,6 +28,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
 import utils.ReportHelpers
 
@@ -36,6 +37,7 @@ import scala.concurrent.Future
 import scala.io.Source
 
 class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
+  //implicit hc: HeaderCarrier
 
   "AvailableReports Controller" - {
 
@@ -44,7 +46,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportHelpers                 = mock[ReportHelpers]
 
-      when(mockTradeReportingExtractsService.getAvailableReports(any()))
+      when(mockTradeReportingExtractsService.getAvailableReports(any())(any()))
         .thenReturn(Future.successful(AvailableReportsViewModel(None, None)))
 
       val application =
@@ -94,7 +96,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         action = Seq.empty[AvailableReportAction]
       )
 
-      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
             Some(Seq(userReport)),
@@ -135,10 +137,9 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return correct view for a GET when only user reports available" in {
-
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportHelpers                 = mock[ReportHelpers]
-      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
             Some(
@@ -205,7 +206,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportHelpers                 = mock[ReportHelpers]
-      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
             None,
