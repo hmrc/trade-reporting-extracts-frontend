@@ -16,20 +16,13 @@
 
 package connectors
 
-import config.FrontendAppConfig
-import models.EoriHistoryResponse
 import models.availableReports.AvailableReportsViewModel
 import config.FrontendAppConfig
 import models.report.ReportRequestUserAnswersModel
 import play.api.Logging
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
-
 import java.nio.file.{Files, Paths}
 import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
-import play.api.libs.ws.writeableOf_JsValue
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import play.api.http.Status.OK
@@ -48,7 +41,7 @@ import play.api.libs.ws.writeableOf_JsValue
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
   implicit ec: ExecutionContext
 ) extends Logging {
-  implicit val hc: HeaderCarrier
+
   private val defaultPath                                                = "conf/resources/eoriList.json"
   // TODO replace with a get request to the backend upon implementation of EORI list
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
@@ -87,20 +80,9 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
     }
   }
 
-  def getEoriHistory(eoriNumber: String): Future[Option[EoriHistoryResponse]] =
+  def getAvailableReports(eoriNumber: String)(implicit hc: HeaderCarrier): Future[AvailableReportsViewModel] =
     httpClient
-      .get(url"${appConfig.tradeReportingExtractsApi}/eori/eori-history")
-      .withBody(Json.obj(eori -> eoriNumber))
-      .execute[EoriHistoryResponse]
-      .map(response => if (response.eoriHistory.nonEmpty) Some(response) else None)
-      .recover { ex =>
-        logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
-        throw ex
-      }
-
-  def getAvailableReports(eoriNumber: String): Future[AvailableReportsViewModel] =
-    httpClient
-      .get(url"${appConfig.tradeReportingExtractsApi}/api/available-reports")
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/api/available-reports")
       .setHeader("Content-Type" -> "application/json")
       .withBody(Json.obj(eori -> eoriNumber))
       .execute[AvailableReportsViewModel]

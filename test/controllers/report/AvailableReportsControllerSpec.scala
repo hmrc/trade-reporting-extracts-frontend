@@ -37,7 +37,7 @@ import scala.concurrent.Future
 import scala.io.Source
 
 class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
-  //implicit hc: HeaderCarrier
+  // implicit hc: HeaderCarrier
 
   "AvailableReports Controller" - {
 
