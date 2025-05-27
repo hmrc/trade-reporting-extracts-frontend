@@ -43,7 +43,7 @@ class AvailableReportsController @Inject() (
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
       availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
-      maybeUserReports       = availableReports.availableUserReports.isDefined
+      maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
     } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports, reportHelpers))
   }
