@@ -52,7 +52,7 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
     }
 
   def getAvailableReports(eori: String)(implicit
-                                        hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[AvailableReportsViewModel] =
     connector.getAvailableReports(eori)
 
