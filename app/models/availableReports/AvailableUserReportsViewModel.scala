@@ -44,10 +44,10 @@ object AvailableUserReportsViewModel {
 
   def getReportType(reportType: ReportTypeName): String =
     reportType match {
-      case ReportTypeName.IMPORTS_HEADER_REPORT  => "Import Header Report"
-      case ReportTypeName.IMPORTS_ITEM_REPORT    => "Import Item Report"
-      case ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import Taxline Report"
-      case ReportTypeName.EXPORTS_ITEM_REPORT    => "Export Item Report"
+      case ReportTypeName.IMPORTS_HEADER_REPORT  => "Import Header"
+      case ReportTypeName.IMPORTS_ITEM_REPORT    => "Import Item"
+      case ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import Taxline"
+      case ReportTypeName.EXPORTS_ITEM_REPORT    => "Export Item"
       case _                                     => throw new IllegalArgumentException(s"Unknown report type: $reportType")
     }
 
