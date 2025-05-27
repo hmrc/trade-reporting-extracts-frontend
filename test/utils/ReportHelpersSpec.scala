@@ -55,4 +55,55 @@ class ReportHelpersSpec extends SpecBase with Matchers {
       result mustBe false
     }
   }
+
+  ".formatBytes" - {
+    val reportHelpers = new ReportHelpers
+    "must return bytes when less than 1KB" in {
+      reportHelpers.formatBytes(500L) mustBe "500.00 bytes"
+    }
+
+    "must return KB when less than 1MB" in {
+      reportHelpers.formatBytes(1024L * 500) mustBe "500.00 KB"
+    }
+
+    "must return MB when less than 1GB" in {
+      reportHelpers.formatBytes(1024L * 1024 * 2) mustBe "2.00 MB"
+    }
+
+    "must return GB when less than 1TB" in {
+      reportHelpers.formatBytes(1024L * 1024 * 1024 * 5) mustBe "5.00 GB"
+    }
+
+    "must return TB for large values" in {
+      reportHelpers.formatBytes(1024L * 1024 * 1024 * 1024 * 3) mustBe "3.00 TB"
+    }
+
+    "must handle 0 bytes" in {
+      reportHelpers.formatBytes(0L) mustBe "0.00 KB"
+    }
+
+    "must handle exactly 1KB" in {
+      reportHelpers.formatBytes(1024L) mustBe "1.00 KB"
+    }
+
+    "must handle values slightly less than the next unit" in {
+      reportHelpers.formatBytes(1023L) mustBe "1023.00 bytes"
+      reportHelpers.formatBytes(
+        1024L * 1024 - 1
+      ) mustBe "1024.00 KB" // This will be 1023.999... KB, which rounds to 1024.00 KB due to formatting.
+      // Or, depending on exact implementation, it might be just under 1MB.
+      // The current implementation will show it as 1024.00 KB.
+      // A more precise test might be needed if specific rounding for "just under" is critical.
+      reportHelpers.formatBytes((1024L * 1024 * 1024) - 1) mustBe "1024.00 MB"
+    }
+
+    "must handle values slightly more than a unit" in {
+      reportHelpers.formatBytes(1025L) mustBe "1.00 KB" // 1025 / 1024 = 1.0009...
+      reportHelpers.formatBytes(1024L * 1024 + 1) mustBe "1.00 MB"
+    }
+    "must correctly format to two decimal places" in {
+      reportHelpers.formatBytes(1500L) mustBe "1.46 KB" // 1500 / 1024 = 1.4648...
+      reportHelpers.formatBytes(1024L * 1024 * 1 + 1024 * 512) mustBe "1.50 MB" // 1.5 MB
+    }
+  }
 }

@@ -17,27 +17,21 @@
 package controllers.report
 
 import base.SpecBase
-import models.report.{AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject.bind
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
 import services.TradeReportingExtractsService
-import views.html.report.AvailableReportsView
-import base.SpecBase
-import config.FrontendAppConfig
+import models.ReportTypeName
+import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers.should
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.http.HeaderCarrier
+import views.html.AvailableReportsView
+import utils.ReportHelpers
 
+import java.time.Instant
 import scala.concurrent.Future
 import scala.io.Source
 
@@ -48,8 +42,9 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET when no reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportHelpers                 = mock[ReportHelpers]
 
-      when(mockTradeReportingExtractsService.getAvailableReports())
+      when(mockTradeReportingExtractsService.getAvailableReports(any()))
         .thenReturn(Future.successful(AvailableReportsViewModel(None, None)))
 
       val application =
@@ -60,7 +55,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -69,7 +64,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val reports = AvailableReportsViewModel(None, None)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(reports, false, false, mockReportHelpers)(
+          request,
+          messages(application)
+        ).toString
         contentAsString(result).contains("There are no reports available to download yet") mustBe true
       }
     }
@@ -77,33 +75,30 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET when both types of reports reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportHelpers                 = mock[ReportHelpers]
 
-      when(mockTradeReportingExtractsService.getAvailableReports()).thenReturn(
+      val userReport = AvailableUserReportsViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+        action = Seq.empty[AvailableReportAction]
+      )
+
+      val thirdPartyReport = AvailableThirdPartyReportsViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        companyName = "businessName",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+        action = Seq.empty[AvailableReportAction]
+      )
+
+      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
-            Some(
-              Seq(
-                AvailableUserReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "reportType",
-                  "dateCreated",
-                  "action"
-                )
-              )
-            ),
-            Some(
-              Seq(
-                AvailableThirdPartyReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "businessNAme",
-                  "reportType",
-                  "dateCreated",
-                  "action"
-                )
-              )
-            )
+            Some(Seq(userReport)),
+            Some(Seq(thirdPartyReport))
           )
         )
       )
@@ -116,7 +111,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -124,54 +119,36 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
         val reports =
           AvailableReportsViewModel(
-            Some(
-              Seq(
-                AvailableUserReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "reportType",
-                  "dateCreated",
-                  "action"
-                )
-              )
-            ),
-            Some(
-              Seq(
-                AvailableThirdPartyReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "businessNAme",
-                  "reportType",
-                  "dateCreated",
-                  "action"
-                )
-              )
-            )
+            Some(Seq(userReport)),
+            Some(Seq(thirdPartyReport))
           )
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(reports, true, true, mockReportHelpers)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must return correct view for a GET when only user reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      when(mockTradeReportingExtractsService.getAvailableReports()).thenReturn(
+      val mockReportHelpers                 = mock[ReportHelpers]
+      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
             Some(
               Seq(
                 AvailableUserReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "reportType",
-                  "dateCreated",
-                  "action"
+                  reportName = "reportName",
+                  referenceNumber = "referenceNumber",
+                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  action = Seq.empty[AvailableReportAction]
                 )
               )
             ),
@@ -188,7 +165,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -199,11 +176,11 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
             Some(
               Seq(
                 AvailableUserReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "reportType",
-                  "dateCreated",
-                  "action"
+                  reportName = "reportName",
+                  referenceNumber = "referenceNumber",
+                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  action = Seq.empty[AvailableReportAction]
                 )
               )
             ),
@@ -216,7 +193,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result).contains("Third party reports") mustBe false
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(reports, true, false, mockReportHelpers)(
+          request,
+          messages(application)
+        ).toString
 
       }
     }
@@ -224,20 +204,20 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET when only user third party reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      when(mockTradeReportingExtractsService.getAvailableReports()).thenReturn(
+      val mockReportHelpers                 = mock[ReportHelpers]
+      when(mockTradeReportingExtractsService.getAvailableReports(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
             None,
             Some(
               Seq(
                 AvailableThirdPartyReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "businessNAme",
-                  "reportType",
-                  "dateCreated",
-                  "action"
+                  reportName = "reportName",
+                  referenceNumber = "referenceNumber",
+                  companyName = "businessName",
+                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  action = Seq.empty[AvailableReportAction]
                 )
               )
             )
@@ -253,7 +233,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -265,12 +245,12 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
             Some(
               Seq(
                 AvailableThirdPartyReportsViewModel(
-                  "reportName",
-                  "referenceNumber",
-                  "businessNAme",
-                  "reportType",
-                  "dateCreated",
-                  "action"
+                  reportName = "reportName",
+                  referenceNumber = "referenceNumber",
+                  companyName = "businessName",
+                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  action = Seq.empty[AvailableReportAction]
                 )
               )
             )
@@ -282,7 +262,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result).contains("Third party reports") mustBe true
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(reports, false, true, mockReportHelpers)(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }

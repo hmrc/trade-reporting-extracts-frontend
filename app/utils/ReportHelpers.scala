@@ -20,8 +20,16 @@ import models.UserAnswers
 import pages.report.ReportTypeImportPage
 
 class ReportHelpers {
-
   def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
     userAnswers.get(ReportTypeImportPage).exists(_.size > 1)
 
+  def formatBytes(bytes: Long): String = {
+    val units = List("bytes", "KB", "MB", "GB", "TB")
+    if (bytes == 0L) "0.00 KB"
+    else {
+      val idx   = math.min((math.log(bytes) / math.log(1024)).toInt, units.size - 1)
+      val value = bytes / math.pow(1024, idx)
+      f"$value%.2f ${units(idx)}"
+    }
+  }
 }

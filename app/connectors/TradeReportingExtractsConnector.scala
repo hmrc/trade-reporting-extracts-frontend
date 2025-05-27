@@ -18,7 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import models.EoriHistoryResponse
-import models.report.AvailableReportsViewModel
+import models.availableReports.AvailableReportsViewModel
 import play.api.Logging
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -57,9 +57,9 @@ class TradeReportingExtractsConnector @Inject() (implicit
     }
   }
 
-  private val reportsPath: String                                                              = "conf/resources/availableReportsData.json"
+  private val reportsPath: String                                                                = "conf/resources/availableReportsData.json"
   // TODO replace with a get request to the backend upon implementation of available reports
-  def getAvailableReports(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
+  def getAvailableReportsV2(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
     val path = Paths.get(pathString)
 
     Try {
@@ -82,6 +82,17 @@ class TradeReportingExtractsConnector @Inject() (implicit
       .withBody(Json.obj(eori -> eoriNumber))
       .execute[EoriHistoryResponse]
       .map(response => if (response.eoriHistory.nonEmpty) Some(response) else None)
+      .recover { ex =>
+        logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
+        throw ex
+      }
+
+  def getAvailableReports(eoriNumber: String): Future[AvailableReportsViewModel] =
+    httpClient
+      .get(url"${appConfig.tradeReportingExtractsApi}/api/available-reports")
+      .setHeader("Content-Type" -> "application/json")
+      .withBody(Json.obj(eori -> eoriNumber))
+      .execute[AvailableReportsViewModel]
       .recover { ex =>
         logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
         throw ex

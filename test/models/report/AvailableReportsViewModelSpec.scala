@@ -16,56 +16,138 @@
 
 package models.report
 
+import models.ReportTypeName
+import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsValue, Json}
 
+import java.time.Instant
+
 class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
 
   val userReportsData: Seq[AvailableUserReportsViewModel]             = Seq(
-    AvailableUserReportsViewModel("userReport1", "userReportRef1", "reportType1", "1-1-2000", "action"),
-    AvailableUserReportsViewModel("userReport2", "userReportRef2", "reportType2", "1-1-2000", "action")
+    AvailableUserReportsViewModel(
+      "userReport1",
+      "userReportRef1",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      ReportTypeName.IMPORTS_ITEM_REPORT,
+      Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
+    ),
+    AvailableUserReportsViewModel(
+      "userReport2",
+      "userReportRef2",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      ReportTypeName.IMPORTS_ITEM_REPORT,
+      Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
+    )
   )
   val thirdPartyReportsData: Seq[AvailableThirdPartyReportsViewModel] = Seq(
     AvailableThirdPartyReportsViewModel(
       "TPReportName1",
       "reportRef1",
-      "business1",
-      "reportType1",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      ReportTypeName.IMPORTS_ITEM_REPORT,
       "1-1-2000",
-      "action"
+      Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
     ),
-    AvailableThirdPartyReportsViewModel("TPReportName2", "reportRef2", "business2", "reportType2", "1-1-2000", "action")
+    AvailableThirdPartyReportsViewModel(
+      "TPReportName2",
+      "reportRef2",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      ReportTypeName.IMPORTS_ITEM_REPORT,
+      "1-1-2000",
+      Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
+    )
   )
 
   "AvailableReportsViewModel" - {
 
     "should parse full JSON correctly" in {
-      val json = Json.parse("""
-          |{
-          |  "userReports": [
-          |    { "reportName": "userReport1", "referenceNumber": "userReportRef1", "reportType": "reportType1", "expiryDate": "1-1-2000", "action": "action" },
-          |    { "reportName": "userReport2", "referenceNumber": "userReportRef2", "reportType": "reportType2", "expiryDate": "1-1-2000", "action": "action" }
-          |  ],
-          |  "thirdPartyReports": [
-          |    { "reportName": "TPReportName1", "referenceNumber": "reportRef1", "companyName": "business1", "reportType": "reportType1", "expiryDate": "1-1-2000", "action": "action" },
-          |    { "reportName": "TPReportName2", "referenceNumber": "reportRef2", "companyName": "business2", "reportType": "reportType2", "expiryDate": "1-1-2000", "action": "action" }
-          |  ]
-          |}
-          |""".stripMargin)
+      val json = Json.parse("""{
+            "availableUserReports": [{
+              "reportName": "userReport1",
+              "referenceNumber": "userReportRef1",
+              "expiryDate": "2000-01-01T00:00:00Z",
+              "reportType": "IMPORTS_ITEM_REPORT",
+              "action": [
+                {
+                  "fileName": "action",
+                  "fileURL": "url",
+                  "size": 0,
+                  "fileType": "CSV"
+                }
+              ]
+            },
+            {
+              "reportName": "userReport2",
+              "referenceNumber": "userReportRef2",
+              "expiryDate": "2000-01-01T00:00:00Z",
+              "reportType": "IMPORTS_ITEM_REPORT",
+              "action": [
+                {
+                  "fileName": "action",
+                  "fileURL": "url",
+                  "size": 0,
+                  "fileType": "CSV"
+                }
+              ]
+            }],
+            "availableThirdPartyReports":[ {
+              "reportName": "TPReportName1",
+              "referenceNumber": "reportRef1",
+              "expiryDate": "2000-01-01T00:00:00Z",
+              "reportType": "IMPORTS_ITEM_REPORT",
+              "companyName": "1-1-2000",
+              "action": [
+                {
+                  "fileName": "action",
+                  "fileURL": "url",
+                  "size": 0,
+                  "fileType": "CSV"
+                }
+              ]
+            },
+            {
+              "reportName": "TPReportName2",
+              "referenceNumber": "reportRef2",
+              "expiryDate": "2000-01-01T00:00:00Z",
+              "reportType": "IMPORTS_ITEM_REPORT",
+              "companyName": "1-1-2000",
+              "action": [
+                {
+                  "fileName": "action",
+                  "fileURL": "url",
+                  "size": 0,
+                  "fileType": "CSV"
+                }
+              ]
+            }]
+         }""".stripMargin)
 
       val expected = AvailableReportsViewModel(Some(userReportsData), Some(thirdPartyReportsData))
       json.validate[AvailableReportsViewModel].asOpt mustBe Some(expected)
     }
 
     "should parse JSON with only userReports" in {
-      val json = Json.parse("""
-          |{
-          |  "userReports": [
-          |    { "reportName": "userReport1", "referenceNumber": "userReportRef1", "reportType": "reportType1", "expiryDate": "1-1-2000", "action": "action" }
-          |  ]
-          |}
-          |""".stripMargin)
+      val json = Json.parse("""{
+            "availableUserReports": [
+                    {
+                      "reportName": "userReport1",
+                      "referenceNumber": "userReportRef1",
+                      "expiryDate": "2000-01-01T00:00:00Z",
+                      "reportType": "IMPORTS_ITEM_REPORT",
+                      "action": [
+                        {
+                          "fileName": "action",
+                          "fileURL": "url",
+                          "size": 0,
+                          "fileType": "CSV"
+                        }
+                      ]
+                    }
+                  ]
+         }""".stripMargin)
 
       val expected = AvailableReportsViewModel(Some(Seq(userReportsData.head)), None)
       json.validate[AvailableReportsViewModel].asOpt mustBe Some(expected)
@@ -74,9 +156,21 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
     "should parse JSON with only thirdPartyReports" in {
       val json = Json.parse("""
           |{
-          |  "thirdPartyReports": [
-          |    { "reportName": "TPReportName1", "referenceNumber": "reportRef1", "companyName": "business1", "reportType": "reportType1", "expiryDate": "1-1-2000", "action": "action" }
-          |  ]
+          |  "availableThirdPartyReports":[ {
+          |              "reportName": "TPReportName1",
+          |              "referenceNumber": "reportRef1",
+          |              "expiryDate": "2000-01-01T00:00:00Z",
+          |              "reportType": "IMPORTS_ITEM_REPORT",
+          |              "companyName": "1-1-2000",
+          |              "action": [
+          |                {
+          |                  "fileName": "action",
+          |                  "fileURL": "url",
+          |                  "size": 0,
+          |                  "fileType": "CSV"
+          |                }
+          |              ]
+          |            }]
           |}
           |""".stripMargin)
 
@@ -94,8 +188,8 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
       val model = AvailableReportsViewModel(Some(userReportsData), Some(thirdPartyReportsData))
       val json  = Json.toJson(model)
 
-      (json \ "userReports")(0).\("reportName").as[String] mustBe "userReport1"
-      (json \ "thirdPartyReports")(1).\("reportName").as[String] mustBe "TPReportName2"
+      (json \ "availableUserReports")(0).\("reportName").as[String] mustBe "userReport1"
+      (json \ "availableThirdPartyReports")(1).\("reportName").as[String] mustBe "TPReportName2"
     }
   }
 }
