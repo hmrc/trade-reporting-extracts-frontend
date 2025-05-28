@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package controllers.report
+package controllers
 
 import controllers.actions.*
-import models.NormalMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.report.AvailableReportsView
+import utils.ReportHelpers
+import views.html.AvailableReportsView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -31,6 +31,7 @@ class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
+  reportHelpers: ReportHelpers,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: AvailableReportsView,
@@ -41,9 +42,9 @@ class AvailableReportsController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
-      availableReports      <- tradeReportingExtractsService.getAvailableReports()
-      maybeUserReports       = availableReports.availableUserReports.isDefined
+      availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
+      maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
-    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
+    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports, reportHelpers))
   }
 }

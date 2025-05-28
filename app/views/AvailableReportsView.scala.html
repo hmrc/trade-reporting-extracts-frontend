@@ -14,7 +14,8 @@
  * limitations under the License.
  *@
 
-@import models.report._
+@import models.availableReports._
+@import utils.ReportHelpers
 
 @this(
         layout: templates.Layout,
@@ -26,7 +27,9 @@
 
 @(availableReports: AvailableReportsViewModel,
 maybeUserReports: Boolean,
-maybeThirdPartyReports: Boolean)(implicit request: Request[_], messages: Messages)
+maybeThirdPartyReports: Boolean,
+reportHelpers : ReportHelpers
+)(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
     <h2 class ="govuk-heading-l">@messages("availableReports.myReports")</h2>
@@ -47,10 +50,14 @@ maybeThirdPartyReports: Boolean)(implicit request: Request[_], messages: Message
          <tr class="govuk-table__row">
           <td class="govuk-table__cell hmrc-responsive-table__value">@messages(data.reportName)</td>
           <td class="govuk-table__cell">@messages(data.referenceNumber)</td>
-          <td class="govuk-table__cell">@messages(data.reportType)</td>
-          <td class="govuk-table__cell">@messages(data.expiryDate)</td>
+          <td class="govuk-table__cell">@messages(data.formattedReportType.toString)</td>
+          <td class="govuk-table__cell">@messages(data.formattedExpiryDate.toString)</td>
           <td class="govuk-table__cell">
-           <a href="#">@messages(data.action)</a>
+              @data.action.map { action =>
+              <div>
+                <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @reportHelpers.formatBytes(action.size))</a>
+              </div>
+              }
           </td>
          </tr>
           }
@@ -81,11 +88,15 @@ maybeThirdPartyReports: Boolean)(implicit request: Request[_], messages: Message
           <td class="govuk-table__cell hmrc-responsive-table__value">@messages(data.reportName)</td>
           <td class="govuk-table__cell">@messages(data.referenceNumber)</td>
           <td class="govuk-table__cell">@messages(data.companyName)</td>
-          <td class="govuk-table__cell">@messages(data.reportType)</td>
-          <td class="govuk-table__cell">@messages(data.expiryDate)</td>
-          <td class="govuk-table__cell">
-           <a href="#">@messages(data.action)</a>
-          </td>
+          <td class="govuk-table__cell">@messages(data.reportType.toString)</td>
+          <td class="govuk-table__cell">@messages(data.expiryDate.toString)</td>
+             <td class="govuk-table__cell">
+                 @data.action.map { action =>
+                 <div>
+                     <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @action.size)</a>
+                 </div>
+                 }
+             </td>
          </tr>
             }
          }
@@ -104,6 +115,7 @@ maybeThirdPartyReports: Boolean)(implicit request: Request[_], messages: Message
 
     @layout(
     pageTitle = titleNoForm(messages(titleContent)),
+    showBackLink = false,
     breadcrumbContribution = Seq(
     BreadcrumbsItem(content = Text(messages("availableReports.title")), href = Some(s"#"))),
     isFullWidth = true) {

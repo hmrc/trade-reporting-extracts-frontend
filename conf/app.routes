@@ -19,4 +19,6 @@ GET        /dashboard                                    controllers.DashboardCo
 
 GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
 
+GET        /available-to-download                        controllers.AvailableReportsController.onPageLoad()
+
 

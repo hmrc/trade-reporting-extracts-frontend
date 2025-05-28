@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package models.report
+package models.availableReports
 
 import play.api.libs.functional.syntax.*
-import play.api.libs.json.{Format, Json, OFormat, __}
+import play.api.libs.json.{Format, __}
 
-case class AvailableThirdPartyReportsViewModel(
-  reportName: String,
-  referenceNumber: String,
-  companyName: String,
-  reportType: String,
-  expiryDate: String,
-  action: String
+case class AvailableReportsViewModel(
+  availableUserReports: Option[Seq[AvailableUserReportsViewModel]],
+  availableThirdPartyReports: Option[Seq[AvailableThirdPartyReportsViewModel]]
 )
 
-object AvailableThirdPartyReportsViewModel {
-  implicit val format: OFormat[AvailableThirdPartyReportsViewModel] = Json.format[AvailableThirdPartyReportsViewModel]
+object AvailableReportsViewModel {
+  implicit lazy val format: Format[AvailableReportsViewModel] = (
+    (__ \ "availableUserReports").formatNullable[Seq[AvailableUserReportsViewModel]] and
+      (__ \ "availableThirdPartyReports").formatNullable[Seq[AvailableThirdPartyReportsViewModel]]
+  )(AvailableReportsViewModel.apply, o => Tuple.fromProductTyped(o))
 }
