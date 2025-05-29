@@ -39,7 +39,6 @@ class RequestConfirmationController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  reportHelpers: ReportHelpers,
   sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
   reportRequestDataService: ReportRequestDataService,
@@ -51,7 +50,7 @@ class RequestConfirmationController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val updatedList: Seq[String] = fetchUpdatedData(request)
-    val isMoreThanOneReport      = reportHelpers.isMoreThanOneReport(request.userAnswers)
+    val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
     for {
       requestRefs    <- tradeReportingExtractsService.createReportRequest(
                           reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)

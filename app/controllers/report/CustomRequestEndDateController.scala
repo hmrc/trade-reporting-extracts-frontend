@@ -43,8 +43,7 @@ class CustomRequestEndDateController @Inject() (
   requireData: DataRequiredAction,
   formProvider: CustomRequestEndDateFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: CustomRequestEndDateView,
-  reportHelpers: ReportHelpers
+  view: CustomRequestEndDateView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -65,7 +64,7 @@ class CustomRequestEndDateController @Inject() (
         mode,
         reportLengthStringGen(startDate, plus31Days = false),
         reportLengthStringGen(startDate, plus31Days = true),
-        reportHelpers.isMoreThanOneReport(request.userAnswers)
+        ReportHelpers.isMoreThanOneReport(request.userAnswers)
       )
     )
   }
@@ -87,7 +86,7 @@ class CustomRequestEndDateController @Inject() (
                   mode,
                   reportLengthStringGen(startDate, plus31Days = false),
                   reportLengthStringGen(startDate, plus31Days = true),
-                  reportHelpers.isMoreThanOneReport(request.userAnswers)
+                  ReportHelpers.isMoreThanOneReport(request.userAnswers)
                 )
               )
             ),

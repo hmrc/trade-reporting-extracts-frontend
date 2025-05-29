@@ -42,7 +42,6 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
   val mockSessionRepository             = mock[SessionRepository]
   val mockReportRequestDataService      = mock[ReportRequestDataService]
   val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-  val mockReportHelpers                 = mock[ReportHelpers]
 
   "RequestConfirmationController" - {
 

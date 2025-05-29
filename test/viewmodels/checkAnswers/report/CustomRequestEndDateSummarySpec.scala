@@ -23,7 +23,6 @@ import base.SpecBase
 import models.{CheckMode, ReportTypeImport, UserAnswers}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
 import utils.DateTimeFormats.dateTimeFormat
-import utils.ReportHelpers
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -41,7 +40,7 @@ class CustomRequestEndDateSummarySpec extends SpecBase {
 
       val answers = UserAnswers("id").set(CustomRequestEndDatePage, validAnswer).success.value
 
-      val result = CustomRequestEndDateSummary(new ReportHelpers).row(answers)
+      val result = CustomRequestEndDateSummary().row(answers)
 
       result mustBe Some(
         SummaryListRow(
@@ -71,7 +70,7 @@ class CustomRequestEndDateSummarySpec extends SpecBase {
         .success
         .value
 
-      val result = CustomRequestEndDateSummary(new ReportHelpers).row(answers)
+      val result = CustomRequestEndDateSummary().row(answers)
 
       result mustBe Some(
         SummaryListRow(
@@ -94,7 +93,7 @@ class CustomRequestEndDateSummarySpec extends SpecBase {
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
 
-      val result = CustomRequestEndDateSummary(new ReportHelpers).row(answers)
+      val result = CustomRequestEndDateSummary().row(answers)
 
       result mustBe None
     }

@@ -39,7 +39,6 @@ class CustomRequestStartDateController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: CustomRequestStartDateFormProvider,
-  reportHelpers: ReportHelpers,
   val controllerComponents: MessagesControllerComponents,
   view: CustomRequestStartDateView
 )(implicit ec: ExecutionContext)
@@ -55,7 +54,7 @@ class CustomRequestStartDateController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, reportHelpers.isMoreThanOneReport(request.userAnswers)))
+    Ok(view(preparedForm, mode, ReportHelpers.isMoreThanOneReport(request.userAnswers)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -68,7 +67,7 @@ class CustomRequestStartDateController @Inject() (
         .fold(
           formWithErrors =>
             Future.successful(
-              BadRequest(view(formWithErrors, mode, reportHelpers.isMoreThanOneReport(request.userAnswers)))
+              BadRequest(view(formWithErrors, mode, ReportHelpers.isMoreThanOneReport(request.userAnswers)))
             ),
           value =>
             for {

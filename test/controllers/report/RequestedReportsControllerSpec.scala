@@ -17,35 +17,31 @@
 package controllers.report
 
 import base.SpecBase
-import services.TradeReportingExtractsService
 import models.ReportTypeName
-import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
+import models.report.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.scalatest.matchers.should.Matchers.should
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.http.HeaderCarrier
-import views.html.AvailableReportsView
+import services.TradeReportingExtractsService
+import views.html.report.RequestedReportsView
 
 import java.time.Instant
 import scala.concurrent.Future
-import scala.io.Source
 
-class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
-  // implicit hc: HeaderCarrier
+class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
 
-  "AvailableReports Controller" - {
+  "RequestedReports Controller" - {
 
     "must return OK and the correct view for a GET when no reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
-      when(mockTradeReportingExtractsService.getAvailableReports(any())(any()))
-        .thenReturn(Future.successful(AvailableReportsViewModel(None, None)))
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
+        .thenReturn(Future.successful(RequestedReportsViewModel(None, None)))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -55,20 +51,20 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+        val view = application.injector.instanceOf[RequestedReportsView]
 
-        val reports = AvailableReportsViewModel(None, None)
+        val reports = RequestedReportsViewModel(None, None)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(reports, false, false)(
           request,
           messages(application)
         ).toString
-        contentAsString(result).contains("There are no reports available to download yet") mustBe true
+        contentAsString(result).contains("No reports have been requested yet") mustBe true
       }
     }
 
@@ -76,26 +72,24 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
-      val userReport = AvailableUserReportsViewModel(
+      val userReport = RequestedUserReportViewModel(
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-        expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-        action = Seq.empty[AvailableReportAction]
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z")
       )
 
-      val thirdPartyReport = AvailableThirdPartyReportsViewModel(
+      val thirdPartyReport = RequestedThirdPartyReportViewModel(
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         companyName = "businessName",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-        expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-        action = Seq.empty[AvailableReportAction]
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z")
       )
 
-      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
         Future.successful(
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             Some(Seq(userReport)),
             Some(Seq(thirdPartyReport))
           )
@@ -110,14 +104,14 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+        val view = application.injector.instanceOf[RequestedReportsView]
 
         val reports =
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             Some(Seq(userReport)),
             Some(Seq(thirdPartyReport))
           )
@@ -135,17 +129,16 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return correct view for a GET when only user reports available" in {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
         Future.successful(
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             Some(
               Seq(
-                AvailableUserReportsViewModel(
+                RequestedUserReportViewModel(
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
                 )
               )
             ),
@@ -162,22 +155,21 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+        val view = application.injector.instanceOf[RequestedReportsView]
 
         val reports =
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             Some(
               Seq(
-                AvailableUserReportsViewModel(
+                RequestedUserReportViewModel(
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
                 )
               )
             ),
@@ -201,19 +193,18 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET when only user third party reports available" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
         Future.successful(
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             None,
             Some(
               Seq(
-                AvailableThirdPartyReportsViewModel(
+                RequestedThirdPartyReportViewModel(
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
                 )
               )
             )
@@ -229,24 +220,23 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+        val view = application.injector.instanceOf[RequestedReportsView]
 
         val reports =
-          AvailableReportsViewModel(
+          RequestedReportsViewModel(
             None,
             Some(
               Seq(
-                AvailableThirdPartyReportsViewModel(
+                RequestedThirdPartyReportViewModel(
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
                 )
               )
             )

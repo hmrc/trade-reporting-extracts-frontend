@@ -19,11 +19,11 @@ package utils
 import models.UserAnswers
 import pages.report.ReportTypeImportPage
 
-class ReportHelpers {
+object ReportHelpers {
   def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
     userAnswers.get(ReportTypeImportPage).exists(_.size > 1)
 
-  def formatBytes(bytes: Long): String = {
+  def formatBytes(bytes: Long): String                         = {
     val units = List("bytes", "KB", "MB", "GB", "TB")
     if (bytes == 0L) "0.00 KB"
     else {
@@ -32,4 +32,12 @@ class ReportHelpers {
       f"$value%.2f ${units(idx)}"
     }
   }
+  def getReportType(reportType: models.ReportTypeName): String =
+    reportType match {
+      case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "Import Header"
+      case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "Import Item"
+      case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import Taxline"
+      case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export Item"
+      case _                                            => throw new IllegalArgumentException(s"Unknown report type: $reportType")
+    }
 }

@@ -23,7 +23,6 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
 import utils.DateTimeFormats.dateTimeFormat
-import utils.ReportHelpers
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -40,7 +39,7 @@ class CustomRequestStartDateSummarySpec extends SpecBase {
     "when value is entered return the summary row" in {
 
       val answers = UserAnswers("id").set(CustomRequestStartDatePage, validAnswer).success.value
-      val result  = CustomRequestStartDateSummary(new ReportHelpers).row(answers)
+      val result  = CustomRequestStartDateSummary().row(answers)
 
       result mustBe Some(
         SummaryListRow(
@@ -69,7 +68,7 @@ class CustomRequestStartDateSummarySpec extends SpecBase {
         .set(CustomRequestStartDatePage, validAnswer)
         .success
         .value
-      val result  = CustomRequestStartDateSummary(new ReportHelpers).row(answers)
+      val result  = CustomRequestStartDateSummary().row(answers)
 
       result mustBe Some(
         SummaryListRow(
@@ -92,7 +91,7 @@ class CustomRequestStartDateSummarySpec extends SpecBase {
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
 
-      val result = CustomRequestStartDateSummary(new ReportHelpers).row(answers)
+      val result = CustomRequestStartDateSummary().row(answers)
 
       result mustBe None
     }

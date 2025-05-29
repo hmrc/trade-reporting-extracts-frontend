@@ -26,13 +26,13 @@ import utils.ReportHelpers
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-class CustomRequestStartDateSummary @Inject() (reportHelpers: ReportHelpers) {
+class CustomRequestStartDateSummary @Inject() {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(CustomRequestStartDatePage).map { answer =>
 
       implicit val lang: Lang = messages.lang
-      val moreThanOneReport   = reportHelpers.isMoreThanOneReport(answers)
+      val moreThanOneReport   = ReportHelpers.isMoreThanOneReport(answers)
       SummaryListRowViewModel(
         key = if (moreThanOneReport) { "customRequestStartDate.pluralReport.checkYourAnswersLabel" }
         else {
