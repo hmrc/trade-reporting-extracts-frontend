@@ -36,7 +36,9 @@ class DashboardController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: DashboardView,
   tradeReportingExtractsService: TradeReportingExtractsService
-)(using ec: ExecutionContext) extends BaseController with AllowedEoris {
+)(using ec: ExecutionContext)
+    extends BaseController
+    with AllowedEoris {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -44,7 +46,7 @@ class DashboardController @Inject() (
       Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
     } else {
       tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
-          Ok(view(userDetails))
+        Ok(view(userDetails))
       }
     }
   }

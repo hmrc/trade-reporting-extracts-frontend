@@ -33,8 +33,8 @@ object AccessType:
       case _               => JsError("AccessType must be a string")
 
 enum FileType:
-    case CSV, XML
-    
+  case CSV, XML
+
 object FileType:
   given Format[FileType] with
     def writes(fileType: FileType): JsValue = JsString(fileType.toString)
@@ -43,8 +43,8 @@ object FileType:
       case JsString(value) =>
         FileType.values.find(_.toString == value) match
           case Some(fileType) => JsSuccess(fileType)
-          case None => JsError(s"Unknown FileType: $value")
-      case _ => JsError("FileType must be a string")
+          case None           => JsError(s"Unknown FileType: $value")
+      case _               => JsError("FileType must be a string")
 
 enum ReportTypeName:
   case IMPORTS_ITEM_REPORT, IMPORTS_HEADER_REPORT, IMPORTS_TAXLINE_REPORT, EXPORTS_ITEM_REPORT

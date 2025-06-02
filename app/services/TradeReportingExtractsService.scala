@@ -22,7 +22,7 @@ import models.CompanyInformation
 import models.availableReports.AvailableReportsViewModel
 import models.report.ReportRequestUserAnswersModel
 import models.{CompanyInformation, UserDetails}
-import models.report.{ReportRequestUserAnswersModel}
+import models.report.ReportRequestUserAnswersModel
 import play.api.Logging
 import play.api.i18n.Messages
 import play.api.libs.json.Json
@@ -46,7 +46,7 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
       .withBody(Json.obj("eori" -> eori))
       .execute[UserDetails]
       .flatMap:
-        response => Future.successful(response)
+      response => Future.successful(response)
 
   def getCompanyInformation()(implicit hc: HeaderCarrier): Future[CompanyInformation] =
     httpClient
