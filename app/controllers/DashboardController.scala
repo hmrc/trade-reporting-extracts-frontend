@@ -16,11 +16,17 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
+import models.AllowedEoris
+
 import javax.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.TradeReportingExtractsService
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.DashboardView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class DashboardController @Inject() (
   override val messagesApi: MessagesApi,
@@ -28,10 +34,20 @@ class DashboardController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: DashboardView
-) extends BaseController {
+  view: DashboardView,
+  tradeReportingExtractsService: TradeReportingExtractsService
+)(using ec: ExecutionContext)
+    extends BaseController
+    with AllowedEoris {
 
-  def onPageLoad: Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    if (!allowedEoris.contains(request.eori)) {
+      Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
+    } else {
+      tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
+        Ok(view(userDetails))
+      }
+    }
   }
 }

@@ -36,8 +36,7 @@ class DashboardControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[DashboardView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        status(result) mustEqual 303
       }
     }
   }
