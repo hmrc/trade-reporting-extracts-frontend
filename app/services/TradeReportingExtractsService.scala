@@ -22,7 +22,7 @@ import models.CompanyInformation
 import models.availableReports.AvailableReportsViewModel
 import models.report.ReportRequestUserAnswersModel
 import models.{CompanyInformation, UserDetails}
-import models.report.{AvailableReportsViewModel, ReportRequestUserAnswersModel}
+import models.report.{ReportRequestUserAnswersModel}
 import play.api.Logging
 import play.api.i18n.Messages
 import play.api.libs.json.Json
