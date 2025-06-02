@@ -17,7 +17,7 @@
 package utils
 
 import base.SpecBase
-import models.ReportTypeImport
+import models.{ReportTypeImport, ReportTypeName}
 import org.scalatest.matchers.must.Matchers
 import pages.report.ReportTypeImportPage
 
@@ -103,4 +103,23 @@ class ReportHelpersSpec extends SpecBase with Matchers {
       ReportHelpers.formatBytes(1024L * 1024 * 1 + 1024 * 512) mustBe "1.50 MB" // 1.5 MB
     }
   }
+
+  ".getReportType" - {
+
+    "must return correct label for known report types" in {
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_HEADER_REPORT) mustBe "Import Header"
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_ITEM_REPORT) mustBe "Import Item"
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_TAXLINE_REPORT) mustBe "Import Taxline"
+      ReportHelpers.getReportType(models.ReportTypeName.EXPORTS_ITEM_REPORT) mustBe "Export Item"
+    }
+
+    "must throw IllegalArgumentException when passed null" in {
+      val exception = intercept[IllegalArgumentException] {
+        ReportHelpers.getReportType(null)
+      }
+      exception.getMessage must include("Unknown or null report type")
+    }
+
+  }
+
 }
