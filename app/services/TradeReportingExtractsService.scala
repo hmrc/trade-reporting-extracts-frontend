@@ -21,12 +21,14 @@ import connectors.TradeReportingExtractsConnector
 import models.CompanyInformation
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
+import models.{CompanyInformation, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
-
+import play.api.libs.ws.writeableOf_JsValue
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,6 +38,14 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
   ec: ExecutionContext,
   connector: TradeReportingExtractsConnector
 ) extends Logging {
+
+  def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
+    httpClient
+      .get(url"${appConfig.tradeReportingExtractsApi}/eori/setup-user")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[UserDetails]
+      .flatMap:
+      response => Future.successful(response)
 
   def getCompanyInformation()(implicit hc: HeaderCarrier): Future[CompanyInformation] =
     httpClient

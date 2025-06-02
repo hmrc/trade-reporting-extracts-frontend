@@ -24,14 +24,14 @@
         govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(userDetails: UserDetails)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("dashboard.title")),
     showBackLink = false,
     isFullWidth = true
 ) {
-    <span class="govuk-caption-l">Administrator</span>
+    <span class="govuk-caption-l">@userDetails.companyInformation.name</span>
     <h1 class="govuk-heading-xl">@messages("dashboard.heading")</h1>
     <div class="flex-container govuk-grid-row">
         @Card(
