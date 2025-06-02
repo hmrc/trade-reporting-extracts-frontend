@@ -66,4 +66,4 @@ POST       /check-your-answers        controllers.report.CheckYourAnswersControl
 
 
 GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
-GET        /requestedReports                              controllers.report.RequestedReportsController.onPageLoad()
+GET        /requested-reports                             controllers.report.RequestedReportsController.onPageLoad()
