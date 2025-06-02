@@ -18,6 +18,9 @@ package services
 
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
+import models.CompanyInformation
+import models.availableReports.AvailableReportsViewModel
+import models.report.ReportRequestUserAnswersModel
 import models.{CompanyInformation, UserDetails}
 import models.report.{AvailableReportsViewModel, ReportRequestUserAnswersModel}
 import play.api.Logging
@@ -44,7 +47,7 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
       .execute[UserDetails]
       .flatMap:
         response => Future.successful(response)
-        
+
   def getCompanyInformation()(implicit hc: HeaderCarrier): Future[CompanyInformation] =
     httpClient
       .get(url"${appConfig.tradeReportingExtractsApi}/eori/company-information")
@@ -59,8 +62,10 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
       )
     }
 
-  def getAvailableReports(): Future[AvailableReportsViewModel] =
-    connector.getAvailableReports()
+  def getAvailableReports(eori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[AvailableReportsViewModel] =
+    connector.getAvailableReports(eori)
 
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier

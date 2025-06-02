@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package models.report
+package models.availableReports
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{Format, Json, OFormat, __}
+import models.FileType
+import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
-
-case class AvailableUserReportsViewModel(
-  reportName: String,
-  referenceNumber: String,
-  reportType: String,
-  expiryDate: String,
-  action: String
+case class AvailableReportAction(
+  fileName: String,
+  fileURL: String,
+  size: Long,
+  fileType: FileType
 )
 
-object AvailableUserReportsViewModel {
-  implicit val format: OFormat[AvailableUserReportsViewModel] = Json.format[AvailableUserReportsViewModel]
+object AvailableReportAction {
+  implicit val format: OFormat[AvailableReportAction] = Json.format[AvailableReportAction]
 }

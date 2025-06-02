@@ -16,12 +16,14 @@
 
 package connectors
 
+import models.availableReports.AvailableReportsViewModel
 import config.FrontendAppConfig
-import models.report.{AvailableReportsViewModel, ReportRequestUserAnswersModel}
+import models.report.ReportRequestUserAnswersModel
 import play.api.Logging
 import java.nio.file.{Files, Paths}
 import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
+import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import play.api.http.Status.OK
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -59,9 +61,9 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
     }
   }
 
-  private val reportsPath: String                                                              = "conf/resources/availableReportsData.json"
+  private val reportsPath: String                                                                = "conf/resources/availableReportsData.json"
   // TODO replace with a get request to the backend upon implementation of available reports
-  def getAvailableReports(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
+  def getAvailableReportsV2(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
     val path = Paths.get(pathString)
 
     Try {
@@ -77,6 +79,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         Future.failed(new RuntimeException(errMsg, ex))
     }
   }
+
+  def getAvailableReports(eoriNumber: String)(implicit hc: HeaderCarrier): Future[AvailableReportsViewModel] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/api/available-reports")
+      .setHeader("Content-Type" -> "application/json")
+      .withBody(Json.obj(eori -> eoriNumber))
+      .execute[AvailableReportsViewModel]
+      .recover { ex =>
+        logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
+        throw ex
+      }
 
   def createReportRequest(
     reportRequestAnswers: ReportRequestUserAnswersModel

@@ -20,6 +20,8 @@ import play.api.libs.json.*
 
 enum AccessType:
   case IMPORTS, EXPORTS, DECLARATIONS
+enum FileType:
+  case CSV, XML
 
 object AccessType:
   given Format[AccessType] with

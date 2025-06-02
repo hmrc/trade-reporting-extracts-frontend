@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,43 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
+import play.api.Logger
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsPath, _}
 
-case class EoriHistory(EORI: String, validFrom: Option[String], validTo: Option[String])
+import scala.util.{Failure, Success, Try}
+
+case class EoriHistory(eori: String, validFrom: Option[LocalDate], validUntil: Option[LocalDate])
 
 object EoriHistory {
-  implicit val eoriHistoryFormat: OFormat[EoriHistory] = Json.format[EoriHistory]
+  val logger = Logger(this.getClass)
+
+  implicit val reads: Reads[EoriHistory] = (
+    (JsPath \ "eori").read[String] and
+      (JsPath \ "validFrom").readNullable[String].map(asDate) and
+      (JsPath \ "validUntil").readNullable[String].map(asDate)
+  )(EoriHistory.apply _)
+
+  implicit val writes: Writes[EoriHistory] = (o: EoriHistory) =>
+    Json.obj(
+      "eori"       -> o.eori,
+      "validFrom"  -> o.validFrom.map(_.toString),
+      "validUntil" -> o.validUntil.map(_.toString)
+    )
+
+  private def asDate(maybeDate: Option[String]): Option[LocalDate] =
+    maybeDate.flatMap(dateString =>
+      Try(LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE)) match {
+        case Success(date) => Some(date)
+        case Failure(_)    =>
+          Try(LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)) match {
+            case Success(dateTime) => Some(dateTime.toLocalDate)
+            case Failure(ex)       =>
+              logger.error(ex.getMessage, ex)
+              None
+          }
+      }
+    )
 }
