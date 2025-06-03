@@ -107,10 +107,10 @@ class ReportHelpersSpec extends SpecBase with Matchers {
   ".getReportType" - {
 
     "must return correct label for known report types" in {
-      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_HEADER_REPORT) mustBe "Import Header"
-      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_ITEM_REPORT) mustBe "Import Item"
-      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_TAXLINE_REPORT) mustBe "Import Taxline"
-      ReportHelpers.getReportType(models.ReportTypeName.EXPORTS_ITEM_REPORT) mustBe "Export Item"
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_HEADER_REPORT) mustBe "Import header"
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_ITEM_REPORT) mustBe "Import item"
+      ReportHelpers.getReportType(models.ReportTypeName.IMPORTS_TAXLINE_REPORT) mustBe "Import tax line"
+      ReportHelpers.getReportType(models.ReportTypeName.EXPORTS_ITEM_REPORT) mustBe "Export item"
     }
 
     "must throw IllegalArgumentException when passed null" in {
