@@ -36,10 +36,10 @@ object ReportHelpers {
   def getReportType(reportType: models.ReportTypeName): String =
     Option(reportType)
       .map {
-        case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "Import Header"
-        case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "Import Item"
-        case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import Taxline"
-        case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export Item"
+        case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "Import header"
+        case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "Import item"
+        case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import tax line"
+        case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export item"
       }
       .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
 
