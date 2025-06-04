@@ -326,3 +326,6 @@ requestedReports.table.reportType = cy: Type of report
 requestedReports.table.requestedDate = cy: Date requested
 requestedReports.table.referenceNumber = cy: Reference number
 requestedReports.table.status = cy: Status
+requestedReports.status.complete = cy: Complete
+requestedReports.status.error = cy: Error
+requestedReports.status.inProgress = cy: In progress

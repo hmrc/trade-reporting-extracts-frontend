@@ -326,3 +326,6 @@ requestedReports.table.reportType = Type of report
 requestedReports.table.requestedDate = Date requested
 requestedReports.table.referenceNumber = Reference number
 requestedReports.table.status = Status
+requestedReports.status.complete = Complete
+requestedReports.status.error = Error
+requestedReports.status.inProgress = In progress
