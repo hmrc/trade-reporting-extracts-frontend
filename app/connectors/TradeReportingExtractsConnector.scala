@@ -18,8 +18,9 @@ package connectors
 
 import models.availableReports.AvailableReportsViewModel
 import config.FrontendAppConfig
-import models.report.ReportRequestUserAnswersModel
+import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
+
 import java.nio.file.{Files, Paths}
 import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
@@ -78,6 +79,48 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         logger.error(errMsg)
         Future.failed(new RuntimeException(errMsg, ex))
     }
+  }
+
+  def getRequestedReports(eoriNumber: String)(implicit hc: HeaderCarrier): Future[RequestedReportsViewModel] = {
+    val requestBody = Json.obj("eori" -> eoriNumber)
+
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/requested-reports")
+      .setHeader("Content-Type" -> "application/json")
+      .withBody(requestBody)
+      .execute[HttpResponse]
+      .flatMap {
+        case response if response.status == 200 =>
+          Json
+            .parse(response.body)
+            .validate[RequestedReportsViewModel]
+            .fold(
+              errors => {
+                val errorMsg = s"JSON validation failed: $errors"
+                logger.error(errorMsg)
+                Future.failed(new RuntimeException(errorMsg))
+              },
+              validModel => Future.successful(validModel)
+            )
+
+        case response if response.status == 204 =>
+          logger.info(s"No reports found for EORI: $eoriNumber")
+          Future.successful(RequestedReportsViewModel(None, None))
+
+        case response if response.status == 400 =>
+          val msg = s"Bad request when fetching reports for EORI: $eoriNumber - ${response.body}"
+          logger.warn(msg)
+          Future.failed(new IllegalArgumentException(msg))
+
+        case response =>
+          val msg = s"Unexpected response ${response.status} from requested-reports API: ${response.body}"
+          logger.error(msg)
+          Future.failed(new RuntimeException(msg))
+      }
+      .recover { case ex: Exception =>
+        logger.error(s"Exception while fetching requested reports for EORI: $eoriNumber", ex)
+        throw ex
+      }
   }
 
   def getAvailableReports(eoriNumber: String)(implicit hc: HeaderCarrier): Future[AvailableReportsViewModel] =

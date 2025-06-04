@@ -19,7 +19,7 @@ package utils
 import models.UserAnswers
 import pages.report.ReportTypeImportPage
 
-class ReportHelpers {
+object ReportHelpers {
   def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
     userAnswers.get(ReportTypeImportPage).exists(_.size > 1)
 
@@ -32,4 +32,15 @@ class ReportHelpers {
       f"$value%.2f ${units(idx)}"
     }
   }
+
+  def getReportType(reportType: models.ReportTypeName): String =
+    Option(reportType)
+      .map {
+        case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "Import header"
+        case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "Import item"
+        case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import tax line"
+        case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export item"
+      }
+      .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
+
 }

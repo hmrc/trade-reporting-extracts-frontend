@@ -27,8 +27,7 @@
 
 @(availableReports: AvailableReportsViewModel,
 maybeUserReports: Boolean,
-maybeThirdPartyReports: Boolean,
-reportHelpers : ReportHelpers
+maybeThirdPartyReports: Boolean
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
@@ -55,7 +54,7 @@ reportHelpers : ReportHelpers
           <td class="govuk-table__cell">
               @data.action.map { action =>
               <div>
-                <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @reportHelpers.formatBytes(action.size))</a>
+                <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @ReportHelpers.formatBytes(action.size))</a>
               </div>
               }
           </td>

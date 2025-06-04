@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.report
 
 import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
-import views.html.AvailableReportsView
+import views.html.report.RequestedReportsView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class AvailableReportsController @Inject() (
+class RequestedReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: AvailableReportsView,
+  view: RequestedReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -41,9 +40,9 @@ class AvailableReportsController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
-      availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
-      maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
-      maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
-    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
+      requestedReports      <- tradeReportingExtractsService.getRequestedReports(request.eori)
+      maybeUserReports       = requestedReports.availableUserReports.exists(_.nonEmpty)
+      maybeThirdPartyReports = requestedReports.availableThirdPartyReports.isDefined
+    } yield Ok(view(requestedReports, maybeUserReports, maybeThirdPartyReports))
   }
 }

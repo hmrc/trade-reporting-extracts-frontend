@@ -14,38 +14,33 @@
  * limitations under the License.
  */
 
-package models.availableReports
+package models.report
 
 import models.ReportTypeName
 import play.api.libs.json.{Json, OFormat}
 import utils.ReportHelpers
 
+import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
 import java.util.Locale
 
-case class AvailableUserReportsViewModel(
-  reportName: String,
+case class RequestedUserReportViewModel(
   referenceNumber: String,
-  expiryDate: Instant,
-  reportType: ReportTypeName,
-  action: Seq[AvailableReportAction]
+  reportName: String,
+  requestedDate: Instant,
+  reportType: ReportTypeName
 ) {
-  def formattedExpiryDate: String =
-    AvailableUserReportsViewModel.dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
-  def formattedReportType: String = AvailableUserReportsViewModel.getReportType(reportType)
+  def formattedRequestedDate: String =
+    RequestedUserReportViewModel.dateFormatter.format(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formattedReportType: String    = ReportHelpers.getReportType(reportType)
 
 }
 
-object AvailableUserReportsViewModel {
+object RequestedUserReportViewModel {
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH)
 
   def formatExpiryDate(expiryDate: Instant): String =
     dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
-  def getReportType(reportType: ReportTypeName): String =
-    ReportHelpers.getReportType(reportType)
-
-  implicit val format: OFormat[AvailableUserReportsViewModel] =
-    Json.format[AvailableUserReportsViewModel]
+  implicit val format: OFormat[RequestedUserReportViewModel] = Json.format[RequestedUserReportViewModel]
 }
