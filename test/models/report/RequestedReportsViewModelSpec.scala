@@ -16,6 +16,7 @@
 
 package models.report
 
+import models.ReportStatus.IN_PROGRESS
 import models.ReportTypeName
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -31,13 +32,15 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "userReportRef1",
       "userReport1",
       Instant.parse("2000-01-01T00:00:00Z"),
-      ReportTypeName.IMPORTS_ITEM_REPORT
+      ReportTypeName.IMPORTS_ITEM_REPORT,
+      IN_PROGRESS
     ),
     RequestedUserReportViewModel(
       "userReportRef2",
       "userReport2",
       Instant.parse("2000-01-01T00:00:00Z"),
-      ReportTypeName.IMPORTS_ITEM_REPORT
+      ReportTypeName.IMPORTS_ITEM_REPORT,
+      IN_PROGRESS
     )
   )
 
@@ -47,14 +50,16 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "TPReportName1",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
-      "Example Ltd"
+      "Example Ltd",
+      IN_PROGRESS
     ),
     RequestedThirdPartyReportViewModel(
       "reportRef2",
       "TPReportName2",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
-      "Example Ltd"
+      "Example Ltd",
+      IN_PROGRESS
     )
   )
 
@@ -68,13 +73,15 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "referenceNumber": "userReportRef1",
           |      "reportName": "userReport1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
-          |      "reportType": "IMPORTS_ITEM_REPORT"
+          |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStatus": "IN_PROGRESS"
           |    },
           |    {
           |      "referenceNumber": "userReportRef2",
           |      "reportName": "userReport2",
           |      "requestedDate": "2000-01-01T00:00:00Z",
-          |      "reportType": "IMPORTS_ITEM_REPORT"
+          |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ],
           |  "thirdPartyReports": [
@@ -83,14 +90,16 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "reportName": "TPReportName1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
-          |      "companyName": "Example Ltd"
+          |      "companyName": "Example Ltd",
+          |      "reportStatus": "IN_PROGRESS"
           |    },
           |    {
           |      "referenceNumber": "reportRef2",
           |      "reportName": "TPReportName2",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
-          |      "companyName": "Example Ltd"
+          |      "companyName": "Example Ltd",
+          |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]
           |}
@@ -108,7 +117,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "referenceNumber": "userReportRef1",
           |      "reportName": "userReport1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
-          |      "reportType": "IMPORTS_ITEM_REPORT"
+          |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]
           |}
@@ -127,7 +137,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "reportName": "TPReportName1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
-          |      "companyName": "Example Ltd"
+          |      "companyName": "Example Ltd",
+          |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]
           |}

@@ -15,6 +15,8 @@
  *@
 
 @import models.report._
+@import utils.ReportHelpers
+@import models.ReportStatus
 
 @this(
   layout: templates.Layout,
@@ -51,11 +53,15 @@
    <td class="govuk-table__cell">@messages(data.formattedReportType)</td>
    <td class="govuk-table__cell">@messages(data.formattedRequestedDate)</td>
    <td class="govuk-table__cell">
-    @govukTag(Tag(
-    content = Text("In Progress"),
-    classes = "govuk-tag--blue"
-    ))
+   @{
+       val (statusKey, statusClass)  = ReportHelpers.reportStatusDisplayData(data.reportStatus)
+       govukTag(Tag(
+           content = Text(messages(statusKey)),
+           classes = statusClass
+       ))
+   }
    </td>
+
   </tr>
   }
   }
@@ -88,10 +94,13 @@
    <td class="govuk-table__cell">@messages(data.formattedReportType)</td>
    <td class="govuk-table__cell">@messages(data.formattedRequestedDate)</td>
    <td class="govuk-table__cell">
-    @govukTag(Tag(
-    content = Text("In Progress"),
-    classes = "govuk-tag--blue"
-    ))
+   @{
+       val (statusKey, statusClass)  = ReportHelpers.reportStatusDisplayData(data.reportStatus)
+       govukTag(Tag(
+           content = Text(messages(statusKey)),
+           classes = statusClass
+       ))
+   }
    </td>
   </tr>
   }

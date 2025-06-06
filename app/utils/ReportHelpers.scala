@@ -16,8 +16,9 @@
 
 package utils
 
-import models.UserAnswers
+import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
+import play.twirl.api.Html
 
 object ReportHelpers {
   def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
@@ -42,5 +43,21 @@ object ReportHelpers {
         case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export item"
       }
       .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
+
+  def formatReportStatusKey(status: ReportStatus): String = status match {
+    case ReportStatus.COMPLETE    => "requestedReports.status.complete"
+    case ReportStatus.ERROR       => "requestedReports.status.error"
+    case ReportStatus.IN_PROGRESS => "requestedReports.status.inProgress"
+  }
+
+  def reportStatusDisplayData(status: ReportStatus): (String, String) = {
+    val key      = formatReportStatusKey(status)
+    val cssClass = status match {
+      case ReportStatus.COMPLETE    => "govuk-tag--green"
+      case ReportStatus.ERROR       => "govuk-tag--red"
+      case ReportStatus.IN_PROGRESS => "govuk-tag--blue"
+    }
+    (key, cssClass)
+  }
 
 }
