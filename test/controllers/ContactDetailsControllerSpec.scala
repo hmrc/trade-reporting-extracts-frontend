@@ -17,33 +17,41 @@
 package controllers
 
 import base.SpecBase
-import models.{AddressInformation, CompanyInformation}
-import org.mockito.ArgumentMatchers
+import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import play.api.{Application, inject}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ContactDetailsView
+import java.time.LocalDateTime
 
 import scala.concurrent.Future
 
 class ContactDetailsControllerSpec extends SpecBase {
 
-  "ContactDetails Controller" - {
+  "ContactDetailsController" - {
 
-    "must return OK and the correct view for a GET" in new Setup {
+    "must return OK and render the correct view for a GET request" in new Setup {
 
       running(application) {
-        when(mockApiService.getCompanyInformation()(any[HeaderCarrier]))
-          .thenReturn(Future.successful(companyInformation))
+
+        val userDetails = UserDetails(
+          eori = eori,
+          additionalEmails = Seq("test@example.com"),
+          authorisedUsers = Seq.empty,
+          companyInformation = companyInformation,
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
+        )
+
+        when(mockService.setupUser(any[String])(any[HeaderCarrier]))
+          .thenReturn(Future.successful(userDetails))
 
         val request = FakeRequest(GET, routes.ContactDetailsController.onPageLoad().url)
-
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[ContactDetailsView]
 
@@ -54,13 +62,20 @@ class ContactDetailsControllerSpec extends SpecBase {
   }
 
   trait Setup {
-    val mockApiService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-    val companyInformation: CompanyInformation        =
-      CompanyInformation("ABC Company", "1", AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB"))
-    val eori                                          = "GB123456789002"
-    val application: Application                      = applicationBuilder()
+    val mockService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+    val companyInformation: CompanyInformation =
+      CompanyInformation(
+        name = "ABC Company",
+        consent = "1",
+        address = AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB")
+      )
+
+    val eori: String = "GB123456789002"
+
+    val application: Application = applicationBuilder()
       .overrides(
-        inject.bind[TradeReportingExtractsService].toInstance(mockApiService)
+        inject.bind[TradeReportingExtractsService].toInstance(mockService)
       )
       .configure("features.new-agent-view-enabled" -> false)
       .build()
