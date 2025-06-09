@@ -56,6 +56,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
+  val thirdPartyEnabled: Boolean =
+    configuration.get[Boolean]("features.third-party")
+
+  val mvpEnabled: Boolean =
+    configuration.get[Boolean]("features.mvp")
+
+
   lazy val tradeReportingExtractsApi: String = servicesConfig.baseUrl("trade-reporting-extracts") +
     configuration.get[String]("microservice.services.trade-reporting-extracts.context")
 
