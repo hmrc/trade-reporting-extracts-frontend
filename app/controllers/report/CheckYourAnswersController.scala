@@ -17,6 +17,7 @@
 package controllers.report
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import navigation.ReportNavigator
@@ -30,7 +31,7 @@ import views.html.report.CheckYourAnswersView
 
 import scala.concurrent.Future
 
-class CheckYourAnswersController @Inject() (
+class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
@@ -44,7 +45,7 @@ class CheckYourAnswersController @Inject() (
 
     val rows: Seq[Option[SummaryListRow]] = Seq(
       DecisionSummary.row(request.userAnswers),
-      ChooseEoriSummary.row(request.userAnswers, request.eori),
+      if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
       EoriRoleSummary.row(request.userAnswers),
       ReportTypeImportSummary.row(request.userAnswers),
       ReportDateRangeSummary.row(request.userAnswers),
