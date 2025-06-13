@@ -50,9 +50,13 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
   "Dashboard Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" in new Setup {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
@@ -124,7 +128,6 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        println(content)
         content.contains("Third-party access") mustBe true
       }
     }
