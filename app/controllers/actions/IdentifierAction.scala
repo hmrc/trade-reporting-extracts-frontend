@@ -18,10 +18,12 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import connectors.UserAllowListConnector
+import models.AllowedEoris
 import models.requests.IdentifierRequest
 import play.api.Logging
-import play.api.mvc.Results.*
 import play.api.mvc.*
+import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -36,11 +38,13 @@ trait IdentifierAction
 
 class AuthenticatedIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
+  userAllowListConnector: UserAllowListConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
     extends IdentifierAction
     with AuthorisedFunctions
+    with AllowedEoris
     with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -67,17 +71,54 @@ class AuthenticatedIdentifierAction @Inject() (
     authorisedEnrolments: Enrolments,
     request: Request[A],
     block: IdentifierRequest[A] => Future[Result]
-  ): Future[Result] =
-    authorisedEnrolments
+  )(implicit hc: HeaderCarrier): Future[Result] = {
+    val maybeEnrolment = authorisedEnrolments
       .getEnrolment(config.cdsEnrolmentIdentifier.key)
-      .flatMap(_.getIdentifier(config.cdsEnrolmentIdentifier.identifier)) match {
-      case Some(enrolment) if enrolment.value.nonEmpty =>
-        block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+      .flatMap(_.getIdentifier(config.cdsEnrolmentIdentifier.identifier))
 
-      case Some(_) =>
+    maybeEnrolment match {
+      case Some(enrolment) if enrolment.value.nonEmpty =>
+        config.userAllowListEnabled match 
+          case true if enrolment.value.nonEmpty =>
+            checkAllowList(enrolment.value, request, internalId, affinityGroup, credentialRole, block)
+          case false                            =>
+            checkAllowedEori(enrolment.value, request, internalId, affinityGroup, credentialRole, block)
+      case Some(_)                                     =>
         throw InternalError("EORI is empty")
-      case None    =>
+      case None                                        =>
         throw InsufficientEnrolments("Unable to retrieve Enrolment")
+    }
+  }
+
+  private def checkAllowList[A](
+    eori: String,
+    request: Request[A],
+    internalId: String,
+    affinityGroup: AffinityGroup,
+    credentialRole: Option[CredentialRole],
+    block: IdentifierRequest[A] => Future[Result]
+  )(implicit hc: HeaderCarrier): Future[Result] =
+    userAllowListConnector.check(config.userAllowListFeature, eori).flatMap {
+      case true  =>
+        block(IdentifierRequest(request, internalId, eori, affinityGroup, credentialRole))
+      case false =>
+        logger.info(s"EORI $eori is not allowed access. Redirecting.")
+        Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
+    }
+
+  private def checkAllowedEori[A](
+    eori: String,
+    request: Request[A],
+    internalId: String,
+    affinityGroup: AffinityGroup,
+    credentialRole: Option[CredentialRole],
+    block: IdentifierRequest[A] => Future[Result]
+  ): Future[Result] =
+    if (allowedEoris.contains(eori))
+      block(IdentifierRequest(request, internalId, eori, affinityGroup, credentialRole))
+    else {
+      logger.info(s"EORI $eori is not allowed access. Redirecting.")
+      Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
     }
 
   private def handleAuthorisationFailures: PartialFunction[Throwable, Result] = {
