@@ -53,7 +53,7 @@
             links = Seq(
                 (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
             ) ++ (
-                if(appConfig.mvpEnabled)
+                if(appConfig.notificationsEnabled)
                   Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
                 else
                   Seq.empty

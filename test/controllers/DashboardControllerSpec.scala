@@ -70,12 +70,12 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must show the messages card when mvpEnabled is true" in new Setup {
+    "must show the messages card when notificationsEnabled is true" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
-          "features.mvp"         -> true,
-          "features.third-party" -> false,
-          "allowedEoris"         -> Seq(testEori)
+          "features.notifications" -> true,
+          "features.third-party"   -> false,
+          "allowedEoris"           -> Seq(testEori)
         )
         .overrides(
           bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
@@ -92,11 +92,11 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must not show the messages card when mvpEnabled is false" in new Setup {
+    "must not show the messages card when notificationsEnabled is false" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
-          "features.mvp"         -> false,
-          "features.third-party" -> false
+          "features.notifications" -> false,
+          "features.third-party"   -> false
         )
         .overrides(
           bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
@@ -115,8 +115,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
     "must show the third party card when thirdPartyEnabled is true" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
-          "features.mvp"         -> false,
-          "features.third-party" -> true
+          "features.notifications" -> false,
+          "features.third-party"   -> true
         )
         .overrides(
           bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
@@ -135,8 +135,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
     "must not show the third party card when thirdPartyEnabled is false" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
-          "features.mvp"         -> false,
-          "features.third-party" -> false
+          "features.notifications" -> false,
+          "features.third-party"   -> false
         )
         .overrides(
           bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
