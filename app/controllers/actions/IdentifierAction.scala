@@ -78,7 +78,7 @@ class AuthenticatedIdentifierAction @Inject() (
 
     maybeEnrolment match {
       case Some(enrolment) if enrolment.value.nonEmpty =>
-        config.userAllowListEnabled match 
+        config.userAllowListEnabled match
           case true if enrolment.value.nonEmpty =>
             checkAllowList(enrolment.value, request, internalId, affinityGroup, credentialRole, block)
           case false                            =>

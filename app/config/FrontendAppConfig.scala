@@ -63,7 +63,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[Boolean]("features.notifications")
 
   val userAllowListEnabled: Boolean = configuration.get[Boolean]("features.user-allow-list")
-  val userAllowListFeature: String = configuration.get[String]("features.resource-feature")
+  val userAllowListFeature: String  = configuration.get[String]("features.resource-feature")
 
   lazy val tradeReportingExtractsApi: String = servicesConfig.baseUrl("trade-reporting-extracts") +
     configuration.get[String]("microservice.services.trade-reporting-extracts.context")
