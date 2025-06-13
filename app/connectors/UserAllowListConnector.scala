@@ -41,7 +41,7 @@ class UserAllowListConnector @Inject() (
 
   def check(feature: String, value: String)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
-      .post(url"$userAllowListService/user-allow-list/trade-reporting-extracts/$feature/check")
+      .post(url"$userAllowListService/user-allow-list/trade-reporting-extracts-frontend/$feature/check")
       .setHeader("Authorization" -> internalAuthToken)
       .withBody(Json.toJson(CheckRequest(value)))
       .execute[HttpResponse]
