@@ -17,9 +17,10 @@
 @import views.html.components.Card
 @import views.html.components.CardSubHeadingWithValue
 @import views.html.components.NotificationBadge
-
+@import config.FrontendAppConfig
 
 @this(
+        appConfig: FrontendAppConfig,
         layout: templates.Layout,
         govukButton: GovukButton
 )
@@ -50,20 +51,26 @@
             heading = Messages("dashboard.account.heading"),
             subHeading = Some(Messages("dashboard.account.subHeading")),
             links = Seq(
-                (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None),
-                (Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2")))
+                (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
+            ) ++ (
+                if(appConfig.notificationsEnabled)
+                  Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
+                else
+                  Seq.empty
             )
         )
-        @Card(
-            id = "help-card",
-            heading = Messages("dashboard.thirdPartyAccess.heading"),
-            subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
-            links = Seq(
-                (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
-                (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
-                (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+        @if(appConfig.thirdPartyEnabled) {
+            @Card(
+                id = "help-card",
+                heading = Messages("dashboard.thirdPartyAccess.heading"),
+                subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
+                links = Seq(
+                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
+                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
+                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+                )
             )
-        )
+        }
         @Card(
             id = "help-card",
             heading = Messages("dashboard.help.heading"),
