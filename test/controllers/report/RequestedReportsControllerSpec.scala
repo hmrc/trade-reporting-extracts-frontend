@@ -17,6 +17,7 @@
 package controllers.report
 
 import base.SpecBase
+import models.ReportStatus.IN_PROGRESS
 import models.ReportTypeName
 import models.report.*
 import org.jsoup.Jsoup
@@ -76,7 +77,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-        requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStatus = IN_PROGRESS
       )
 
       val thirdPartyReport = RequestedThirdPartyReportViewModel(
@@ -84,7 +86,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         referenceNumber = "referenceNumber",
         companyName = "businessName",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-        requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStatus = IN_PROGRESS
       )
 
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
@@ -138,7 +141,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStatus = IN_PROGRESS
                 )
               )
             ),
@@ -169,7 +173,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   reportName = "reportName",
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStatus = IN_PROGRESS
                 )
               )
             ),
@@ -204,7 +209,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStatus = IN_PROGRESS
                 )
               )
             )
@@ -236,7 +242,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z")
+                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStatus = IN_PROGRESS
                 )
               )
             )

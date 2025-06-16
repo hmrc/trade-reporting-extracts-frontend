@@ -101,3 +101,17 @@ object StatusCode:
           case Some(statusCode) => JsSuccess(statusCode)
           case None             => JsError(s"Unknown StatusCode: $value")
       case _               => JsError("StatusCode must be a string")
+
+enum ReportStatus:
+  case COMPLETE, ERROR, IN_PROGRESS
+
+object ReportStatus:
+  given Format[ReportStatus] with
+    def writes(status: ReportStatus): JsValue = JsString(status.toString)
+
+    def reads(json: JsValue): JsResult[ReportStatus] = json match
+      case JsString(value) =>
+        ReportStatus.values.find(_.toString == value) match
+          case Some(status) => JsSuccess(status)
+          case None         => JsError(s"Unknown ReportStatus: $value")
+      case _               => JsError("ReportStatus must be a string")

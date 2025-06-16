@@ -58,7 +58,10 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ChooseEoriView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "eori")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, "GB123456789012")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -76,7 +79,7 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "eori")(
+        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "GB123456789012")(
           request,
           messages(application)
         ).toString
@@ -124,7 +127,7 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "eori")(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "GB123456789012")(
           request,
           messages(application)
         ).toString

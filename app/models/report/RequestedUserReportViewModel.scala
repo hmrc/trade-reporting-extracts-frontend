@@ -16,7 +16,7 @@
 
 package models.report
 
-import models.ReportTypeName
+import models.{ReportStatus, ReportTypeName}
 import play.api.libs.json.{Json, OFormat}
 import utils.ReportHelpers
 
@@ -28,12 +28,12 @@ case class RequestedUserReportViewModel(
   referenceNumber: String,
   reportName: String,
   requestedDate: Instant,
-  reportType: ReportTypeName
+  reportType: ReportTypeName,
+  reportStatus: ReportStatus
 ) {
   def formattedRequestedDate: String =
     RequestedUserReportViewModel.dateFormatter.format(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
   def formattedReportType: String    = ReportHelpers.getReportType(reportType)
-
 }
 
 object RequestedUserReportViewModel {

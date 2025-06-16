@@ -17,9 +17,10 @@
 @import views.html.components.Card
 @import views.html.components.CardSubHeadingWithValue
 @import views.html.components.NotificationBadge
-
+@import config.FrontendAppConfig
 
 @this(
+        appConfig: FrontendAppConfig,
         layout: templates.Layout,
         govukButton: GovukButton
 )
@@ -52,7 +53,7 @@
             links = Seq(
                 (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
             ) ++ (
-                if(appConfig.mvpEnabled)
+                if(appConfig.notificationsEnabled)
                   Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
                 else
                   Seq.empty

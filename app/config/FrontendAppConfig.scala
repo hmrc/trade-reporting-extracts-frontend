@@ -59,8 +59,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val thirdPartyEnabled: Boolean =
     configuration.get[Boolean]("features.third-party")
 
-  val mvpEnabled: Boolean =
-    configuration.get[Boolean]("features.mvp")
+  val notificationsEnabled: Boolean =
+    configuration.get[Boolean]("features.notifications")
 
   lazy val tradeReportingExtractsApi: String = servicesConfig.baseUrl("trade-reporting-extracts") +
     configuration.get[String]("microservice.services.trade-reporting-extracts.context")

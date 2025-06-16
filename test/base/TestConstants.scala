@@ -19,6 +19,6 @@ package base
 import java.time.Instant
 
 object TestConstants {
-  val testEori: String      = "eori"
+  val testEori: String      = "GB123456789012"
   val userAnswersId: String = "id"
 }
