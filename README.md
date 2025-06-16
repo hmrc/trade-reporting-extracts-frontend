@@ -6,13 +6,16 @@ This Trade Reporting and Extracts (TRE) will deliver a new service for traders t
 `sbt run`
 
 ### Required services before running this project
-`sm2 --start MONGO AUTH AUTH_LOGIN_API AUTH_LOGIN_STUB IDENTITY_VERIFICATION USER_DETAILS`
-* MONGO  
+`sm2 --start AUTH AUTH_LOGIN_API AUTH_LOGIN_STUB IDENTITY_VERIFICATION USER_DETAILS FEEDBACK_FRONTEND BAS_GATEWAY BAS_GATEWAY_FRONTEND BAS_STUBS`
 * AUTH
 * AUTH_LOGIN_API
 * AUTH_LOGIN_STUB   
 * IDENTITY_VERIFICATION
 * USER_DETAILS
+* FEEDBACK_FRONTEND
+* BAS_GATEWAY
+* BAS_GATEWAY_FRONTEND
+* BAS_STUBS
 
 ### Use service manager to start up supporting services: 
 `sm2 --start TRE_ALL`
