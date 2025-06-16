@@ -37,19 +37,26 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case CustomRequestStartDatePage             =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
     case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-    case ReportNamePage                         => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
-    case MaybeAdditionalEmailPage               =>
+
+    case ReportNamePage =>
+      if (appConfig.notificationsEnabled) {
+        navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
+      } else {
+        navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+      }
+
+    case MaybeAdditionalEmailPage =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
         controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
       )
-    case EmailSelectionPage                     =>
+    case EmailSelectionPage       =>
       conditionalNavigate(
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
-    case NewEmailNotificationPage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case CheckYourAnswersPage                   => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
+    case NewEmailNotificationPage => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
