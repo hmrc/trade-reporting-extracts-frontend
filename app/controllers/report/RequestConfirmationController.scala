@@ -55,8 +55,7 @@ class RequestConfirmationController @Inject() (
       requestRefs    <- tradeReportingExtractsService.createReportRequest(
                           reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
                         )
-      // TODO fix with multiple requests
-      requestRef      = requestRefs.head
+      requestRef      = requestRefs.mkString(", ")
       updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
       _              <- sessionRepository.set(updatedAnswers)
     } yield Ok(view(updatedList, isMoreThanOneReport, requestRef))
