@@ -143,5 +143,90 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(Seq.empty, false, "reference")(request, messages(application)).toString
       }
     }
+
+    "must return and display a singular reference when only one report type " in {
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+        ReportRequestUserAnswersModel(
+          eori = "eori",
+          dataType = "import",
+          whichEori = Some("eori"),
+          eoriRole = Set("declarant"),
+          reportType = Set("importHeader"),
+          reportStartDate = "2025-04-16",
+          reportEndDate = "2025-05-16",
+          reportName = "MyReport",
+          additionalEmail = Some(Set("email@email.com"))
+        )
+      )
+      when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
+        .thenReturn(Future.successful(Seq("RE00000001")))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val userAnswers = UserAnswers("id")
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val view    = application.injector.instanceOf[RequestConfirmationView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001")(request, messages(application)).toString
+      }
+    }
+
+    "must return and display a multiple references when more than one report type " in {
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+        ReportRequestUserAnswersModel(
+          eori = "eori",
+          dataType = "import",
+          whichEori = Some("eori"),
+          eoriRole = Set("declarant"),
+          reportType = Set("importHeader", "importItem"),
+          reportStartDate = "2025-04-16",
+          reportEndDate = "2025-05-16",
+          reportName = "MyReport",
+          additionalEmail = Some(Set("email@email.com"))
+        )
+      )
+      when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
+        .thenReturn(Future.successful(Seq("RE00000001", "RE00000002")))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val userAnswers = UserAnswers("id")
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val view    = application.injector.instanceOf[RequestConfirmationView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001, RE00000002")(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
   }
 }
