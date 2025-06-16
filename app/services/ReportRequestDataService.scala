@@ -91,9 +91,9 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
 
   private def getEori(userAnswers: UserAnswers, eori: String): String =
     if (appConfig.thirdPartyEnabled) {
-        userAnswers.get(ChooseEoriPage) match {
+      userAnswers.get(ChooseEoriPage) match {
         case Some(ChooseEori.Myeori) => eori
-        case _ => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+        case _                       => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
       }
     } else eori
 }

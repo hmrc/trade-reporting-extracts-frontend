@@ -33,8 +33,6 @@ class FakeNavigator(desiredRoute: Call) extends Navigator {
 
 class FakeNavigation() extends Navigation()
 
-class FakeReportNavigation() extends ReportNavigator(mock[FrontendAppConfig])
-
 class FakeReportNavigator(desiredRoute: Call) extends ReportNavigator(mock[FrontendAppConfig]) {
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = desiredRoute
 }
