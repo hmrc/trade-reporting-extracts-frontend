@@ -16,6 +16,7 @@
 
 package controllers.report
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import views.html.report.DecisionView
@@ -25,8 +26,9 @@ import javax.inject.Inject
 import play.api.mvc.MessagesControllerComponents
 import forms.report.DecisionFormProvider
 import models.Mode
+import models.report.ChooseEori
 import navigation.ReportNavigator
-import pages.report.DecisionPage
+import pages.report.{ChooseEoriPage, DecisionPage}
 import play.api.i18n.MessagesApi
 import repositories.SessionRepository
 
@@ -40,6 +42,7 @@ class DecisionController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
+  appConfig: FrontendAppConfig,
   override val messagesApi: MessagesApi,
   val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
@@ -63,7 +66,14 @@ class DecisionController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(DecisionPage, value))
+              updatedAnswers <- Future.fromTry(
+                                  request.userAnswers
+                                    .set(DecisionPage, value)
+                                    .flatMap { answers =>
+                                      if (appConfig.thirdPartyEnabled) answers.set(ChooseEoriPage, ChooseEori.Myeori)
+                                      else scala.util.Success(answers)
+                                    }
+                                )
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
         )

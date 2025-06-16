@@ -21,14 +21,14 @@ import models.{NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
 import play.api.mvc.Call
-
+import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ReportNavigator @Inject() extends Navigator {
+class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
+    case DecisionPage                           => checkFlagForThirdPartyJourney
     case ChooseEoriPage                         => ChooseEoriNormalRoutes
     case AccountsYouHaveAuthorityOverImportPage => AccountsYouHaveAuthorityOverImportNormalRoutes
     case EoriRolePage                           => EoriRoleNormalRoutes
@@ -101,6 +101,12 @@ class ReportNavigator @Inject() extends Navigator {
         case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
       }
       .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+  private def checkFlagForThirdPartyJourney(answers: UserAnswers): Call =
+    if (appConfig.thirdPartyEnabled)
+      navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))(answers)
+    else
+      navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(NormalMode))(answers)
 
   override val checkRoutes: Page => UserAnswers => Call = _ =>
     _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()

@@ -17,6 +17,7 @@
 package controllers.report
 
 import base.SpecBase
+import config.FrontendAppConfig
 import forms.report.DecisionFormProvider
 import models.report.Decision
 import models.{NormalMode, UserAnswers}
@@ -32,8 +33,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
-
 import controllers.problem.routes
+
 import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
@@ -85,19 +86,18 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-
+      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+      val mockSessionRepository            = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
+      val application                      =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[FrontendAppConfig].toInstance(mockAppConfig)
           )
           .build()
-
+      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
       running(application) {
         val request =
           FakeRequest(POST, decisionRoute)

@@ -17,9 +17,11 @@
 package services
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.{EoriRole, ReportTypeImport}
 import models.report.EmailSelection.{Email2, Email3}
 import models.report.{ChooseEori, Decision, ReportDateRange}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -28,7 +30,7 @@ import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, Cus
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
 class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
-
+  val appConfig = mock[FrontendAppConfig]
   "buildReportRequest" - {
 
     "should build report request correctly" in {
@@ -36,7 +38,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       val fixedInstant = Instant.parse("2025-05-01T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
-      val reportRequestDataService = new ReportRequestDataService(fixedClock)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
 
       val userAnswers = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
@@ -76,7 +78,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
-      val reportRequestDataService = new ReportRequestDataService(fixedClock)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
 
       val userAnswers = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
@@ -116,7 +118,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
-      val reportRequestDataService = new ReportRequestDataService(fixedClock)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
 
       val userAnswers = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
@@ -160,7 +162,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
-      val reportRequestDataService = new ReportRequestDataService(fixedClock)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
 
       val userAnswers = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
@@ -200,9 +202,9 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
-      val reportRequestDataService = new ReportRequestDataService(fixedClock)
-
-      val userAnswers = emptyUserAnswers
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+      when(appConfig.thirdPartyEnabled).thenReturn(true)
+      val userAnswers              = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
         .get
         .set(ChooseEoriPage, ChooseEori.Myauthority)
