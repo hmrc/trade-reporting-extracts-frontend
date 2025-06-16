@@ -17,15 +17,22 @@
 package navigation
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.*
-import models.report._
+import models.report.*
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.*
-import pages.report._
+import pages.report.*
+
 import java.time.{LocalDate, ZoneOffset}
 
 class ReportNavigatorSpec extends SpecBase {
 
-  val navigator = new FakeReportNavigation()
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+
+  val navigator = new ReportNavigator(mockAppConfig)
 
   "ReportNavigator" - {
 

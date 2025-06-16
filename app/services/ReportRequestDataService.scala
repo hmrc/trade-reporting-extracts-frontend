@@ -90,6 +90,10 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
   }
 
   private def getEori(userAnswers: UserAnswers, eori: String): String =
-    if (appConfig.mvpEnabled || userAnswers.get(ChooseEoriPage).contains(ChooseEori.Myeori)) eori
-    else userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+    if (appConfig.thirdPartyEnabled) {
+        userAnswers.get(ChooseEoriPage) match {
+        case Some(ChooseEori.Myeori) => eori
+        case _ => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+      }
+    } else eori
 }

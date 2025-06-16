@@ -17,8 +17,10 @@
 package navigation
 
 import play.api.mvc.Call
-import pages._
+import pages.*
 import models.{Mode, UserAnswers}
+import config.FrontendAppConfig
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 class FakeNavigator(desiredRoute: Call) extends Navigator {
 
@@ -31,8 +33,8 @@ class FakeNavigator(desiredRoute: Call) extends Navigator {
 
 class FakeNavigation() extends Navigation()
 
-class FakeReportNavigation() extends ReportNavigator()
+class FakeReportNavigation() extends ReportNavigator(mock[FrontendAppConfig])
 
-class FakeReportNavigator(desiredRoute: Call) extends ReportNavigator {
+class FakeReportNavigator(desiredRoute: Call) extends ReportNavigator(mock[FrontendAppConfig]) {
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = desiredRoute
 }

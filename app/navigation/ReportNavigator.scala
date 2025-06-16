@@ -28,7 +28,7 @@ import javax.inject.{Inject, Singleton}
 class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           => checkFlagForMVPJourney
+    case DecisionPage                           => checkFlagForThirdPartyJourney
     case ChooseEoriPage                         => ChooseEoriNormalRoutes
     case AccountsYouHaveAuthorityOverImportPage => AccountsYouHaveAuthorityOverImportNormalRoutes
     case EoriRolePage                           => EoriRoleNormalRoutes
@@ -102,7 +102,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
       }
       .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 
-  private def checkFlagForMVPJourney(answers: UserAnswers): Call =
+  private def checkFlagForThirdPartyJourney(answers: UserAnswers): Call =
     if (appConfig.thirdPartyEnabled)
       navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))(answers)
     else
