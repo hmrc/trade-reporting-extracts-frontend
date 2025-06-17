@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import models.*
 import models.report.*
 import org.mockito.Mockito.when
+import org.scalatest.matchers.should.Matchers.should
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.*
 import pages.report.*
@@ -192,16 +193,39 @@ class ReportNavigatorSpec extends SpecBase {
         checkNavigation(result, "/date-rage")
       }
 
-      "ReportNamePage must navigate to MaybeAdditionalEmail" in {
+      "ReportNamePage navigation" - {
 
-        val ua = emptyUserAnswers
-          .set(ReportNamePage, "name")
-          .success
-          .value
+        "navigate to CheckYourAnswersPage when notificationsEnabled is false" in {
+          val mockAppConfig = mock[FrontendAppConfig]
+          when(mockAppConfig.notificationsEnabled).thenReturn(false)
 
-        val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
+          val navigator = new ReportNavigator(mockAppConfig)
 
-        checkNavigation(result, "/choose-email-address")
+          val ua = emptyUserAnswers
+            .set(ReportNamePage, "name")
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
+
+          checkNavigation(result, "/check-your-answers")
+        }
+
+        "navigate to MaybeAdditionalEmailPage when notificationsEnabled is true" in {
+          val mockAppConfig = mock[FrontendAppConfig]
+          when(mockAppConfig.notificationsEnabled).thenReturn(true)
+
+          val navigator = new ReportNavigator(mockAppConfig)
+
+          val ua = emptyUserAnswers
+            .set(ReportNamePage, "name")
+            .success
+            .value
+
+          val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
+
+          checkNavigation(result, "/choose-email-address")
+        }
       }
 
       "ReportDateRangePage" - {
