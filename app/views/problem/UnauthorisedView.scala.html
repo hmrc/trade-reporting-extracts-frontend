@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import controllers.auth.routes
 @this(
     layout: templates.Layout
 )
@@ -38,7 +39,7 @@
 
 <p class="govuk-body">
     @messages("unauthorisedCdsEnrolment.p2.part1")
-    <a href="@routes.ContactDetailsController.onPageLoad().url" class="govuk-link">
+    <a href="@routes.AuthController.signOut().url" class="govuk-link">
         @messages("unauthorisedCdsEnrolment.p2.linkText")
     </a>
     @messages("unauthorisedCdsEnrolment.p2.part2")
