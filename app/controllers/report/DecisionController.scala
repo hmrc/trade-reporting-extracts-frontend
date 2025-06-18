@@ -27,12 +27,14 @@ import play.api.mvc.MessagesControllerComponents
 import forms.report.DecisionFormProvider
 import models.Mode
 import models.report.ChooseEori
+import models.report.Decision.Export
 import navigation.ReportNavigator
 import pages.report.{ChooseEoriPage, DecisionPage}
 import play.api.i18n.MessagesApi
 import repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class DecisionController @Inject() (
   identify: IdentifierAction,
@@ -64,18 +66,35 @@ class DecisionController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(
-                                  request.userAnswers
-                                    .set(DecisionPage, value)
-                                    .flatMap { answers =>
-                                      if (appConfig.thirdPartyEnabled) answers.set(ChooseEoriPage, ChooseEori.Myeori)
-                                      else scala.util.Success(answers)
-                                    }
-                                )
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
+          value => {
+            val updatedAnswersTry = for {
+              withDecision <- request.userAnswers.set(DecisionPage, value)
+              maybeCleared <- value match {
+                                case Export =>
+                                  // Clear ReportTypeImportPage if Export is selected
+                                  withDecision.remove(pages.report.ReportTypeImportPage)
+
+                                case _ =>
+                                  scala.util.Success(withDecision)
+                              }
+              finalAnswers <- if (!appConfig.thirdPartyEnabled) {
+                                maybeCleared.set(ChooseEoriPage, ChooseEori.Myeori)
+                              } else {
+                                Success(maybeCleared)
+                              }
+            } yield finalAnswers
+
+            updatedAnswersTry match {
+              case Success(updatedAnswers) =>
+                for {
+                  _ <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
+
+              case scala.util.Failure(_) =>
+                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+            }
+          }
         )
   }
+
 }

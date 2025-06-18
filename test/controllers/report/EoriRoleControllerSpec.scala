@@ -18,8 +18,8 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.EoriRoleFormProvider
-import models.report.Decision
-import models.{EoriRole, NormalMode, ReportTypeImport, UserAnswers}
+import models.report.{Decision, ReportTypeImport}
+import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any

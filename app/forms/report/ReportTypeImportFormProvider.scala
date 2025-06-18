@@ -17,7 +17,7 @@
 package forms.report
 
 import forms.mappings.Mappings
-import models.ReportTypeImport
+import models.report.ReportTypeImport
 import play.api.data.Form
 import play.api.data.Forms.set
 

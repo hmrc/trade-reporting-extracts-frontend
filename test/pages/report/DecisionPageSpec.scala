@@ -17,8 +17,8 @@
 package pages.report
 
 import base.SpecBase
-import models.report.Decision
-import models.{EoriRole, ReportTypeImport}
+import models.report.{Decision, ReportTypeImport}
+import models.EoriRole
 
 import java.time.{LocalDate, ZoneOffset}
 

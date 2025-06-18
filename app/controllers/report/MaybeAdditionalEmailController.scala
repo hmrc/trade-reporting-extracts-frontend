@@ -18,9 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.MaybeAdditionalEmailFormProvider
-import models.Mode
+import models.{CheckMode, Mode}
 import navigation.ReportNavigator
 import pages.report.MaybeAdditionalEmailPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,7 +45,7 @@ class MaybeAdditionalEmailController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
@@ -62,11 +63,29 @@ class MaybeAdditionalEmailController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
+          value => {
+            val updatedAnswersTry = for {
+              withMaybeEmail <- request.userAnswers.set(MaybeAdditionalEmailPage, value)
+              cleanedAnswers <- if (!value) {
+                                  withMaybeEmail
+                                    .remove(pages.report.EmailSelectionPage)
+                                    .flatMap(_.remove(pages.report.NewEmailNotificationPage))
+                                } else {
+                                  scala.util.Success(withMaybeEmail)
+                                }
+            } yield cleanedAnswers
+
+            updatedAnswersTry match {
+              case scala.util.Success(updatedAnswers) =>
+                for {
+                  _ <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
+
+              case scala.util.Failure(_) =>
+                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+            }
+          }
         )
   }
+
 }
