@@ -20,7 +20,7 @@
         govukPanel: GovukPanel
 )
 
-@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String)(implicit request: Request[_], messages: Messages)
+@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String, surveyUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
@@ -43,14 +43,14 @@
 
 @if(isMoreThanOneReport) {
     <p class="govuk-body">@messages("requestConfirmation.pluralReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a>.</p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a>.</p>
 } else {
     <p class="govuk-body">@messages("requestConfirmation.singleReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="#" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a>.</p>
+    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a>.</p>
 }
 
 <p class="govuk-body"><a href="dashboard" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.goToHomepage")</a></p>
 
-<p class="govuk-body"><a href="#" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.feedbackLink")</a> @messages("requestConfirmation.feedbackDuration")</p>
+<p class="govuk-body"><a href="feedbackUrl" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.feedbackLink")</a> @messages("requestConfirmation.feedbackDuration")</p>
 
 }
