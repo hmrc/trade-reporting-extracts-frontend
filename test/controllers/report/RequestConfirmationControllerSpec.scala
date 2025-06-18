@@ -95,7 +95,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           Seq("email1@example.com", "email2@example.com", newEmail),
           false,
-          "reference"
+          "reference",
+          "surveyURl"
         )(
           request,
           messages(application)
@@ -140,7 +141,10 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "reference")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(Seq.empty, false, "reference", "surveyUrl")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -181,7 +185,10 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001", "surveyUrl")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -222,7 +229,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001, RE00000002")(
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001, RE00000002", "surveyUrl")(
           request,
           messages(application)
         ).toString

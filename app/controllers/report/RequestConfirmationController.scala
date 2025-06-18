@@ -16,6 +16,7 @@
 
 package controllers.report
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.UserAnswers
@@ -42,6 +43,7 @@ class RequestConfirmationController @Inject() (
   sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
   reportRequestDataService: ReportRequestDataService,
+  config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView
 )(implicit ec: ExecutionContext)
@@ -50,6 +52,7 @@ class RequestConfirmationController @Inject() (
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val updatedList: Seq[String] = fetchUpdatedData(request)
+    val surveyUrl: String        = config.exitSurveyUrl
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
     for {
       requestRefs    <- tradeReportingExtractsService.createReportRequest(
@@ -58,7 +61,7 @@ class RequestConfirmationController @Inject() (
       requestRef      = requestRefs.mkString(", ")
       updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(updatedList, isMoreThanOneReport, requestRef))
+    } yield Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl))
   }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
