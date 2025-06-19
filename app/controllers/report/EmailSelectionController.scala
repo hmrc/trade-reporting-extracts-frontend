@@ -20,9 +20,10 @@ import controllers.BaseController
 import controllers.actions.*
 import forms.report.EmailSelectionFormProvider
 import models.Mode
-import models.report.EmailSelection.Email3
+import models.report.EmailSelection
 import navigation.ReportNavigator
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import pages.report.EmailSelectionPage
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,7 +45,7 @@ class EmailSelectionController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  val form = formProvider()
+  val form: Form[Set[EmailSelection]] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
@@ -62,26 +63,11 @@ class EmailSelectionController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value => {
-            val updatedAnswersTry = for {
-              withSelection  <- request.userAnswers.set(EmailSelectionPage, value)
-              cleanedAnswers <- if (value.contains(Email3)) {
-                                  scala.util.Success(withSelection)
-                                } else {
-                                  withSelection.remove(NewEmailNotificationPage)
-                                }
-            } yield cleanedAnswers
-
-            updatedAnswersTry match {
-              case scala.util.Success(updatedAnswers) =>
-                for {
-                  _ <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
-
-              case scala.util.Failure(_) =>
-                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
-            }
-          }
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
         )
   }
 

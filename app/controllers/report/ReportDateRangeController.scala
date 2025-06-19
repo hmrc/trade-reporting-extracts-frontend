@@ -65,33 +65,11 @@ class ReportDateRangeController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value => {
-            val updatedAnswersTry = for {
-              withDateRange  <- request.userAnswers.set(ReportDateRangePage, value)
-              cleanedAnswers <- value match {
-                                  case ReportDateRange.CustomDateRange =>
-                                    // Keep existing custom date answers
-                                    scala.util.Success(withDateRange)
-
-                                  case _ =>
-                                    // Clear custom date answers in both Normal and Check modes
-                                    withDateRange
-                                      .remove(CustomRequestStartDatePage)
-                                      .flatMap(_.remove(CustomRequestEndDatePage))
-                                }
-            } yield cleanedAnswers
-
-            updatedAnswersTry match {
-              case scala.util.Success(updatedAnswers) =>
-                for {
-                  _ <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, updatedAnswers))
-
-              case scala.util.Failure(_) =>
-                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
-            }
-          }
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportDateRangePage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, updatedAnswers))
         )
   }
-
 }

@@ -17,37 +17,41 @@
 package pages.report
 
 import base.SpecBase
-import models.report.{Decision, ReportTypeImport}
 import models.EoriRole
-
-import java.time.{LocalDate, ZoneOffset}
+import models.report.{Decision, ReportTypeImport}
 
 class DecisionPageSpec extends SpecBase {
 
-  "cleanup" - {
-    "must cleanup correctly" in {
+  "DecisionPage.cleanup" - {
 
-      val ua = emptyUserAnswers
-        .set(
-          EoriRolePage,
-          EoriRole.values.toSet
-        )
+    "must remove EoriRolePage and ReportTypeImportPage when a decision is provided" in {
+      val userAnswers = emptyUserAnswers
+        .set(EoriRolePage, EoriRole.values.toSet)
         .success
         .value
-        .set(
-          ReportTypeImportPage,
-          Set(ReportTypeImport.ExportItem)
-        )
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
         .success
         .value
 
-      val cleanedUserAnswers =
-        DecisionPage.cleanup(Some(Decision.Import), ua).success.value
+      val result = DecisionPage.cleanup(Some(Decision.Import), userAnswers).success.value
 
-      cleanedUserAnswers.get(EoriRolePage) mustBe None
-      cleanedUserAnswers.get(ReportTypeImportPage) mustBe None
+      result.get(EoriRolePage) mustBe None
+      result.get(ReportTypeImportPage) mustBe None
+    }
 
+    "must not remove any pages when no decision is provided (None)" in {
+      val userAnswers = emptyUserAnswers
+        .set(EoriRolePage, EoriRole.values.toSet)
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
+        .success
+        .value
+
+      val result = DecisionPage.cleanup(None, userAnswers).success.value
+
+      result.get(EoriRolePage) mustBe defined
+      result.get(ReportTypeImportPage) mustBe defined
     }
   }
-
 }

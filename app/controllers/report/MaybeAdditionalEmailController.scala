@@ -63,29 +63,11 @@ class MaybeAdditionalEmailController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value => {
-            val updatedAnswersTry = for {
-              withMaybeEmail <- request.userAnswers.set(MaybeAdditionalEmailPage, value)
-              cleanedAnswers <- if (!value) {
-                                  withMaybeEmail
-                                    .remove(pages.report.EmailSelectionPage)
-                                    .flatMap(_.remove(pages.report.NewEmailNotificationPage))
-                                } else {
-                                  scala.util.Success(withMaybeEmail)
-                                }
-            } yield cleanedAnswers
-
-            updatedAnswersTry match {
-              case scala.util.Success(updatedAnswers) =>
-                for {
-                  _ <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
-
-              case scala.util.Failure(_) =>
-                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
-            }
-          }
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
         )
   }
-
 }

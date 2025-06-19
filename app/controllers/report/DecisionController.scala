@@ -16,25 +16,23 @@
 
 package controllers.report
 
-import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import views.html.report.DecisionView
-import play.api.mvc.{Action, AnyContent}
-
-import javax.inject.Inject
-import play.api.mvc.MessagesControllerComponents
 import forms.report.DecisionFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
+import models.report.Decision
 import models.report.ChooseEori
-import models.report.Decision.Export
 import navigation.ReportNavigator
 import pages.report.{ChooseEoriPage, DecisionPage}
 import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import views.html.report.DecisionView
+import config.FrontendAppConfig
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
+import scala.util.{Success, Try}
 
 class DecisionController @Inject() (
   identify: IdentifierAction,
@@ -44,57 +42,40 @@ class DecisionController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
-  appConfig: FrontendAppConfig,
   override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents
+  val controllerComponents: MessagesControllerComponents,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(DecisionPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData) { implicit request =>
+      val preparedForm = request.userAnswers.get(DecisionPage).fold(form)(form.fill)
+      Ok(view(preparedForm, mode))
     }
-    Ok(view(preparedForm, mode))
-  }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value => {
-            val updatedAnswersTry = for {
+            val updatedAnswersTry: Try[UserAnswers] = for {
               withDecision <- request.userAnswers.set(DecisionPage, value)
-              maybeCleared <- value match {
-                                case Export =>
-                                  // Clear ReportTypeImportPage if Export is selected
-                                  withDecision.remove(pages.report.ReportTypeImportPage)
-
-                                case _ =>
-                                  scala.util.Success(withDecision)
-                              }
-              finalAnswers <- if (!appConfig.thirdPartyEnabled) {
-                                maybeCleared.set(ChooseEoriPage, ChooseEori.Myeori)
+              enriched     <- if (!appConfig.thirdPartyEnabled) {
+                                withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
                               } else {
-                                Success(maybeCleared)
+                                Success(withDecision)
                               }
-            } yield finalAnswers
+            } yield enriched
 
-            updatedAnswersTry match {
-              case Success(updatedAnswers) =>
-                for {
-                  _ <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswers))
-
-              case scala.util.Failure(_) =>
-                Future.successful(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+            sessionRepository.set(updatedAnswersTry.get).map { _ =>
+              Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswersTry.get))
             }
           }
         )
-  }
-
+    }
 }

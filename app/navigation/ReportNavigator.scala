@@ -16,12 +16,12 @@
 
 package navigation
 
+import config.FrontendAppConfig
 import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
 import play.api.mvc.Call
-import config.FrontendAppConfig
 
 import javax.inject.{Inject, Singleton}
 
@@ -61,6 +61,33 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
       )
     case NewEmailNotificationPage => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
     case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
+  }
+
+  override val checkRoutes: Page => UserAnswers => Call = {
+    case DecisionPage                           =>
+      navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(CheckMode))
+    case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
+    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
+    case EoriRolePage                           => eoriRoleRoutes(CheckMode)
+    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case ReportDateRangePage                    => reportDateRangeRoutes(CheckMode)
+    case CustomRequestStartDatePage             =>
+      navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(CheckMode))
+    case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case ReportNamePage                         =>
+      navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case MaybeAdditionalEmailPage               =>
+      conditionalNavigate(
+        hasAdditionalEmailRequest,
+        controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
+      )
+    case EmailSelectionPage                     =>
+      conditionalNavigate(
+        isAddNewEmail,
+        controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode)
+      )
+    case NewEmailNotificationPage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case _                                      => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
@@ -152,33 +179,6 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     ifNotificationsDisabled: => Call
   ): UserAnswers => Call = { _ =>
     if (appConfig.notificationsEnabled) ifNotificationsEnabled else ifNotificationsDisabled
-  }
-
-  override val checkRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           =>
-      navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(CheckMode))
-    case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
-    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
-    case EoriRolePage                           => eoriRoleRoutes(CheckMode)
-    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case ReportDateRangePage                    => reportDateRangeRoutes(CheckMode)
-    case CustomRequestStartDatePage             =>
-      navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(CheckMode))
-    case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case ReportNamePage                         =>
-      navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case MaybeAdditionalEmailPage               =>
-      conditionalNavigate(
-        hasAdditionalEmailRequest,
-        controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
-      )
-    case EmailSelectionPage                     =>
-      conditionalNavigate(
-        isAddNewEmail,
-        controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode)
-      )
-    case NewEmailNotificationPage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case _                                      => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
   }
 
 }
