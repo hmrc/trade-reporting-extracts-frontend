@@ -20,7 +20,8 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import pages.report.{CustomRequestEndDatePage, ReportTypeImportPage}
 import base.SpecBase
-import models.{CheckMode, ReportTypeImport, UserAnswers}
+import models.report.ReportTypeImport
+import models.{CheckMode, UserAnswers}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*

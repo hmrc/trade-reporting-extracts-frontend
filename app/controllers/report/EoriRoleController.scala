@@ -18,8 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.EoriRoleFormProvider
-import models.report.Decision
-import models.{EoriRole, Mode, ReportTypeImport}
+import models.report.{Decision, ReportTypeImport}
+import models.{EoriRole, Mode}
 import models.report.Decision.Import
 import navigation.ReportNavigator
 import pages.report.{DecisionPage, EoriRolePage, ReportTypeImportPage}
@@ -70,11 +70,13 @@ class EoriRoleController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                                  if (isImporter) request.userAnswers.set(EoriRolePage, value)
-                                  else
+                                  if (isImporter) {
+                                    request.userAnswers.set(EoriRolePage, value)
+                                  } else {
                                     request.userAnswers
                                       .set(EoriRolePage, value)
                                       .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
+                                  }
                                 )
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(EoriRolePage, mode, updatedAnswers))

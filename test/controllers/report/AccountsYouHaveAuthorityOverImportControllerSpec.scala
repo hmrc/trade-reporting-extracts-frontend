@@ -18,8 +18,8 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.report.Decision
-import models.{NormalMode, ReportTypeImport, UserAnswers}
+import models.report.{Decision, ReportTypeImport}
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any

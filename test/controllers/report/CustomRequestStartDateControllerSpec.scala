@@ -19,7 +19,8 @@ package controllers.report
 import base.SpecBase
 import controllers.routes
 import forms.report.CustomRequestStartDateFormProvider
-import models.{NormalMode, ReportTypeImport, UserAnswers}
+import models.report.ReportTypeImport
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator, ReportNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

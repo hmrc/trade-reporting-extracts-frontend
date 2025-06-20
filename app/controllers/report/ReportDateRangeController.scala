@@ -18,10 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.ReportDateRangeFormProvider
-import models.Mode
+import models.{CheckMode, Mode}
 import models.report.ReportDateRange
 import navigation.ReportNavigator
-import pages.report.ReportDateRangePage
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,6 +31,7 @@ import views.html.report.ReportDateRangeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class ReportDateRangeController @Inject() (
   override val messagesApi: MessagesApi,

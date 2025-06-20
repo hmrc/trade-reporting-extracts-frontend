@@ -16,7 +16,7 @@
 
 package pages.report
 
-import models.ReportTypeImport
+import models.report.ReportTypeImport
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

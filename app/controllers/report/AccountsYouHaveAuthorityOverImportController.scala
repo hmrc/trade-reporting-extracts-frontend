@@ -18,8 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.report.Decision
-import models.{Mode, ReportTypeImport}
+import models.report.{Decision, ReportTypeImport}
+import models.Mode
 import navigation.ReportNavigator
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
 import play.api.i18n.{I18nSupport, MessagesApi}

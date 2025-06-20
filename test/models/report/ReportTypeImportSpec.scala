@@ -17,7 +17,6 @@
 package models.report
 
 import generators.ModelGenerators
-import models.ReportTypeImport
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec

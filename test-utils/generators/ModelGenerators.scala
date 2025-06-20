@@ -17,7 +17,7 @@
 package generators
 
 import models.*
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
+import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {

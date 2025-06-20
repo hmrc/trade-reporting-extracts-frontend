@@ -18,9 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.MaybeAdditionalEmailFormProvider
-import models.Mode
+import models.{CheckMode, Mode}
 import navigation.ReportNavigator
 import pages.report.MaybeAdditionalEmailPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -44,7 +45,7 @@ class MaybeAdditionalEmailController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

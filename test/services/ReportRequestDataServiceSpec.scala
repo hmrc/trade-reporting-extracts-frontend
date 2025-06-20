@@ -18,9 +18,9 @@ package services
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.{EoriRole, ReportTypeImport}
+import models.EoriRole
 import models.report.EmailSelection.{Email2, Email3}
-import models.report.{ChooseEori, Decision, ReportDateRange}
+import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
