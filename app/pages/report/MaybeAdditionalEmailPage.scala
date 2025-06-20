@@ -34,7 +34,7 @@ case object MaybeAdditionalEmailPage extends QuestionPage[Boolean] {
         userAnswers
           .remove(EmailSelectionPage)
           .flatMap(_.remove(NewEmailNotificationPage))
-      case _ =>
+      case _           =>
         Success(userAnswers)
     }
 }
