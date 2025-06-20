@@ -329,3 +329,8 @@ requestedReports.table.status = cy: Status
 requestedReports.status.complete = cy: Complete
 requestedReports.status.error = cy: Error
 requestedReports.status.inProgress = cy: In progress
+
+
+submissionWaitingRoom.title = cy: Submission in progress
+submissionWaitingRoom.heading = cy: Submission in progress
+submissionWaitingRoom.message = cy: Do not leave this page.

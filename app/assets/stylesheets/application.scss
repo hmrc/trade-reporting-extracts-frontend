@@ -27,3 +27,12 @@ $tre-mobile-breakpoint: 640px;
   border-top: 2px solid #1d70b8;
   padding-top: 10px;
 }
+
+div:has(div.hods-loading-spinner) { .govuk-grid-column-two-thirds {width:100%;} }
+
+div:has(div.hods-loading-spinner) { .govuk-grid-column-two-thirds {width:100%;} }
+
+.hods-loading-spinner__content {
+    padding-top: 15px;
+    text-align: center;
+}

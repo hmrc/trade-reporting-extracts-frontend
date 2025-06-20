@@ -329,3 +329,7 @@ requestedReports.table.status = Status
 requestedReports.status.complete = Completed
 requestedReports.status.error = Error
 requestedReports.status.inProgress = In Progress
+
+submissionWaitingRoom.title = Submission in progress
+submissionWaitingRoom.heading = Submission in progress
+submissionWaitingRoom.message = Do not leave this page.

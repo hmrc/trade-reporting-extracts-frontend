@@ -63,7 +63,7 @@ POST       /change-accounts-you-have-authority-over-import                  cont
 GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
 POST       /check-your-answers        controllers.report.CheckYourAnswersController.onSubmit()
 
+GET        /report-request-in-progress                      controllers.report.RequestReportWaitingRoomController.onPageLoad()
 
-
-GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
+GET        /report-request-confirmation/:key                   controllers.report.RequestConfirmationController.onPageLoad(key : String)
 GET        /requested-reports                             controllers.report.RequestedReportsController.onPageLoad()

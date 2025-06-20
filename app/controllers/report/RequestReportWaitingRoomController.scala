@@ -1,0 +1,81 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.report
+
+import controllers.BaseController
+import play.api.cache.AsyncCacheApi
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.report.{EmailSelection, ReportConfirmationModel}
+import models.requests.DataRequest
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import play.api.i18n.MessagesApi
+import play.api.libs.json.JsPath
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.twirl.api.HtmlFormat
+import repositories.SessionRepository
+import services.{ReportRequestDataService, TradeReportingExtractsService}
+import utils.ReportHelpers
+import views.html.report.RequestReportWaitingRoomView
+import java.util.UUID
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class RequestReportWaitingRoomController @Inject() (
+                                                     override val messagesApi: MessagesApi,
+                                                     identify: IdentifierAction,
+                                                     getData: DataRetrievalAction,
+                                                     requireData: DataRequiredAction,
+                                                     sessionRepository: SessionRepository,
+                                                     tradeReportingExtractsService: TradeReportingExtractsService,
+                                                     view: RequestReportWaitingRoomView,
+                                                     reportRequestDataService: ReportRequestDataService,
+                                                     cache: AsyncCacheApi,
+                                                     val controllerComponents: MessagesControllerComponents) (implicit ec: ExecutionContext) extends BaseController {
+
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val updatedList: Seq[String] = fetchUpdatedData(request)
+    val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+    val key : String = UUID.randomUUID().toString
+    for {
+      requestRefs    <- tradeReportingExtractsService.createReportRequest(
+        reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+      )
+      requestRef      = requestRefs.mkString(", ")
+      updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
+      _              <- sessionRepository.set(updatedAnswers)
+      _              <- cache.set(key, ReportConfirmationModel(
+        updatedList = updatedList,
+        isMoreThanOneReport = isMoreThanOneReport,
+        requestRef = requestRef
+      ))
+    } yield Redirect(controllers.report.routes.RequestConfirmationController.onPageLoad(key))
+  }
+
+  private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
+    request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { answer =>
+      answer.map {
+        case EmailSelection.Email3 =>
+          request.userAnswers
+            .get(NewEmailNotificationPage)
+            .map(HtmlFormat.escape(_).toString)
+            .getOrElse("")
+        case email                 =>
+          HtmlFormat.escape(s"emailSelection.$email").toString
+      }
+    }
+}

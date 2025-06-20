@@ -18,59 +18,40 @@ package controllers.report
 
 import controllers.BaseController
 import controllers.actions.*
-import models.UserAnswers
-import models.report.EmailSelection
-import models.requests.DataRequest
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import models.report.ReportConfirmationModel
+import play.api.cache.*
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import play.twirl.api.HtmlFormat
-import repositories.SessionRepository
-import services.{ReportRequestDataService, TradeReportingExtractsService}
-import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
-
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class RequestConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  sessionRepository: SessionRepository,
-  tradeReportingExtractsService: TradeReportingExtractsService,
-  reportRequestDataService: ReportRequestDataService,
+  cache:              AsyncCacheApi,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView
 )(implicit ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val updatedList: Seq[String] = fetchUpdatedData(request)
-    val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
-    for {
-      requestRefs    <- tradeReportingExtractsService.createReportRequest(
-                          reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                        )
-      requestRef      = requestRefs.mkString(", ")
-      updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(updatedList, isMoreThanOneReport, requestRef))
+  def onPageLoad(key: String): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    cache.get[ReportConfirmationModel](key).map { reportConfirmationModelOpt =>
+      val (updatedList, isMoreThanOneReport, requestRef) = reportConfirmationModelOpt match {
+        case Some(reportConfirmationModel) =>
+          (
+            reportConfirmationModel.updatedList,
+            reportConfirmationModel.isMoreThanOneReport,
+            reportConfirmationModel.requestRef
+          )
+        case None =>
+          (Seq.empty, false, "")
+      }
+      Ok(view(updatedList, isMoreThanOneReport, requestRef))
+    }
   }
 
-  private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
-    request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { answer =>
-      answer.map {
-        case EmailSelection.Email3 =>
-          request.userAnswers
-            .get(NewEmailNotificationPage)
-            .map(HtmlFormat.escape(_).toString)
-            .getOrElse("")
-        case email                 =>
-          HtmlFormat.escape(s"emailSelection.$email").toString
-      }
-    }
 }
