@@ -1,0 +1,11 @@
+{
+  "environment": "local",
+  "internal-auth-frontend-signin-url": "http://localhost:8471/test-only/sign-in",
+  "internal-auth-run-local": "sbt -Dapplication.router=testOnlyDoNotUseInAppConf.Routes run",
+  "principal": "trade-reporting-extracts",
+  "token": "abc123",
+  "internal-auth-frontend-redirect-url": "http://localhost:11307/administer-user-allow-list",
+  "resource-type": "user-allow-list",
+  "resource-locations": "trade-reporting-extracts",
+  "action": "*"
+}
