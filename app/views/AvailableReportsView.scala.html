@@ -126,8 +126,7 @@ maybeThirdPartyReports: Boolean
         <p class="govuk-body">@messages("availableReports.message1.none")</p>
         <ul class="govuk-list--spaced govuk-list--bullet">
             <li class="govuk-body">
-                <!--     TODO//   change link for requested reports view when complete-->
-                <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">@messages("availableReports.link1.none")</a>
+                <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link">@messages("availableReports.link1.none")</a>
             </li>
             <li class="govuk-body">
                 <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">@messages("availableReports.link2.none")</a>
