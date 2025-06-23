@@ -90,7 +90,7 @@ class TradeReportingExtractsConnectorSpec
 
     "createReportRequest" - {
 
-      val url = "/trade-reporting-extracts/create-report-request"
+      val url = "/create-report-request"
 
       "must return an OK response and reference when JSON is valid" in {
 
