@@ -18,7 +18,8 @@ package viewmodels.checkAnswers.report
 
 import pages.report.{CustomRequestStartDatePage, ReportTypeImportPage}
 import base.SpecBase
-import models.{CheckMode, ReportTypeImport, UserAnswers}
+import models.report.ReportTypeImport
+import models.{CheckMode, UserAnswers}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}

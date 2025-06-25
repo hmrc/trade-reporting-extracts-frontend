@@ -18,7 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.ReportTypeImportFormProvider
-import models.{Mode, ReportTypeImport}
+import models.Mode
+import models.report.ReportTypeImport
 import navigation.ReportNavigator
 import pages.report.ReportTypeImportPage
 import play.api.data.Form

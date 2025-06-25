@@ -20,8 +20,10 @@ import controllers.BaseController
 import controllers.actions.*
 import forms.report.EmailSelectionFormProvider
 import models.Mode
+import models.report.EmailSelection
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,7 +45,7 @@ class EmailSelectionController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  val form = formProvider()
+  val form: Form[Set[EmailSelection]] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
@@ -68,4 +70,5 @@ class EmailSelectionController @Inject() (
             } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
         )
   }
+
 }
