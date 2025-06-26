@@ -22,11 +22,11 @@ import models.report.Decision.{Export, Import}
 import models.report.EmailSelection.Email3
 import models.report.{ChooseEori, EmailSelection, ReportDateRange, ReportRequestUserAnswersModel}
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
-
+import config.FrontendAppConfig
 import java.time.temporal.TemporalAdjusters
 import java.time.{Clock, LocalDate}
 
-class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
+class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appConfig: FrontendAppConfig) {
 
   def buildReportRequest(userAnswers: UserAnswers, eori: String): ReportRequestUserAnswersModel = {
 
@@ -46,7 +46,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
   }
 
   private def getEoriRole(userAnswers: UserAnswers): Set[String] =
-    if (userAnswers.get(AccountsYouHaveAuthorityOverImportPage).isDefined) {
+    if (appConfig.thirdPartyEnabled && userAnswers.get(AccountsYouHaveAuthorityOverImportPage).isDefined) {
       userAnswers.get(DecisionPage).get match {
         case decision if decision == Export => Set(EoriRole.Exporter.toString)
         case decision if decision == Import => Set(EoriRole.Importer.toString)
@@ -90,9 +90,10 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
   }
 
   private def getEori(userAnswers: UserAnswers, eori: String): String =
-    userAnswers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori) => eori
-      case _                       => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
-    }
-
+    if (appConfig.thirdPartyEnabled) {
+      userAnswers.get(ChooseEoriPage) match {
+        case Some(ChooseEori.Myeori) => eori
+        case _                       => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+      }
+    } else eori
 }

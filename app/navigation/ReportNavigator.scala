@@ -16,8 +16,9 @@
 
 package navigation
 
+import config.FrontendAppConfig
 import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
-import models.{NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
 import play.api.mvc.Call
@@ -25,31 +26,68 @@ import play.api.mvc.Call
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ReportNavigator @Inject() extends Navigator {
+class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           => navigateTo(controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode))
-    case ChooseEoriPage                         => ChooseEoriNormalRoutes
-    case AccountsYouHaveAuthorityOverImportPage => AccountsYouHaveAuthorityOverImportNormalRoutes
-    case EoriRolePage                           => EoriRoleNormalRoutes
+    case DecisionPage                           =>
+      navigateBasedOnThirdPartyFlag(
+        controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode),
+        controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
+      )
+    case ChooseEoriPage                         => chooseEoriRoutes(NormalMode)
+    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(NormalMode)
+    case EoriRolePage                           => eoriRoleRoutes(NormalMode)
     case ReportTypeImportPage                   => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
-    case ReportDateRangePage                    => reportDateRangePageNormalRoutes
+    case ReportDateRangePage                    => reportDateRangeRoutes(NormalMode)
     case CustomRequestStartDatePage             =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
     case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-    case ReportNamePage                         => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
-    case MaybeAdditionalEmailPage               =>
+
+    case ReportNamePage =>
+      navigateBasedOnNotificationsFlag(
+        controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode),
+        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+      )
+
+    case MaybeAdditionalEmailPage =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
         controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
       )
-    case EmailSelectionPage                     =>
+    case EmailSelectionPage       =>
       conditionalNavigate(
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
+    case NewEmailNotificationPage => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
+  }
+
+  override val checkRoutes: Page => UserAnswers => Call = {
+    case DecisionPage                           =>
+      navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(CheckMode))
+    case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
+    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
+    case EoriRolePage                           => eoriRoleRoutes(CheckMode)
+    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case ReportDateRangePage                    => reportDateRangeRoutes(CheckMode)
+    case CustomRequestStartDatePage             =>
+      navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(CheckMode))
+    case CustomRequestEndDatePage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case ReportNamePage                         =>
+      navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case MaybeAdditionalEmailPage               =>
+      conditionalNavigate(
+        hasAdditionalEmailRequest,
+        controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
+      )
+    case EmailSelectionPage                     =>
+      conditionalNavigate(
+        isAddNewEmail,
+        controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode)
+      )
     case NewEmailNotificationPage               => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case CheckYourAnswersPage                   => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
+    case _                                      => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
@@ -64,44 +102,83 @@ class ReportNavigator @Inject() extends Navigator {
   private def isAddNewEmail(answers: UserAnswers): Boolean =
     answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.Email3))
 
-  private def reportDateRangePageNormalRoutes(answers: UserAnswers): Call =
-    answers
-      .get(ReportDateRangePage)
-      .map {
-        case ReportDateRange.CustomDateRange =>
-          controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
-        case _                               => controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
-      }
-      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+  private def reportDateRangeRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ReportDateRangePage) match {
+      case Some(ReportDateRange.CustomDateRange) =>
+        controllers.report.routes.CustomRequestStartDateController.onPageLoad(mode)
 
-  private def ChooseEoriNormalRoutes(answers: UserAnswers): Call =
-    answers
-      .get(ChooseEoriPage)
-      .map {
-        case ChooseEori.Myeori      => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
-        case ChooseEori.Myauthority =>
-          controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(NormalMode)
-      }
-      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+      case Some(_) =>
+        mode match {
+          case NormalMode =>
+            controllers.report.routes.ReportNameController.onPageLoad(NormalMode)
 
-  private def AccountsYouHaveAuthorityOverImportNormalRoutes(answers: UserAnswers): Call =
-    answers
-      .get(DecisionPage)
-      .map {
-        case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-        case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-      }
-      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+          case CheckMode =>
+            controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        }
 
-  private def EoriRoleNormalRoutes(answers: UserAnswers): Call =
-    answers
-      .get(DecisionPage)
-      .map {
-        case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-        case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-      }
-      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+      case None =>
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
 
-  override val checkRoutes: Page => UserAnswers => Call = _ =>
-    _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+  private def chooseEoriRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ChooseEoriPage) match {
+      case Some(ChooseEori.Myeori) =>
+        mode match {
+          case NormalMode =>
+            controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
+          case CheckMode  =>
+            controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        }
+
+      case Some(ChooseEori.Myauthority) =>
+        controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode)
+
+      case None =>
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def accountsYouHaveAuthorityOverImportRoutes(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case NormalMode =>
+        answers
+          .get(DecisionPage)
+          .map {
+            case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
+            case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          }
+          .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+      case CheckMode =>
+        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+    }
+
+  private def eoriRoleRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(DecisionPage) match {
+      case Some(Decision.Import) =>
+        controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+
+      case Some(Decision.Export) =>
+        mode match {
+          case NormalMode => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        }
+
+      case None =>
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def navigateBasedOnThirdPartyFlag(
+    ifThirdPartyEnabled: => Call,
+    ifThirdPartyDisabled: => Call
+  ): UserAnswers => Call = { _ =>
+    if (appConfig.thirdPartyEnabled) ifThirdPartyEnabled else ifThirdPartyDisabled
+  }
+
+  private def navigateBasedOnNotificationsFlag(
+    ifNotificationsEnabled: => Call,
+    ifNotificationsDisabled: => Call
+  ): UserAnswers => Call = { _ =>
+    if (appConfig.notificationsEnabled) ifNotificationsEnabled else ifNotificationsDisabled
+  }
+
 }

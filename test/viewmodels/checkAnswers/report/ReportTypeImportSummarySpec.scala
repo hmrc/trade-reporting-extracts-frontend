@@ -17,11 +17,11 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
-import models.{CheckMode, ReportTypeImport, UserAnswers}
+import models.report.ReportTypeImport
+import models.{CheckMode, UserAnswers}
 import pages.report.ReportTypeImportPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}

@@ -16,13 +16,30 @@
 
 package pages.report
 
+import models.UserAnswers
 import models.report.ReportDateRange
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.{Success, Try}
 
 case object ReportDateRangePage extends QuestionPage[ReportDateRange] {
 
   override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "reportDateRange"
+
+  override def cleanup(value: Option[ReportDateRange], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(ReportDateRange.CustomDateRange) =>
+        Success(userAnswers)
+
+      case Some(_) =>
+        userAnswers
+          .remove(CustomRequestStartDatePage)
+          .flatMap(_.remove(CustomRequestEndDatePage))
+
+      case None =>
+        Success(userAnswers)
+    }
 }

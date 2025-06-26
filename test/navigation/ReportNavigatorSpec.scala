@@ -17,314 +17,280 @@
 package navigation
 
 import base.SpecBase
-import models.*
-import models.report._
-import pages.*
-import pages.report._
-import java.time.{LocalDate, ZoneOffset}
+import config.FrontendAppConfig
+import controllers.report.routes
+import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
+import models.{CheckMode, NormalMode}
+import org.mockito.Mockito.*
+import org.scalatestplus.mockito.MockitoSugar
+import pages.report.*
 
-class ReportNavigatorSpec extends SpecBase {
+class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
-  val navigator = new FakeReportNavigation()
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+  when(mockAppConfig.notificationsEnabled).thenReturn(true)
+
+  val navigator = new ReportNavigator(mockAppConfig)
 
   "ReportNavigator" - {
 
     "in Normal mode" - {
 
-      "DecisionPage must navigate to which-eori with any answer" in {
+      "navigate from DecisionPage" in {
+        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+        navigator.nextPage(DecisionPage, NormalMode, ua) mustBe routes.ChooseEoriController.onPageLoad(NormalMode)
+      }
 
-        val ua     = emptyUserAnswers
-          .set(
-            DecisionPage,
-            Decision.values.head
+      "navigate from ChooseEoriPage" - {
+        "to EoriRolePage when Myeori" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
+          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.EoriRoleController.onPageLoad(NormalMode)
+        }
+
+        "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
+          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.AccountsYouHaveAuthorityOverImportController
+            .onPageLoad(NormalMode)
+        }
+      }
+
+      "navigate from AccountsYouHaveAuthorityOverImportPage" - {
+        "to ReportTypeImportPage when Import" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+          navigator.nextPage(
+            AccountsYouHaveAuthorityOverImportPage,
+            NormalMode,
+            ua
+          ) mustBe routes.ReportTypeImportController.onPageLoad(NormalMode)
+        }
+
+        "to ReportDateRangePage when Export" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(
+            AccountsYouHaveAuthorityOverImportPage,
+            NormalMode,
+            ua
+          ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
+        }
+      }
+
+      "navigate from EoriRolePage" - {
+        "to ReportTypeImportPage when Import" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+          navigator.nextPage(EoriRolePage, NormalMode, ua) mustBe routes.ReportTypeImportController.onPageLoad(
+            NormalMode
           )
-          .success
-          .value
-        val result = navigator.nextPage(DecisionPage, NormalMode, ua).url
+        }
 
-        checkNavigation(result, "/which-eori")
-      }
-
-      "ChooseEoriPage must navigate to EoriRole when answered with Myeori" in {
-
-        val ua     = emptyUserAnswers
-          .set(
-            ChooseEoriPage,
-            ChooseEori.Myeori
+        "to ReportDateRangePage when Export" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(EoriRolePage, NormalMode, ua) mustBe routes.ReportDateRangeController.onPageLoad(
+            NormalMode
           )
-          .success
-          .value
-        val result = navigator.nextPage(ChooseEoriPage, NormalMode, ua).url
-
-        checkNavigation(result, "/your-role")
+        }
       }
 
-      "ChooseEoriPage must navigate to AccountsYouHaveAuthorityOverImport when answered with Myauthority" in {
+      "navigate from ReportTypeImportPage to ReportDateRangePage" in {
+        navigator.nextPage(ReportTypeImportPage, NormalMode, emptyUserAnswers) mustBe routes.ReportDateRangeController
+          .onPageLoad(NormalMode)
+      }
 
-        val ua     = emptyUserAnswers
-          .set(
-            ChooseEoriPage,
-            ChooseEori.Myauthority
+      "navigate from ReportDateRangePage" - {
+        "to CustomRequestStartDatePage when CustomDateRange" in {
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange).success.value
+          navigator.nextPage(ReportDateRangePage, NormalMode, ua) mustBe routes.CustomRequestStartDateController
+            .onPageLoad(NormalMode)
+        }
+
+        "to ReportNamePage otherwise" in {
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastCalendarMonth).success.value
+          navigator.nextPage(ReportDateRangePage, NormalMode, ua) mustBe routes.ReportNameController.onPageLoad(
+            NormalMode
           )
-          .success
-          .value
-        val result = navigator.nextPage(ChooseEoriPage, NormalMode, ua).url
-
-        checkNavigation(result, "/accounts-you-have-authority-over-import")
-      }
-      "AccountsYouHaveAuthorityOverImportPage" - {
-        "must navigate to ReportTypeImport when decision is import" in {
-
-          val ua     = emptyUserAnswers
-            .set(
-              DecisionPage,
-              Decision.Import
-            )
-            .get
-            .set(
-              AccountsYouHaveAuthorityOverImportPage,
-              "eoriName"
-            )
-            .success
-            .value
-          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
-
-          checkNavigation(result, "/report-type")
-        }
-
-        "must navigate to ReportDateRange when decision is export" in {
-
-          val ua     = emptyUserAnswers
-            .set(
-              DecisionPage,
-              Decision.Export
-            )
-            .get
-            .set(
-              AccountsYouHaveAuthorityOverImportPage,
-              "eoriName"
-            )
-            .success
-            .value
-          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
-
-          checkNavigation(result, "/date-rage")
-        }
-
-        "must navigate to journey recover when decision is not set" in {
-
-          val ua     = emptyUserAnswers
-            .set(
-              AccountsYouHaveAuthorityOverImportPage,
-              "eoriName"
-            )
-            .success
-            .value
-          val result = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, NormalMode, ua).url
-
-          checkNavigation(result, "/problem/there-is-a-problem")
         }
       }
 
-      "EoriRolePage" - {
-        "must navigate to ReportTypeImport when decision is import" in {
+      "navigate from CustomRequestStartDatePage to CustomRequestEndDatePage" in {
+        navigator.nextPage(
+          CustomRequestStartDatePage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.CustomRequestEndDateController.onPageLoad(NormalMode)
+      }
 
-          val ua     = emptyUserAnswers
-            .set(
-              DecisionPage,
-              Decision.Import
-            )
-            .get
-            .set(EoriRolePage, EoriRole.values.toSet)
-            .success
-            .value
-          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
+      "navigate from CustomRequestEndDatePage to ReportNamePage" in {
+        navigator.nextPage(CustomRequestEndDatePage, NormalMode, emptyUserAnswers) mustBe routes.ReportNameController
+          .onPageLoad(NormalMode)
+      }
 
-          checkNavigation(result, "/report-type")
+      "navigate from ReportNamePage to MaybeAdditionalEmailPage when notifications enabled" in {
+        navigator.nextPage(ReportNamePage, NormalMode, emptyUserAnswers) mustBe routes.MaybeAdditionalEmailController
+          .onPageLoad(NormalMode)
+      }
+
+      "navigate from MaybeAdditionalEmailPage" - {
+        "to EmailSelectionPage when true" in {
+          val ua = emptyUserAnswers.set(MaybeAdditionalEmailPage, true).success.value
+          navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua) mustBe routes.EmailSelectionController
+            .onPageLoad(NormalMode)
         }
 
-        "must navigate to ReportDateRange when decision is export" in {
-
-          val ua     = emptyUserAnswers
-            .set(
-              DecisionPage,
-              Decision.Export
-            )
-            .get
-            .set(EoriRolePage, EoriRole.values.toSet)
-            .success
-            .value
-          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
-
-          checkNavigation(result, "/date-rage")
-        }
-
-        "must navigate to journey recover when decision is not set" in {
-
-          val ua     = emptyUserAnswers
-            .set(EoriRolePage, EoriRole.values.toSet)
-            .success
-            .value
-          val result = navigator.nextPage(EoriRolePage, NormalMode, ua).url
-
-          checkNavigation(result, "/problem/there-is-a-problem")
+        "to CheckYourAnswersPage when false" in {
+          val ua = emptyUserAnswers.set(MaybeAdditionalEmailPage, false).success.value
+          navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua) mustBe routes.CheckYourAnswersController
+            .onPageLoad()
         }
       }
 
-      "ReportTypeImportPage must navigate to ReportDateRangePage with any answer" in {
-
-        val ua     = emptyUserAnswers
-          .set(
-            ReportTypeImportPage,
-            ReportTypeImport.values.toSet
-          )
-          .success
-          .value
-        val result = navigator.nextPage(ReportTypeImportPage, NormalMode, ua).url
-
-        checkNavigation(result, "/date-rage")
-      }
-
-      "ReportNamePage must navigate to MaybeAdditionalEmail" in {
-
-        val ua = emptyUserAnswers
-          .set(ReportNamePage, "name")
-          .success
-          .value
-
-        val result = navigator.nextPage(ReportNamePage, NormalMode, ua).url
-
-        checkNavigation(result, "/choose-email-address")
-      }
-
-      "ReportDateRangePage" - {
-        "when custom date range, navigate to CustomRequestStartDatePage" in {
-
-          val ua = emptyUserAnswers
-            .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
-            .success
-            .value
-
-          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
-
-          checkNavigation(result, "/start-date")
+      "navigate from EmailSelectionPage" - {
+        "to NewEmailNotificationPage when Email3 selected" in {
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email3)).success.value
+          navigator.nextPage(EmailSelectionPage, NormalMode, ua) mustBe routes.NewEmailNotificationController
+            .onPageLoad(NormalMode)
         }
 
-        "when last 31 days, navigate to ReportNamePage" in {
-
-          val ua = emptyUserAnswers
-            .set(ReportDateRangePage, ReportDateRange.Last31Days)
-            .success
-            .value
-
-          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
-
-          checkNavigation(result, "/report-name")
-        }
-
-        "when last calendar month, navigate to ReportNamePage" in {
-
-          val ua = emptyUserAnswers
-            .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
-            .success
-            .value
-
-          val result = navigator.nextPage(ReportDateRangePage, NormalMode, ua).url
-
-          checkNavigation(result, "/report-name")
+        "to CheckYourAnswersPage otherwise" in {
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email1)).success.value
+          navigator.nextPage(EmailSelectionPage, NormalMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
       }
 
-      "customRequestStartDate" - {
-
-        "when submitted must go to customRequestEndDatePage" in {
-
-          val ua = emptyUserAnswers
-            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
-            .success
-            .value
-
-          val result = navigator.nextPage(CustomRequestStartDatePage, NormalMode, ua).url
-
-          checkNavigation(result, "/end-date")
-        }
+      "navigate from NewEmailNotificationPage to CheckYourAnswersPage" in {
+        navigator.nextPage(
+          NewEmailNotificationPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
 
-      "customRequestEndDate" - {
-
-        "when submitted must go to reportNamePage" in {
-
-          val ua = emptyUserAnswers
-            .set(CustomRequestStartDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(5))
-            .success
-            .value
-            .set(CustomRequestEndDatePage, LocalDate.now(ZoneOffset.UTC).minusDays(4))
-            .success
-            .value
-
-          val result = navigator.nextPage(CustomRequestEndDatePage, NormalMode, ua).url
-
-          checkNavigation(result, "/report-name")
-        }
+      "navigate from CheckYourAnswersPage to RequestConfirmationPage" in {
+        navigator.nextPage(
+          CheckYourAnswersPage,
+          NormalMode,
+          emptyUserAnswers
+        ) mustBe routes.RequestConfirmationController.onPageLoad()
       }
-    }
-
-    "MaybeAdditionalEmailPage must navigate to EmailSelectionPage" in {
-
-      val ua = emptyUserAnswers
-        .set(MaybeAdditionalEmailPage, true)
-        .success
-        .value
-
-      val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
-
-      checkNavigation(result, "/notification-email")
-    }
-
-//:TODO this navigation need to be changed to the correct page once after implementation of other pages
-    "MaybeAdditionalEmailPage must navigate to CheckYourAnswersController" in {
-
-      val ua = emptyUserAnswers
-        .set(MaybeAdditionalEmailPage, false)
-        .success
-        .value
-
-      val result = navigator.nextPage(MaybeAdditionalEmailPage, NormalMode, ua).url
-
-      checkNavigation(result, "/check-your-answers")
-    }
-
-    "EmailSelectionPage must navigate to NewEmailNotificationPage" in {
-      val addEmailSelected: Set[EmailSelection] = Set(EmailSelection.Email3)
-      val ua                                    = emptyUserAnswers
-        .set(EmailSelectionPage, addEmailSelected)
-        .success
-        .value
-
-      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
-
-      checkNavigation(result, "/new-notification-email")
-    }
-//:TODO this navigation need to be changed to the correct page once after implementation of other pages
-    "EmailSelectionPage must navigate to CheckYourAnswersController" in {
-      val emailSelected: Set[EmailSelection] = Set(EmailSelection.Email1)
-      val ua                                 = emptyUserAnswers
-        .set(EmailSelectionPage, emailSelected)
-        .success
-        .value
-
-      val result = navigator.nextPage(EmailSelectionPage, NormalMode, ua).url
-
-      checkNavigation(result, "/check-your-answers")
     }
 
     "in Check mode" - {
 
-      "go to journey recovery in all instances" in {
-        case object UnknownPage extends Page
-        val result = navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")).url
-        checkNavigation(result, "/problem/there-is-a-problem")
+      "navigate from DecisionPage to EoriRolePage" in {
+        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+        navigator.nextPage(DecisionPage, CheckMode, ua) mustBe routes.EoriRoleController.onPageLoad(CheckMode)
       }
+
+      "navigate from ChooseEoriPage" - {
+        "to EoriRolePage when Myeori" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
+          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
+          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.AccountsYouHaveAuthorityOverImportController
+            .onPageLoad(CheckMode)
+        }
+      }
+
+      "navigate from AccountsYouHaveAuthorityOverImportPage to CheckYourAnswersPage" in {
+        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+        navigator.nextPage(
+          AccountsYouHaveAuthorityOverImportPage,
+          CheckMode,
+          ua
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "navigate from EoriRolePage" - {
+        "to ReportTypeImportPage when Import" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+          navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.ReportTypeImportController.onPageLoad(CheckMode)
+        }
+
+        "to ReportDateRangePage when Export" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+      }
+
+      "navigate from ReportTypeImportPage to CheckYourAnswersPage" in {
+        navigator.nextPage(ReportTypeImportPage, CheckMode, emptyUserAnswers) mustBe routes.CheckYourAnswersController
+          .onPageLoad()
+      }
+
+      "navigate from ReportDateRangePage" - {
+        "to CustomRequestStartDatePage when CustomDateRange" in {
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange).success.value
+          navigator.nextPage(ReportDateRangePage, CheckMode, ua) mustBe routes.CustomRequestStartDateController
+            .onPageLoad(CheckMode)
+        }
+
+        "to CheckYourAnswersPage otherwise" in {
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastCalendarMonth).success.value
+          navigator.nextPage(ReportDateRangePage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+      }
+
+      "navigate from CustomRequestStartDatePage to CustomRequestEndDatePage" in {
+        navigator.nextPage(
+          CustomRequestStartDatePage,
+          CheckMode,
+          emptyUserAnswers
+        ) mustBe routes.CustomRequestEndDateController.onPageLoad(CheckMode)
+      }
+
+      "navigate from CustomRequestEndDatePage to CheckYourAnswersPage" in {
+        navigator.nextPage(
+          CustomRequestEndDatePage,
+          CheckMode,
+          emptyUserAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "navigate from ReportNamePage to CheckYourAnswersPage" in {
+        navigator.nextPage(ReportNamePage, CheckMode, emptyUserAnswers) mustBe routes.CheckYourAnswersController
+          .onPageLoad()
+      }
+
+      "navigate from MaybeAdditionalEmailPage" - {
+        "to EmailSelectionPage when true" in {
+          val ua = emptyUserAnswers.set(MaybeAdditionalEmailPage, true).success.value
+          navigator.nextPage(MaybeAdditionalEmailPage, CheckMode, ua) mustBe routes.EmailSelectionController.onPageLoad(
+            CheckMode
+          )
+        }
+
+        "to CheckYourAnswersPage when false" in {
+          val ua = emptyUserAnswers.set(MaybeAdditionalEmailPage, false).success.value
+          navigator.nextPage(MaybeAdditionalEmailPage, CheckMode, ua) mustBe routes.CheckYourAnswersController
+            .onPageLoad()
+        }
+      }
+
+      "navigate from EmailSelectionPage" - {
+        "to NewEmailNotificationPage when Email3 selected" in {
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email3)).success.value
+          navigator.nextPage(EmailSelectionPage, CheckMode, ua) mustBe routes.NewEmailNotificationController.onPageLoad(
+            CheckMode
+          )
+        }
+
+        "to CheckYourAnswersPage otherwise" in {
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email1)).success.value
+          navigator.nextPage(EmailSelectionPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+      }
+
+      "navigate from NewEmailNotificationPage to CheckYourAnswersPage" in {
+        navigator.nextPage(
+          NewEmailNotificationPage,
+          CheckMode,
+          emptyUserAnswers
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
     }
   }
+
 }
