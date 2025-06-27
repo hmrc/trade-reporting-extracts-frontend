@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package models.report
+package pages.report
 
-import play.api.libs.json.{Json, OFormat}
+import base.SpecBase
+import play.api.libs.json.JsPath
 
-case class ReportRequestUserAnswersModel(
-  eori: String,
-  dataType: String,
-  whichEori: Option[String],
-  eoriRole: Set[String],
-  reportType: Set[String],
-  reportStartDate: String,
-  reportEndDate: String,
-  reportName: String,
-  additionalEmail: Option[Set[String]],
-  journeyReferenceId: String
-)
+class JourneyReferenceSpec extends SpecBase {
 
-object ReportRequestUserAnswersModel {
-  implicit val format: OFormat[ReportRequestUserAnswersModel] = Json.format[ReportRequestUserAnswersModel]
+  "JourneyReference" - {
+
+    "must have the correct path" in {
+      JourneyReference.path mustBe (JsPath \ "report" \ "journeyReferenceId")
+    }
+
+    "must have the correct toString" in {
+      JourneyReference.toString mustBe "journeyReferenceId"
+    }
+
+  }
 }

@@ -70,7 +70,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          journeyReferenceId = "123e4567-e89b-12d3-a456-426614174000"
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -121,7 +122,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          journeyReferenceId = "123e4567-e89b-12d3-a456-426614174000"
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -168,7 +170,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          journeyReferenceId = "123e4567-e89b-12d3-a456-426614174000"
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -215,7 +218,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          journeyReferenceId = "123e4567-e89b-12d3-a456-426614174000"
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))

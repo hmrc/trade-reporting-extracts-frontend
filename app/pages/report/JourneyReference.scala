@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package models.report
+package pages.report
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.JsPath
+import queries.{Gettable, Settable}
 
-case class ReportRequestUserAnswersModel(
-  eori: String,
-  dataType: String,
-  whichEori: Option[String],
-  eoriRole: Set[String],
-  reportType: Set[String],
-  reportStartDate: String,
-  reportEndDate: String,
-  reportName: String,
-  additionalEmail: Option[Set[String]],
-  journeyReferenceId: String
-)
-
-object ReportRequestUserAnswersModel {
-  implicit val format: OFormat[ReportRequestUserAnswersModel] = Json.format[ReportRequestUserAnswersModel]
+case object JourneyReference extends Gettable[String] with Settable[String] {
+  override def path: JsPath     = JsPath \ "report" \ toString
+  override def toString: String = "journeyReferenceId"
 }
