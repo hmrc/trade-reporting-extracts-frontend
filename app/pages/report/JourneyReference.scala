@@ -16,10 +16,10 @@
 
 package pages.report
 
-import pages.QuestionPage
 import play.api.libs.json.JsPath
+import queries.{Gettable, Settable}
 
-case object JourneyReference extends QuestionPage[String] {
+case object JourneyReference extends Gettable[String] with Settable[String] {
   override def path: JsPath     = JsPath \ "report" \ toString
   override def toString: String = "journeyReferenceId"
 }
