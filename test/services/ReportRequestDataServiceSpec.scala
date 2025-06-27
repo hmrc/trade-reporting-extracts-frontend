@@ -25,7 +25,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, JourneyReference, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
@@ -59,10 +59,13 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(NewEmailNotificationPage, "example@email.com")
         .get
+        .set(JourneyReference, "123e4567-e89b-12d3-a456-426614174000")
+        .get
 
       val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
 
       result.eori mustBe "eori"
+      result.journeyReferenceId mustBe "123e4567-e89b-12d3-a456-426614174000"
       result.dataType mustBe "import"
       result.whichEori mustBe Some("eori")
       result.eoriRole mustBe Set("importer")
@@ -99,10 +102,13 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(NewEmailNotificationPage, "example@email.com")
         .get
+        .set(JourneyReference, "123e4567-e89b-12d3-a456-426614174000")
+        .get
 
       val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
 
       result.eori mustBe "eori"
+      result.journeyReferenceId mustBe "123e4567-e89b-12d3-a456-426614174000"
       result.dataType mustBe "import"
       result.whichEori mustBe Some("eori")
       result.eoriRole mustBe Set("importer")
@@ -143,11 +149,14 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(NewEmailNotificationPage, "example@email.com")
         .get
+        .set(JourneyReference, "123e4567-e89b-12d3-a456-426614174000")
+        .get
 
       val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
+      result.journeyReferenceId mustBe "123e4567-e89b-12d3-a456-426614174000"
       result.whichEori mustBe Some("eori")
       result.eoriRole mustBe Set("importer")
       result.reportType mustBe Set("importItem")
@@ -183,11 +192,14 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(NewEmailNotificationPage, "example@email.com")
         .get
+        .set(JourneyReference, "123e4567-e89b-12d3-a456-426614174000")
+        .get
 
       val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
+      result.journeyReferenceId mustBe "123e4567-e89b-12d3-a456-426614174000"
       result.whichEori mustBe Some("eori")
       result.eoriRole mustBe Set("importer")
       result.reportType mustBe Set("importItem")
@@ -223,11 +235,13 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(NewEmailNotificationPage, "example@email.com")
         .get
-
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+        .set(JourneyReference, "123e4567-e89b-12d3-a456-426614174000")
+        .get
+      val result                   = reportRequestDataService.buildReportRequest(userAnswers, "eori")
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
+      result.journeyReferenceId mustBe "123e4567-e89b-12d3-a456-426614174000"
       result.whichEori mustBe Some("thirdPartyEori")
       result.eoriRole mustBe Set("importer")
       result.reportType mustBe Set("importItem")

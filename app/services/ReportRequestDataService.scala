@@ -21,12 +21,11 @@ import models.{EoriRole, UserAnswers}
 import models.report.Decision.{Export, Import}
 import models.report.EmailSelection.Email3
 import models.report.{ChooseEori, EmailSelection, ReportDateRange, ReportRequestUserAnswersModel}
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, JourneyReference, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
 import config.FrontendAppConfig
 
 import java.time.temporal.TemporalAdjusters
 import java.time.{Clock, LocalDate}
-import java.util.UUID
 
 class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appConfig: FrontendAppConfig) {
 
@@ -34,7 +33,6 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
 
     val reportDates = getReportDates(userAnswers)
 
-    val journeyReferenceId = UUID.randomUUID().toString
     ReportRequestUserAnswersModel(
       eori = eori,
       dataType = userAnswers.get(DecisionPage).get.toString,
@@ -45,7 +43,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
       reportEndDate = reportDates._2,
       reportName = userAnswers.get(ReportNamePage).get,
       additionalEmail = getAdditionalEmails(userAnswers),
-      journeyReferenceId = journeyReferenceId
+      journeyReferenceId = userAnswers.get(JourneyReference).get
     )
   }
 
