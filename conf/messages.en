@@ -216,7 +216,7 @@ emailSelection.hint = Select all that apply
 
 maybeAdditionalEmail.title = Do you want to add another email for notifications?
 maybeAdditionalEmail.heading = Do you want to add another email for notifications?
-maybeAdditionalEmail.checkYourAnswersLabel = Notification email
+maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
 
@@ -237,7 +237,7 @@ requestConfirmation.feedbackDuration = (takes 30 seconds)
 
 newEmailNotification.title = Enter a new email address to receive notifications
 newEmailNotification.heading = Enter a new email address to receive notifications
-newEmailNotification.checkYourAnswersLabel = Notification email
+newEmailNotification.checkYourAnswersLabel = New notification email
 newEmailNotification.error.required = Enter a new email address to receive notifications
 newEmailNotification.error.length =  Enter a new email address not greater than 100 characters
 newEmailNotification.error.invalidFormat =  Enter a new email address in the correct format, like name@example.com

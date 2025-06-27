@@ -16,8 +16,9 @@
 
 package viewmodels.checkAnswers.report
 
+import models.report.EmailSelection
 import models.{CheckMode, UserAnswers}
-import pages.report.EmailSelectionPage
+import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -28,28 +29,38 @@ import viewmodels.implicits.*
 object EmailSelectionSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EmailSelectionPage).map { answers =>
+    answers.get(MaybeAdditionalEmailPage).getOrElse(false) match {
+      case true  =>
+        answers.get(EmailSelectionPage).map { answer =>
 
-      val value = ValueViewModel(
-        HtmlContent(
-          answers
-            .map { answer =>
-              HtmlFormat.escape(messages(s"emailSelection.$answer")).toString
-            }
-            .mkString(",<br>")
-        )
-      )
+          val value = ValueViewModel(
+            HtmlContent(
+              answer
+                .map {
+                  case EmailSelection.Email3 =>
+                    answers
+                      .get(NewEmailNotificationPage)
+                      .map(email => HtmlFormat.escape(email).toString)
+                      .getOrElse("")
 
-      SummaryListRowViewModel(
-        key = "emailSelection.checkYourAnswersLabel",
-        value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
+                  case email => HtmlFormat.escape(messages(s"emailSelection.$email")).toString
+                }
+                .mkString(",<br>")
+            )
           )
-            .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
+
+        SummaryListRowViewModel(
+          key = "emailSelection.checkYourAnswersLabel",
+          value = value,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
+            )
+              .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
+          )
         )
-      )
+        }
+      case false => None
     }
 }

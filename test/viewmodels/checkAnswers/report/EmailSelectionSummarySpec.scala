@@ -17,53 +17,68 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
+import models.UserAnswers
 import models.report.EmailSelection
-import models.{CheckMode, UserAnswers}
-import pages.report.EmailSelectionPage
+import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
-import viewmodels.govuk.summarylist.*
-import viewmodels.implicits.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 class EmailSelectionSummarySpec extends SpecBase {
 
   implicit private val messages: Messages = stubMessages()
 
-  "EmailSelectionSummary.row" - {
+  "EmailSelectionSummary" - {
 
-    "must return a SummaryListRow when an answer is present" in {
-      val answers = UserAnswers("id").set(EmailSelectionPage, EmailSelection.values.toSet).success.value
+    "must return a SummaryListRow when MaybeAdditionalEmailPage is true and EmailSelectionPage has values" in {
+      val userAnswers = UserAnswers("id")
+        .set(MaybeAdditionalEmailPage, true)
+        .success
+        .value
+        .set(EmailSelectionPage, Set(EmailSelection.Email1, EmailSelection.Email2))
+        .success
+        .value
+      val result      = EmailSelectionSummary.row(userAnswers)
 
-      val result = EmailSelectionSummary.row(answers)
-
-      result mustBe Some(
-        SummaryListRow(
-          key = "emailSelection.checkYourAnswersLabel",
-          value = ValueViewModel(
-            HtmlContent(
-              "emailSelection.email1,<br>emailSelection.email2,<br>emailSelection.email3"
-            )
-          ),
-          actions = Some(
-            Actions(items =
-              Seq(
-                ActionItemViewModel(
-                  "site.change",
-                  controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("emailSelection.change.hidden"))
-              )
-            )
-          )
-        )
-      )
+      result mustBe defined
+      result.get.key.content.asHtml.body   must include("emailSelection.checkYourAnswersLabel")
+      result.get.value.content.asHtml.body must include(messages("emailSelection.email1"))
+      result.get.value.content.asHtml.body must include(messages("emailSelection.email2"))
     }
 
-    "must return None when no answer is present" in {
-      val answers = UserAnswers("id")
+    "must return a SummaryListRow with new email when Email3 is selected and NewEmailNotificationPage is defined" in {
+      val userAnswers = UserAnswers("id")
+        .set(MaybeAdditionalEmailPage, true)
+        .success
+        .value
+        .set(EmailSelectionPage, Set(EmailSelection.Email3))
+        .success
+        .value
+        .set(NewEmailNotificationPage, "new@example.com")
+        .success
+        .value
 
-      val result = EmailSelectionSummary.row(answers)
+      val result = EmailSelectionSummary.row(userAnswers)
+
+      result mustBe defined
+      result.get.value.content.asHtml.body must include("new@example.com")
+    }
+
+    "must return None when MaybeAdditionalEmailPage is false" in {
+      val userAnswers = UserAnswers("id")
+        .set(MaybeAdditionalEmailPage, false)
+        .success
+        .value
+
+      val result = EmailSelectionSummary.row(userAnswers)
+
+      result mustBe None
+    }
+
+    "must return None when MaybeAdditionalEmailPage is not defined" in {
+      val userAnswers = UserAnswers("id")
+
+      val result = EmailSelectionSummary.row(userAnswers)
 
       result mustBe None
     }

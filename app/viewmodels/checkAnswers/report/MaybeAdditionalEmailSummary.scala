@@ -16,12 +16,10 @@
 
 package viewmodels.checkAnswers.report
 
-import models.report.EmailSelection
 import models.{CheckMode, UserAnswers}
-import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
+import pages.report.MaybeAdditionalEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -29,38 +27,18 @@ import viewmodels.implicits.*
 object MaybeAdditionalEmailSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(MaybeAdditionalEmailPage).getOrElse(false) match {
-      case true  =>
-        answers.get(EmailSelectionPage).map { answer =>
+    answers.get(MaybeAdditionalEmailPage).map { answer =>
+      val displayValue = if (answer) messages("site.yes") else messages("site.no")
 
-          val value = ValueViewModel(
-            HtmlContent(
-              answer
-                .map {
-                  case EmailSelection.Email3 =>
-                    answers
-                      .get(NewEmailNotificationPage)
-                      .map(email => HtmlFormat.escape(email).toString)
-                      .getOrElse("")
-
-                  case email => HtmlFormat.escape(messages(s"emailSelection.$email")).toString
-                }
-                .mkString(",<br>")
-            )
-          )
-
-          SummaryListRowViewModel(
-            key = "emailSelection.checkYourAnswersLabel",
-            value = value,
-            actions = Seq(
-              ActionItemViewModel(
-                "site.change",
-                controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(CheckMode).url
-              )
-                .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
-            )
-          )
-        }
-      case false => None
+      SummaryListRowViewModel(
+        key = "maybeAdditionalEmail.checkYourAnswersLabel",
+        value = ValueViewModel(displayValue),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(CheckMode).url
+          ).withVisuallyHiddenText(messages("maybeAdditionalEmail.change.hidden"))
+        )
+      )
     }
 }
