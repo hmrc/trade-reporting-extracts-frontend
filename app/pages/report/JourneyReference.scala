@@ -19,7 +19,7 @@ package pages.report
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object JourneyReference extends QuestionPage[String]  {
-  override def path: JsPath = JsPath \ "report" \ toString
+case object JourneyReference extends QuestionPage[String] {
+  override def path: JsPath     = JsPath \ "report" \ toString
   override def toString: String = "journeyReferenceId"
 }
