@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.actions.*
-import models.AllowedEoris
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
@@ -36,8 +35,7 @@ class DashboardController @Inject() (
   view: DashboardView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(using ec: ExecutionContext)
-    extends BaseController
-    with AllowedEoris {
+    extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
