@@ -17,6 +17,7 @@
 package controllers.report
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.UserAnswers
 import models.report.{EmailSelection, ReportRequestUserAnswersModel}
 import org.apache.pekko.Done
@@ -35,6 +36,7 @@ import services.{ReportRequestDataService, TradeReportingExtractsService}
 import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
+import java.net.URLEncoder
 import scala.concurrent.Future
 
 class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
@@ -86,6 +88,9 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val surveyUrl = appConfig.exitSurveyUrl
+
         val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
@@ -96,7 +101,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           Seq("email1@example.com", "email2@example.com", newEmail),
           false,
           "reference",
-          "surveyURl"
+          surveyUrl
         )(
           request,
           messages(application)
@@ -135,13 +140,16 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val surveyUrl = appConfig.exitSurveyUrl
+
         val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "reference", "surveyUrl")(
+        contentAsString(result) mustEqual view(Seq.empty, false, "reference", surveyUrl)(
           request,
           messages(application)
         ).toString
@@ -179,13 +187,16 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val surveyUrl = appConfig.exitSurveyUrl
+
         val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001", "surveyUrl")(
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001", surveyUrl)(
           request,
           messages(application)
         ).toString
@@ -223,13 +234,16 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val surveyUrl = appConfig.exitSurveyUrl
+
         val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001, RE00000002", "surveyUrl")(
+        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001, RE00000002", surveyUrl)(
           request,
           messages(application)
         ).toString
