@@ -16,22 +16,20 @@
 
 package controllers.problem
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.problem.UnauthorisedView
-import config.FrontendAppConfig
-import controllers.actions.IdentifierAction
 
 import javax.inject.Inject
 
 class UnauthorisedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
   config: FrontendAppConfig,
   view: UnauthorisedView
 ) extends BaseController {
 
-  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
+  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view(config.cdsSubscribeUrl))
   }
 }
