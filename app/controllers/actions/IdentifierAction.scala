@@ -19,7 +19,6 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.UserAllowListConnector
-import models.AllowedEoris
 import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.*
@@ -44,7 +43,6 @@ class AuthenticatedIdentifierAction @Inject() (
 )(implicit val executionContext: ExecutionContext)
     extends IdentifierAction
     with AuthorisedFunctions
-    with AllowedEoris
     with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -79,47 +77,22 @@ class AuthenticatedIdentifierAction @Inject() (
     maybeEnrolment match {
       case Some(enrolment) if enrolment.value.nonEmpty =>
         config.userAllowListEnabled match
-          case true if enrolment.value.nonEmpty =>
-            checkAllowList(enrolment.value, request, internalId, affinityGroup, credentialRole, block)
-          case false                            =>
-            checkAllowedEori(enrolment.value, request, internalId, affinityGroup, credentialRole, block)
+          case true  =>
+            userAllowListConnector.check(config.userAllowListFeature, enrolment.value).flatMap {
+              case true  =>
+                block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+              case false =>
+                logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
+                Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
+            }
+          case false =>
+            block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
       case Some(_)                                     =>
         throw InternalError("EORI is empty")
       case None                                        =>
         throw InsufficientEnrolments("Unable to retrieve Enrolment")
     }
   }
-
-  private def checkAllowList[A](
-    eori: String,
-    request: Request[A],
-    internalId: String,
-    affinityGroup: AffinityGroup,
-    credentialRole: Option[CredentialRole],
-    block: IdentifierRequest[A] => Future[Result]
-  )(implicit hc: HeaderCarrier): Future[Result] =
-    userAllowListConnector.check(config.userAllowListFeature, eori).flatMap {
-      case true  =>
-        block(IdentifierRequest(request, internalId, eori, affinityGroup, credentialRole))
-      case false =>
-        logger.info(s"EORI $eori is not allowed access. Redirecting.")
-        Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
-    }
-
-  private def checkAllowedEori[A](
-    eori: String,
-    request: Request[A],
-    internalId: String,
-    affinityGroup: AffinityGroup,
-    credentialRole: Option[CredentialRole],
-    block: IdentifierRequest[A] => Future[Result]
-  ): Future[Result] =
-    if (allowedEoris.contains(eori))
-      block(IdentifierRequest(request, internalId, eori, affinityGroup, credentialRole))
-    else {
-      logger.info(s"EORI $eori is not allowed access. Redirecting.")
-      Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
-    }
 
   private def handleAuthorisationFailures: PartialFunction[Throwable, Result] = {
     case _: NoActiveSession                =>
