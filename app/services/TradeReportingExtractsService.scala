@@ -68,5 +68,4 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
     hc: HeaderCarrier
   ): Future[Seq[String]] =
     connector.createReportRequest(reportRequestAnswers)
-
 }

@@ -16,6 +16,11 @@
 
 package pages.report
 
-import pages.Page
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case object CheckYourAnswersPage extends Page
+case object CheckYourAnswersPage extends QuestionPage[String] {
+
+  override def path: JsPath     = JsPath \ "report" \ toString
+  override def toString: String = "requestRef"
+}

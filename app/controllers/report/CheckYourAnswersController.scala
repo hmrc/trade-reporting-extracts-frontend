@@ -20,16 +20,21 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.requests.DataRequest
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import services.{ReportRequestDataService, TradeReportingExtractsService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.report.*
 import viewmodels.govuk.summarylist.*
 import views.html.report.CheckYourAnswersView
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   override val messagesApi: MessagesApi,
@@ -37,6 +42,9 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   navigator: ReportNavigator,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  reportRequestDataService: ReportRequestDataService,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourAnswersView
 ) extends BaseController {
@@ -57,8 +65,21 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    Future.successful {
-      Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers))
-    }
+    createReportRequest(request)
+    Future.successful(Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers)))
+  }
+
+  def createReportRequest(request: DataRequest[AnyContent]) = {
+    val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    tradeReportingExtractsService
+      .createReportRequest(reportRequestDataService.buildReportRequest(request.userAnswers, request.eori))(hc)
+      .map { requestRefs =>
+        val requestRef = requestRefs.mkString(", ")
+        request.userAnswers
+          .set(CheckYourAnswersPage, requestRef)
+          .foreach { updatedAnswers =>
+            sessionRepository.set(updatedAnswers)
+          }
+      }
   }
 }
