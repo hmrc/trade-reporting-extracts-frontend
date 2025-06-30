@@ -67,7 +67,5 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier
   ): Future[Seq[String]] =
-    Thread.sleep(5000)
     connector.createReportRequest(reportRequestAnswers)
-
 }

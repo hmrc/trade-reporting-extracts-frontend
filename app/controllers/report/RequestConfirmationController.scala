@@ -55,7 +55,10 @@ class RequestConfirmationController @Inject() (
       val updatedList: Seq[String] = fetchUpdatedData(request)
       val surveyUrl: String        = config.exitSurveyUrl
       val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
-      Future.successful(Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl)))
+      for {
+        updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
+        _ <- sessionRepository.set(updatedAnswers)
+      } yield Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl))
   }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
