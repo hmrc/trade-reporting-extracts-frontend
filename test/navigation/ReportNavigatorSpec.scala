@@ -169,7 +169,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           CheckYourAnswersPage,
           NormalMode,
           emptyUserAnswers
-        ) mustBe routes.RequestConfirmationController.onPageLoad()
+        ) mustBe routes.RequestReportWaitingRoomController.onPageLoad()
       }
     }
 

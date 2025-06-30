@@ -91,7 +91,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
 
-        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+        val request =
+          FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad("reference").url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
@@ -143,7 +144,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
 
-        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad("reference").url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
@@ -190,7 +191,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
 
-        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad("RE00000001").url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value
@@ -237,7 +238,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
 
-        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad("RE00000001, RE00000002").url)
         val view    = application.injector.instanceOf[RequestConfirmationView]
 
         val result = route(application, request).value

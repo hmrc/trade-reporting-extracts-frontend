@@ -50,18 +50,11 @@ class RequestConfirmationController @Inject() (
     extends BaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(requestRef: String): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val updatedList: Seq[String] = fetchUpdatedData(request)
     val surveyUrl: String        = config.exitSurveyUrl
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
-    for {
-      requestRefs    <- tradeReportingExtractsService.createReportRequest(
-                          reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                        )
-      requestRef      = requestRefs.mkString(", ")
-      updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl))
+    Future.successful(Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl)))
   }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =

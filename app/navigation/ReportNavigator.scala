@@ -60,7 +60,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
     case NewEmailNotificationPage => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
+    case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestReportWaitingRoomController.onPageLoad())
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
