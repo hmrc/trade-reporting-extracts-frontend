@@ -57,7 +57,7 @@ class RequestConfirmationController @Inject() (
       val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
       for {
         updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-        _ <- sessionRepository.set(updatedAnswers)
+        _              <- sessionRepository.set(updatedAnswers)
       } yield Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl))
   }
 
