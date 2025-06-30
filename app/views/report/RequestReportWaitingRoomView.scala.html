@@ -22,7 +22,7 @@
 @()(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("submissionWaitingRoom.title")), showSignOut=false, showBackLink = false) {
-
+  <meta http-equiv="refresh" content="2" />
   <div class="loading-spinner">
     <div
     class="loading-spinner__spinner"

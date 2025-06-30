@@ -18,35 +18,29 @@ package controllers.report
 
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
-import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import services.{ReportRequestDataService, TradeReportingExtractsService}
 import views.html.report.RequestReportWaitingRoomView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RequestReportWaitingRoomController @Inject() (
-                                                     override val messagesApi: MessagesApi,
-                                                     identify: IdentifierAction,
-                                                     getData: DataRetrievalAction,
-                                                     requireData: DataRequiredAction,
-                                                     sessionRepository: SessionRepository,
-                                                     tradeReportingExtractsService: TradeReportingExtractsService,
-                                                     view: RequestReportWaitingRoomView,
-                                                     reportRequestDataService: ReportRequestDataService,
-                                                     val controllerComponents: MessagesControllerComponents) (implicit ec: ExecutionContext) extends BaseController {
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  view: RequestReportWaitingRoomView,
+  val controllerComponents: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    for {
-      requestRefs    <- tradeReportingExtractsService.createReportRequest(
-        reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-      )
-      requestRef      = requestRefs.mkString(", ")
-      updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(controllers.report.routes.RequestConfirmationController.onPageLoad(requestRef))
+    val requestRef: Option[String] = request.userAnswers.get(CheckYourAnswersPage)
+    requestRef match {
+      case Some(ref) => Future.successful(Redirect(routes.RequestConfirmationController.onPageLoad(ref)))
+      case None      => Future.successful(Ok(view()))
+    }
   }
 }
