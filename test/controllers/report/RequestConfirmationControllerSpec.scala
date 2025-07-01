@@ -33,6 +33,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
@@ -41,9 +42,9 @@ import scala.concurrent.Future
 
 class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
-  val mockSessionRepository             = mock[SessionRepository]
-  val mockReportRequestDataService      = mock[ReportRequestDataService]
-  val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  val mockSessionRepository: SessionRepository                         = mock[SessionRepository]
+  val mockReportRequestDataService: ReportRequestDataService           = mock[ReportRequestDataService]
+  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
 
   "RequestConfirmationController" - {
 
@@ -60,7 +61,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+      when(mockReportRequestDataService.buildReportRequest(any(), any(), any())).thenReturn(
         ReportRequestUserAnswersModel(
           eori = "eori",
           dataType = "import",
@@ -70,7 +71,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          itmpName = Some("Test User")
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -97,7 +99,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
+        contentAsString(result) mustBe view(
           Seq("email1@example.com", "email2@example.com", newEmail),
           false,
           "reference",
@@ -111,7 +113,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and an empty list when EmailSelectionPage is not defined" in {
 
-      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+      when(mockReportRequestDataService.buildReportRequest(any(), any(), any())).thenReturn(
         ReportRequestUserAnswersModel(
           eori = "eori",
           dataType = "import",
@@ -121,7 +123,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          itmpName = Some("Test User")
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -158,7 +161,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
     "must return and display a singular reference when only one report type " in {
 
-      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+      when(mockReportRequestDataService.buildReportRequest(any(), any(), any())).thenReturn(
         ReportRequestUserAnswersModel(
           eori = "eori",
           dataType = "import",
@@ -168,7 +171,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          itmpName = Some("Test User")
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
@@ -205,7 +209,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
     "must return and display a multiple references when more than one report type " in {
 
-      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+      when(mockReportRequestDataService.buildReportRequest(any(), any(), any())).thenReturn(
         ReportRequestUserAnswersModel(
           eori = "eori",
           dataType = "import",
@@ -215,7 +219,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           reportStartDate = "2025-04-16",
           reportEndDate = "2025-05-16",
           reportName = "MyReport",
-          additionalEmail = Some(Set("email@email.com"))
+          additionalEmail = Some(Set("email@email.com")),
+          itmpName = Some("Test User")
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))

@@ -40,7 +40,8 @@ class ReportRequestUserAnswersModelSpec
         reportStartDate = "2021-01-01",
         reportEndDate = "2021-12-31",
         reportName = "MyReport",
-        additionalEmail = Some(Set("test@example.com", "another@example.com"))
+        additionalEmail = Some(Set("test@example.com", "another@example.com")),
+        itmpName = Some("Test User")
       )
 
       val json = Json.toJson(model)
@@ -54,22 +55,24 @@ class ReportRequestUserAnswersModelSpec
       (json \ "reportEndDate").as[String] mustBe "2021-12-31"
       (json \ "reportName").as[String] mustBe "MyReport"
       (json \ "additionalEmail").asOpt[Set[String]] mustBe Some(Set("test@example.com", "another@example.com"))
+      (json \ "itmpName").asOpt[String] mustBe Some("Test User")
     }
 
     "deserialize from JSON" in {
       val json = Json.parse("""
-          {
-            "eori": "GB1234567890",
-            "dataType": "import",
-            "whichEori": "GB1234567890",
-            "eoriRole": ["declarant"],
-            "reportType": ["importHeader", "importTaxLine"],
-            "reportStartDate": "2021-01-01",
-            "reportEndDate": "2021-12-31",
-            "reportName": "MyReport",
-            "additionalEmail": ["test@example.com", "another@example.com"]
-          }
-        """)
+        {
+          "eori": "GB1234567890",
+          "dataType": "import",
+          "whichEori": "GB1234567890",
+          "eoriRole": ["declarant"],
+          "reportType": ["importHeader", "importTaxLine"],
+          "reportStartDate": "2021-01-01",
+          "reportEndDate": "2021-12-31",
+          "reportName": "MyReport",
+          "additionalEmail": ["test@example.com", "another@example.com"],
+          "itmpName": "Test User"
+        }
+      """)
 
       val model = json.as[ReportRequestUserAnswersModel]
 
@@ -82,6 +85,7 @@ class ReportRequestUserAnswersModelSpec
       model.reportEndDate mustBe "2021-12-31"
       model.reportName mustBe "MyReport"
       model.additionalEmail mustBe Some(Set("test@example.com", "another@example.com"))
+      model.itmpName mustBe Some("Test User")
     }
   }
 

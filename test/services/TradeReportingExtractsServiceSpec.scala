@@ -83,7 +83,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
               reportStartDate = "2025-04-16",
               reportEndDate = "2025-05-16",
               reportName = "MyReport",
-              additionalEmail = Some(Set("email@email.com"))
+              additionalEmail = Some(Set("email@email.com")),
+              itmpName = Some("Test User")
             )
           )
           .futureValue
@@ -110,7 +111,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
             reportStartDate = "2025-04-16",
             reportEndDate = "2025-05-16",
             reportName = "MyReport",
-            additionalEmail = Some(Set("email@email.com"))
+            additionalEmail = Some(Set("email@email.com")),
+            itmpName = Some("Test User")
           )
         )
         .failed

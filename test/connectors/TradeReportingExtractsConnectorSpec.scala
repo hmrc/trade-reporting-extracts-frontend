@@ -118,7 +118,8 @@ class TradeReportingExtractsConnectorSpec
                 reportStartDate = "2025-04-16",
                 reportEndDate = "2025-05-16",
                 reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
+                additionalEmail = Some(Set("email@email.com")),
+                itmpName = Some("John Doe")
               )
             )
             .futureValue
@@ -153,7 +154,8 @@ class TradeReportingExtractsConnectorSpec
                 reportStartDate = "2025-04-16",
                 reportEndDate = "2025-05-16",
                 reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
+                additionalEmail = Some(Set("email@email.com")),
+                itmpName = Some("John Doe")
               )
             )
             .failed
@@ -184,7 +186,8 @@ class TradeReportingExtractsConnectorSpec
                 reportStartDate = "2025-04-16",
                 reportEndDate = "2025-05-16",
                 reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
+                additionalEmail = Some(Set("email@email.com")),
+                itmpName = Some("John Doe")
               )
             )
             .failed

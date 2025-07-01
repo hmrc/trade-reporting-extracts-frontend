@@ -25,7 +25,7 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -53,11 +53,11 @@ class AuthenticatedIdentifierAction @Inject() (
 
     authorised(predicates)
       .retrieve(
-        Retrievals.internalId and Retrievals.affinityGroup and Retrievals.credentialRole and Retrievals.authorisedEnrolments
+        Retrievals.internalId and Retrievals.affinityGroup and Retrievals.credentialRole and Retrievals.authorisedEnrolments and Retrievals.itmpName
       ) {
-        case Some(internalId) ~ Some(affinityGroup) ~ credentialRole ~ authorisedEnrolments =>
-          handleEnrolments(internalId, affinityGroup, credentialRole, authorisedEnrolments, request, block)
-        case _                                                                              =>
+        case Some(internalId) ~ Some(affinityGroup) ~ credentialRole ~ authorisedEnrolments ~ itmpName =>
+          handleEnrolments(internalId, affinityGroup, credentialRole, authorisedEnrolments, itmpName, request, block)
+        case _                                                                                         =>
           throw InternalError("Undefined authorisation error")
       } recover handleAuthorisationFailures
   }
@@ -67,6 +67,7 @@ class AuthenticatedIdentifierAction @Inject() (
     affinityGroup: AffinityGroup,
     credentialRole: Option[CredentialRole],
     authorisedEnrolments: Enrolments,
+    itmpName: Option[ItmpName],
     request: Request[A],
     block: IdentifierRequest[A] => Future[Result]
   )(implicit hc: HeaderCarrier): Future[Result] = {
@@ -80,13 +81,13 @@ class AuthenticatedIdentifierAction @Inject() (
           case true  =>
             userAllowListConnector.check(config.userAllowListFeature, enrolment.value).flatMap {
               case true  =>
-                block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+                block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole, itmpName))
               case false =>
                 logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
                 Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
             }
           case false =>
-            block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+        block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole, itmpName))
       case Some(_)                                     =>
         throw InternalError("EORI is empty")
       case None                                        =>

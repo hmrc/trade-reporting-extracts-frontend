@@ -17,6 +17,7 @@
 package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import uk.gov.hmrc.auth.core.{AffinityGroup, CredentialRole}
 
 case class IdentifierRequest[A](
@@ -24,5 +25,6 @@ case class IdentifierRequest[A](
   userId: String,
   eori: String,
   affinityGroup: AffinityGroup,
-  credentialRole: Option[CredentialRole]
+  credentialRole: Option[CredentialRole],
+  itmpName: Option[ItmpName]
 ) extends WrappedRequest[A](request)

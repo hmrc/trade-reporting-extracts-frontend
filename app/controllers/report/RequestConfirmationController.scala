@@ -56,7 +56,7 @@ class RequestConfirmationController @Inject() (
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
     for {
       requestRefs    <- tradeReportingExtractsService.createReportRequest(
-                          reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+                          reportRequestDataService.buildReportRequest(request.userAnswers, request.eori, request.itmpName)
                         )
       requestRef      = requestRefs.mkString(", ")
       updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))

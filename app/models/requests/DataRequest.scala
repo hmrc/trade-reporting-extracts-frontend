@@ -19,13 +19,15 @@ package models.requests
 import play.api.mvc.{Request, WrappedRequest}
 import models.UserAnswers
 import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 
 case class OptionalDataRequest[A](
   request: Request[A],
   userId: String,
   eori: String,
   affinityGroup: AffinityGroup,
-  userAnswers: Option[UserAnswers]
+  userAnswers: Option[UserAnswers],
+  itmpName: Option[ItmpName]
 ) extends WrappedRequest[A](request)
 
 case class DataRequest[A](
@@ -33,5 +35,6 @@ case class DataRequest[A](
   userId: String,
   eori: String,
   affinityGroup: AffinityGroup,
-  userAnswers: UserAnswers
+  userAnswers: UserAnswers,
+  itmpName: Option[ItmpName]
 ) extends WrappedRequest[A](request)

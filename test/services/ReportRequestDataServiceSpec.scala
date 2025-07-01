@@ -26,6 +26,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
@@ -60,7 +61,8 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .set(NewEmailNotificationPage, "example@email.com")
         .get
 
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+      val itmpName = Some(ItmpName(Some("Test"), None, Some("User")))
+      val result   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
@@ -71,6 +73,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportEndDate mustBe "2025-05-01"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("example@email.com"))
+      result.itmpName mustBe Some("Test User")
 
     }
 
@@ -100,7 +103,8 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .set(NewEmailNotificationPage, "example@email.com")
         .get
 
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+      val itmpName = Some(ItmpName(Some("Test"), None, Some("User")))
+      val result   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
@@ -111,6 +115,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportEndDate mustBe "2025-04-30"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("example@email.com"))
+      result.itmpName mustBe Some("Test User")
 
     }
 
@@ -144,7 +149,8 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .set(NewEmailNotificationPage, "example@email.com")
         .get
 
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+      val itmpName = Some(ItmpName(Some("Test"), None, Some("User")))
+      val result   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
@@ -155,6 +161,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportEndDate mustBe "2022-02-01"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("example@email.com"))
+      result.itmpName mustBe Some("Test User")
 
     }
 
@@ -184,7 +191,8 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .set(NewEmailNotificationPage, "example@email.com")
         .get
 
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+      val itmpName = Some(ItmpName(Some("Test"), None, Some("User")))
+      val result   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
@@ -195,6 +203,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportEndDate mustBe "2025-04-30"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("email2", "example@email.com"))
+      result.itmpName mustBe Some("Test User")
 
     }
 
@@ -224,7 +233,8 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .set(NewEmailNotificationPage, "example@email.com")
         .get
 
-      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+      val itmpName = Some(ItmpName(Some("Test"), None, Some("User")))
+      val result   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
 
       result.eori mustBe "eori"
       result.dataType mustBe "import"
@@ -235,7 +245,119 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportEndDate mustBe "2025-04-30"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("email2", "example@email.com"))
+      result.itmpName mustBe Some("Test User")
 
+    }
+
+    "should set itmpName to None if itmpName is not provided" in {
+      val fixedInstant             = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedClock               = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+      val userAnswers              = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(ReportDateRangePage, ReportDateRange.Last31Days)
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(Email3))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+      val result                   = reportRequestDataService.buildReportRequest(userAnswers, "eori", None)
+      result.itmpName mustBe None
+    }
+
+    "should set itmpName to None if both givenName and familyName are missing" in {
+      val fixedInstant             = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedClock               = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+      val userAnswers              = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(ReportDateRangePage, ReportDateRange.Last31Days)
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(Email3))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+      val itmpName                 = Some(ItmpName(None, None, None))
+      val result                   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
+      result.itmpName mustBe None
+    }
+
+    "should set itmpName to givenName only if familyName is missing or empty" in {
+      val fixedInstant             = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedClock               = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+      val userAnswers              = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(ReportDateRangePage, ReportDateRange.Last31Days)
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(Email3))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+      val itmpName                 = Some(ItmpName(Some("Test"), None, None))
+      val result                   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
+      result.itmpName mustBe Some("Test")
+    }
+
+    "should set itmpName to none only if givenName is missing" in {
+      val fixedInstant             = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedClock               = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+      val userAnswers              = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(ReportDateRangePage, ReportDateRange.Last31Days)
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(Email3))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+      val itmpName                 = Some(ItmpName(None, None, Some("User")))
+      val result                   = reportRequestDataService.buildReportRequest(userAnswers, "eori", itmpName)
+      result.itmpName mustBe None
     }
 
   }

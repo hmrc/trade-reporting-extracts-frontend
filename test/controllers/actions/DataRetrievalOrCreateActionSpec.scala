@@ -28,6 +28,7 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, User}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -54,7 +55,14 @@ class DataRetrievalOrCreateActionSpec extends SpecBase with MockitoSugar {
 
         action
           .callTransform(
-            IdentifierRequest(FakeRequest(), userAnswersId, testEori, AffinityGroup.Individual, Some(User))
+            IdentifierRequest(
+              FakeRequest(),
+              userAnswersId,
+              testEori,
+              AffinityGroup.Individual,
+              Some(User),
+              Some(ItmpName(Some("Test"), Some("User"), Some("Name")))
+            )
           )
           .futureValue
 
@@ -78,7 +86,14 @@ class DataRetrievalOrCreateActionSpec extends SpecBase with MockitoSugar {
 
         val result = action
           .callTransform(
-            IdentifierRequest(FakeRequest(), userAnswersId, testEori, AffinityGroup.Individual, Some(User))
+            IdentifierRequest(
+              FakeRequest(),
+              userAnswersId,
+              testEori,
+              AffinityGroup.Individual,
+              Some(User),
+              Some(ItmpName(Some("Test"), Some("User"), Some("Name")))
+            )
           )
           .futureValue
 
