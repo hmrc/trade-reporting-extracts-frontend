@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import models.report.ReportTypeImport
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
@@ -43,16 +44,23 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
+    val reportTypeImports: Set[ReportTypeImport] =
+      request.userAnswers.get(pages.report.ReportTypeImportPage).getOrElse(Set.empty)
+
     val rows: Seq[Option[SummaryListRow]] = Seq(
       DecisionSummary.row(request.userAnswers),
       if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
       EoriRoleSummary.row(request.userAnswers),
-      ReportTypeImportSummary.row(request.userAnswers),
+      if (reportTypeImports.contains(ReportTypeImport.ExportItem)) {
+        None
+      } else { ReportTypeImportSummary.row(request.userAnswers) },
       ReportDateRangeSummary.row(request.userAnswers),
       ReportNameSummary.row(request.userAnswers),
-      MaybeAdditionalEmailSummary.row(request.userAnswers)
+      MaybeAdditionalEmailSummary.row(request.userAnswers),
+      EmailSelectionSummary.row(request.userAnswers)
     )
-    val list                              = SummaryListViewModel(rows = rows.flatten)
+
+    val list = SummaryListViewModel(rows = rows.flatten)
     Ok(view(list))
   }
 

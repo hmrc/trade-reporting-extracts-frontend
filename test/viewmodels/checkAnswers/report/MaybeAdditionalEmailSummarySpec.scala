@@ -17,16 +17,11 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
+import models.UserAnswers
 import models.report.EmailSelection
-import models.{CheckMode, UserAnswers}
 import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
-import viewmodels.govuk.summarylist.*
-import viewmodels.implicits.*
 
 class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
@@ -34,7 +29,7 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
   "MaybeAdditionalEmailSummary.row" - {
 
-    "must return a SummaryListRow when an answer is present" in {
+    "must return a SummaryListRow with 'Yes' when the answer is true" in {
       val initialAnswers = UserAnswers("id")
 
       val updatedAnswers = initialAnswers
@@ -44,15 +39,22 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
       val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
 
-      assert(result.toString contains "test@gmail.com")
+      result mustBe defined
+      result.get.value.content.toString must include(messages("site.yes"))
     }
 
-    "must return None when no answer is present" in {
-      val answers = UserAnswers("id")
+    "must return a SummaryListRow with 'No' when the answer is false" in {
+      val initialAnswers = UserAnswers("id")
 
-      val result = MaybeAdditionalEmailSummary.row(answers)
+      val updatedAnswers = initialAnswers
+        .set(MaybeAdditionalEmailPage, false)
+        .flatMap(_.set(EmailSelectionPage, Set(EmailSelection.Email2)))
+        .flatMap(_.set(NewEmailNotificationPage, "another@example.com"))
 
-      result mustBe None
+      val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
+
+      result mustBe defined
+      result.get.value.content.toString must include(messages("site.no"))
     }
   }
 }
