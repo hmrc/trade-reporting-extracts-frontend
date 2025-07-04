@@ -17,9 +17,11 @@
 package controllers
 
 import controllers.actions.*
+import models.requests.IdentifierRequest
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TradeReportingExtractsService
+import services.{AuditService, TradeReportingExtractsService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.DashboardView
 
@@ -32,6 +34,7 @@ class DashboardController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
+  auditService: AuditService,
   view: DashboardView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(using ec: ExecutionContext)
@@ -39,8 +42,20 @@ class DashboardController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    audit(request, true)
     tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
       Ok(view(userDetails))
     }
   }
+
+  def audit(request: IdentifierRequest[AnyContent], isSuccessful: Boolean)(implicit hc: HeaderCarrier): Unit =
+    auditService.audit(
+      models.audit.UserLoginEvent(
+        eori = request.eori,
+        userId = request.userId,
+        affinityGroup = request.affinityGroup.getClass.getSimpleName,
+        credentialRole = request.credentialRole.getOrElse("None").getClass.getSimpleName,
+        isSuccessful = isSuccessful
+      )
+    )
 }
