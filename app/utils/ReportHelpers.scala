@@ -16,6 +16,7 @@
 
 package utils
 
+import models.ReportStatus.NO_DATA_AVAILABLE
 import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
 import play.twirl.api.Html
@@ -45,9 +46,10 @@ object ReportHelpers {
       .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
 
   def formatReportStatusKey(status: ReportStatus): String = status match {
-    case ReportStatus.COMPLETE    => "requestedReports.status.complete"
-    case ReportStatus.ERROR       => "requestedReports.status.error"
-    case ReportStatus.IN_PROGRESS => "requestedReports.status.inProgress"
+    case ReportStatus.COMPLETE          => "requestedReports.status.complete"
+    case ReportStatus.ERROR             => "requestedReports.status.error"
+    case ReportStatus.IN_PROGRESS       => "requestedReports.status.inProgress"
+    case ReportStatus.NO_DATA_AVAILABLE => "requestedReports.status.noDataAvailable"
   }
 
   def reportStatusDisplayData(status: ReportStatus): (String, String) = {
@@ -56,6 +58,7 @@ object ReportHelpers {
       case ReportStatus.COMPLETE    => "govuk-tag--green"
       case ReportStatus.ERROR       => "govuk-tag--red"
       case ReportStatus.IN_PROGRESS => "govuk-tag--blue"
+      case NO_DATA_AVAILABLE        => "govuk-tag--red"
     }
     (key, cssClass)
   }

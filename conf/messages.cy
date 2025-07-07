@@ -329,3 +329,4 @@ requestedReports.table.status = cy: Status
 requestedReports.status.complete = cy: Complete
 requestedReports.status.error = cy: Error
 requestedReports.status.inProgress = cy: In progress
+requestedReports.status.noDataAvailable = cy: No data available
