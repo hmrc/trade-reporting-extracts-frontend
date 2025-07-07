@@ -329,3 +329,4 @@ requestedReports.table.status = Status
 requestedReports.status.complete = Completed
 requestedReports.status.error = Error
 requestedReports.status.inProgress = In Progress
+requestedReports.status.noDataAvailable = No data available
