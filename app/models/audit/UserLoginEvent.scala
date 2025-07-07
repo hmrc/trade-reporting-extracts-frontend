@@ -26,7 +26,8 @@ final case class UserLoginEvent(
   userId: String,
   affinityGroup: String,
   credentialRole: String,
-  isSuccessful: Boolean
+  isSuccessful: Boolean,
+  processedAt: Instant = Instant.now()
 ) extends AuditEvent {
   override def auditType: String = "UserLoginEvent"
 }
@@ -39,5 +40,5 @@ object UserLoginEvent {
       (__ \ "credentialRole").write[String] and
       (__ \ "outcome" \ "isSuccessful").write[Boolean] and
       (__ \ "outcome" \ "processedAt").write[Instant]
-  )(o => (o.eori, o.userId, o.affinityGroup, o.credentialRole, o.isSuccessful, Instant.now()))
+  )(o => (o.eori, o.userId, o.affinityGroup, o.credentialRole, o.isSuccessful, o.processedAt))
 }

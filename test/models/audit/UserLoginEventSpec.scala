@@ -10,7 +10,8 @@ class UserLoginEventSpec extends AnyFreeSpec with Matchers {
 
   "UserLoginEvent" - {
     "must have a valid json output" in {
-      val event        = UserLoginEvent("eori", "userId", "affinityGroup", "credentialRole", isSuccessful = true)
+      val processedAt  = Instant.now
+      val event        = UserLoginEvent("eori", "userId", "affinityGroup", "credentialRole", isSuccessful = true, processedAt)
       val expectedJson = Json.obj(
         "eori"           -> "eori",
         "userId"         -> "userId",
@@ -18,7 +19,7 @@ class UserLoginEventSpec extends AnyFreeSpec with Matchers {
         "credentialRole" -> "credentialRole",
         "outcome"        -> Json.obj(
           "isSuccessful" -> true,
-          "processedAt"  -> Instant.now
+          "processedAt"  -> processedAt
         )
       )
       val actualJson   = Json.toJson(event)
