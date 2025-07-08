@@ -23,13 +23,14 @@ import models.{Mode, UserAnswers}
 import models.report.Decision
 import models.report.ChooseEori
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, DecisionPage}
+import pages.report.{ChooseEoriPage, DecisionPage, JourneyReference}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.report.DecisionView
 import config.FrontendAppConfig
 
+import java.util.UUID
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
@@ -63,8 +64,10 @@ class DecisionController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value => {
+            val journeyReferenceId                  = UUID.randomUUID().toString
             val updatedAnswersTry: Try[UserAnswers] = for {
               withDecision <- request.userAnswers.set(DecisionPage, value)
+              withDecision <- withDecision.set(JourneyReference, journeyReferenceId)
               enriched     <- if (!appConfig.thirdPartyEnabled) {
                                 withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
                               } else {
