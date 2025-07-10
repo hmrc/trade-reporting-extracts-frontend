@@ -24,23 +24,53 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, hintStrings: (String, String))(implicit request: Request[_], messages: Messages)
+
+@messageContent = {
+
+<p class="govuk-body">@messages("reportDateRange.message")</p>
+
+}
 
 @layout(pageTitle = title(form, messages("reportDateRange.title"))) {
 
-    @formHelper(action = controllers.report.routes.ReportDateRangeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+
+    @formHelper(action = controllers.report.routes.ReportDateRangeController.onSubmit(mode), Symbol("autoComplete") -> "on") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
 
-        @govukRadios(
-            RadiosViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(messages("reportDateRange.heading")).asPageHeading(),
-                items  = ReportDateRange.options
+
+            @govukRadios(Radios(
+                fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = messages("reportDateRange.heading"),
+                    classes = "govuk-fieldset__legend--xl",
+                    isPageHeading = true
+                    ))
+                )),
+                hint = Some(Hint(
+                    content = HtmlContent(messageContent)
+                    )),
+                name = "value",
+                items = Seq(
+                    RadioItem(
+                        content = messages("reportDateRange.lastFullCalendarMonth"),
+                        id = Some("value_0"),
+                        value = Some("lastFullCalendarMonth"),
+                        hint = Some(Hint(
+                            content = messages("reportDateRange.lastFullCalendarMonth.hint", hintStrings._1, hintStrings._2))),
+                        checked = form("value").value.contains("lastFullCalendarMonth")
+                ),
+                    RadioItem(
+                        content = messages("reportDateRange.customDateRange"),
+                        id = Some("value_1"),
+                        value = Some("CustomDateRange"),
+                        checked = form("value").value.contains("CustomDateRange")
+                )
             )
-        )
+        ))
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))

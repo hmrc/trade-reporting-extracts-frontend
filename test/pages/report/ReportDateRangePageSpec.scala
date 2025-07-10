@@ -50,7 +50,7 @@ class ReportDateRangePageSpec extends SpecBase {
         .success
         .value
 
-      val result = ReportDateRangePage.cleanup(Some(ReportDateRange.LastCalendarMonth), userAnswers).success.value
+      val result = ReportDateRangePage.cleanup(Some(ReportDateRange.LastFullCalendarMonth), userAnswers).success.value
 
       result.get(CustomRequestStartDatePage) must not be defined
       result.get(CustomRequestEndDatePage)   must not be defined

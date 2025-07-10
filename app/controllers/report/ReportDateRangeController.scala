@@ -21,17 +21,19 @@ import forms.report.ReportDateRangeFormProvider
 import models.{CheckMode, Mode}
 import models.report.ReportDateRange
 import navigation.ReportNavigator
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
+import pages.report.ReportDateRangePage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
+import utils.DateTimeFormats.dateTimeFormat
 import views.html.report.ReportDateRangeView
 
+import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
 
 class ReportDateRangeController @Inject() (
   override val messagesApi: MessagesApi,
@@ -42,7 +44,8 @@ class ReportDateRangeController @Inject() (
   requireData: DataRequiredAction,
   formProvider: ReportDateRangeFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: ReportDateRangeView
+  view: ReportDateRangeView,
+  clock: Clock
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -56,7 +59,7 @@ class ReportDateRangeController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, lastFullCalendarMonthHintStrings))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -64,12 +67,17 @@ class ReportDateRangeController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, lastFullCalendarMonthHintStrings))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportDateRangePage, value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, updatedAnswers))
         )
+  }
+
+  private def lastFullCalendarMonthHintStrings(implicit messages: Messages): (String, String) = {
+    val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock))
+    (startEndDate._1.format(dateTimeFormat()(messages.lang)), startEndDate._2.format(dateTimeFormat()(messages.lang)))
   }
 }

@@ -37,7 +37,7 @@ class CustomRequestStartDateFormProvider @Inject() extends Mappings {
         requiredKey = "customRequestStartDate.error.required"
       )
         .verifying(
-          maxDate(currentDate, "customRequestStartDate.error.max")
+          maxDate(currentDate.minusDays(3), "customRequestStartDate.error.max")
         )
         .verifying(
           minDate(
