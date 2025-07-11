@@ -90,7 +90,7 @@ dashboard.reports.heading = cy: Reports
 dashboard.reports.subHeading = cy: Manage and view your reports
 dashboard.reports.requestNewReport = cy: Request a new report
 dashboard.reports.requestedReports = cy: Requested reports
-dashboard.reports.availableForDownload = cy: Available for download
+dashboard.reports.availableForDownload = cy: Available to download
 dashboard.reports.reportHistory = cy: Report history
 
 dashboard.account.heading = cy: Your Account
