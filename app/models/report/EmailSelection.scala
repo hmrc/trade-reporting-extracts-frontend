@@ -26,26 +26,33 @@ sealed trait EmailSelection
 
 object EmailSelection extends Enumerable.Implicits {
 
-  case object Email1 extends WithName("email1") with EmailSelection
-  case object Email2 extends WithName("email2") with EmailSelection
-  case object Email3 extends WithName("email3") with EmailSelection
+  val AddNewEmailValue: String = "AddNewEmail"
 
-  val values: Seq[EmailSelection] = Seq(
-    Email1,
-    Email2,
-    Email3
-  )
+  case object AddNewEmail extends WithName(AddNewEmailValue) with EmailSelection
 
-  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
-    values.zipWithIndex.map { case (value, index) =>
+  def checkboxItems(dynamicEmails: Seq[String])(implicit messages: Messages): Seq[CheckboxItem] = {
+    val dynamicItems = dynamicEmails.zipWithIndex.map { case (email, index) =>
       CheckboxItemViewModel(
-        content = Text(messages(s"emailSelection.${value.toString}")),
+        content = Text(email),
         fieldId = "value",
         index = index,
-        value = value.toString
+        value = email
       )
     }
 
+    val addAnotherItem = CheckboxItemViewModel(
+      content = Text(messages("emailSelection.email3")),
+      fieldId = "value",
+      index = dynamicEmails.length,
+      value = AddNewEmail.toString
+    )
+
+    dynamicItems :+ addAnotherItem
+  }
+
+  // Enumerable instance for binding form values
   implicit val enumerable: Enumerable[EmailSelection] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(
+      AddNewEmail.toString -> AddNewEmail
+    )
 }

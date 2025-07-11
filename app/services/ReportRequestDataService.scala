@@ -19,7 +19,6 @@ package services
 import com.google.inject.Inject
 import models.{EoriRole, UserAnswers}
 import models.report.Decision.{Export, Import}
-import models.report.EmailSelection.Email3
 import models.report.{ChooseEori, EmailSelection, ReportDateRange, ReportRequestUserAnswersModel}
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
 import config.FrontendAppConfig
@@ -58,16 +57,15 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
   private def getAdditionalEmails(userAnswers: UserAnswers): Option[Set[String]] =
     userAnswers.get(MaybeAdditionalEmailPage) match {
       case Some(true) =>
-        userAnswers.get(EmailSelectionPage) match {
-          case Some(value) if value.contains(Email3) =>
-            Some(
-              userAnswers.get(EmailSelectionPage).get.filterNot(_ == Email3).map(_.toString) ++
-                Set(userAnswers.get(NewEmailNotificationPage).get)
-            )
-          case _                                     => Some(userAnswers.get(EmailSelectionPage).get.filterNot(_ == Email3).map(_.toString))
+        userAnswers.get(EmailSelectionPage).map { selected =>
+          val baseEmails      = selected.filterNot(_ == EmailSelection.AddNewEmailValue)
+          val additionalEmail = userAnswers.get(NewEmailNotificationPage)
+          additionalEmail match {
+            case Some(email) if selected.contains(EmailSelection.AddNewEmailValue) => baseEmails + email
+            case _                                                                 => baseEmails
+          }
         }
-      case _          =>
-        None
+      case _          => None
     }
 
   private def getReportDates(userAnswers: UserAnswers): (String, String) = {

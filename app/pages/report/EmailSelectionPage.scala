@@ -23,17 +23,17 @@ import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}
 
-case object EmailSelectionPage extends QuestionPage[Set[EmailSelection]] {
+case object EmailSelectionPage extends QuestionPage[Set[String]] {
 
   override def path: JsPath = JsPath \ "report" \ toString
 
   override def toString: String = "emailSelection"
 
-  override def cleanup(value: Option[Set[EmailSelection]], userAnswers: UserAnswers): Try[UserAnswers] =
+  override def cleanup(value: Option[Set[String]], userAnswers: UserAnswers): Try[UserAnswers] =
     value match {
-      case Some(selections) if !selections.contains(EmailSelection.Email3) =>
+      case Some(selections) if !selections.contains(EmailSelection.AddNewEmailValue) =>
         userAnswers.remove(NewEmailNotificationPage)
-      case _                                                               =>
+      case _                                                                         =>
         Success(userAnswers)
     }
 }

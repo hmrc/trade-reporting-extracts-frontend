@@ -100,7 +100,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     answers.get(MaybeAdditionalEmailPage).getOrElse(false)
 
   private def isAddNewEmail(answers: UserAnswers): Boolean =
-    answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.Email3))
+    answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.AddNewEmailValue))
 
   private def reportDateRangeRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ReportDateRangePage) match {

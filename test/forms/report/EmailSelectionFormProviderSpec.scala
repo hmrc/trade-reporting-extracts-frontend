@@ -23,18 +23,19 @@ import play.api.data.FormError
 
 class EmailSelectionFormProviderSpec extends CheckboxFieldBehaviours {
 
-  val form = new EmailSelectionFormProvider()()
+  val dynamicEmails: Seq[String] = Seq("test1@example.com", "test2@example.com")
+  val form          = new EmailSelectionFormProvider()(dynamicEmails)
 
   ".value" - {
 
     val fieldName   = "value"
     val requiredKey = "emailSelection.error.required"
 
-    behave like checkboxField[EmailSelection](
+    behave like checkboxField[String](
       form,
       fieldName,
-      validValues = EmailSelection.values,
-      invalidError = FormError(s"$fieldName[0]", "error.invalid")
+      validValues = dynamicEmails :+ EmailSelection.AddNewEmailValue,
+      invalidError = FormError(fieldName, requiredKey)
     )
 
     behave like mandatoryCheckboxField(

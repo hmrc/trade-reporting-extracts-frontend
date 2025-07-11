@@ -18,7 +18,7 @@ package services
 
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.UserDetails
+import models.{NotificationEmail, UserDetails}
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
@@ -63,6 +63,11 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
     hc: HeaderCarrier
   ): Future[RequestedReportsViewModel] =
     connector.getRequestedReports(eori)
+
+  def getNotificationEmail(eori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[NotificationEmail] =
+    connector.getNotificationEmail(eori)
 
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier
