@@ -43,8 +43,7 @@
                 (Messages("dashboard.reports.requestNewReport"), controllers.report.routes.ReportGuidanceController.onPageLoad().url, None),
                 (Messages("dashboard.reports.requestedReports"), controllers.report.routes.RequestedReportsController.onPageLoad().url, None),
                 (Messages("dashboard.reports.availableForDownload"), controllers.routes.AvailableReportsController.onPageLoad().url, None)
-            ),
-            extraSubHeading = Some( CardSubHeadingWithValue(Messages("dashboard.reports.availableForDownload"), 2) )
+            )
         )
         @Card(
             id = "account-card",

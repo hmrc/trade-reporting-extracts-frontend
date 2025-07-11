@@ -90,7 +90,7 @@ dashboard.reports.heading = Reports
 dashboard.reports.subHeading = Manage and view your reports
 dashboard.reports.requestNewReport = Request a new report
 dashboard.reports.requestedReports = Requested reports
-dashboard.reports.availableForDownload = Available for download
+dashboard.reports.availableForDownload = Available to download
 dashboard.reports.reportHistory = Report history
 
 dashboard.account.heading = Your Account
