@@ -24,7 +24,7 @@ import play.api.data.FormError
 class EmailSelectionFormProviderSpec extends CheckboxFieldBehaviours {
 
   val dynamicEmails: Seq[String] = Seq("test1@example.com", "test2@example.com")
-  val form          = new EmailSelectionFormProvider()(dynamicEmails)
+  val form                       = new EmailSelectionFormProvider()(dynamicEmails)
 
   ".value" - {
 
