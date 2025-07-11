@@ -20,7 +20,7 @@
         govukPanel: GovukPanel
 )
 
-@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String, surveyUrl: String)(implicit request: Request[_], messages: Messages)
+@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String, surveyUrl: String, notificationEmail: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
@@ -29,7 +29,7 @@
        content = HtmlContent(messages("requestConfirmation.referenceNumber", reqReference)),
     ))
 
-<p class="govuk-body">@messages("requestConfirmation.emailSent", "your.email@address.com")</p>
+<p class="govuk-body">@messages("requestConfirmation.emailSent", notificationEmail)</p>
 
 @if(list.nonEmpty) {
     <p class="govuk-body">@messages("requestConfirmation.additionalEmail")</p>

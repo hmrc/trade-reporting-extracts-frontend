@@ -19,15 +19,17 @@ package forms.report
 import forms.mappings.Mappings
 import models.report.EmailSelection
 import play.api.data.Form
-import play.api.data.Forms.set
+import play.api.data.Forms.{set, text}
 
 import javax.inject.Inject
 
 class EmailSelectionFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Set[EmailSelection]] =
+  def apply(dynamicEmails: Seq[String]): Form[Set[String]] = {
+    val allowedValues: Set[String] = (dynamicEmails :+ EmailSelection.AddNewEmailValue).toSet
+
     Form(
-      "value" -> set(enumerable[EmailSelection]("emailSelection.error.required"))
-        .verifying(nonEmptySet("emailSelection.error.required"))
+      "value" -> checkboxSet("emailSelection.error.required", allowedValues)
     )
+  }
 }

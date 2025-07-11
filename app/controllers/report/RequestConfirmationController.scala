@@ -19,7 +19,6 @@ package controllers.report
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.UserAnswers
 import models.report.EmailSelection
 import models.requests.DataRequest
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
@@ -54,26 +53,31 @@ class RequestConfirmationController @Inject() (
     val updatedList: Seq[String] = fetchUpdatedData(request)
     val surveyUrl: String        = config.exitSurveyUrl
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+
     for {
-      requestRefs    <- tradeReportingExtractsService.createReportRequest(
-                          reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                        )
-      requestRef      = requestRefs.mkString(", ")
-      updatedAnswers <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl))
+      notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
+      requestRefs       <- tradeReportingExtractsService.createReportRequest(
+                             reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+                           )
+      requestRef         = requestRefs.mkString(", ")
+      updatedAnswers    <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
+      _                 <- sessionRepository.set(updatedAnswers)
+    } yield {
+      val email = notificationEmail.address
+      Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl, email))
+    }
   }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
-    request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { answer =>
-      answer.map {
-        case EmailSelection.Email3 =>
+    request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { selected =>
+      selected.map {
+        case EmailSelection.AddNewEmailValue =>
           request.userAnswers
             .get(NewEmailNotificationPage)
             .map(HtmlFormat.escape(_).toString)
             .getOrElse("")
-        case email                 =>
-          HtmlFormat.escape(s"emailSelection.$email").toString
+        case email                           =>
+          HtmlFormat.escape(email).toString
       }
     }
 }

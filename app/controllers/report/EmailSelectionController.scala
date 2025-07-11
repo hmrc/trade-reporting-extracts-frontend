@@ -17,16 +17,16 @@
 package controllers.report
 
 import controllers.BaseController
-import controllers.actions.*
+import controllers.actions._
 import forms.report.EmailSelectionFormProvider
 import models.Mode
-import models.report.EmailSelection
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.report.EmailSelectionView
 
 import javax.inject.Inject
@@ -41,34 +41,42 @@ class EmailSelectionController @Inject() (
   requireData: DataRequiredAction,
   formProvider: EmailSelectionFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: EmailSelectionView
+  view: EmailSelectionView,
+  tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  val form: Form[Set[EmailSelection]] = formProvider()
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
+        val dynamicEmails = userDetails.additionalEmails
+        val form          = formProvider(dynamicEmails)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+        val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
 
-    val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+        Ok(view(preparedForm, mode, dynamicEmails))
+      }
     }
 
-    Ok(view(preparedForm, mode))
-  }
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
+        val dynamicEmails = userDetails.additionalEmails
+        val form          = formProvider(dynamicEmails)
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
-        )
-  }
-
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, dynamicEmails))),
+            selectedValues =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, selectedValues))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
+          )
+      }
+    }
 }

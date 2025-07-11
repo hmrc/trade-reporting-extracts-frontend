@@ -26,6 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
+import models.NotificationEmail
 import play.api.http.Status.OK
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -131,6 +132,16 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .execute[AvailableReportsViewModel]
       .recover { ex =>
         logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
+        throw ex
+      }
+
+  def getNotificationEmail(eori: String)(implicit hc: HeaderCarrier): Future[NotificationEmail] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/user/notification-email")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[NotificationEmail]
+      .recover { ex =>
+        logger.error(s"Failed to fetch notification email: ${ex.getMessage}", ex)
         throw ex
       }
 

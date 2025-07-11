@@ -17,9 +17,10 @@
 package forms.mappings
 
 import models.Enumerable
-import play.api.data.FieldMapping
+import play.api.data.{FieldMapping, Mapping}
 import play.api.data.Forms.of
 import play.api.i18n.Messages
+import play.api.data.Forms.{set, text}
 
 import java.time.LocalDate
 
@@ -58,4 +59,13 @@ trait Mappings extends Formatters with Constraints {
     args: Seq[String] = Seq.empty
   )(implicit messages: Messages): FieldMapping[LocalDate] =
     of(new LocalDateFormatter(invalidKey, allRequiredKey, twoRequiredKey, requiredKey, args))
+
+  protected def checkboxSet(
+    requiredKey: String,
+    allowedValues: Set[String]
+  ): Mapping[Set[String]] =
+    set(text(requiredKey))
+      .verifying(requiredKey, _.nonEmpty)
+      .verifying(requiredKey, _.forall(allowedValues.contains))
+
 }

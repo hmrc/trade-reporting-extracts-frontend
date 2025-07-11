@@ -35,23 +35,23 @@ class EmailSelectionSummarySpec extends SpecBase {
         .set(MaybeAdditionalEmailPage, true)
         .success
         .value
-        .set(EmailSelectionPage, Set(EmailSelection.Email1, EmailSelection.Email2))
+        .set(EmailSelectionPage, Set("email1@test.com", "email2@test.com"))
         .success
         .value
       val result      = EmailSelectionSummary.row(userAnswers)
 
       result mustBe defined
       result.get.key.content.asHtml.body   must include("emailSelection.checkYourAnswersLabel")
-      result.get.value.content.asHtml.body must include(messages("emailSelection.email1"))
-      result.get.value.content.asHtml.body must include(messages("emailSelection.email2"))
+      result.get.value.content.asHtml.body must include("email1@test.com")
+      result.get.value.content.asHtml.body must include("email2@test.com")
     }
 
-    "must return a SummaryListRow with new email when Email3 is selected and NewEmailNotificationPage is defined" in {
+    "must return a SummaryListRow with new email when AddNewEmailValue is selected and NewEmailNotificationPage is defined" in {
       val userAnswers = UserAnswers("id")
         .set(MaybeAdditionalEmailPage, true)
         .success
         .value
-        .set(EmailSelectionPage, Set(EmailSelection.Email3))
+        .set(EmailSelectionPage, Set(models.report.EmailSelection.AddNewEmailValue))
         .success
         .value
         .set(NewEmailNotificationPage, "new@example.com")

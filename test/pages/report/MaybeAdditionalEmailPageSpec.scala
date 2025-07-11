@@ -26,7 +26,7 @@ class MaybeAdditionalEmailPageSpec extends SpecBase {
 
     "must remove EmailSelectionPage and NewEmailNotificationPage when value is Some(false)" in {
       val userAnswers = UserAnswers("id")
-        .set(EmailSelectionPage, Set(EmailSelection.Email1))
+        .set(EmailSelectionPage, Set("email1@test.com"))
         .success
         .value
         .set(NewEmailNotificationPage, "test@example.com")
@@ -40,7 +40,7 @@ class MaybeAdditionalEmailPageSpec extends SpecBase {
 
     "must not remove anything when value is Some(true)" in {
       val userAnswers = UserAnswers("id")
-        .set(EmailSelectionPage, Set(EmailSelection.Email1))
+        .set(EmailSelectionPage, Set("email1@test.com"))
         .success
         .value
         .set(NewEmailNotificationPage, "test@example.com")
@@ -49,7 +49,7 @@ class MaybeAdditionalEmailPageSpec extends SpecBase {
 
       val result = MaybeAdditionalEmailPage.cleanup(Some(true), userAnswers).success.value
 
-      result.get(EmailSelectionPage) mustBe Some(Set(EmailSelection.Email1))
+      result.get(EmailSelectionPage) mustBe Some(Set("email1@test.com"))
       result.get(NewEmailNotificationPage) mustBe Some("test@example.com")
     }
 

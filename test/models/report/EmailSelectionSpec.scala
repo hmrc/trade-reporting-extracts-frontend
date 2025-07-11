@@ -16,48 +16,54 @@
 
 package models.report
 
-import generators.ModelGenerators
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.{JsError, JsString, Json}
+import org.scalatest.OptionValues
+import play.api.i18n.{Messages, MessagesImpl}
+import play.api.test.Helpers.stubMessagesApi
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import viewmodels.govuk.checkbox.CheckboxItemViewModel
 
-class EmailSelectionSpec
-    extends AnyFreeSpec
-    with Matchers
-    with ScalaCheckPropertyChecks
-    with OptionValues
-    with ModelGenerators {
+class EmailSelectionSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
-  "EmailSelection" - {
+  implicit val messages: Messages = MessagesImpl(play.api.i18n.Lang("en"), stubMessagesApi())
 
-    "must deserialise valid values" in {
+  "EmailSelection.checkboxItems" - {
 
-      val gen = arbitrary[EmailSelection]
+    "must generate checkbox items for each dynamic email and include 'Add New Email' option" in {
+      val emails = Seq("user1@test.com", "user2@test.com")
+      val result = EmailSelection.checkboxItems(emails)
 
-      forAll(gen) { emailSelection =>
-        JsString(emailSelection.toString).validate[EmailSelection].asOpt.value mustEqual emailSelection
-      }
+      result must have length 3
+
+      result.head.content mustBe Text("user1@test.com")
+      result(1).content mustBe Text("user2@test.com")
+      result(2).content mustBe Text(messages("emailSelection.email3"))
+      result(2).value mustBe EmailSelection.AddNewEmail.toString
     }
 
-    "must fail to deserialise invalid values" in {
+    "must correctly index each checkbox item" in {
+      val emails = Seq("a@test.com", "b@test.com", "c@test.com")
+      val result = EmailSelection.checkboxItems(emails)
 
-      val gen = arbitrary[String] suchThat (!EmailSelection.values.map(_.toString).contains(_))
-
-      forAll(gen) { invalidValue =>
-        JsString(invalidValue).validate[EmailSelection] mustEqual JsError("error.invalid")
+      result.zipWithIndex.foreach { case (_, index) =>
+        // CheckboxItem does not have an index property, so just check the order
+        result(index) mustBe result.apply(index)
       }
     }
+  }
 
-    "must serialise" in {
+  "EmailSelection.enumerable" - {
 
-      val gen = arbitrary[EmailSelection]
+    "must bind AddNewEmail string to AddNewEmail object" in {
+      val result = EmailSelection.enumerable.withName(EmailSelection.AddNewEmail.toString)
+      result.value mustBe EmailSelection.AddNewEmail
+    }
 
-      forAll(gen) { emailSelection =>
-        Json.toJson(emailSelection) mustEqual JsString(emailSelection.toString)
-      }
+    "must not bind unknown string to any EmailSelection" in {
+      val result = EmailSelection.enumerable.withName("unknown")
+      result mustBe empty
     }
   }
 }

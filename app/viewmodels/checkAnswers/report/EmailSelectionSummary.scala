@@ -30,37 +30,35 @@ object EmailSelectionSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(MaybeAdditionalEmailPage).getOrElse(false) match {
-      case true  =>
-        answers.get(EmailSelectionPage).map { answer =>
+      case true =>
+        answers.get(EmailSelectionPage).map { selectedEmails =>
+
+          val formattedEmails = selectedEmails.map {
+            case EmailSelection.AddNewEmailValue =>
+              answers
+                .get(NewEmailNotificationPage)
+                .map(HtmlFormat.escape(_).toString)
+                .getOrElse(messages("emailSelection.email3"))
+            case email                           =>
+              HtmlFormat.escape(email).toString
+          }
 
           val value = ValueViewModel(
-            HtmlContent(
-              answer
-                .map {
-                  case EmailSelection.Email3 =>
-                    answers
-                      .get(NewEmailNotificationPage)
-                      .map(email => HtmlFormat.escape(email).toString)
-                      .getOrElse("")
-
-                  case email => HtmlFormat.escape(messages(s"emailSelection.$email")).toString
-                }
-                .mkString(",<br>")
-            )
+            HtmlContent(formattedEmails.mkString(",<br>"))
           )
 
-        SummaryListRowViewModel(
-          key = "emailSelection.checkYourAnswersLabel",
-          value = value,
-          actions = Seq(
-            ActionItemViewModel(
-              "site.change",
-              controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
+          SummaryListRowViewModel(
+            key = "emailSelection.checkYourAnswersLabel",
+            value = value,
+            actions = Seq(
+              ActionItemViewModel(
+                "site.change",
+                controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode).url
+              ).withVisuallyHiddenText(messages("emailSelection.change.hidden"))
             )
-              .withVisuallyHiddenText(messages("emailSelection.change.hidden"))
           )
-        )
         }
+
       case false => None
     }
 }

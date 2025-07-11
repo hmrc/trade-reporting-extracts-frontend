@@ -23,7 +23,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, dynamicEmails: Seq[String])(implicit request: Request[_], messages: Messages)
 
     @layout(pageTitle = title(form, messages("emailSelection.title")),
         showSignOut = true
@@ -39,7 +39,7 @@
                 form   = form,
                 name   = "value",
                 legend = LegendViewModel(messages("emailSelection.heading")).asPageHeading(),
-                items  = EmailSelection.checkboxItems
+                items  = EmailSelection.checkboxItems(dynamicEmails)
             ).withHint(HintViewModel(messages("emailSelection.hint")))
         )
 

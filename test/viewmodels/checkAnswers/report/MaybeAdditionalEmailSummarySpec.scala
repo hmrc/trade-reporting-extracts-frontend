@@ -34,7 +34,7 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
       val updatedAnswers = initialAnswers
         .set(MaybeAdditionalEmailPage, true)
-        .flatMap(_.set(EmailSelectionPage, Set(EmailSelection.Email1, EmailSelection.Email3)))
+        .flatMap(_.set(EmailSelectionPage, Set("email1@test.com", "email3@test.com")))
         .flatMap(_.set(NewEmailNotificationPage, "test@gmail.com"))
 
       val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
@@ -48,7 +48,7 @@ class MaybeAdditionalEmailSummarySpec extends SpecBase {
 
       val updatedAnswers = initialAnswers
         .set(MaybeAdditionalEmailPage, false)
-        .flatMap(_.set(EmailSelectionPage, Set(EmailSelection.Email2)))
+        .flatMap(_.set(EmailSelectionPage, Set("email2@test.com")))
         .flatMap(_.set(NewEmailNotificationPage, "another@example.com"))
 
       val result = MaybeAdditionalEmailSummary.row(updatedAnswers.success.value)
