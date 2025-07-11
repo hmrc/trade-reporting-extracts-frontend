@@ -24,29 +24,40 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+
+import java.time.{LocalDate, ZoneOffset}
 
 object ReportDateRangeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ReportDateRangePage).map { answer =>
 
-      val value = ValueViewModel(
-        answer match
-          case ReportDateRange.CustomDateRange =>
-            val startDate = answers
-              .get(CustomRequestStartDatePage)
-              .map(_.format(dateTimeFormat()(lang = messages.lang)))
-              .getOrElse("")
-            val endDate   = answers
-              .get(CustomRequestEndDatePage)
-              .map(_.format(dateTimeFormat()(lang = messages.lang)))
-              .getOrElse("")
-            HtmlContent(HtmlFormat.escape(startDate + " to " + endDate))
-          case _                               =>
-            HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer")))
+      val value = ValueViewModel(answer match
+        case ReportDateRange.CustomDateRange =>
+          val startDate = answers
+            .get(CustomRequestStartDatePage)
+            .map(_.format(dateTimeFormat()(lang = messages.lang)))
+            .getOrElse("")
+          val endDate   = answers
+            .get(CustomRequestEndDatePage)
+            .map(_.format(dateTimeFormat()(lang = messages.lang)))
+            .getOrElse("")
+          HtmlContent(HtmlFormat.escape(startDate + " to " + endDate))
+        case _                               =>
+          val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(ZoneOffset.UTC))
+          HtmlContent(
+            HtmlFormat.escape(
+              messages(
+                s"reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel",
+                startEndDate._1.format(dateTimeFormat()(messages.lang)),
+                startEndDate._2.format(dateTimeFormat()(messages.lang))
+              )
+            )
+          )
       )
 
       SummaryListRowViewModel(

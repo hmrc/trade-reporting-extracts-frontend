@@ -17,24 +17,25 @@
 package forms.report
 
 import forms.behaviours.DateBehaviours
-
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
+import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
 class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
-  private implicit val messages: Messages = stubMessages()
-  private val currentDate: LocalDate      = LocalDate.now(ZoneOffset.UTC)
-  private val startDate: LocalDate        = currentDate.minusYears(1)
-  private val futureDate: LocalDate       = currentDate.plusDays(1)
-  private val beforeStartDate: LocalDate  = startDate.minusDays(1)
-  private val illegalReportLengthDate     = startDate.plusDays(32)
-  private val maxReportLength: LocalDate  = startDate.plusDays(31)
-  private val form                        = new CustomRequestEndDateFormProvider()(startDate)
+  private implicit val messages: Messages    = stubMessages()
+  private val currentDate: LocalDate         = LocalDate.now(ZoneOffset.UTC)
+  private val startDate: LocalDate           = currentDate.minusYears(1)
+  private val futureDate: LocalDate          = currentDate.plusDays(1)
+  private val currentDateMinusDay: LocalDate = currentDate.minusDays(1)
+  private val beforeStartDate: LocalDate     = startDate.minusDays(1)
+  private val illegalReportLengthDate        = startDate.plusDays(32)
+  private val maxReportLength: LocalDate     = startDate.plusDays(31)
+  private val form                           = new CustomRequestEndDateFormProvider()(startDate)
 
   ".value" - {
 
@@ -59,7 +60,23 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.afterToday",
-        List()
+        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
+      )
+    }
+
+    "not bind dates after current date - 2 days" in {
+      val result = form.bind(
+        Map(
+          "value.day"   -> currentDateMinusDay.getDayOfMonth.toString,
+          "value.month" -> currentDateMinusDay.getMonthValue.toString,
+          "value.year"  -> currentDateMinusDay.getYear.toString
+        )
+      )
+
+      result.errors must contain only FormError(
+        "value",
+        "customRequestEndDate.error.afterToday",
+        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
       )
     }
 

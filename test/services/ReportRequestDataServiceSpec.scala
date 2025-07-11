@@ -35,7 +35,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
 
     "should build report request correctly" in {
 
-      val fixedInstant = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedInstant = Instant.parse("2025-05-05T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
       val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
@@ -49,7 +49,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .get
-        .set(ReportDateRangePage, ReportDateRange.Last31Days)
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
         .get
         .set(ReportNamePage, "MyReport")
         .get
@@ -68,7 +68,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.eoriRole mustBe Set("importer")
       result.reportType mustBe Set("importItem")
       result.reportStartDate mustBe "2025-04-01"
-      result.reportEndDate mustBe "2025-05-01"
+      result.reportEndDate mustBe "2025-04-30"
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("example@email.com"))
 
@@ -89,7 +89,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .get
-        .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
         .get
         .set(ReportNamePage, "MyReport")
         .get
@@ -173,7 +173,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .get
-        .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
         .get
         .set(ReportNamePage, "MyReport")
         .get
@@ -213,7 +213,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .get
-        .set(ReportDateRangePage, ReportDateRange.LastCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
         .get
         .set(ReportNamePage, "MyReport")
         .get

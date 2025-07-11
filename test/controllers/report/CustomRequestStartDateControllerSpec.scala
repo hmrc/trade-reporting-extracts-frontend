@@ -42,11 +42,10 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider = new CustomRequestStartDateFormProvider()
+  private val startDate    = LocalDate.now(ZoneOffset.UTC).minusYears(1)
   private def form         = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
-
-  val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
   lazy val customRequestStartDateRoute =
     controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
@@ -56,12 +55,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, customRequestStartDateRoute)
 
-  def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
+  def postRequest(date: LocalDate): FakeRequest[AnyContentAsFormUrlEncoded] =
     FakeRequest(POST, customRequestStartDateRoute)
       .withFormUrlEncodedBody(
-        "value.day"   -> validAnswer.getDayOfMonth.toString,
-        "value.month" -> validAnswer.getMonthValue.toString,
-        "value.year"  -> validAnswer.getYear.toString
+        "value.day"   -> date.getDayOfMonth.toString,
+        "value.month" -> date.getMonthValue.toString,
+        "value.year"  -> date.getYear.toString
       )
 
   "CustomRequestStartDate Controller" - {
@@ -101,7 +100,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(CustomRequestStartDatePage, validAnswer).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(CustomRequestStartDatePage, startDate).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -111,7 +110,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, false)(
+        contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false)(
           getRequest(),
           messages(application)
         ).toString
@@ -133,7 +132,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val result = route(application, postRequest()).value
+        val result = route(application, postRequest(startDate)).value
 
         status(result) mustEqual SEE_OTHER
       }
@@ -176,7 +175,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, postRequest()).value
+        val result = route(application, postRequest(startDate)).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url

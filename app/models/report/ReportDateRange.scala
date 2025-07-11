@@ -25,23 +25,13 @@ sealed trait ReportDateRange
 
 object ReportDateRange extends Enumerable.Implicits {
 
-  case object Last31Days extends WithName("lastThirtyOneDays") with ReportDateRange
-  case object LastCalendarMonth extends WithName("lastCalenderMonth") with ReportDateRange
+  case object LastFullCalendarMonth extends WithName("lastFullCalendarMonth") with ReportDateRange
   case object CustomDateRange extends WithName("CustomDateRange") with ReportDateRange
 
   val values: Seq[ReportDateRange] = Seq(
-    Last31Days,
-    LastCalendarMonth,
+    LastFullCalendarMonth,
     CustomDateRange
   )
-
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map { case (value, index) =>
-    RadioItem(
-      content = Text(messages(s"reportDateRange.${value.toString}")),
-      value = Some(value.toString),
-      id = Some(s"value_$index")
-    )
-  }
 
   implicit val enumerable: Enumerable[ReportDateRange] =
     Enumerable(values.map(v => v.toString -> v): _*)

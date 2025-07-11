@@ -104,7 +104,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
 
         "to ReportNamePage otherwise" in {
-          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastCalendarMonth).success.value
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth).success.value
           navigator.nextPage(ReportDateRangePage, NormalMode, ua) mustBe routes.ReportNameController.onPageLoad(
             NormalMode
           )
@@ -227,7 +227,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
 
         "to CheckYourAnswersPage otherwise" in {
-          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastCalendarMonth).success.value
+          val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth).success.value
           navigator.nextPage(ReportDateRangePage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
       }

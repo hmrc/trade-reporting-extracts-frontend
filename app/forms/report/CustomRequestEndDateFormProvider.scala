@@ -19,6 +19,7 @@ package forms.report
 import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.i18n.Messages
+import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.{LocalDate, ZoneOffset}
@@ -40,8 +41,9 @@ class CustomRequestEndDateFormProvider @Inject() extends Mappings {
       ).verifying(
         firstError(
           maxDate(
-            currentDate,
-            "customRequestEndDate.error.afterToday"
+            currentDate.minusDays(3),
+            "customRequestEndDate.error.afterToday",
+            currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
           ),
           maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days")
         )

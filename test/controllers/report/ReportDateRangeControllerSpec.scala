@@ -32,6 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.ReportDateRangeView
+import java.time.{Clock, Instant, ZoneOffset}
 
 import scala.concurrent.Future
 
@@ -44,11 +45,16 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
   val formProvider                = new ReportDateRangeFormProvider()
   val form: Form[ReportDateRange] = formProvider()
 
+  val fixedInstant = Instant.parse("2025-05-05T00:00:00Z")
+  val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
   "ReportDateRange Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[Clock].toInstance(fixedClock))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, reportDateRangeRoute)
@@ -58,15 +64,45 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ReportDateRangeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, ("1 April 2025", "30 April 2025"))(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view/dates when last day of calendar month after T-2 current day for a GET" in {
+
+      val fixedInstant = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[Clock].toInstance(fixedClock))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, reportDateRangeRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[ReportDateRangeView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, ("1 March 2025", "31 March 2025"))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(ReportDateRangePage, ReportDateRange.values.head).success.value
+      val userAnswers =
+        UserAnswers(userAnswersId).set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[Clock].toInstance(fixedClock))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, reportDateRangeRoute)
@@ -76,7 +112,11 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ReportDateRange.values.head), NormalMode)(
+        contentAsString(result) mustEqual view(
+          form.fill(ReportDateRange.LastFullCalendarMonth),
+          NormalMode,
+          ("1 April 2025", "30 April 2025")
+        )(
           request,
           messages(application)
         ).toString
@@ -111,7 +151,9 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[Clock].toInstance(fixedClock))
+        .build()
 
       running(application) {
         val request =
@@ -125,7 +167,10 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, ("1 April 2025", "30 April 2025"))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
