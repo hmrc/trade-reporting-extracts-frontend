@@ -25,6 +25,7 @@ import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
+import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -62,15 +63,17 @@ class ReportDateRangeSummarySpec extends SpecBase {
     }
 
     "must return a SummaryListRow when customDateRange selected" in {
-      val answer  = ReportDateRange.CustomDateRange
-      val answers = UserAnswers("id")
+      val answer    = ReportDateRange.CustomDateRange
+      val startDate = LocalDate.of(2025, 1, 1)
+      val endDate   = LocalDate.of(2025, 1, 2)
+      val answers   = UserAnswers("id")
         .set(ReportDateRangePage, answer)
         .success
         .value
-        .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+        .set(CustomRequestStartDatePage, startDate)
         .success
         .value
-        .set(CustomRequestEndDatePage, LocalDate.of(2025, 1, 2))
+        .set(CustomRequestEndDatePage, endDate)
         .success
         .value
 
@@ -79,8 +82,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
       result mustBe Some(
         SummaryListRow(
           key = "reportDateRange.checkYourAnswersLabel",
-          value =
-            ValueViewModel(HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer.checkYourAnswersLabel")))),
+          value = ValueViewModel(HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))),
           actions = Some(
             Actions(items =
               Seq(
