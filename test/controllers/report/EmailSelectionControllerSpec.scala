@@ -17,10 +17,9 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
 import forms.report.EmailSelectionFormProvider
 import models.report.EmailSelection
-import models.{NormalMode, UserAnswers}
+import models.{AddressInformation, CompanyInformation, NormalMode, NotificationEmail, UserAnswers, UserDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,53 +30,87 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.report.EmailSelectionView
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/new-notification-email")
+  private def onwardRoute: Call =
+    Call("GET", "/request-customs-declaration-data/new-notification-email")
 
-  lazy val emailSelectionRoute = controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode).url
+  private lazy val emailSelectionRoute: String =
+    controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode).url
 
-  val formProvider = new EmailSelectionFormProvider()
-  val form         = formProvider()
+  private val formProvider    = new EmailSelectionFormProvider()
+  private val dynamicEmails   = Seq("user1@example.com", "user2@example.com")
+  private val mockUserDetails = UserDetails(
+    eori = "GB123456789000",
+    additionalEmails = dynamicEmails,
+    authorisedUsers = Seq.empty,
+    companyInformation = CompanyInformation(
+      name = "Test Ltd",
+      consent = "Yes",
+      address = AddressInformation(
+        streetAndNumber = "123 Test Street",
+        city = "Testville",
+        postalCode = Some("TE5 7ST"),
+        countryCode = "GB"
+      )
+    ),
+    notificationEmail = NotificationEmail("user@example.com", LocalDateTime.now())
+  )
+
+  private val form = formProvider(dynamicEmails)
+
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  implicit val hc: HeaderCarrier                = HeaderCarrier()
+  when(mockTradeReportingExtractsService.setupUser(any())(any()))
+    .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = dynamicEmails)))
 
   "EmailSelection Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)
-
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[EmailSelectionView]
 
         status(result) mustEqual OK
-
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, dynamicEmails)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue))
+        .success
+        .value
 
-      val userAnswers = UserAnswers(userAnswersId).set(EmailSelectionPage, EmailSelection.values.toSet).success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[EmailSelectionView]
 
-        val result = route(application, request).value
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(EmailSelection.values.toSet), NormalMode)(
+        contentAsString(result) mustEqual view(
+          form.fill(Set(EmailSelection.AddNewEmailValue)),
+          NormalMode,
+          dynamicEmails
+        )(
           request,
           messages(application)
         ).toString
@@ -85,23 +118,20 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value[1]", EmailSelection.Email3.toString))
+        val request = FakeRequest(POST, emailSelectionRoute)
+          .withFormUrlEncodedBody("value[0]" -> EmailSelection.AddNewEmail.toString)
 
         val result = route(application, request).value
 
@@ -111,33 +141,35 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+        val request = FakeRequest(POST, emailSelectionRoute)
+          .withFormUrlEncodedBody("value[0]" -> "invalid value")
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
-
-        val view = application.injector.instanceOf[EmailSelectionView]
+        val boundForm = form.bind(Map("value[0]" -> "invalid value"))
+        val view      = application.injector.instanceOf[EmailSelectionView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, dynamicEmails)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = None)
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)
-
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
@@ -145,13 +177,13 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = None)
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, emailSelectionRoute)
-            .withFormUrlEncodedBody(("value[0]", EmailSelection.values.head.toString))
+        val request = FakeRequest(POST, emailSelectionRoute)
+          .withFormUrlEncodedBody("value[0]" -> EmailSelection.AddNewEmail.toString)
 
         val result = route(application, request).value
 

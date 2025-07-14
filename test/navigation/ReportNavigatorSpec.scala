@@ -145,13 +145,13 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
       "navigate from EmailSelectionPage" - {
         "to NewEmailNotificationPage when Email3 selected" in {
-          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email3)).success.value
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue)).success.value
           navigator.nextPage(EmailSelectionPage, NormalMode, ua) mustBe routes.NewEmailNotificationController
             .onPageLoad(NormalMode)
         }
 
         "to CheckYourAnswersPage otherwise" in {
-          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email1)).success.value
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set("test1@example.com")).success.value
           navigator.nextPage(EmailSelectionPage, NormalMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
       }
@@ -270,14 +270,14 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
       "navigate from EmailSelectionPage" - {
         "to NewEmailNotificationPage when Email3 selected" in {
-          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email3)).success.value
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue)).success.value
           navigator.nextPage(EmailSelectionPage, CheckMode, ua) mustBe routes.NewEmailNotificationController.onPageLoad(
             CheckMode
           )
         }
 
         "to CheckYourAnswersPage otherwise" in {
-          val ua = emptyUserAnswers.set(EmailSelectionPage, Set(EmailSelection.Email1)).success.value
+          val ua = emptyUserAnswers.set(EmailSelectionPage, Set("test1@example.com")).success.value
           navigator.nextPage(EmailSelectionPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
       }

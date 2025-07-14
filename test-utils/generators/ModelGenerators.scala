@@ -22,9 +22,9 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
-  implicit lazy val arbitraryEmailSelection: Arbitrary[EmailSelection] =
+  implicit lazy val arbitraryEmailSelection: Arbitrary[String] =
     Arbitrary {
-      Gen.oneOf(EmailSelection.values)
+      Gen.oneOf("test1@example.com", "test2@example.com", "test3@example.com", EmailSelection.AddNewEmailValue)
     }
 
   implicit lazy val arbitraryReportDateRange: Arbitrary[ReportDateRange] =

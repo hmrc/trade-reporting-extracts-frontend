@@ -18,30 +18,33 @@ package pages.report
 
 import base.SpecBase
 import models.report.EmailSelection
-import models.report.EmailSelection.{Email1, Email2, Email3}
 
 class EmailSelectionPageSpec extends SpecBase {
 
   "EmailSelectionPage.cleanup" - {
 
-    "must remove NewEmailNotificationPage when Email3 is not selected" in {
+    "must remove NewEmailNotificationPage when AddNewEmail is not selected" in {
       val userAnswers = emptyUserAnswers
         .set(NewEmailNotificationPage, "new@email.com")
         .success
         .value
 
-      val result = EmailSelectionPage.cleanup(Some(Set(Email1, Email2)), userAnswers).success.value
+      val result =
+        EmailSelectionPage.cleanup(Some(Set("email1@test.com", "email2@test.com")), userAnswers).success.value
 
       result.get(NewEmailNotificationPage) mustBe None
     }
 
-    "must retain NewEmailNotificationPage when Email3 is selected" in {
+    "must retain NewEmailNotificationPage when AddNewEmail is selected" in {
       val userAnswers = emptyUserAnswers
         .set(NewEmailNotificationPage, "new@email.com")
         .success
         .value
 
-      val result = EmailSelectionPage.cleanup(Some(Set(Email1, Email3)), userAnswers).success.value
+      val result = EmailSelectionPage
+        .cleanup(Some(Set("email1@test.com", EmailSelection.AddNewEmailValue)), userAnswers)
+        .success
+        .value
 
       result.get(NewEmailNotificationPage) mustBe defined
     }
