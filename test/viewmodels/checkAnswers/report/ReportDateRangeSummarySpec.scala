@@ -19,14 +19,17 @@ package viewmodels.checkAnswers.report
 import base.SpecBase
 import models.report.ReportDateRange
 import models.{CheckMode, UserAnswers}
-import pages.report.ReportDateRangePage
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
+import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+
+import java.time.LocalDate
 
 class ReportDateRangeSummarySpec extends SpecBase {
 
@@ -34,8 +37,8 @@ class ReportDateRangeSummarySpec extends SpecBase {
 
   "ReportDateRangeSummary.row" - {
 
-    "must return a SummaryListRow when an answer is present" in {
-      val answer  = ReportDateRange.Last31Days
+    "must return a SummaryListRow when last calendar month " in {
+      val answer  = ReportDateRange.LastFullCalendarMonth
       val answers = UserAnswers("id").set(ReportDateRangePage, answer).success.value
 
       val result = ReportDateRangeSummary.row(answers)
@@ -43,7 +46,43 @@ class ReportDateRangeSummarySpec extends SpecBase {
       result mustBe Some(
         SummaryListRow(
           key = "reportDateRange.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer")))),
+          value =
+            ValueViewModel(HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer.checkYourAnswersLabel")))),
+          actions = Some(
+            Actions(items =
+              Seq(
+                ActionItemViewModel(
+                  "site.change",
+                  controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
+                ).withVisuallyHiddenText(messages("reportDateRange.change.hidden"))
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "must return a SummaryListRow when customDateRange selected" in {
+      val answer    = ReportDateRange.CustomDateRange
+      val startDate = LocalDate.of(2025, 1, 1)
+      val endDate   = LocalDate.of(2025, 1, 2)
+      val answers   = UserAnswers("id")
+        .set(ReportDateRangePage, answer)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, startDate)
+        .success
+        .value
+        .set(CustomRequestEndDatePage, endDate)
+        .success
+        .value
+
+      val result = ReportDateRangeSummary.row(answers)
+
+      result mustBe Some(
+        SummaryListRow(
+          key = "reportDateRange.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))),
           actions = Some(
             Actions(items =
               Seq(

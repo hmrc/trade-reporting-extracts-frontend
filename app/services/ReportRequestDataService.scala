@@ -23,7 +23,8 @@ import models.report.EmailSelection.Email3
 import models.report.{ChooseEori, EmailSelection, ReportDateRange, ReportRequestUserAnswersModel}
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
 import config.FrontendAppConfig
-import java.time.temporal.TemporalAdjusters
+import utils.DateTimeFormats
+
 import java.time.{Clock, LocalDate}
 
 class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appConfig: FrontendAppConfig) {
@@ -73,19 +74,15 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
   private def getReportDates(userAnswers: UserAnswers): (String, String) = {
     val currentDate: LocalDate = LocalDate.now(clock)
     userAnswers.get(ReportDateRangePage) match {
-      case Some(ReportDateRange.CustomDateRange)   =>
+      case Some(ReportDateRange.CustomDateRange)       =>
         (
           userAnswers.get(CustomRequestStartDatePage).get.toString,
           userAnswers.get(CustomRequestEndDatePage).get.toString
         )
-      case Some(ReportDateRange.Last31Days)        =>
-        (currentDate.minusDays(30).toString, currentDate.toString)
-      case Some(ReportDateRange.LastCalendarMonth) =>
-        (
-          currentDate.minusMonths(1).withDayOfMonth(1).toString,
-          currentDate.minusMonths(1).`with`(TemporalAdjusters.lastDayOfMonth()).toString
-        )
-      case _                                       => ("", "")
+      case Some(ReportDateRange.LastFullCalendarMonth) =>
+        val startEndDate = DateTimeFormats.lastFullCalendarMonth(currentDate)
+        (startEndDate._1.toString, startEndDate._2.toString)
+      case _                                           => ("", "")
     }
   }
 

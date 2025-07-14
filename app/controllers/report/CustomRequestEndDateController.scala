@@ -103,7 +103,7 @@ class CustomRequestEndDateController @Inject() (
     val formatter   = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
     if (plus31Days) {
       if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
-        LocalDate.now(ZoneOffset.UTC).format(formatter)
+        LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatter)
       } else {
         startDate.plusDays(31).format(formatter)
       }
