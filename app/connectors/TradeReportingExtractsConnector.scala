@@ -45,7 +45,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 ) extends Logging {
 
   private val defaultPath                                                = "conf/resources/eoriList.json"
-  // TODO replace with a get request to the backend upon implementation of EORI list
+  // TODO Remove with third party
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
     val path = Paths.get(pathString)
 
@@ -58,25 +58,6 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 
       case Failure(ex) =>
         val errMsg = s"Failed to read or parse EORI list from file: ${ex.getMessage}"
-        logger.error(errMsg)
-        Future.failed(new RuntimeException(errMsg, ex))
-    }
-  }
-
-  private val reportsPath: String                                                                = "conf/resources/availableReportsData.json"
-  // TODO replace with a get request to the backend upon implementation of available reports
-  def getAvailableReportsV2(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
-    val path = Paths.get(pathString)
-
-    Try {
-      val jsonString = new String(Files.readAllBytes(path), "UTF-8")
-      Json.parse(jsonString).as[AvailableReportsViewModel]
-    } match {
-      case Success(reports) =>
-        Future.successful(reports)
-
-      case Failure(ex) =>
-        val errMsg = s"Failed to available reports from file: ${ex.getMessage}"
         logger.error(errMsg)
         Future.failed(new RuntimeException(errMsg, ex))
     }
