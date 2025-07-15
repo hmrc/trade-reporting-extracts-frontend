@@ -19,6 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.CustomRequestStartDateFormProvider
 import models.Mode
+import models.report.ReportRequestSection
 import navigation.{Navigator, ReportNavigator}
 import pages.report.CustomRequestStartDatePage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -39,6 +40,7 @@ class CustomRequestStartDateController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: CustomRequestStartDateFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: CustomRequestStartDateView
 )(implicit ec: ExecutionContext)
@@ -72,8 +74,10 @@ class CustomRequestStartDateController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers))
+              redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(reportNavigator.nextPage(CustomRequestStartDatePage, mode, answersWithNav))
         )
   }
 }

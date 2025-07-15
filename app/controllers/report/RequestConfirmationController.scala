@@ -19,9 +19,11 @@ package controllers.report
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
+import models.{AlreadySubmittedFlag, UserAnswers}
+import models.report.{EmailSelection, ReportRequestSection}
 import models.report.EmailSelection
 import models.requests.DataRequest
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import pages.report.{DecisionPage, EmailSelectionPage, NewEmailNotificationPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -43,6 +45,7 @@ class RequestConfirmationController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   reportRequestDataService: ReportRequestDataService,
   config: FrontendAppConfig,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView
 )(implicit ec: ExecutionContext)
@@ -55,13 +58,13 @@ class RequestConfirmationController @Inject() (
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
 
     for {
-      notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      requestRefs       <- tradeReportingExtractsService.createReportRequest(
-                             reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                           )
-      requestRef         = requestRefs.mkString(", ")
-      updatedAnswers    <- Future.fromTry(request.userAnswers.removePath(JsPath \ "report"))
-      _                 <- sessionRepository.set(updatedAnswers)
+      notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)requestRefs                      <- tradeReportingExtractsService.createReportRequest(
+                                            reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+                                          )
+      requestRef                        = requestRefs.mkString(", ")
+      updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+      updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
+      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
     } yield {
       val email = notificationEmail.address
       Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl, email))

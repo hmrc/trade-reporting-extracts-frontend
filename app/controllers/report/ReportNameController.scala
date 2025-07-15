@@ -19,6 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.ReportNameFormProvider
 import models.Mode
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
 import pages.report.ReportNamePage
 import play.api.data.Form
@@ -40,6 +41,7 @@ class ReportNameController @Inject() (
   requireData: DataRequiredAction,
   formProvider: ReportNameFormProvider,
   val controllerComponents: MessagesControllerComponents,
+  reportRequestSection: ReportRequestSection,
   view: ReportNameView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -66,8 +68,10 @@ class ReportNameController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportNamePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ReportNamePage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(ReportNamePage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(ReportNamePage, mode, answersWithNav))
         )
   }
 }

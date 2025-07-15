@@ -19,7 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.ReportTypeImportFormProvider
 import models.Mode
-import models.report.ReportTypeImport
+import models.report.{ReportRequestSection, ReportTypeImport}
 import navigation.ReportNavigator
 import pages.report.ReportTypeImportPage
 import play.api.data.Form
@@ -40,6 +40,7 @@ class ReportTypeImportController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ReportTypeImportFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: ReportTypeImportView
 )(implicit ec: ExecutionContext)
@@ -67,8 +68,10 @@ class ReportTypeImportController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportTypeImportPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ReportTypeImportPage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(ReportTypeImportPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(ReportTypeImportPage, mode, answersWithNav))
         )
   }
 }

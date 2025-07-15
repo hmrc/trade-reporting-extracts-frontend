@@ -18,6 +18,7 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.MaybeAdditionalEmailFormProvider
+import models.report.ReportRequestSection
 import models.{CheckMode, Mode}
 import navigation.ReportNavigator
 import pages.report.MaybeAdditionalEmailPage
@@ -39,6 +40,7 @@ class MaybeAdditionalEmailController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: MaybeAdditionalEmailFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: MaybeAdditionalEmailView
 )(implicit ec: ExecutionContext)
@@ -66,8 +68,10 @@ class MaybeAdditionalEmailController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, answersWithNav))
         )
   }
 }

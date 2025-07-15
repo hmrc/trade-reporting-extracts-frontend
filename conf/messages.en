@@ -334,3 +334,9 @@ requestedReports.status.complete = Completed
 requestedReports.status.error = Error
 requestedReports.status.inProgress = In Progress
 requestedReports.status.noDataAvailable = No data available
+
+alreadySubmitted.title = You have already submitted
+alreadySubmitted.heading = You have already submitted
+
+missingDependentAnswers.title = missingDependentAnswers
+missingDependentAnswers.heading = missingDependentAnswers

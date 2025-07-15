@@ -19,8 +19,9 @@ package controllers.report
 import controllers.actions.*
 import forms.report.CustomRequestEndDateFormProvider
 import models.Mode
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, MaybeAdditionalEmailPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -42,6 +43,7 @@ class CustomRequestEndDateController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: CustomRequestEndDateFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: CustomRequestEndDateView
 )(implicit ec: ExecutionContext)
@@ -93,8 +95,10 @@ class CustomRequestEndDateController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestEndDatePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers))
+              redirectUrl     = reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, answersWithNav))
         )
   }
 
