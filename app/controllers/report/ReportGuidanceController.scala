@@ -41,25 +41,20 @@ class ReportGuidanceController @Inject() (
     val JourneyRecoveryUrl   = controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     val checkYourAnswersUrl  = controllers.report.routes.CheckYourAnswersController.onPageLoad().url
     val alreadySubmittedFlag = request.userAnswers.get(AlreadySubmittedFlag()).getOrElse(false)
-    println("==============================")
-    println(request.userAnswers.get(ReportRequestSection().sectionNavigation))
     request.userAnswers.get(ReportRequestSection().sectionNavigation).getOrElse(initialPage.url) match {
       case url if url == JourneyRecoveryUrl || (url == checkYourAnswersUrl && alreadySubmittedFlag) =>
-        print("===================HIT1====================")
         for {
           answers       <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
           updatedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(answers)
           _             <- sessionRepository.set(updatedAnswers)
         } yield Ok(view(NormalMode))
       case initialPage.url                                                                          =>
-        print("===================HIT2====================")
         Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag())).flatMap { updatedAnswers =>
           sessionRepository.set(updatedAnswers).map { _ =>
             Ok(view(NormalMode))
           }
         }
       case _                                                                                        =>
-        print("===================HIT3====================")
         Future.successful(Redirect(ReportRequestSection().navigateTo(request.userAnswers)))
     }
   }
