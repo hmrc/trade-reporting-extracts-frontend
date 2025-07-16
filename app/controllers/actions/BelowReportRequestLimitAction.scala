@@ -38,7 +38,7 @@ class BelowReportRequestLimitActionImpl @Inject() (
       if (!reached) {
         Right(DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers))
       } else {
-        Left(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+        Left(Redirect(controllers.problem.routes.TooManySubmissionsController.onPageLoad()))
       }
     }
   }
