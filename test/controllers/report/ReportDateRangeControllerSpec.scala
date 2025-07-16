@@ -46,7 +46,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[ReportDateRange] = formProvider("reportDateRange.error.required")
 
   val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
   "ReportDateRange Controller" - {
 

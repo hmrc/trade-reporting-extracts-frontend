@@ -46,7 +46,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
   def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
   def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
-  val formProvider = new AccountsYouHaveAuthorityOverImportFormProvider()
+  val formProvider       = new AccountsYouHaveAuthorityOverImportFormProvider()
   val form: Form[String] = formProvider()
 
   val eoriList: Seq[SelectItem] = Seq(
