@@ -43,10 +43,10 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
   lazy val reportDateRangeRoute: String = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
 
   val formProvider                = new ReportDateRangeFormProvider()
-  val form: Form[ReportDateRange] = formProvider()
+  val form: Form[ReportDateRange] = formProvider("reportDateRange.error.required")
 
-  val fixedInstant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
   "ReportDateRange Controller" - {
 
@@ -64,7 +64,12 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ReportDateRangeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, ("1 April 2025", "30 April 2025"))(
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          ("1 April 2025", "30 April 2025"),
+          isMoreThanOneReport = false
+        )(
           request,
           messages(application)
         ).toString
@@ -88,7 +93,12 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ReportDateRangeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, ("1 March 2025", "31 March 2025"))(
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          ("1 March 2025", "31 March 2025"),
+          isMoreThanOneReport = false
+        )(
           request,
           messages(application)
         ).toString
@@ -115,7 +125,8 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form.fill(ReportDateRange.LastFullCalendarMonth),
           NormalMode,
-          ("1 April 2025", "30 April 2025")
+          ("1 April 2025", "30 April 2025"),
+          isMoreThanOneReport = false
         )(
           request,
           messages(application)
@@ -167,7 +178,12 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, ("1 April 2025", "30 April 2025"))(
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          ("1 April 2025", "30 April 2025"),
+          isMoreThanOneReport = false
+        )(
           request,
           messages(application)
         ).toString

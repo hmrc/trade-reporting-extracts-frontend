@@ -39,7 +39,7 @@ class EmailSelectionSpec extends AnyFreeSpec with Matchers with ScalaCheckProper
 
       result.head.content mustBe Text("user1@test.com")
       result(1).content mustBe Text("user2@test.com")
-      result(2).content mustBe Text(messages("emailSelection.email3"))
+      result(2).content mustBe Text(messages("emailSelection.addNewEmail"))
       result(2).value mustBe EmailSelection.AddNewEmail.toString
     }
 

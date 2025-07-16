@@ -27,7 +27,6 @@
     breadcrumbContribution = Seq()) {
     @formHelper(action = controllers.report.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
         <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
-        <h2 class="govuk-heading-m">@messages("checkYourAnswers.reportDetails")</h2>
 
         @govukSummaryList(list)
 

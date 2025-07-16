@@ -23,6 +23,7 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.ReportHelpers
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -30,8 +31,10 @@ object ReportNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ReportNamePage).map { answer =>
+      val moreThanOneReport = ReportHelpers.isMoreThanOneReport(answers)
       SummaryListRowViewModel(
-        key = "reportName.checkYourAnswersLabel",
+        key = if (moreThanOneReport) { "reportName.pluralReport.checkYourAnswersLabel" }
+        else { "reportName.checkYourAnswersLabel" },
         value = ValueViewModel(
           HtmlContent(
             HtmlFormat.escape(messages(answer))
@@ -39,8 +42,10 @@ object ReportNameSummary {
         ),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ReportNameController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("reportName.change.hidden"))
+            .withVisuallyHiddenText(if (moreThanOneReport) { messages("reportName.change.hidden.plural") }
+            else { messages("reportName.change.hidden") })
         )
       )
+
     }
 }
