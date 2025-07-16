@@ -38,7 +38,7 @@ object EmailSelectionSummary {
               answers
                 .get(NewEmailNotificationPage)
                 .map(HtmlFormat.escape(_).toString)
-                .getOrElse(messages("emailSelection.email3"))
+                .getOrElse(messages("emailSelection.addNewEmail"))
             case email                           =>
               HtmlFormat.escape(email).toString
           }

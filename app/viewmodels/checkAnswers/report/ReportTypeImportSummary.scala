@@ -22,17 +22,18 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.ReportHelpers
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object ReportTypeImportSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ReportTypeImportPage).map { answers =>
-
-      val value = ValueViewModel(
+    answers.get(ReportTypeImportPage).map { reportTypes =>
+      val moreThanOneReport = ReportHelpers.isMoreThanOneReport(answers)
+      val value             = ValueViewModel(
         HtmlContent(
-          answers
+          reportTypes
             .map { answer =>
               HtmlFormat.escape(messages(s"reportTypeImport.$answer")).toString
             }
@@ -41,14 +42,20 @@ object ReportTypeImportSummary {
       )
 
       SummaryListRowViewModel(
-        key = "reportTypeImport.checkYourAnswersLabel",
+        key = if (moreThanOneReport) { "reportTypeImport.pluralReport.checkYourAnswersLabel" }
+        else {
+          "reportTypeImport.singleReport.checkYourAnswersLabel"
+        },
         value = value,
         actions = Seq(
           ActionItemViewModel(
             "site.change",
             controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("reportTypeImport.change.hidden"))
+            .withVisuallyHiddenText(if (moreThanOneReport) { messages("reportTypeImport.pluralReport.change.hidden") }
+            else {
+              messages("reportTypeImport.singleReport.change.hidden")
+            })
         )
       )
     }
