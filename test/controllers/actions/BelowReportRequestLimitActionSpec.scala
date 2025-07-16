@@ -1,0 +1,66 @@
+package controllers.actions
+
+import base.SpecBase
+import models.UserAnswers
+import models.requests.DataRequest
+import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.any
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.{AnyContent, Result}
+import play.api.test.FakeRequest
+import services.TradeReportingExtractsService
+import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.http.HeaderCarrier
+import play.api.test.Helpers.*
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class BelowReportRequestLimitActionSpec extends SpecBase with MockitoSugar with ScalaFutures {
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+  class Harness(service: TradeReportingExtractsService)(implicit ec: ExecutionContext)
+    extends BelowReportRequestLimitActionImpl(service) {
+    def callRefine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = refine(request)
+  }
+
+  val dataRequest: DataRequest[AnyContent] = DataRequest(
+    request = FakeRequest(),
+    userId = "user-id-123",
+    eori = "GB1234567890",
+    affinityGroup = AffinityGroup.Individual,
+    userAnswers = UserAnswers("user-id-123")
+  )
+
+  "BelowReportRequestLimitAction" - {
+
+    "should allow the request to proceed when submission limit has not been reached" in {
+      when(mockTradeReportingExtractsService.hasReachedSubmissionLimit(any())(any()))
+        .thenReturn(Future.successful(false))
+
+      val action = new Harness(mockTradeReportingExtractsService)
+
+      val result = action.callRefine(dataRequest).futureValue
+
+      result mustBe Right(dataRequest)
+    }
+
+    "should redirect to TooManySubmissionsController when submission limit is reached" in {
+      when(mockTradeReportingExtractsService.hasReachedSubmissionLimit(any())(any()))
+        .thenReturn(Future.successful(true))
+
+      val action = new Harness(mockTradeReportingExtractsService)
+
+      val result = action.callRefine(dataRequest).futureValue
+
+      result mustBe a[Left[_, _]]
+      val redirect = result.left.get
+      redirect.header.status mustBe SEE_OTHER
+      redirect.header.headers("Location") mustBe controllers.problem.routes.TooManySubmissionsController.onPageLoad().url
+    }
+  }
+}
