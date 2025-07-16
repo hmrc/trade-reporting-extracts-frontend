@@ -78,7 +78,7 @@ class EmailSelectionController @Inject() (
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, selectedValues))
                 redirectUrl     = navigator.nextPage(EmailSelectionPage, mode, updatedAnswers).url
                 answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(answersWithNav)
+                _              <- sessionRepository.set(answersWithNav)
               } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, answersWithNav))
           )
       }
