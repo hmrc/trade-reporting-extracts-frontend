@@ -22,9 +22,10 @@ import models.{CheckMode, UserAnswers}
 import pages.report.ReportTypeImportPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -34,28 +35,57 @@ class ReportTypeImportSummarySpec extends SpecBase {
 
   "ReportTypeImportSummary.row" - {
 
-    "must return a SummaryListRow when an answer is present" in {
-      val answers = UserAnswers("id").set(ReportTypeImportPage, ReportTypeImport.values.toSet).get
+    "must return a SummaryListRow when an answer is present (single report)" in {
+      val answers = UserAnswers("id").set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader)).get
+
+      val expectedValue = ValueViewModel(
+        HtmlContent(
+          Set(ReportTypeImport.ImportHeader)
+            .map(rt => HtmlFormat.escape(messages(s"reportTypeImport.$rt")).toString)
+            .mkString(",<br>")
+        )
+      )
 
       val result = ReportTypeImportSummary.row(answers)
 
       result mustBe Some(
-        SummaryListRow(
-          key = "reportTypeImport.checkYourAnswersLabel",
-          value = ValueViewModel(
-            HtmlContent(
-              "reportTypeImport.importHeader,<br>reportTypeImport.importItem,<br>reportTypeImport.importTaxLine,<br>reportTypeImport.exportItem"
-            )
-          ),
-          actions = Some(
-            Actions(items =
-              Seq(
-                ActionItemViewModel(
-                  "site.change",
-                  controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("reportTypeImport.change.hidden"))
-              )
-            )
+        SummaryListRowViewModel(
+          key = "reportTypeImport.singleReport.checkYourAnswersLabel",
+          value = expectedValue,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(messages("reportTypeImport.singleReport.change.hidden"))
+          )
+        )
+      )
+    }
+
+    "must return a SummaryListRow when an answer is present (plural report)" in {
+      val answers = UserAnswers("id")
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem))
+        .get
+
+      val expectedValue = ValueViewModel(
+        HtmlContent(
+          Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem)
+            .map(rt => HtmlFormat.escape(messages(s"reportTypeImport.$rt")).toString)
+            .mkString(",<br>")
+        )
+      )
+
+      val result = ReportTypeImportSummary.row(answers)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "reportTypeImport.pluralReport.checkYourAnswersLabel",
+          value = expectedValue,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(messages("reportTypeImport.pluralReport.change.hidden"))
           )
         )
       )
@@ -63,9 +93,7 @@ class ReportTypeImportSummarySpec extends SpecBase {
 
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
-
-      val result = ReportTypeImportSummary.row(answers)
-
+      val result  = ReportTypeImportSummary.row(answers)
       result mustBe None
     }
   }

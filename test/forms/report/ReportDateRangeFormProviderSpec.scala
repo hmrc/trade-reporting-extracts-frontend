@@ -22,12 +22,13 @@ import play.api.data.FormError
 
 class ReportDateRangeFormProviderSpec extends OptionFieldBehaviours {
 
-  val form = new ReportDateRangeFormProvider()()
+  val errorKey = "reportDateRange.pluralReport.error.required"
+  val form     = new ReportDateRangeFormProvider()(errorKey)
 
   ".value" - {
 
-    val fieldName   = "value"
-    val requiredKey = "reportDateRange.error.required"
+    val fieldName         = "value"
+    val pluralRequiredKey = "reportDateRange.pluralReport.error.required"
 
     behave like optionsField[ReportDateRange](
       form,
@@ -39,7 +40,7 @@ class ReportDateRangeFormProviderSpec extends OptionFieldBehaviours {
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, pluralRequiredKey)
     )
   }
 }

@@ -19,15 +19,16 @@ package viewmodels.checkAnswers.report
 import base.SpecBase
 import models.report.ReportDateRange
 import models.{CheckMode, UserAnswers}
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage, ReportTypeImportPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
-import utils.DateTimeFormats.dateTimeFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.{DateTimeFormats, ReportHelpers}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import models.report.ReportTypeImport
 
 import java.time.LocalDate
 
@@ -37,24 +38,71 @@ class ReportDateRangeSummarySpec extends SpecBase {
 
   "ReportDateRangeSummary.row" - {
 
-    "must return a SummaryListRow when last calendar month " in {
+    "must return a SummaryListRow for LastFullCalendarMonth (single report)" in {
       val answer  = ReportDateRange.LastFullCalendarMonth
       val answers = UserAnswers("id").set(ReportDateRangePage, answer).success.value
+
+      val startEndDate  = DateTimeFormats.lastFullCalendarMonth(LocalDate.now())
+      val expectedValue = HtmlContent(
+        HtmlFormat.escape(
+          messages(
+            s"reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel",
+            startEndDate._1.format(DateTimeFormats.dateTimeFormat()(messages.lang)),
+            startEndDate._2.format(DateTimeFormats.dateTimeFormat()(messages.lang))
+          )
+        )
+      )
+
+      val result = ReportDateRangeSummary.row(answers)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "reportDateRange.singleReport.checkYourAnswersLabel",
+          value = ValueViewModel(expectedValue),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(messages("reportDateRange.singleReport.change.hidden"))
+          )
+        )
+      )
+    }
+
+    "must return a SummaryListRow for LastFullCalendarMonth (plural report)" in {
+      val answer  = ReportDateRange.LastFullCalendarMonth
+      val answers = UserAnswers("id")
+        .set(ReportDateRangePage, answer)
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem, ReportTypeImport.ExportItem))
+        .success
+        .value
+
+      val startEndDate  = DateTimeFormats.lastFullCalendarMonth(LocalDate.now())
+      val expectedValue = HtmlContent(
+        HtmlFormat.escape(
+          messages(
+            s"reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel",
+            startEndDate._1.format(DateTimeFormats.dateTimeFormat()(messages.lang)),
+            startEndDate._2.format(DateTimeFormats.dateTimeFormat()(messages.lang))
+          )
+        )
+      )
 
       val result = ReportDateRangeSummary.row(answers)
 
       result mustBe Some(
         SummaryListRow(
-          key = "reportDateRange.checkYourAnswersLabel",
-          value =
-            ValueViewModel(HtmlContent(HtmlFormat.escape(messages(s"reportDateRange.$answer.checkYourAnswersLabel")))),
+          key = "reportDateRange.pluralReport.checkYourAnswersLabel",
+          value = ValueViewModel(expectedValue),
           actions = Some(
-            Actions(items =
-              Seq(
+            uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions(
+              items = Seq(
                 ActionItemViewModel(
                   "site.change",
                   controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("reportDateRange.change.hidden"))
+                ).withVisuallyHiddenText(messages("reportDateRange.pluralReport.change.hidden"))
               )
             )
           )
@@ -62,7 +110,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
       )
     }
 
-    "must return a SummaryListRow when customDateRange selected" in {
+    "must return a SummaryListRow for CustomDateRange" in {
       val answer    = ReportDateRange.CustomDateRange
       val startDate = LocalDate.of(2025, 1, 1)
       val endDate   = LocalDate.of(2025, 1, 2)
@@ -77,21 +125,19 @@ class ReportDateRangeSummarySpec extends SpecBase {
         .success
         .value
 
+      val expectedValue = HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))
+
       val result = ReportDateRangeSummary.row(answers)
 
       result mustBe Some(
-        SummaryListRow(
-          key = "reportDateRange.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))),
-          actions = Some(
-            Actions(items =
-              Seq(
-                ActionItemViewModel(
-                  "site.change",
-                  controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
-                ).withVisuallyHiddenText(messages("reportDateRange.change.hidden"))
-              )
-            )
+        SummaryListRowViewModel(
+          key = "reportDateRange.singleReport.checkYourAnswersLabel",
+          value = ValueViewModel(expectedValue),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(messages("reportDateRange.singleReport.change.hidden"))
           )
         )
       )
@@ -99,9 +145,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
 
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
-
-      val result = ReportDateRangeSummary.row(answers)
-
+      val result  = ReportDateRangeSummary.row(answers)
       result mustBe None
     }
   }

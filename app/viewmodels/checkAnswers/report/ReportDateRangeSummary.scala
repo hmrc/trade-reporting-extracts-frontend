@@ -24,7 +24,7 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.DateTimeFormats
+import utils.{DateTimeFormats, ReportHelpers}
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -35,8 +35,8 @@ object ReportDateRangeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ReportDateRangePage).map { answer =>
-
-      val value = ValueViewModel(answer match
+      val moreThanOneReport = ReportHelpers.isMoreThanOneReport(answers)
+      val value             = ValueViewModel(answer match
         case ReportDateRange.CustomDateRange =>
           val startDate = answers
             .get(CustomRequestStartDatePage)
@@ -61,14 +61,22 @@ object ReportDateRangeSummary {
       )
 
       SummaryListRowViewModel(
-        key = "reportDateRange.checkYourAnswersLabel",
+        key =
+          if (moreThanOneReport) "reportDateRange.pluralReport.checkYourAnswersLabel"
+          else {
+            "reportDateRange.singleReport.checkYourAnswersLabel"
+          },
         value = value,
         actions = Seq(
           ActionItemViewModel(
             "site.change",
             routes.ReportDateRangeController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("reportDateRange.change.hidden"))
+            .withVisuallyHiddenText(if (moreThanOneReport) {
+              messages("reportDateRange.pluralReport.change.hidden")
+            } else {
+              messages("reportDateRange.singleReport.change.hidden")
+            })
         )
       )
     }

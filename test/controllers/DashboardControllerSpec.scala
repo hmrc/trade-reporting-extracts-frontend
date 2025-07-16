@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package controllers
+
 import base.SpecBase
 import base.TestConstants.testEori
 import config.FrontendAppConfig
@@ -33,9 +35,9 @@ import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class DashboardControllerSpec extends SpecBase with MockitoSugar {
-  val companyInformation =
+  val companyInformation: CompanyInformation =
     CompanyInformation("Test Company", "1", AddressInformation("Street", "City", Some("ZZ1 1ZZ"), "GB"))
-  val userDetails        = UserDetails(
+  val userDetails: UserDetails               = UserDetails(
     eori = testEori,
     additionalEmails = Seq.empty,
     authorisedUsers = Seq.empty,
@@ -52,7 +54,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in new Setup {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
           bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
         )
@@ -70,7 +72,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must show the messages card when notificationsEnabled is true" in new Setup {
+    "must show the notifications card when notificationsEnabled is true" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
           "features.notifications" -> true,
@@ -88,11 +90,11 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
         val content = contentAsString(result)
 
-        content.contains("Messages") mustBe true
+        content.contains("Notifications") mustBe true
       }
     }
 
-    "must not show the messages card when notificationsEnabled is false" in new Setup {
+    "must not show the notifications card when notificationsEnabled is false" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
           "features.notifications" -> false,
@@ -108,7 +110,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        content.contains("Messages") mustBe false
+        content.contains("Notifications") mustBe false
       }
     }
 

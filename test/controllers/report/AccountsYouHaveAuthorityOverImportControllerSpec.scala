@@ -26,6 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.inject
 import play.api.inject.bind
@@ -42,18 +43,18 @@ import scala.concurrent.Future
 class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
 
-  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
   def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
-  val formProvider = new AccountsYouHaveAuthorityOverImportFormProvider()
-  val form         = formProvider()
+  val formProvider       = new AccountsYouHaveAuthorityOverImportFormProvider()
+  val form: Form[String] = formProvider()
 
-  val eoriList = Seq(
+  val eoriList: Seq[SelectItem] = Seq(
     SelectItem(text = messages("accountsYouHaveAuthorityOverImport.defaultValue")),
     SelectItem(text = "test1")
   ): Seq[SelectItem]
 
-  lazy val accountsYouHaveAuthorityOverImportRoute =
+  lazy val accountsYouHaveAuthorityOverImportRoute: String =
     controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(NormalMode).url
 
   "AccountsYouHaveAuthorityOverImport Controller" - {

@@ -41,7 +41,7 @@ object EmailSelection extends Enumerable.Implicits {
     }
 
     val addAnotherItem = CheckboxItemViewModel(
-      content = Text(messages("emailSelection.email3")),
+      content = Text(messages("emailSelection.addNewEmail")),
       fieldId = "value",
       index = dynamicEmails.length,
       value = AddNewEmail.toString

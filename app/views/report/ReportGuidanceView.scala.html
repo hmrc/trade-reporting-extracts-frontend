@@ -21,58 +21,37 @@
 
 @(mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@sidebarContent = {
-<h3 class="govuk-heading-m top-border-heading">@messages("reportGuidance.subsection.heading")</h3>
-<ul class="govuk-list govuk-list--spaced govuk-!-font-size-16">
-    <li><a href="" class="govuk-link govuk-link--no-visited-state">@messages("reportGuidance.subsection.linkText1")</a></li>
-    <li><a href="" class="govuk-link govuk-link--no-visited-state">@messages("reportGuidance.subsection.linkText2")</a></li>
-    <li><a href="" class="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold">@messages("reportGuidance.subsection.linkText3")</a></li>
-</ul>
-}
-
 @layout(
     pageTitle = titleNoForm(messages("reportGuidance.title")),
     breadcrumbContribution = Seq(
         BreadcrumbsItem(content = Text(messages("reportGuidance.title")), href = Some(s"#"))
     ),
     showSignOut = true,
-    showBackLink = false,
-    sidebar = Some(sidebarContent)
+    showBackLink = false
 ) {
-    <h1 class="govuk-heading-xl">@messages("reportGuidance.heading")</h1>
-    <h3 class="govuk-heading-m">@messages("reportGuidance.instructions.title")</h3>
-    <p class="govuk-body govuk-!-font-weight-bold">@messages("reportGuidance.instructions.chooseReport")</p>
+    <h1 class="govuk-heading-xl">@messages("reportGuidance.title")</h1>
+    <h2 class="govuk-heading-m">@messages("reportGuidance.instructions.title")</h2>
     <div class="govuk-body">
-        @messages("reportGuidance.select.title")
+        <p>@messages("reportGuidance.intro")</p>
         <ul class="govuk-list govuk-list--bullet">
-            <li>@messages("reportGuidance.select.importItem")</li>
-            <li>@messages("reportGuidance.select.importHeader")</li>
-            <li>@messages("reportGuidance.select.importTaxLine")</li>
-            <li>@messages("reportGuidance.select.exportItem")</li>
+            <li>@messages("reportGuidance.bullet1")</li>
+            <li>@messages("reportGuidance.bullet2")</li>
+            <li>@messages("reportGuidance.bullet3")</li>
+            <li>@messages("reportGuidance.bullet4")</li>
+        </ul>
+        <p>@messages("reportGuidance.note")</p>
+    </div>
+    <h2 class="govuk-heading-m">@messages("reportGuidance.types.title")</h2>
+    <div class="govuk-body">
+        <p>@messages("reportGuidance.types.intro")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("reportGuidance.types.importItem")</li>
+            <li>@messages("reportGuidance.types.importHeader")</li>
+            <li>@messages("reportGuidance.types.importTaxLine")</li>
+            <li>@messages("reportGuidance.types.exportItem")</li>
         </ul>
     </div>
-    <p class="govuk-body">
-        <strong>@messages("reportGuidance.thirdParty.title")</strong><br>
-        @messages("reportGuidance.thirdParty.details")
-    </p>
-    <p class="govuk-body">
-        <strong>@messages("reportGuidance.dateRange.title")</strong><br>
-        @messages("reportGuidance.dateRange.details")
-    </p>
-    <p class="govuk-body">
-        <strong>@messages("reportGuidance.reportName.title")</strong><br>
-        @messages("reportGuidance.reportName.details")
-    </p>
-    <p class="govuk-body">
-        <strong>@messages("reportGuidance.notifications.title")</strong><br>
-        @messages("reportGuidance.notifications.details")
-    </p>
-    <p class="govuk-body">
-        <strong>@messages("reportGuidance.download.title")</strong><br>
-        @messages("reportGuidance.download.details")
-    </p>
     <div class="govuk-button-group">
-
         @govukButton(
             ButtonViewModel(messages("guidancePage.start")).asLink(controllers.report.routes.DecisionController.onPageLoad(mode).url)
         )

@@ -18,7 +18,7 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.ReportDateRangeFormProvider
-import models.{CheckMode, Mode}
+import models.{CheckMode, Mode, UserAnswers}
 import models.report.{ReportDateRange, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.ReportDateRangePage
@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats
+import utils.{DateTimeFormats, ReportHelpers}
 import utils.DateTimeFormats.dateTimeFormat
 import views.html.report.ReportDateRangeView
 
@@ -51,24 +51,42 @@ class ReportDateRangeController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[ReportDateRange] = formProvider()
+  private def formFor(userAnswers: UserAnswers): Form[ReportDateRange] = {
+    val moreThanOne = ReportHelpers.isMoreThanOneReport(userAnswers)
+    val errorKey    =
+      if (moreThanOne) "reportDateRange.pluralReport.error.required" else "reportDateRange.singleReport.error.required"
+    formProvider(errorKey)
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
+    val form         = formFor(request.userAnswers)
     val preparedForm = request.userAnswers.get(ReportDateRangePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, lastFullCalendarMonthHintStrings))
+    Ok(
+      view(preparedForm, mode, lastFullCalendarMonthHintStrings, ReportHelpers.isMoreThanOneReport(request.userAnswers))
+    )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      val form = formFor(request.userAnswers)
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, lastFullCalendarMonthHintStrings))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(
+                view(
+                  formWithErrors,
+                  mode,
+                  lastFullCalendarMonthHintStrings,
+                  ReportHelpers.isMoreThanOneReport(request.userAnswers)
+                )
+              )
+            ),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportDateRangePage, value))

@@ -24,7 +24,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, hintStrings: (String, String))(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, hintStrings: (String, String), isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
 @messageContent = {
 
@@ -32,7 +32,8 @@
 
 }
 
-@layout(pageTitle = title(form, messages("reportDateRange.title"))) {
+@layout(pageTitle = title(form, if(isMoreThanOneReport) messages("reportDateRange.pluralReport.title")
+else messages("reportDateRange.singleReport.title"))) {
 
 
     @formHelper(action = controllers.report.routes.ReportDateRangeController.onSubmit(mode), Symbol("autoComplete") -> "on") {
@@ -45,7 +46,8 @@
             @govukRadios(Radios(
                 fieldset = Some(Fieldset(
                 legend = Some(Legend(
-                    content = messages("reportDateRange.heading"),
+                    content = if(isMoreThanOneReport) messages("reportDateRange.pluralReport.title")
+                              else messages("reportDateRange.singleReport.title"),
                     classes = "govuk-fieldset__legend--xl",
                     isPageHeading = true
                     ))

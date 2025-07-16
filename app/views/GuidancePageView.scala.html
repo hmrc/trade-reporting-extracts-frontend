@@ -41,15 +41,26 @@
 
     <h1 class="govuk-heading-xl">@messages("guidancePage.heading")</h1>
     <p class="govuk-body">@messages("guidancePage.intro")</p>
-    <h3 class="govuk-heading-s">@messages("guidancePage.requirements.title")</h3>
+    <p class="govuk-body">@messages("guidancePage.mssComparison")</p>
+
+    <p class="govuk-body">@messages("guidancePage.benefits.title")</p>
     <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("guidancePage.requirements.item1")</li>
-        <li>@messages("guidancePage.requirements.item2")</li>
+        <li>@messages("guidancePage.benefits.item1")</li>
+        <li>@messages("guidancePage.benefits.item2")</li>
+        <li>@messages("guidancePage.benefits.item3")</li>
+        <li>@messages("guidancePage.benefits.item4")</li>
     </ul>
-    <p class="govuk-body">@messages("guidancePage.audit.title")</p>
-    <p class="govuk-body">@messages("guidancePage.responsibility")</p>
-    <p class="govuk-body">@messages("guidancePage.benefits")</p>
-    <h3 class="govuk-heading-l">@messages("guidancePage.reports.title")</h3>
+
+    <h2 class="govuk-heading-l">@messages("guidancePage.whoCanUse.title")</h2>
+    <p class="govuk-body">@messages("guidancePage.whoCanUse.intro")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("guidancePage.whoCanUse.item1")</li>
+        <li>@messages("guidancePage.whoCanUse.item2")</li>
+        <li>@messages("guidancePage.whoCanUse.item3")</li>
+        <li>@messages("guidancePage.whoCanUse.item4")</li>
+    </ul>
+
+    <h2 class="govuk-heading-l">@messages("guidancePage.reports.title")</h2>
     <p class="govuk-body">@messages("guidancePage.reports.intro")</p>
     <ul class="govuk-list govuk-list--bullet">
         <li>@messages("guidancePage.reports.item1")</li>
@@ -57,18 +68,30 @@
         <li>@messages("guidancePage.reports.item3")</li>
         <li>@messages("guidancePage.reports.item4")</li>
     </ul>
-    <p class="govuk-body">@messages("guidancePage.reports.note")</p>
+    <p class="govuk-body">@messages("guidancePage.reports.requestOptions")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("guidancePage.reports.requestOptions.item1")</li>
+        <li>@messages("guidancePage.reports.requestOptions.item2")</li>
+    </ul>
     <p class="govuk-body">@messages("guidancePage.dataLimitations")</p>
-    <p class="govuk-body">@messages("guidancePage.dataDescriptions") <a href="" class="govuk-link govuk-link--no-visited-state">@messages("guidancePage.dataDescriptionsLinkText")</a>
-    </p>
-    <h3 class="govuk-heading-l">@messages("guidancePage.requestReport.title")</h3>
-    <h3 class="govuk-heading-m">@messages("guidancePage.requestReport.trader")</h3>
-    <p class="govuk-body">@messages("guidancePage.requestReport.traderDetails")</p>
-    <h3 class="govuk-heading-m">@messages("guidancePage.requestReport.thirdParty")</h3>
-    <p class="govuk-body">@messages("guidancePage.requestReport.thirdPartyDetails")</p>
-    <h3 class="govuk-heading-l">@messages("guidancePage.dataDelivery.title")</h3>
-    <p class="govuk-body">@messages("guidancePage.dataDelivery.details")</p>
-    <p class="govuk-body">@messages("guidancePage.securityNote")</p>
+<p class="govuk-body"><a href="" class="govuk-link govuk-link--no-visited-state">@messages("guidancePage.dataDescriptions")</a></p>
+
+    <h2 class="govuk-heading-l">@messages("guidancePage.requirements.title")</h2>
+    <p class="govuk-body">@messages("guidancePage.requirements.intro")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("guidancePage.requirements.item1")</li>
+        <li>@messages("guidancePage.requirements.item2")</li>
+    </ul>
+    <p class="govuk-body">@messages("guidancePage.requirements.noEoriOrCds")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li><a href="https://www.gov.uk/eori/apply-for-eori" class="govuk-link govuk-link--no-visited-state">@messages("guidancePage.requirements.applyEori")</a></li>
+        <li><a href="https://www.gov.uk/guidance/get-access-to-the-customs-declaration-service" class="govuk-link govuk-link--no-visited-state">@messages("guidancePage.requirements.subscribeCds")</a></li>
+    </ul>
+
+    <h2 class="govuk-heading-l">@messages("guidancePage.requestReport.title")</h2>
+    <p class="govuk-body">@messages("guidancePage.requestReport.importer")</p>
+    <p class="govuk-body">@messages("guidancePage.requestReport.thirdParty")</p>
+    <p class="govuk-body">@messages("guidancePage.dataDelivery.title")</p>
 
     <div class="govuk-button-group">
         @govukButton(
@@ -76,5 +99,5 @@
         )
     </div>
 
-
 }
+
