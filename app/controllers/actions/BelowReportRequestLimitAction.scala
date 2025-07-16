@@ -20,15 +20,26 @@ import javax.inject.Inject
 import models.requests.{DataRequest, OptionalDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
+import services.TradeReportingExtractsService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BelowReportRequestLimitActionImpl @Inject() (implicit val executionContext: ExecutionContext) extends DataRequiredAction {
-  override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
-    if (below 25 per day eori per user) {
-      Future.successful(Right(DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers.get)))
-    } else {
-      Future.successful(Left(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad())))
+class BelowReportRequestLimitActionImpl @Inject() (
+  tradeReportingExtractsService: TradeReportingExtractsService
+)(implicit val executionContext: ExecutionContext)
+    extends BelowReportRequestLimitAction {
+
+  override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    tradeReportingExtractsService.hasReachedSubmissionLimit(request.eori).map { reached =>
+      if (!reached) {
+        Right(DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers))
+      } else {
+        Left(Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad()))
+      }
     }
   }
 }
