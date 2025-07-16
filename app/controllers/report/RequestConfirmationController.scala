@@ -58,7 +58,8 @@ class RequestConfirmationController @Inject() (
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
 
     for {
-      notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)requestRefs                      <- tradeReportingExtractsService.createReportRequest(
+      notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
+      requestRefs                      <- tradeReportingExtractsService.createReportRequest(
                                             reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
                                           )
       requestRef                        = requestRefs.mkString(", ")
