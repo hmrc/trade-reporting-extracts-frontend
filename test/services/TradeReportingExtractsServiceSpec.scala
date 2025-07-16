@@ -36,7 +36,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
   implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   "TradeReportingExtractsService" - {
-    val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+    val ec: ExecutionContext       = scala.concurrent.ExecutionContext.Implicits.global
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockConnector = mock[TradeReportingExtractsConnector]
     val mockMessages  = mock[Messages]
@@ -118,6 +119,30 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       result mustBe a[UpstreamErrorResponse]
 
+    }
+
+    "hasReachedSubmissionLimit" - {
+
+      "return true when connector returns true" in {
+        when(mockConnector.hasReachedSubmissionLimit("EORI123")(hc)).thenReturn(Future.successful(true))
+        val result = service.hasReachedSubmissionLimit("EORI123").futureValue
+        result mustBe true
+      }
+
+      "return false when connector returns false" in {
+        when(mockConnector.hasReachedSubmissionLimit("EORI123")(hc)).thenReturn(Future.successful(false))
+        val result = service.hasReachedSubmissionLimit("EORI123").futureValue
+        result mustBe false
+      }
+
+      "fail the future if the connector fails" in {
+        when(mockConnector.hasReachedSubmissionLimit("EORI123")(hc))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+        val thrown = intercept[RuntimeException] {
+          service.hasReachedSubmissionLimit("EORI123").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
     }
   }
 }
