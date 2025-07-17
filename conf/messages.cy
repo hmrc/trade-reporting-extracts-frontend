@@ -334,3 +334,6 @@ requestedReports.status.complete = cy: Complete
 requestedReports.status.error = cy: Error
 requestedReports.status.inProgress = cy: In progress
 requestedReports.status.noDataAvailable = cy: No data available
+
+tooManySubmissions.title = cy: You have reached the limit for report request submissions today
+tooManySubmissions.heading = cy: You have reached the limit for report request submissions today
