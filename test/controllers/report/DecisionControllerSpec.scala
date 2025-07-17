@@ -18,32 +18,27 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.actions.BelowReportRequestLimitAction
+import controllers.problem.routes
+import controllers.problem.routes.TooManySubmissionsController
 import forms.report.DecisionFormProvider
 import models.report.Decision
+import models.requests.DataRequest
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, FakeReportNavigator, Navigator, ReportNavigator}
+import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.DecisionPage
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.{Call, Result}
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
-import controllers.problem.routes
-import models.requests.DataRequest
-import play.api.mvc.{AnyContent, Result}
-import controllers.actions.BelowReportRequestLimitAction
-import org.scalatestplus.mockito.MockitoSugar
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import play.api.test.Helpers.stubMessagesControllerComponents
-import play.api.mvc.Results.Redirect
-import controllers.problem.routes.TooManySubmissionsController
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
@@ -95,12 +90,24 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
+        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+          Future.successful(
+            Right(
+              DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
+            )
+          )
+
+        override protected def executionContext = global
+      }
+
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application                      =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
+            bind[BelowReportRequestLimitAction].toInstance(mockAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[FrontendAppConfig].toInstance(mockAppConfig)
