@@ -43,6 +43,17 @@ import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
+  val mockPassLimitAction = new BelowReportRequestLimitAction with MockitoSugar {
+    override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+      Future.successful(
+        Right(
+          DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
+        )
+      )
+
+    override protected def executionContext = global
+  }
+
   def onwardRoute = Call("GET", "/request-customs-declaration-data/which-eori")
 
   lazy val decisionRoute = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
@@ -54,7 +65,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, decisionRoute)
@@ -72,7 +87,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = UserAnswers(userAnswersId).set(DecisionPage, Decision.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, decisionRoute)
@@ -90,16 +109,6 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
-        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
-          Future.successful(
-            Right(
-              DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
-            )
-          )
-
-        override protected def executionContext = global
-      }
 
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
@@ -107,7 +116,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
       val application                      =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[BelowReportRequestLimitAction].toInstance(mockAction),
+            bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[FrontendAppConfig].toInstance(mockAppConfig)
@@ -128,7 +137,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request =
