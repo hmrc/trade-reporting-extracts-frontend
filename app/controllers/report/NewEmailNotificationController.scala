@@ -19,6 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.NewEmailNotificationFormProvider
 import models.Mode
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
 import pages.report.NewEmailNotificationPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -38,6 +39,7 @@ class NewEmailNotificationController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: NewEmailNotificationFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: NewEmailNotificationView
 )(implicit ec: ExecutionContext)
@@ -65,8 +67,10 @@ class NewEmailNotificationController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(NewEmailNotificationPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(NewEmailNotificationPage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(NewEmailNotificationPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(NewEmailNotificationPage, mode, answersWithNav))
         )
   }
 }

@@ -18,7 +18,7 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.EoriRoleFormProvider
-import models.report.{Decision, ReportTypeImport}
+import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import models.{EoriRole, Mode}
 import models.report.Decision.Import
 import navigation.ReportNavigator
@@ -41,6 +41,7 @@ class EoriRoleController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: EoriRoleFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: EoriRoleView
 )(implicit ec: ExecutionContext)
@@ -78,8 +79,10 @@ class EoriRoleController @Inject() (
                                       .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
                                   }
                                 )
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EoriRolePage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(EoriRolePage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(EoriRolePage, mode, answersWithNav))
         )
   }
 }

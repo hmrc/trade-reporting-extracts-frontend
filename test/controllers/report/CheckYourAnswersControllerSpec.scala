@@ -18,6 +18,9 @@ package controllers.report
 
 import base.SpecBase
 import controllers.report
+import models.SectionNavigation
+import navigation.ReportNavigator
+import pages.report.CheckYourAnswersPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.govuk.all.SummaryListViewModel
@@ -26,10 +29,13 @@ import views.html.report.CheckYourAnswersView
 class CheckYourAnswersControllerSpec extends SpecBase {
 
   "CheckYourAnswers Controller" - {
+    val sectionNav = SectionNavigation("reportRequestSection")
 
     "must return OK and the correct view for a GET" in {
+      val userAnswers =
+        emptyUserAnswers.set(sectionNav, "/request-customs-declaration-data/check-your-answers").success.value
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, report.routes.CheckYourAnswersController.onPageLoad().url)
@@ -41,6 +47,24 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to the next page for a POST" in {
+      val userAnswers =
+        emptyUserAnswers.set(sectionNav, "/request-customs-declaration-data/check-your-answers").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, report.routes.CheckYourAnswersController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestConfirmationController
+          .onPageLoad()
+          .url
       }
     }
   }

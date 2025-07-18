@@ -19,7 +19,7 @@ package controllers.report
 import controllers.actions.*
 import forms.report.ReportDateRangeFormProvider
 import models.{CheckMode, Mode}
-import models.report.ReportDateRange
+import models.report.{ReportDateRange, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.ReportDateRangePage
 import play.api.data.Form
@@ -43,6 +43,7 @@ class ReportDateRangeController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ReportDateRangeFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: ReportDateRangeView,
   clock: Clock
@@ -71,8 +72,10 @@ class ReportDateRangeController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportDateRangePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(ReportDateRangePage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(ReportDateRangePage, mode, answersWithNav))
         )
   }
 

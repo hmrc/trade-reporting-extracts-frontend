@@ -20,8 +20,7 @@ import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.DecisionFormProvider
 import models.{Mode, UserAnswers}
-import models.report.Decision
-import models.report.ChooseEori
+import models.report.{ChooseEori, Decision, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.{ChooseEoriPage, DecisionPage}
 import play.api.i18n.MessagesApi
@@ -42,6 +41,7 @@ class DecisionController @Inject() (
   requireData: DataRequiredAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
+  reportRequestSection: ReportRequestSection,
   override val messagesApi: MessagesApi,
   val controllerComponents: MessagesControllerComponents,
   appConfig: FrontendAppConfig
@@ -64,13 +64,15 @@ class DecisionController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value => {
             val updatedAnswersTry: Try[UserAnswers] = for {
-              withDecision <- request.userAnswers.set(DecisionPage, value)
-              enriched     <- if (!appConfig.thirdPartyEnabled) {
-                                withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
-                              } else {
-                                Success(withDecision)
-                              }
-            } yield enriched
+              withDecision  <- request.userAnswers.set(DecisionPage, value)
+              enriched      <- if (!appConfig.thirdPartyEnabled) {
+                                 withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
+                               } else {
+                                 Success(withDecision)
+                               }
+              redirectUrl    = navigator.nextPage(DecisionPage, mode, enriched).url
+              answersWithNav = reportRequestSection.saveNavigation(enriched, redirectUrl)
+            } yield answersWithNav
 
             sessionRepository.set(updatedAnswersTry.get).map { _ =>
               Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswersTry.get))

@@ -334,3 +334,15 @@ requestedReports.status.complete = cy: Complete
 requestedReports.status.error = cy: Error
 requestedReports.status.inProgress = cy: In progress
 requestedReports.status.noDataAvailable = cy: No data available
+
+alreadySubmitted.title = cy: You have already submitted this report request
+alreadySubmitted.heading = cy: You have already submitted this report request
+alreadySubmitted.message1 = cy: You cannot go back to edit this request.
+alreadySubmitted.message2 = cy: You can:
+alreadySubmitted.bullet1 = cy: view your requested reports
+alreadySubmitted.bullet2 = cy: request a new report
+alreadySubmitted.message3 = cy: Go to the homepage
+
+missingDependentAnswers.title = cy: There was a problem
+missingDependentAnswers.heading = cy: There was a problem
+missingDependentAnswers.message = cy: You need to answer all the remaining questions before you can return to check your answers and make additional changes.

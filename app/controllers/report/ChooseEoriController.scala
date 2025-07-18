@@ -20,8 +20,9 @@ import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.ChooseEoriFormProvider
 import models.Mode
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.ChooseEoriPage
+import pages.report.{ChooseEoriPage, MaybeAdditionalEmailPage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -38,6 +39,7 @@ class ChooseEoriController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ChooseEoriFormProvider,
+  reportRequestSection: ReportRequestSection,
   view: ChooseEoriView,
   val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
@@ -61,8 +63,10 @@ class ChooseEoriController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
         )
   }
 }
