@@ -25,9 +25,14 @@
 
     <h1 class="govuk-heading-xl">@messages("missingDependentAnswers.heading")</h1>
 
+    <p class="govuk-body">@messages("missingDependentAnswers.message")</p>
 
-  @govukButton(
-  ButtonViewModel(messages("site.continue")).asLink(redirectUrl)
-  )
-</br>
+
+
+    @govukButton(
+      ButtonViewModel(messages("site.continue")).asLink(redirectUrl)
+      )
+
+    </br>
+
 }

@@ -335,8 +335,14 @@ requestedReports.status.error = Error
 requestedReports.status.inProgress = In Progress
 requestedReports.status.noDataAvailable = No data available
 
-alreadySubmitted.title = You have already submitted
-alreadySubmitted.heading = You have already submitted
+alreadySubmitted.title = You have already submitted this report request
+alreadySubmitted.heading = You have already submitted this report request
+alreadySubmitted.message1 = You cannot go back to edit this request.
+alreadySubmitted.message2 = You can:
+alreadySubmitted.bullet1 = view your requested reports
+alreadySubmitted.bullet2 = request a new report
+alreadySubmitted.message3 = Go to the homepage
 
-missingDependentAnswers.title = missingDependentAnswers
-missingDependentAnswers.heading = missingDependentAnswers
+missingDependentAnswers.title = There was a problem
+missingDependentAnswers.heading = There was a problem
+missingDependentAnswers.message = You need to answer all the remaining questions before you can return to check your answers and make additional changes.

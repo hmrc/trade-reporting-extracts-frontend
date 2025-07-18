@@ -3,4 +3,4 @@ GET         /problem/unauthorised                                               
 
 GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
 
-GET        /missing-answers                       controllers.problem.MissingDependentAnswersController.onPageLoad()
+GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()

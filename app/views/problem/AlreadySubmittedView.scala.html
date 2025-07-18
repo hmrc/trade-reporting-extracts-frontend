@@ -25,8 +25,21 @@
 
     <h1 class="govuk-heading-xl">@messages("alreadySubmitted.heading")</h1>
 
-    @govukButton(
-    ButtonViewModel(messages("site.continue")).asLink(routes.DashboardController.onPageLoad().url)
-    )
-  </br>
+    <p class="govuk-body">@messages("alreadySubmitted.message1")</p>
+
+    <p class="govuk-body">@messages("alreadySubmitted.message2")</p>
+
+
+    <ul class="govuk-list--spaced govuk-list--bullet">
+        <li class="govuk-body">
+            <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.bullet1")</a>
+        </li>
+        <li class="govuk-body">
+            <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.bullet2")</a>
+        </li>
+    </ul>
+    <p class="govuk-body">
+        <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.message3")</a>
+    </p>
+
 }

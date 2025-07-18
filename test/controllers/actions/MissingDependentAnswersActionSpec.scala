@@ -26,6 +26,7 @@ import models.requests.DataRequest
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import uk.gov.hmrc.auth.core.AffinityGroup
 
+import java.lang.ProcessBuilder.Redirect
 import scala.concurrent.{ExecutionContext, Future}
 
 class MissingDependentAnswersActionSpec extends SpecBase with ScalaFutures with MockitoSugar {
@@ -59,10 +60,11 @@ class MissingDependentAnswersActionSpec extends SpecBase with ScalaFutures with 
 
       val dataRequest = DataRequest(request, "userId", "eori", AffinityGroup.Individual, userAnswers)
 
-      action.publicRefine(dataRequest).map {
+      action.publicRefine(dataRequest).futureValue match {
         case Left(result) =>
-          result.header.headers("Location") should include("problem/missing-dependent-answers")
-        case Right(_)     => fail("Should redirect")
+          result.header.headers("Location") should include("/problem-missing-answers")
+        case Right(_)     =>
+          fail("Should redirect")
       }
     }
 
@@ -70,10 +72,11 @@ class MissingDependentAnswersActionSpec extends SpecBase with ScalaFutures with 
       val userAnswers = emptyUserAnswers
       val dataRequest = DataRequest(request, "userId", "eori", AffinityGroup.Individual, userAnswers)
 
-      action.publicRefine(dataRequest).map {
+      action.publicRefine(dataRequest).futureValue match {
         case Left(result) =>
-          result.header.headers("Location") should include("problem/missing-dependent-answers")
-        case Right(_)     => fail("Should redirect")
+          result.header.headers("Location") should include("/problem-missing-answers")
+        case Right(_)     =>
+          fail("Should redirect")
       }
     }
   }
