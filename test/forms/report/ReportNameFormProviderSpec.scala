@@ -28,7 +28,7 @@ class ReportNameFormProviderSpec extends StringFieldBehaviours {
   val invalidCharactersKey = "reportName.error.invalidCharacters"
   val maxLength: Int       = maxNameLength
 
-  val form = new ReportNameFormProvider()()
+  val form = new ReportNameFormProvider()(requiredKey, lengthKey, invalidCharactersKey)
 
   ".value" - {
 

@@ -25,9 +25,15 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("reportName.title"))) {
+@content = {
+<p class="govuk-body">@messages("reportName.message")</p>
+<p class="govuk-hint">@messages("reportName.hint")</p>
+}
+
+@layout(pageTitle = title(form, if(isMoreThanOneReport) messages("reportName.pluralReport.title")
+            else messages("reportName.singleReport.title"))) {
 
     @formHelper(action = controllers.report.routes.ReportNameController.onSubmit(mode)) {
 
@@ -38,9 +44,10 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("reportName.heading")).asPageHeading(LabelSize.Large)
+                label = LabelViewModel(if(isMoreThanOneReport) messages("reportName.pluralReport.heading")
+                            else messages("reportName.singleReport.heading")).asPageHeading(LabelSize.Large)
             )
-            .withWidth(TwoThirds).withHint(HintViewModel(messages("reportName.hint")))
+            .withWidth(TwoThirds).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(

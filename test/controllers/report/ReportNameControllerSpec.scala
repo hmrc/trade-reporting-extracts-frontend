@@ -37,10 +37,14 @@ import scala.concurrent.Future
 
 class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/choose-email-address")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/add-another-email")
 
   val formProvider       = new ReportNameFormProvider()
-  val form: Form[String] = formProvider()
+  val form: Form[String] = formProvider(
+    "reportName.error.required",
+    "reportName.error.length",
+    "reportName.error.invalid"
+  )
 
   lazy val reportNameRoute: String = controllers.report.routes.ReportNameController.onPageLoad(NormalMode).url
 
@@ -57,8 +61,8 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[ReportNameView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        status(result) mustBe OK
+        contentAsString(result) mustBe view(form, NormalMode, false)(request, messages(application)).toString
       }
     }
 
@@ -75,8 +79,11 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
+        status(result) mustBe OK
+        contentAsString(result) mustBe view(form.fill("answer"), NormalMode, false)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -123,8 +130,8 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        status(result) mustBe BAD_REQUEST
+        contentAsString(result) mustBe view(boundForm, NormalMode, false)(request, messages(application)).toString
       }
     }
 

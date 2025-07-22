@@ -25,12 +25,16 @@ import javax.inject.Inject
 
 class ReportNameFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(
+    requiredKey: String,
+    lengthKey: String,
+    invalidKey: String
+  ): Form[String] =
     Form(
-      "value" -> text("reportName.error.required")
-        .verifying(maxLength(maxNameLength, "reportName.error.length"))
+      "value" -> text(requiredKey)
+        .verifying(maxLength(maxNameLength, lengthKey))
         .verifying(
-          regexp(StringFieldRegex.reportNameRegex, "reportName.error.invalidCharacters")
+          regexp(StringFieldRegex.reportNameRegex, invalidKey)
         )
     )
 }

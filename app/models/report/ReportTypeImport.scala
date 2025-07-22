@@ -18,8 +18,10 @@ package models.report
 
 import models.{Enumerable, WithName}
 import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import viewmodels.govuk.all.HintViewModel
 import viewmodels.govuk.checkbox.*
 
 sealed trait ReportTypeImport
@@ -46,7 +48,7 @@ object ReportTypeImport extends Enumerable.Implicits {
         fieldId = "value",
         index = index,
         value = value.toString
-      )
+      ).withHint(Hint(content = Text(messages(s"reportTypeImport.hint.${value.toString}"))))
     }
   }
 

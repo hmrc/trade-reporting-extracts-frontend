@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/report-type")
+  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
   def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
 
   lazy val eoriRoleRoute: String = controllers.report.routes.EoriRoleController.onPageLoad(NormalMode).url

@@ -24,8 +24,8 @@ import javax.inject.Inject
 
 class ReportDateRangeFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[ReportDateRange] =
+  def apply(errorKey: String): Form[ReportDateRange] =
     Form(
-      "value" -> enumerable[ReportDateRange]("reportDateRange.error.required")
+      "value" -> enumerable[ReportDateRange](errorKey)
     )
 }
