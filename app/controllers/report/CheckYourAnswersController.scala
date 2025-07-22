@@ -19,7 +19,7 @@ package controllers.report
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.BaseController
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, MissingDependentAnswersAction, PreventBackNavigationAfterSubmissionAction}
 import models.report.ReportTypeImport
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
@@ -38,11 +38,17 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   navigator: ReportNavigator,
+  preventBackNavigationAfterSubmissionAction: PreventBackNavigationAfterSubmissionAction,
+  missingDependentAnswersAction: MissingDependentAnswersAction,
   val controllerComponents: MessagesControllerComponents,
   view: CheckYourAnswersView
 ) extends BaseController {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify
+    andThen getData
+    andThen requireData
+    andThen preventBackNavigationAfterSubmissionAction
+    andThen missingDependentAnswersAction) { implicit request =>
 
     val reportTypeImports: Set[ReportTypeImport] =
       request.userAnswers.get(pages.report.ReportTypeImportPage).getOrElse(Set.empty)
@@ -64,7 +70,11 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
     Ok(view(list))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(): Action[AnyContent] = (identify
+    andThen getData
+    andThen requireData
+    andThen preventBackNavigationAfterSubmissionAction
+    andThen missingDependentAnswersAction).async { implicit request =>
     Future.successful {
       Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers))
     }

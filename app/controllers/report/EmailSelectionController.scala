@@ -20,6 +20,7 @@ import controllers.BaseController
 import controllers.actions._
 import forms.report.EmailSelectionFormProvider
 import models.Mode
+import models.report.{EmailSelection, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
 import play.api.data.Form
@@ -40,6 +41,7 @@ class EmailSelectionController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: EmailSelectionFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: EmailSelectionView,
   tradeReportingExtractsService: TradeReportingExtractsService
@@ -74,8 +76,10 @@ class EmailSelectionController @Inject() (
             selectedValues =>
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(EmailSelectionPage, selectedValues))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, updatedAnswers))
+                redirectUrl     = navigator.nextPage(EmailSelectionPage, mode, updatedAnswers).url
+                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _              <- sessionRepository.set(answersWithNav)
+              } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, answersWithNav))
           )
       }
     }

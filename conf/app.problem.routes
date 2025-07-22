@@ -1,2 +1,6 @@
 GET         /problem/there-is-a-problem                                                                     controllers.problem.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 GET         /problem/unauthorised                                                                                   controllers.problem.UnauthorisedController.onPageLoad()
+
+GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
+
+GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()

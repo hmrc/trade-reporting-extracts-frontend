@@ -18,10 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.report.{Decision, ReportTypeImport}
+import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import models.Mode
 import navigation.ReportNavigator
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, MaybeAdditionalEmailPage, ReportTypeImportPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -41,6 +41,7 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: AccountsYouHaveAuthorityOverImportFormProvider,
+  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   govukInput: GovukInput,
   view: AccountsYouHaveAuthorityOverImportView,
@@ -91,8 +92,10 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
                                     }
                                     .getOrElse(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
                                 )
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers))
+              redirectUrl     = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, answersWithNav))
         )
   }
 }
