@@ -1,4 +1,4 @@
-service.name = Trade Reporting Extracts
+service.name = Get customs declaration data for imports and exports
 
 site.back = Back
 site.remove = Remove
@@ -88,7 +88,7 @@ guidancePage.more = More
 guidancePage.start = Start now
 
 dashboard.title = dashboard
-dashboard.heading = Trade reporting and extracts
+dashboard.heading = Get customs declaration data for imports and exports
 
 dashboard.reports.heading = Reports
 dashboard.reports.subHeading = Manage and view your reports
@@ -123,7 +123,7 @@ contactDetails.address = Address
 unauthorisedCdsEnrolment.title = There is a problem
 unauthorisedCdsEnrolment.heading = There is a problem
 unauthorisedCdsEnrolment.p1 = The details signed in are not subscribed to the Customs Declaration Service (CDS).
-unauthorisedCdsEnrolment.cdsLink = You must be subscribed to CDS before you can use Trade Reporting Extracts (opens in new tab).
+unauthorisedCdsEnrolment.cdsLink = You must be subscribed to CDS before you can use Get customs declaration data for imports and exports (opens in new tab).
 unauthorisedCdsEnrolment.p2.part1 = If you are subscribed to CDS,
 unauthorisedCdsEnrolment.p2.linkText = sign out
 unauthorisedCdsEnrolment.p2.part2 = and sign in with the correct details.
