@@ -30,8 +30,7 @@ class CustomRequestEndDateFormProvider @Inject() extends Mappings {
   private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
 
   def apply(startDate: LocalDate)(implicit messages: Messages): Form[LocalDate] =
-
-    val maxReportLength = startDate.plusDays(31)
+    val maxReportLength = startDate.plusDays(30)
     Form(
       "value" -> localDate(
         invalidKey = "customRequestEndDate.error.invalid",

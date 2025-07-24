@@ -109,7 +109,7 @@ class CustomRequestEndDateController @Inject() (
       if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
         LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatter)
       } else {
-        startDate.plusDays(31).format(formatter)
+        startDate.plusDays(30).format(formatter)
       }
     } else {
       startDate.format(formatter)

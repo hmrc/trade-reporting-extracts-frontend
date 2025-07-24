@@ -48,7 +48,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
     mostRecentPossibleStartDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
   private val startDate                         = LocalDate.now(ZoneOffset.UTC).minusYears(1)
   private val startDateString                   = startDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-  private val startDatePlus31DaysString         = startDate.plusDays(31).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+  private val startDatePlus30DaysString         = startDate.plusDays(30).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
 
   private def form = formProvider(mostRecentPossibleStartDate)
 
@@ -82,7 +82,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus31DaysString, false)(
+        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus30DaysString, false)(
           getRequest(),
           messages(application)
         ).toString
@@ -109,14 +109,14 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus31DaysString, true)(
+        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus30DaysString, true)(
           getRequest(),
           messages(application)
         ).toString
       }
     }
 
-    "must return maximum date as today minus 2 days when start date +31days is in the future" in {
+    "must return maximum date as today minus 2 days when start date + 30days is in the future" in {
 
       val application = applicationBuilder(userAnswers =
         Some(
@@ -171,7 +171,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           form.fill(startDate),
           NormalMode,
           startDateString,
-          startDatePlus31DaysString,
+          startDatePlus30DaysString,
           false
         )(
           getRequest(),
@@ -236,7 +236,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           boundForm,
           NormalMode,
           startDateString,
-          startDatePlus31DaysString,
+          startDatePlus30DaysString,
           false
         )(request, messages(application)).toString
       }
