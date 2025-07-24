@@ -17,6 +17,7 @@
 package connectors
 
 import base.SpecBase
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, urlEqualTo}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
@@ -191,6 +192,68 @@ class TradeReportingExtractsConnectorSpec
             .futureValue
 
           result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "hasReachedSubmissionLimit" - {
+
+      val eori = "GB123456789000"
+      val url  = s"/trade-reporting-extracts/report-submission-limit/$eori"
+
+      "must return false when response is NO_CONTENT (204)" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(
+                WireMock.urlEqualTo(url)
+              )
+              .willReturn(
+                WireMock.aResponse().withStatus(204)
+              )
+          )
+          val result    = connector.hasReachedSubmissionLimit(eori).futureValue
+          result mustBe false
+        }
+      }
+
+      "must return true when response is TOO_MANY_REQUESTS (429)" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(
+                WireMock.urlEqualTo(url)
+              )
+              .willReturn(
+                WireMock.aResponse().withStatus(429)
+              )
+          )
+          val result    = connector.hasReachedSubmissionLimit(eori).futureValue
+          result mustBe true
+        }
+      }
+
+      "must throw a RuntimeException for unexpected status" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(
+                WireMock.urlEqualTo(url)
+              )
+              .willReturn(
+                WireMock.aResponse().withStatus(500)
+              )
+          )
+          val thrown    = intercept[RuntimeException] {
+            connector.hasReachedSubmissionLimit(eori).futureValue
+          }
+          thrown.getMessage must include("Unexpected response: 500")
         }
       }
     }

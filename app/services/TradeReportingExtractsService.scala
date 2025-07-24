@@ -74,4 +74,7 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
   ): Future[Seq[String]] =
     connector.createReportRequest(reportRequestAnswers)
 
+  def hasReachedSubmissionLimit(eori: String)(implicit hc: HeaderCarrier): Future[Boolean] =
+    connector.hasReachedSubmissionLimit(eori)
+
 }

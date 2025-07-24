@@ -17,7 +17,7 @@
 package controllers.report
 
 import controllers.BaseController
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{BelowReportRequestLimitAction, DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.DecisionFormProvider
 import models.{Mode, UserAnswers}
 import models.report.{ChooseEori, Decision, ReportRequestSection}
@@ -39,6 +39,7 @@ class DecisionController @Inject() (
   view: DecisionView,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  belowReportRequestLimitAction: BelowReportRequestLimitAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
   reportRequestSection: ReportRequestSection,
@@ -51,13 +52,13 @@ class DecisionController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData) { implicit request =>
+    (identify andThen getData andThen requireData andThen belowReportRequestLimitAction) { implicit request =>
       val preparedForm = request.userAnswers.get(DecisionPage).fold(form)(form.fill)
       Ok(view(preparedForm, mode))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (identify andThen getData andThen requireData andThen belowReportRequestLimitAction).async { implicit request =>
       form
         .bindFromRequest()
         .fold(

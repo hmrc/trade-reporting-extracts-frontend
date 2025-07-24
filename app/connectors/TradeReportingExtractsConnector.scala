@@ -27,7 +27,7 @@ import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.NotificationEmail
-import play.api.http.Status.OK
+import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -38,6 +38,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.writeableOf_JsValue
+import play.api.mvc.Results.{NoContent, TooManyRequests}
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
@@ -45,7 +46,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 ) extends Logging {
 
   private val defaultPath                                                = "conf/resources/eoriList.json"
-  // TODO replace with a get request to the backend upon implementation of EORI list
+  // TODO Remove with third party
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
     val path = Paths.get(pathString)
 
@@ -58,25 +59,6 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 
       case Failure(ex) =>
         val errMsg = s"Failed to read or parse EORI list from file: ${ex.getMessage}"
-        logger.error(errMsg)
-        Future.failed(new RuntimeException(errMsg, ex))
-    }
-  }
-
-  private val reportsPath: String                                                                = "conf/resources/availableReportsData.json"
-  // TODO replace with a get request to the backend upon implementation of available reports
-  def getAvailableReportsV2(pathString: String = reportsPath): Future[AvailableReportsViewModel] = {
-    val path = Paths.get(pathString)
-
-    Try {
-      val jsonString = new String(Files.readAllBytes(path), "UTF-8")
-      Json.parse(jsonString).as[AvailableReportsViewModel]
-    } match {
-      case Success(reports) =>
-        Future.successful(reports)
-
-      case Failure(ex) =>
-        val errMsg = s"Failed to available reports from file: ${ex.getMessage}"
         logger.error(errMsg)
         Future.failed(new RuntimeException(errMsg, ex))
     }
@@ -178,6 +160,23 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                 response.status
               )
             )
+        }
+      }
+
+  def hasReachedSubmissionLimit(eori: String)(implicit hc: HeaderCarrier): Future[Boolean] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-submission-limit/$eori")
+      .setHeader("Content-Type" -> "application/json")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case NO_CONTENT        => false
+          case TOO_MANY_REQUESTS => true
+          case _                 =>
+            logger.error(
+              s"Unexpected response from /trade-reporting-extracts/report-submission-limit: ${response.status}"
+            )
+            throw new RuntimeException(s"Unexpected response: ${response.status}")
         }
       }
 }

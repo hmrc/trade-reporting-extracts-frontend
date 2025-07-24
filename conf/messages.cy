@@ -359,3 +359,6 @@ alreadySubmitted.message3 = cy: Go to the homepage
 missingDependentAnswers.title = cy: There was a problem
 missingDependentAnswers.heading = cy: There was a problem
 missingDependentAnswers.message = cy: You need to answer all the remaining questions before you can return to check your answers and make additional changes.
+
+tooManySubmissions.title = cy: You have reached the limit for report request submissions today
+tooManySubmissions.heading = cy: You have reached the limit for report request submissions today

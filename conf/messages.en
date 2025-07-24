@@ -359,3 +359,6 @@ alreadySubmitted.message3 = Go to the homepage
 missingDependentAnswers.title = There was a problem
 missingDependentAnswers.heading = There was a problem
 missingDependentAnswers.message = You need to answer all the remaining questions before you can return to check your answers and make additional changes.
+
+tooManySubmissions.title = You have reached the limit for report request submissions today
+tooManySubmissions.heading = You have reached the limit for report request submissions today

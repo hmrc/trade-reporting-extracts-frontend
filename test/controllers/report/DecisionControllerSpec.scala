@@ -18,26 +18,41 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.actions.BelowReportRequestLimitAction
+import controllers.problem.routes
+import controllers.problem.routes.TooManySubmissionsController
 import forms.report.DecisionFormProvider
 import models.report.Decision
+import models.requests.DataRequest
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, FakeReportNavigator, Navigator, ReportNavigator}
+import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.DecisionPage
-import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.{Call, Result}
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
-import controllers.problem.routes
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
+
+  val mockPassLimitAction = new BelowReportRequestLimitAction with MockitoSugar {
+    override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+      Future.successful(
+        Right(
+          DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
+        )
+      )
+
+    override protected def executionContext = global
+  }
 
   def onwardRoute = Call("GET", "/request-customs-declaration-data/which-eori")
 
@@ -50,7 +65,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, decisionRoute)
@@ -68,7 +87,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = UserAnswers(userAnswersId).set(DecisionPage, Decision.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, decisionRoute)
@@ -86,12 +109,14 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
+
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application                      =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
+            bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[FrontendAppConfig].toInstance(mockAppConfig)
@@ -112,7 +137,11 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request =
@@ -160,5 +189,50 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to TooManySubmissionsController for a GET when submission limit is reached" in {
+      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
+        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
+
+        override protected def executionContext = global
+      }
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, decisionRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
+      }
+    }
+
+    "must redirect to TooManySubmissionsController for a POST when submission limit is reached" in {
+      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
+        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
+
+        override protected def executionContext = global
+      }
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, decisionRoute)
+          .withFormUrlEncodedBody(("value", Decision.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
+      }
+    }
+
   }
 }
