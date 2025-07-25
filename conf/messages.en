@@ -97,8 +97,8 @@ dashboard.reports.requestedReports = Requested reports
 dashboard.reports.availableForDownload = Available to download
 dashboard.reports.reportHistory = Report history
 
-dashboard.account.heading = Your Account
-dashboard.account.subHeading = View your account information
+dashboard.account.heading = Your account
+dashboard.account.subHeading = Manage your account information
 dashboard.account.yourDetails = Your contact details
 dashboard.account.messages = Notifications
 
@@ -118,7 +118,7 @@ contactDetails.heading = Your contact details
 contactDetails.intro = These are the contact details you gave when you registered for your EORI number.
 contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
-contactDetails.address = Address
+contactDetails.email = Email address
 
 unauthorisedCdsEnrolment.title = There is a problem
 unauthorisedCdsEnrolment.heading = There is a problem

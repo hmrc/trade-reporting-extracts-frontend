@@ -19,6 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
+import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -29,6 +30,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.http.client.HttpClientV2
 
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -142,6 +144,43 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.hasReachedSubmissionLimit("EORI123").futureValue
         }
         thrown.getMessage must include("error")
+      }
+    }
+
+    "getUserDetails" - {
+
+      "should return user details when connector returns them" in {
+
+        val companyInformation = CompanyInformation(
+          name = "Test Company",
+          consent = "1",
+          address = AddressInformation(
+            streetAndNumber = "123 Test Street",
+            city = "Test City",
+            postalCode = Some("12345"),
+            countryCode = "GB"
+          )
+        )
+        val eori               = "GB123456789000"
+        val userDetails        = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq.empty,
+          companyInformation = companyInformation,
+          notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now())
+        )
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
+        val result             = service.getUserDetails(eori).futureValue
+        result mustBe userDetails
+      }
+
+      "should fail when connector throws an exception" in {
+        val eori   = "GB123456789000"
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.failed(new RuntimeException("Connector error")))
+        val thrown = intercept[RuntimeException] {
+          service.getUserDetails(eori).futureValue
+        }
+        thrown.getMessage must include("Connector error")
       }
     }
   }
