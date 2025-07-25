@@ -44,7 +44,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
   private implicit val messages: Messages = stubMessages()
 
   def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
-  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-rage")
+  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-range")
 
   val formProvider       = new AccountsYouHaveAuthorityOverImportFormProvider()
   val form: Form[String] = formProvider()
