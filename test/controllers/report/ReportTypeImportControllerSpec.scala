@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/date-rage")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/date-range")
 
   lazy val reportTypeImportRoute: String =
     controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode).url
