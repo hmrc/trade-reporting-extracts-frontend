@@ -185,12 +185,11 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/get-user-detail")
       .withBody(Json.obj("eori" -> eori))
       .execute[UserDetails]
-      .flatMap {
-        response => Future.successful(response)
+      .flatMap { response =>
+        Future.successful(response)
       }
-      .recover {
-        case ex: Exception =>
-          logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
-          throw ex
+      .recover { case ex: Exception =>
+        logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
+        throw ex
       }
 }

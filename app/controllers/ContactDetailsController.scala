@@ -36,13 +36,15 @@ class ContactDetailsController @Inject() (
   view: ContactDetailsView
 )(implicit ec: ExecutionContext)
     extends BaseController {
-def onPageLoad: Action[AnyContent] = identify async { implicit request =>
+  def onPageLoad: Action[AnyContent] = identify async { implicit request =>
     tradeReportingExtractsService.getUserDetails(request.eori).map { userDetails =>
-      Ok(view(
-        userDetails.companyInformation,
-        userDetails.eori,
-        userDetails.notificationEmail.address
-      ))
+      Ok(
+        view(
+          userDetails.companyInformation,
+          userDetails.eori,
+          userDetails.notificationEmail.address
+        )
+      )
     }
   }
 }
