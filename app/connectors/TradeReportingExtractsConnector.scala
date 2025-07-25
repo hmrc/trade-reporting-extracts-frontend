@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.NotificationEmail
+import models.{NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -178,5 +178,19 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             )
             throw new RuntimeException(s"Unexpected response: ${response.status}")
         }
+      }
+
+  def getUserDetails(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/get-user-detail")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[UserDetails]
+      .flatMap {
+        response => Future.successful(response)
+      }
+      .recover {
+        case ex: Exception =>
+          logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
+          throw ex
       }
 }

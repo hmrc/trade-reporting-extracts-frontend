@@ -18,17 +18,20 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
+import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class TradeReportingExtractsConnectorSpec
@@ -254,6 +257,66 @@ class TradeReportingExtractsConnectorSpec
             connector.hasReachedSubmissionLimit(eori).futureValue
           }
           thrown.getMessage must include("Unexpected response: 500")
+        }
+      }
+    }
+
+    "getUserDetails" - {
+
+      "must return user details when the API call is successful" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          val eori                = "GB123456789000"
+          val expectedUserDetails = UserDetails(
+            eori = eori,
+            additionalEmails = Seq.empty,
+            authorisedUsers = Seq.empty,
+            companyInformation = CompanyInformation(
+              name = "Test Company",
+              consent = "1",
+              address = AddressInformation(
+                streetAndNumber = "123 Test Street",
+                city = "Test City",
+                postalCode = Some("12345"),
+                countryCode = "GB"
+              )
+            ),
+            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now())
+          )
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+              .willReturn(
+                ok(Json.toJson(expectedUserDetails).toString())
+              )
+          )
+
+          val result = connector.getUserDetails(eori).futureValue
+          result mustBe expectedUserDetails
+        }
+      }
+
+      "must throw an exception when the API call fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          val eori      = "GB123456789000"
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+              .willReturn(
+                aResponse().withStatus(500).withBody("Failed to fetch getUserDetails")
+              )
+          )
+          val thrown    = intercept[RuntimeException] {
+            connector.getUserDetails(eori).futureValue
+          }
+          thrown.getMessage must include("Failed to fetch getUserDetails")
         }
       }
     }

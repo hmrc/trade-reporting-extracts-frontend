@@ -97,8 +97,8 @@ dashboard.reports.requestedReports = cy: Requested reports
 dashboard.reports.availableForDownload = cy: Available to download
 dashboard.reports.reportHistory = cy: Report history
 
-dashboard.account.heading = cy: Your Account
-dashboard.account.subHeading = cy: View your account information
+dashboard.account.heading = cy: Your account
+dashboard.account.subHeading = cy: Manage your account information
 dashboard.account.yourDetails = cy: Your contact details
 dashboard.account.messages = cy: Notifications
 
@@ -118,7 +118,7 @@ contactDetails.heading = cy: Your contact details
 contactDetails.intro = cy: These are the contact details you gave when you registered for your EORI number.
 contactDetails.name = cy: Name
 contactDetails.eoriNumber = cy: EORI number
-contactDetails.address = cy: Address
+contactDetails.email = cy: Email address
 
 unauthorisedCdsEnrolment.title = cy: There is a problem
 unauthorisedCdsEnrolment.heading = cy: There is a problem
