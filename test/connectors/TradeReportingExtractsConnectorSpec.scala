@@ -19,7 +19,7 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
-import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -275,13 +275,7 @@ class TradeReportingExtractsConnectorSpec
             authorisedUsers = Seq.empty,
             companyInformation = CompanyInformation(
               name = "Test Company",
-              consent = "1",
-              address = AddressInformation(
-                streetAndNumber = "123 Test Street",
-                city = "Test City",
-                postalCode = Some("12345"),
-                countryCode = "GB"
-              )
+              consent = "1"
             ),
             notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now())
           )

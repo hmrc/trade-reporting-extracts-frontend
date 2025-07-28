@@ -19,7 +19,7 @@ package controllers.report
 import base.SpecBase
 import forms.report.EmailSelectionFormProvider
 import models.report.EmailSelection
-import models.{AddressInformation, CompanyInformation, NormalMode, NotificationEmail, UserAnswers, UserDetails}
+import models.{CompanyInformation, NormalMode, NotificationEmail, UserAnswers, UserDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -53,13 +53,7 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
     authorisedUsers = Seq.empty,
     companyInformation = CompanyInformation(
       name = "Test Ltd",
-      consent = "Yes",
-      address = AddressInformation(
-        streetAndNumber = "123 Test Street",
-        city = "Testville",
-        postalCode = Some("TE5 7ST"),
-        countryCode = "GB"
-      )
+      consent = "1"
     ),
     notificationEmail = NotificationEmail("user@example.com", LocalDateTime.now())
   )

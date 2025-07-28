@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -70,8 +70,7 @@ class ContactDetailsControllerSpec extends SpecBase {
     val companyInformation: CompanyInformation =
       CompanyInformation(
         name = "ABC Company",
-        consent = "1",
-        address = AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB")
+        consent = "1"
       )
 
     val eori: String = "GB123456789002"

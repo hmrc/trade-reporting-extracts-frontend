@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -153,13 +153,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val companyInformation = CompanyInformation(
           name = "Test Company",
-          consent = "1",
-          address = AddressInformation(
-            streetAndNumber = "123 Test Street",
-            city = "Test City",
-            postalCode = Some("12345"),
-            countryCode = "GB"
-          )
+          consent = "1"
         )
         val eori               = "GB123456789000"
         val userDetails        = UserDetails(
