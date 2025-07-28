@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.{AddressInformation, CompanyInformation, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -47,7 +47,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
         )
 
-        when(mockService.setupUser(any[String])(any[HeaderCarrier]))
+        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
           .thenReturn(Future.successful(userDetails))
 
         val request = FakeRequest(GET, routes.ContactDetailsController.onPageLoad().url)
@@ -56,7 +56,10 @@ class ContactDetailsControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ContactDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(companyInformation, eori)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com")(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }
@@ -67,8 +70,7 @@ class ContactDetailsControllerSpec extends SpecBase {
     val companyInformation: CompanyInformation =
       CompanyInformation(
         name = "ABC Company",
-        consent = "1",
-        address = AddressInformation("XYZ Street", "ABC City", Some("G11 2ZZ"), "GB")
+        consent = "1"
       )
 
     val eori: String = "GB123456789002"

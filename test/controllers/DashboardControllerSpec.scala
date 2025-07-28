@@ -18,13 +18,11 @@ package controllers
 
 import base.SpecBase
 import base.TestConstants.testEori
-import config.FrontendAppConfig
-import models.{AddressInformation, AuthorisedUser, CompanyInformation, NormalMode, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers.*
@@ -36,7 +34,7 @@ import scala.concurrent.Future
 
 class DashboardControllerSpec extends SpecBase with MockitoSugar {
   val companyInformation: CompanyInformation =
-    CompanyInformation("Test Company", "1", AddressInformation("Street", "City", Some("ZZ1 1ZZ"), "GB"))
+    CompanyInformation("Test Company", "1")
   val userDetails: UserDetails               = UserDetails(
     eori = testEori,
     additionalEmails = Seq.empty,

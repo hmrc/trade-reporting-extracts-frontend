@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(companyInformation: CompanyInformation, eori: String)(implicit request: Request[_], messages: Messages)
+@(companyInformation: CompanyInformation, eori: String, emailAddress: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactDetails.title")), showBackLink = false,
         breadcrumbContribution = Seq(
@@ -39,11 +39,8 @@
       <dd class="govuk-summary-list__value">@eori </dd>
      </div>
      <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">@messages("contactDetails.address")</dt>
-      <dd class="govuk-summary-list__value">@companyInformation.address.streetAndNumber,
-          @companyInformation.address.city,
-          @companyInformation.address.countryCode,
-          @companyInformation.address.postalCode.  </dd>
+      <dt class="govuk-summary-list__key">@messages("contactDetails.email")</dt>
+      <dd class="govuk-summary-list__value">@emailAddress </dd>
      </div>
     </dl>
 

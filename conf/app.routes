@@ -17,6 +17,6 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET        /dashboard                                    controllers.DashboardController.onPageLoad()
 
-GET        /contactDetails                               controllers.ContactDetailsController.onPageLoad()
+GET        /contact-details                               controllers.ContactDetailsController.onPageLoad()
 
 GET        /available-to-download                        controllers.AvailableReportsController.onPageLoad()
