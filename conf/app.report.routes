@@ -15,8 +15,8 @@ POST       /your-role                                           controllers.repo
 GET        /change-your-role                                           controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-your-role                                           controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
 
-GET        /date-rage                        controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = NormalMode)
-POST       /date-rage                       controllers.report.ReportDateRangeController.onSubmit(mode: Mode = NormalMode)
+GET        /date-range                        controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = NormalMode)
+POST       /date-range                       controllers.report.ReportDateRangeController.onSubmit(mode: Mode = NormalMode)
 GET        /change-date-range                  controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-date-range                   controllers.report.ReportDateRangeController.onSubmit(mode: Mode = CheckMode)
 

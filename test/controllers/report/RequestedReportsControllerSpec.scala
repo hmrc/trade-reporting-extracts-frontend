@@ -65,7 +65,7 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
-        contentAsString(result).contains("No reports have been requested yet") mustBe true
+        contentAsString(result).contains("You have not requested any reports yet") mustBe true
       }
     }
 
