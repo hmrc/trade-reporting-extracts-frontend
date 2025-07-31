@@ -111,7 +111,6 @@ dashboard.thirdPartyAccess.authorisedAccounts = cy: Businesses you have third-pa
 dashboard.help.heading = cy: Help
 dashboard.help.fieldsInReport = cy: What do the fields in my report mean?
 dashboard.help.reportTypes = cy: What are the different report types?
-dashboard.help.dataMissing = cy: Why is my data missing?
 
 contactDetails.title = cy: Your contact details
 contactDetails.heading = cy: Your contact details
