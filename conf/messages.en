@@ -111,7 +111,6 @@ dashboard.thirdPartyAccess.authorisedAccounts = Businesses you have third-party 
 dashboard.help.heading = Help
 dashboard.help.fieldsInReport = What do the fields in my report mean?
 dashboard.help.reportTypes = What are the different report types?
-dashboard.help.dataMissing = Why is my data missing?
 
 contactDetails.title = Your contact details
 contactDetails.heading = Your contact details
