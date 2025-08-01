@@ -81,6 +81,9 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
         expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportFilesParts = "1",
+        requesterEORI = "GB000123456789",
+        reportSubjectEori = "GB000123456789",
         action = Seq.empty[AvailableReportAction]
       )
 
@@ -145,6 +148,9 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportFilesParts = "1",
+                  requesterEORI = "GB000123456789",
+                  reportSubjectEori = "GB000123456789",
                   action = Seq.empty[AvailableReportAction]
                 )
               )
@@ -177,6 +183,9 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportFilesParts = "1",
+                  requesterEORI = "GB000123456789",
+                  reportSubjectEori = "GB000123456789",
                   action = Seq.empty[AvailableReportAction]
                 )
               )

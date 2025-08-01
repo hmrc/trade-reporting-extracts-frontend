@@ -14,4 +14,18 @@ document.addEventListener('DOMContentLoaded', function(event) {
       window.history.back();
     });
   }
+
+  // handle download link click to trigger hidden button
+    document.querySelectorAll('a.govuk-link[onclick]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var form = this.closest('form');
+        if (form) {
+          var button = form.querySelector('#submitbutton');
+          if (button) {
+            button.click();
+          }
+        }
+      });
+    });
 });

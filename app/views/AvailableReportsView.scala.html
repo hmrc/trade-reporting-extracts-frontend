@@ -21,8 +21,8 @@
         layout: templates.Layout,
         govukButton: GovukButton,
         govukTabs: GovukTabs,
-        govukTable: GovukTable
-
+        govukTable: GovukTable,
+        formWithCSRF: FormWithCSRF
 )
 
 @(availableReports: AvailableReportsViewModel,
@@ -54,7 +54,22 @@ maybeThirdPartyReports: Boolean
           <td class="govuk-table__cell">
               @data.action.map { action =>
               <div>
-                <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @ReportHelpers.formatBytes(action.size))</a>
+                  @formWithCSRF(action= controllers.routes.AvailableReportFileDownloadController.availableReportDownloadFile()) {
+                      <input type="hidden" name="reportName" value= @data.reportName >
+                      <input type="hidden" name="referenceNumber" value= @data.referenceNumber>
+                      <input type="hidden" name="reportType" value= @data.formattedReportType.toString>
+                      <input type="hidden" name="reportFilesParts" value= @data.reportFilesParts>
+                      <input type="hidden" name="requesterEORI" value= @data.requesterEORI>
+                      <input type="hidden" name="reportSubjectEori" value= @data.reportSubjectEori>
+                      <input type="hidden" name="fileName" value= @action.fileName>
+                      <input type="hidden" name="fileURL" value= @action.fileURL>
+                      <input type="hidden" name="fileSize" value= @action.size>
+
+                  <button id="submitbutton" type="submit" class="govuk-link" style="display:none;">Text</button>
+                  <a href="#" class="govuk-link" onclick>
+                      @action.fileName (@action.fileType, @ReportHelpers.formatBytes(action.size))
+                  </a>
+                  }
               </div>
               }
           </td>
