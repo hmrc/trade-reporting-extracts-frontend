@@ -22,19 +22,19 @@ import play.api.data.{Form, FormError}
 
 class AvailableReportDownloadFormProviderSpec extends SpecBase {
 
-  private val formProvider = new AvailableReportDownloadFormProvider()
+  private val formProvider                        = new AvailableReportDownloadFormProvider()
   private val form: Form[AvailableReportDownload] = formProvider()
 
   private val validData = Map(
-    "reportName" -> "Test Report",
-    "referenceNumber" -> "REF123",
-    "reportType" -> "Test Type",
-    "reportFilesParts" -> "1",
-    "requesterEORI" -> "EORI123",
+    "reportName"        -> "Test Report",
+    "referenceNumber"   -> "REF123",
+    "reportType"        -> "Test Type",
+    "reportFilesParts"  -> "1",
+    "requesterEORI"     -> "EORI123",
     "reportSubjectEori" -> "EORI456",
-    "fileName" -> "test.csv",
-    "fileURL" -> "http://test.com/file",
-    "fileSize" -> "1024"
+    "fileName"          -> "test.csv",
+    "fileURL"           -> "http://test.com/file",
+    "fileSize"          -> "1024"
   )
 
   private val expectedModel = AvailableReportDownload(
@@ -70,7 +70,7 @@ class AvailableReportDownloadFormProviderSpec extends SpecBase {
       )
 
       for (field <- requiredTextFields) {
-        val data = validData.updated(field, "")
+        val data   = validData.updated(field, "")
         val result = form.bind(data)
         result.errors must contain(FormError(field, "error.required"))
       }

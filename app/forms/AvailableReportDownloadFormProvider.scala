@@ -23,24 +23,34 @@ import play.api.data.Forms.{longNumber, mapping, nonEmptyText}
 
 import javax.inject.Inject
 
-
 class AvailableReportDownloadFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[AvailableReportDownload] = {
+  def apply(): Form[AvailableReportDownload] =
     Form(
       mapping(
-        "reportName" -> nonEmptyText,
-        "referenceNumber" -> nonEmptyText,
-        "reportType" -> nonEmptyText,
-        "reportFilesParts" -> nonEmptyText,
-        "requesterEORI" -> nonEmptyText,
+        "reportName"        -> nonEmptyText,
+        "referenceNumber"   -> nonEmptyText,
+        "reportType"        -> nonEmptyText,
+        "reportFilesParts"  -> nonEmptyText,
+        "requesterEORI"     -> nonEmptyText,
         "reportSubjectEori" -> nonEmptyText,
-        "fileName" -> nonEmptyText,
-        "fileURL" -> nonEmptyText,
-        "fileSize" -> longNumber
-      )(AvailableReportDownload.apply)(a => Some((a.reportName, a.referenceNumber,
-        a.reportType, a.reportFilesParts, a.requesterEORI, a.reportSubjectEori,
-        a.fileName, a.fileURL, a.fileSize)))
+        "fileName"          -> nonEmptyText,
+        "fileURL"           -> nonEmptyText,
+        "fileSize"          -> longNumber
+      )(AvailableReportDownload.apply)(a =>
+        Some(
+          (
+            a.reportName,
+            a.referenceNumber,
+            a.reportType,
+            a.reportFilesParts,
+            a.requesterEORI,
+            a.reportSubjectEori,
+            a.fileName,
+            a.fileURL,
+            a.fileSize
+          )
+        )
+      )
     )
-  }
 }

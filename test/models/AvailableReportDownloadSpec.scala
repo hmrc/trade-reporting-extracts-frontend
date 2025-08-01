@@ -15,7 +15,7 @@
  */
 
 package models.availableReports
-    
+
 import base.SpecBase
 import play.api.libs.json.{JsSuccess, Json}
 
@@ -37,15 +37,15 @@ class AvailableReportDownloadSpec extends SpecBase {
       )
 
       val json = Json.obj(
-        "reportName" -> "Test Report",
-        "referenceNumber" -> "REF123",
-        "reportType" -> "Test Type",
-        "reportFilesParts" -> "1",
-        "requesterEORI" -> "EORI123",
+        "reportName"        -> "Test Report",
+        "referenceNumber"   -> "REF123",
+        "reportType"        -> "Test Type",
+        "reportFilesParts"  -> "1",
+        "requesterEORI"     -> "EORI123",
         "reportSubjectEori" -> "EORI456",
-        "fileName" -> "test.csv",
-        "fileURL" -> "http://test.com/file",
-        "fileSize" -> 1024
+        "fileName"          -> "test.csv",
+        "fileURL"           -> "http://test.com/file",
+        "fileSize"          -> 1024
       )
 
       Json.toJson(report) mustBe json

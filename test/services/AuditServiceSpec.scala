@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class AuditServiceSpec extends SpecBase with BeforeAndAfterEach {
 
   private val mockAuditConnector = mock[AuditConnector]
-  private val service = new AuditService(mockAuditConnector)
+  private val service            = new AuditService(mockAuditConnector)
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 

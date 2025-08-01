@@ -39,15 +39,16 @@ import scala.concurrent.Future
 
 class AvailableReportFileDownloadControllerSpec extends SpecBase with BeforeAndAfterEach with Matchers {
 
-  private val mockWsClient = mock[WSClient]
-  private val mockWsRequest = mock[WSRequest]
+  private val mockWsClient     = mock[WSClient]
+  private val mockWsRequest    = mock[WSRequest]
   private val mockAuditService = mock[AuditService]
   private val mockFormProvider = mock[AvailableReportDownloadFormProvider]
-  private val mockForm = mock[Form[AvailableReportDownload]]
-  private val mockWsResponse = mock[WSResponse]
+  private val mockForm         = mock[Form[AvailableReportDownload]]
+  private val mockWsResponse   = mock[WSResponse]
 
   override def applicationBuilder(userAnswers: Option[UserAnswers] = Some(emptyUserAnswers)): GuiceApplicationBuilder =
-    super.applicationBuilder(userAnswers)
+    super
+      .applicationBuilder(userAnswers)
       .overrides(
         bind[WSClient].toInstance(mockWsClient),
         bind[AuditService].toInstance(mockAuditService),
@@ -62,7 +63,7 @@ class AvailableReportFileDownloadControllerSpec extends SpecBase with BeforeAndA
   "AvailableReportFileDownloadController" - {
     ".downloadFile" - {
       "must return OK and stream the file when form submission is valid" in {
-        val testData = "test data"
+        val testData   = "test data"
         val testReport = AvailableReportDownload(
           reportName = "Test Report",
           referenceNumber = "REF123",
@@ -91,22 +92,22 @@ class AvailableReportFileDownloadControllerSpec extends SpecBase with BeforeAndA
 
         val request = FakeRequest(POST, routes.AvailableReportFileDownloadController.availableReportDownloadFile().url)
           .withFormUrlEncodedBody(
-            "reportName" -> testReport.reportName,
-            "referenceNumber" -> testReport.referenceNumber,
-            "reportType" -> testReport.reportType,
-            "reportFilesParts" -> testReport.reportFilesParts,
-            "requesterEORI" -> testReport.requesterEORI,
+            "reportName"        -> testReport.reportName,
+            "referenceNumber"   -> testReport.referenceNumber,
+            "reportType"        -> testReport.reportType,
+            "reportFilesParts"  -> testReport.reportFilesParts,
+            "requesterEORI"     -> testReport.requesterEORI,
             "reportSubjectEori" -> testReport.reportSubjectEori,
-            "fileName" -> testReport.fileName,
-            "fileURL" -> testReport.fileURL,
-            "fileSize" -> testReport.fileSize.toString
+            "fileName"          -> testReport.fileName,
+            "fileURL"           -> testReport.fileURL,
+            "fileSize"          -> testReport.fileSize.toString
           )
 
         val result = route(app, request).value
         status(result) mustBe OK
         contentType(result) mustBe Some("text/csv")
         header("Content-Disposition", result).value mustBe s"attachment; filename=${testReport.fileName}"
-        verify(mockAuditService, times(1)).audit(any())(using any(),any())
+        verify(mockAuditService, times(1)).audit(any())(using any(), any())
       }
 
       "must return BadRequest when form submission has errors" in {
@@ -115,10 +116,10 @@ class AvailableReportFileDownloadControllerSpec extends SpecBase with BeforeAndA
         when(mockForm.fold(any(), any())).thenAnswer(i =>
           i.getArgument[Form[AvailableReportDownload] => Future[Any]](0)(mockForm)
         )
-        val app = applicationBuilder().build()
+        val app     = applicationBuilder().build()
         val request = FakeRequest(POST, routes.AvailableReportFileDownloadController.availableReportDownloadFile().url)
           .withFormUrlEncodedBody("invalid" -> "data")
-        val result = route(app, request).value
+        val result  = route(app, request).value
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe "Error processing request"
       }

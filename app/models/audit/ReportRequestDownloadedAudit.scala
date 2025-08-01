@@ -21,36 +21,37 @@ import play.api.libs.json.{OWrites, __}
 
 final case class ReportRequestDownloadedAudit(
   requestId: String,
-  totalReportParts : String,
-  fileUrl : String,
-  fileName : String,
-  fileSizeBytes : String,
-  reportSubjectEori : String,
+  totalReportParts: String,
+  fileUrl: String,
+  fileName: String,
+  fileSizeBytes: String,
+  reportSubjectEori: String,
   reportTypeName: String,
-  requesterEori : String
+  requesterEori: String
 ) extends AuditEvent {
   override val auditType: String = "ReportRequestDownloaded"
 }
 
 object ReportRequestDownloadedAudit {
   given OWrites[ReportRequestDownloadedAudit] = (
-    (__ \ "requestId") .write[String] and
-    (__ \ "totalReportParts") .write[String] and
-    (__ \ "fileUrl") .write[String] and
-    (__ \ "fileName") .write[String] and
-    (__ \ "fileSizeBytes") .write[String] and
-    (__ \ "reportSubjectEori") .write[String] and
-    (__ \ "reportTypeName") .write[String] and
-    (__ \ "requesterEori") .write[String]
-
-  ) (report  => (
-    report.requestId,
-    report.totalReportParts,
-    report.fileUrl,
-    report.fileName,
-    report.fileSizeBytes,
-    report.reportSubjectEori,
-    report.reportTypeName,
-    report.requesterEori
-  ))
+    (__ \ "requestId").write[String] and
+      (__ \ "totalReportParts").write[String] and
+      (__ \ "fileUrl").write[String] and
+      (__ \ "fileName").write[String] and
+      (__ \ "fileSizeBytes").write[String] and
+      (__ \ "reportSubjectEori").write[String] and
+      (__ \ "reportTypeName").write[String] and
+      (__ \ "requesterEori").write[String]
+  )(report =>
+    (
+      report.requestId,
+      report.totalReportParts,
+      report.fileUrl,
+      report.fileName,
+      report.fileSizeBytes,
+      report.reportSubjectEori,
+      report.reportTypeName,
+      report.requesterEori
+    )
+  )
 }

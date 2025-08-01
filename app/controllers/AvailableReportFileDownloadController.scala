@@ -28,29 +28,32 @@ import utils.ReportHelpers
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AvailableReportFileDownloadController @Inject()(
-                                                       override val messagesApi: MessagesApi,
-                                                       ws: WSClient,
-                                                       auditService: AuditService,
-                                                       formProvider: AvailableReportDownloadFormProvider,
-                                                       override val controllerComponents: MessagesControllerComponents
-                                                     )(implicit ec: ExecutionContext)
-  extends BaseController {
-
+class AvailableReportFileDownloadController @Inject() (
+  override val messagesApi: MessagesApi,
+  ws: WSClient,
+  auditService: AuditService,
+  formProvider: AvailableReportDownloadFormProvider,
+  override val controllerComponents: MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   def availableReportDownloadFile(): Action[AnyContent] = Action.async { implicit request =>
-    formProvider().bindFromRequest().fold(
-      _ => Future.successful(BadRequest("Error processing request")),
-      formData => {
-        auditReportDownload(formData)
-        ws.url(formData.fileURL).stream().map { response =>
-          downloadFileResponse(formData.fileName, response)
+    formProvider()
+      .bindFromRequest()
+      .fold(
+        _ => Future.successful(BadRequest("Error processing request")),
+        formData => {
+          auditReportDownload(formData)
+          ws.url(formData.fileURL).stream().map { response =>
+            downloadFileResponse(formData.fileName, response)
+          }
         }
-      }
-    )
+      )
   }
 
-  private def auditReportDownload(formData: models.availableReports.AvailableReportDownload)(implicit hc: HeaderCarrier): Unit = {
+  private def auditReportDownload(formData: models.availableReports.AvailableReportDownload)(implicit
+    hc: HeaderCarrier
+  ): Unit =
     auditService.audit(
       models.audit.ReportRequestDownloadedAudit(
         requestId = formData.referenceNumber,
@@ -63,18 +66,17 @@ class AvailableReportFileDownloadController @Inject()(
         requesterEori = formData.requesterEORI
       )
     )
-  }
 
   private def downloadFileResponse(
-                                    fileName: String,
-                                    response: play.api.libs.ws.StandaloneWSResponse
-                                  ): Result = {
+    fileName: String,
+    response: play.api.libs.ws.StandaloneWSResponse
+  ): Result =
     Result(
       header = ResponseHeader(
         OK,
         Map(
           "Content-Disposition" -> s"attachment; filename=$fileName",
-          "Content-Type" -> response.contentType
+          "Content-Type"        -> response.contentType
         )
       ),
       body = HttpEntity.Streamed(
@@ -83,5 +85,4 @@ class AvailableReportFileDownloadController @Inject()(
         contentType = Some(response.contentType)
       )
     )
-  }
 }

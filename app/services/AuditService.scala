@@ -26,8 +26,8 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class AuditService @Inject() (
-                               auditConnector: AuditConnector
-                             )(using ExecutionContext) {
+  auditConnector: AuditConnector
+)(using ExecutionContext) {
 
   def audit[A <: AuditEvent](event: A)(using OWrites[A], HeaderCarrier): Unit =
     auditConnector.sendExplicitAudit(event.auditType, event)

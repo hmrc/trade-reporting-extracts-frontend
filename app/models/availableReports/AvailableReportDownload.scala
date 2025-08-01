@@ -19,16 +19,16 @@ package models.availableReports
 import play.api.libs.json.{JsSuccess, Json, OFormat}
 
 case class AvailableReportDownload(
-                                     reportName: String,
-                                     referenceNumber: String,
-                                     reportType: String,
-                                     reportFilesParts: String,
-                                     requesterEORI: String,
-                                     reportSubjectEori: String,
-                                     fileName: String,
-                                     fileURL: String,
-                                     fileSize: Long
-                                     )
+  reportName: String,
+  referenceNumber: String,
+  reportType: String,
+  reportFilesParts: String,
+  requesterEORI: String,
+  reportSubjectEori: String,
+  fileName: String,
+  fileURL: String,
+  fileSize: Long
+)
 
 object AvailableReportDownload {
   implicit val format: OFormat[AvailableReportDownload] = Json.format[AvailableReportDownload]
