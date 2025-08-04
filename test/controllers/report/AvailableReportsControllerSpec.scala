@@ -299,7 +299,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
           val controller = application.injector.instanceOf[AvailableReportsController]
-          val result    = controller.auditDownloadFile(fileUrl, fileName, reportReference)(FakeRequest())
+          val result     = controller.auditDownloadFile(fileUrl, fileName, reportReference)(FakeRequest())
 
           status(result) mustBe OK
           contentType(result) mustBe Some("text/csv")
@@ -309,13 +309,13 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
       "must fail when the ws call fails" in {
         val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-        val mockWsClient = mock[WSClient]
-        val mockWsRequest = mock[WSRequest]
+        val mockWsClient                      = mock[WSClient]
+        val mockWsRequest                     = mock[WSRequest]
 
-        val fileUrl = "http://localhost/file.csv"
-        val fileName = "report.csv"
+        val fileUrl         = "http://localhost/file.csv"
+        val fileName        = "report.csv"
         val reportReference = "some-reference"
-        val exception = new RuntimeException("Failed to stream")
+        val exception       = new RuntimeException("Failed to stream")
 
         when(mockWsClient.url(any[String])).thenReturn(mockWsRequest)
         when(mockWsRequest.stream()).thenReturn(Future.failed(exception))

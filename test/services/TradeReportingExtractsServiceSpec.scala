@@ -181,9 +181,9 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     "auditReportDownload" - {
 
       val reportReference = "some-reference"
-      val fileName = "report.csv"
-      val fileUrl = "http://localhost/report.csv"
-      val auditRequest = AuditDownloadRequest(reportReference, fileName, fileUrl)
+      val fileName        = "report.csv"
+      val fileUrl         = "http://localhost/report.csv"
+      val auditRequest    = AuditDownloadRequest(reportReference, fileName, fileUrl)
 
       "must call the connector and return true when the connector returns true" in {
         when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(true))

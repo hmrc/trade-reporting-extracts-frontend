@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.{NotificationEmail, UserDetails, AuditDownloadRequest}
+import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -201,7 +201,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .map { response =>
         response.status match {
           case NO_CONTENT => true
-          case _  =>
+          case _          =>
             logger.error(s"Failed to audit report download: ${response.status} - ${response.body}")
             false
         }

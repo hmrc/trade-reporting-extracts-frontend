@@ -19,10 +19,10 @@ package models
 import play.api.libs.json.{Json, OFormat}
 
 case class AuditDownloadRequest(
-                                 reportReference: String,
-                                 fileName: String,
-                                 fileUrl: String
-                               )
+  reportReference: String,
+  fileName: String,
+  fileUrl: String
+)
 
 object AuditDownloadRequest {
   implicit val format: OFormat[AuditDownloadRequest] = Json.format[AuditDownloadRequest]

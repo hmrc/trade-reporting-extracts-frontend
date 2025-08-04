@@ -18,7 +18,7 @@ package services
 
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{NotificationEmail, UserDetails, AuditDownloadRequest}
+import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
