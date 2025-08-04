@@ -17,11 +17,11 @@
 package controllers
 
 import controllers.actions.*
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.http.HttpEntity
+import play.api.i18n.MessagesApi
+import play.api.libs.ws.WSClient
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, ResponseHeader, Result}
 import services.TradeReportingExtractsService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
 import views.html.AvailableReportsView
 
 import javax.inject.Inject
@@ -30,14 +30,12 @@ import scala.concurrent.ExecutionContext
 class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
+  ws: WSClient,
   val controllerComponents: MessagesControllerComponents,
   view: AvailableReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport {
+    extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
@@ -46,4 +44,38 @@ class AvailableReportsController @Inject() (
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
     } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
   }
+
+  def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      ws.url(file).stream().map { response =>
+        val downloadResponse = downloadFileResponse(fileName, response)
+        tradeReportingExtractsService
+          .auditReportDownload(
+            reportReference,
+            fileName,
+            file
+          )
+          .foreach(_ => ())
+        downloadResponse
+      }
+  }
+
+  private def downloadFileResponse(
+    fileName: String,
+    response: play.api.libs.ws.StandaloneWSResponse
+  ): Result =
+    Result(
+      header = ResponseHeader(
+        OK,
+        Map(
+          "Content-Disposition" -> s"attachment; filename=$fileName",
+          "Content-Type"        -> response.contentType
+        )
+      ),
+      body = HttpEntity.Streamed(
+        data = response.bodyAsSource,
+        contentLength = response.headers.get("Content-Length").flatMap(_.headOption).map(_.toLong),
+        contentType = Some(response.contentType)
+      )
+    )
 }

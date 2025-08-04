@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package models.audit
+package models
 
-trait AuditEvent {
-  def auditType: String
+import play.api.libs.json.{Json, OFormat}
+
+case class AuditDownloadRequest(
+                                 reportReference: String,
+                                 fileName: String,
+                                 fileUrl: String
+                               )
+
+object AuditDownloadRequest {
+  implicit val format: OFormat[AuditDownloadRequest] = Json.format[AuditDownloadRequest]
 }

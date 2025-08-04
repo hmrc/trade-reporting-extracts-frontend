@@ -32,9 +32,6 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "userReportRef1",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
-      reportFilesParts = "1",
-      requesterEORI = "GB000123456789",
-      reportSubjectEori = "GB000123456789",
       Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
     ),
     AvailableUserReportsViewModel(
@@ -42,9 +39,6 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "userReportRef2",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
-      reportFilesParts = "1",
-      requesterEORI = "GB000123456789",
-      reportSubjectEori = "GB000123456789",
       Seq(AvailableReportAction("action", "url", 0L, models.FileType.CSV))
     )
   )

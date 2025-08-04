@@ -29,9 +29,6 @@ case class AvailableUserReportsViewModel(
   referenceNumber: String,
   expiryDate: Instant,
   reportType: ReportTypeName,
-  reportFilesParts: String,
-  requesterEORI: String,
-  reportSubjectEori: String,
   action: Seq[AvailableReportAction]
 ) {
   def formattedExpiryDate: String =

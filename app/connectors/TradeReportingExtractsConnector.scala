@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.{NotificationEmail, UserDetails}
+import models.{NotificationEmail, UserDetails, AuditDownloadRequest}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -44,7 +44,8 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   implicit ec: ExecutionContext
 ) extends Logging {
 
-  private val defaultPath                                                = "conf/resources/eoriList.json"
+  private val defaultPath = "conf/resources/eoriList.json"
+
   // TODO Remove with third party
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
     val path = Paths.get(pathString)
@@ -191,4 +192,19 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
         throw ex
       }
+
+  def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/reports-details")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case NO_CONTENT => true
+          case _  =>
+            logger.error(s"Failed to audit report download: ${response.status} - ${response.body}")
+            false
+        }
+      }
+
 }

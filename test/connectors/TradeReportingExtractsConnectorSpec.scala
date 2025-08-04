@@ -19,7 +19,7 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
-import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -311,6 +311,51 @@ class TradeReportingExtractsConnectorSpec
             connector.getUserDetails(eori).futureValue
           }
           thrown.getMessage must include("Failed to fetch getUserDetails")
+        }
+      }
+    }
+
+    "auditReportDownload" - {
+
+      val url         = "/trade-reporting-extracts/reports-details"
+      val request     = AuditDownloadRequest(
+        reportReference = "some-reference",
+        fileName = "report.csv",
+        fileUrl = "http://localhost/report.csv"
+      )
+      val requestBody = Json.toJson(request).toString()
+
+      "must return true when the API call is successful (NO_CONTENT)" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url)) // Note: HttpClientV2's get with a body sends a POST
+              .withRequestBody(equalToJson(requestBody))
+              .willReturn(aResponse().withStatus(NO_CONTENT))
+          )
+
+          val result = connector.auditReportDownload(request).futureValue
+
+          result mustBe true
+        }
+      }
+
+      "must return false for any other status" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(requestBody))
+              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+          )
+
+          val result = connector.auditReportDownload(request).futureValue
+
+          result mustBe false
         }
       }
     }

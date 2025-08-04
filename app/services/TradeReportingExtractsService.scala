@@ -18,7 +18,7 @@ package services
 
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{NotificationEmail, UserDetails}
+import models.{NotificationEmail, UserDetails, AuditDownloadRequest}
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
@@ -81,4 +81,14 @@ class TradeReportingExtractsService @Inject() (httpClient: HttpClientV2)(implici
     hc: HeaderCarrier
   ): Future[UserDetails] =
     connector.getUserDetails(eori)
+
+  def auditReportDownload(
+    reportReference: String,
+    fileName: String,
+    fileUrl: String
+  )(implicit hc: HeaderCarrier): Future[Boolean] = {
+
+    val auditData = AuditDownloadRequest(reportReference, fileName, fileUrl)
+    connector.auditReportDownload(auditData)
+  }
 }

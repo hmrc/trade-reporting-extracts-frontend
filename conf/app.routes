@@ -21,4 +21,4 @@ GET        /contact-details                               controllers.ContactDet
 
 GET        /available-to-download                        controllers.AvailableReportsController.onPageLoad()
 
-POST        /file-download                                controllers.AvailableReportFileDownloadController.availableReportDownloadFile()
+GET        /file-download                                controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)

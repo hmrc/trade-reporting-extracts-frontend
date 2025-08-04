@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -175,6 +175,41 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.getUserDetails(eori).futureValue
         }
         thrown.getMessage must include("Connector error")
+      }
+    }
+
+    "auditReportDownload" - {
+
+      val reportReference = "some-reference"
+      val fileName = "report.csv"
+      val fileUrl = "http://localhost/report.csv"
+      val auditRequest = AuditDownloadRequest(reportReference, fileName, fileUrl)
+
+      "must call the connector and return true when the connector returns true" in {
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(true))
+
+        val result = service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+
+        result mustBe true
+        verify(mockConnector).auditReportDownload(auditRequest)(hc)
+      }
+
+      "must call the connector and return false when the connector returns false" in {
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(false))
+
+        val result = service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+
+        result mustBe false
+      }
+
+      "must fail the future if the connector fails" in {
+        val exception = new RuntimeException("Connector error.")
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.failed(exception))
+
+        val thrown = intercept[RuntimeException] {
+          service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+        }
+        thrown.getMessage must include("Connector error.")
       }
     }
   }
