@@ -70,9 +70,6 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
               "referenceNumber": "userReportRef1",
               "expiryDate": "2000-01-01T00:00:00Z",
               "reportType": "IMPORTS_ITEM_REPORT",
-              "reportFilesParts" : "1",
-              "requesterEORI" : "GB000123456789",
-              "reportSubjectEori" : "GB000123456789",
               "action": [
                 {
                   "fileName": "action",
@@ -87,9 +84,6 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
               "referenceNumber": "userReportRef2",
               "expiryDate": "2000-01-01T00:00:00Z",
               "reportType": "IMPORTS_ITEM_REPORT",
-               "reportFilesParts" : "1",
-              "requesterEORI" : "GB000123456789",
-              "reportSubjectEori" : "GB000123456789",
               "action": [
                 {
                   "fileName": "action",
@@ -143,9 +137,6 @@ class AvailableReportsViewModelSpec extends AnyFreeSpec with Matchers {
                       "referenceNumber": "userReportRef1",
                       "expiryDate": "2000-01-01T00:00:00Z",
                       "reportType": "IMPORTS_ITEM_REPORT",
-                       "reportFilesParts" : "1",
-                      "requesterEORI" : "GB000123456789",
-                      "reportSubjectEori" : "GB000123456789",
                       "action": [
                         {
                           "fileName": "action",
