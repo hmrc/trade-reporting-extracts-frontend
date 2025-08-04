@@ -21,8 +21,8 @@
         layout: templates.Layout,
         govukButton: GovukButton,
         govukTabs: GovukTabs,
-        govukTable: GovukTable,
-        formWithCSRF: FormWithCSRF
+        govukTable: GovukTable
+
 )
 
 @(availableReports: AvailableReportsViewModel,
@@ -31,92 +31,71 @@ maybeThirdPartyReports: Boolean
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
-    <h2 class ="govuk-heading-l">@messages("availableReports.myReports")</h2>
-    <div class="tre-scrollable-pane" role="region" aria-labelledby="@messages("availableReports.myReports")">
-        <table class="govuk-table govuk-table--small-text-until-tablet">
-         <thead class="govuk-table__head">
-         <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.reportName")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.referenceNumber")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.reportType")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.expiryDate")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.action")</th>
-         </tr>
-         </thead>
-         <tbody class="govuk-table__body">
-        @availableReports.availableUserReports.map { reports =>
-         @reports.map { data =>
-         <tr class="govuk-table__row">
-          <td class="govuk-table__cell hmrc-responsive-table__value">@messages(data.reportName)</td>
-          <td class="govuk-table__cell">@messages(data.referenceNumber)</td>
-          <td class="govuk-table__cell">@messages(data.formattedReportType.toString)</td>
-          <td class="govuk-table__cell">@messages(data.formattedExpiryDate.toString)</td>
-          <td class="govuk-table__cell">
-              @data.action.map { action =>
-              <div>
-                  @formWithCSRF(action= controllers.routes.AvailableReportFileDownloadController.availableReportDownloadFile()) {
-                      <input type="hidden" name="reportName" value= @data.reportName >
-                      <input type="hidden" name="referenceNumber" value= @data.referenceNumber>
-                      <input type="hidden" name="reportType" value= @data.formattedReportType.toString>
-                      <input type="hidden" name="reportFilesParts" value= @data.reportFilesParts>
-                      <input type="hidden" name="requesterEORI" value= @data.requesterEORI>
-                      <input type="hidden" name="reportSubjectEori" value= @data.reportSubjectEori>
-                      <input type="hidden" name="fileName" value= @action.fileName>
-                      <input type="hidden" name="fileURL" value= @action.fileURL>
-                      <input type="hidden" name="fileSize" value= @action.size>
-
-                  <button id="submitbutton" type="submit" class="govuk-link" style="display:none;">Text</button>
-                  <a href="#" class="govuk-link" onclick>
-                      @action.fileName (@action.fileType, @ReportHelpers.formatBytes(action.size))
-                  </a>
-                  }
-              </div>
-              }
-          </td>
-         </tr>
-          }
-         }
-         </tbody>
-        </table>
-    </div>
+  @govukTable(Table(
+    head = Some(Seq(
+      HeadCell(content = Text(messages("availableReports.table.reportName"))),
+      HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
+      HeadCell(content = Text(messages("availableReports.table.reportType"))),
+      HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
+      HeadCell(content = Text(messages("availableReports.table.action")))
+    )),
+    rows = availableReports.availableUserReports.getOrElse(Seq.empty).map { data =>
+      Seq(
+        TableRow(content = Text(messages(data.reportName))),
+        TableRow(content = Text(messages(data.referenceNumber))),
+        TableRow(content = Text(messages(data.formattedReportType.toString))),
+        TableRow(content = Text(messages(data.formattedExpiryDate.toString))),
+        TableRow(
+            content = HtmlContent(
+                data.action.map { action =>
+                    s"""<div>
+                        |  <a href="${action.fileURL}" class="govuk-link">
+                        |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
+                        |  </a>
+                        |</div>""".stripMargin
+                    }.mkString
+                )
+            )
+        )
+    },
+    caption = Some(messages("availableReports.myReports")),
+    captionClasses = "govuk-table__caption--l"
+  ))
 }
 
 @thirdPartyReportsContent = {
-    <h2 class ="govuk-heading-l">@messages("availableReports.thirdPartyReports")</h2>
-    <div class="tre-scrollable-pane" role="region" aria-labelledby="@messages("availableReports.thirdPartyReports")">
-        <table class="govuk-table govuk-table--small-text-until-tablet">
-         <thead class="govuk-table__head">
-         <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.reportName")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.referenceNumber")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.companyName")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.reportType")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.expiryDate")</th>
-          <th scope="col" class="govuk-table__header">@messages("availableReports.table.action")</th>
-         </tr>
-         </thead>
-         <tbody class="govuk-table__body">
-         @availableReports.availableThirdPartyReports.map { reports =>
-         @reports.map { data =>
-         <tr class="govuk-table__row">
-          <td class="govuk-table__cell hmrc-responsive-table__value">@messages(data.reportName)</td>
-          <td class="govuk-table__cell">@messages(data.referenceNumber)</td>
-          <td class="govuk-table__cell">@messages(data.companyName)</td>
-          <td class="govuk-table__cell">@messages(data.reportType.toString)</td>
-          <td class="govuk-table__cell">@messages(data.expiryDate.toString)</td>
-             <td class="govuk-table__cell">
-                 @data.action.map { action =>
-                 <div>
-                     <a href="@action.fileURL" class="govuk-link">@action.fileName (@action.fileType, @action.size)</a>
-                 </div>
-                 }
-             </td>
-         </tr>
-            }
-         }
-         </tbody>
-        </table>
-    </div>
+  @govukTable(Table(
+    head = Some(Seq(
+      HeadCell(content = Text(messages("availableReports.table.reportName"))),
+      HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
+      HeadCell(content = Text(messages("availableReports.table.companyName"))),
+      HeadCell(content = Text(messages("availableReports.table.reportType"))),
+      HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
+      HeadCell(content = Text(messages("availableReports.table.action")))
+    )),
+    rows = availableReports.availableThirdPartyReports.getOrElse(Seq.empty).map { data =>
+      Seq(
+        TableRow(content = Text(messages(data.reportName))),
+        TableRow(content = Text(messages(data.referenceNumber))),
+        TableRow(content = Text(messages(data.companyName))),
+        TableRow(content = Text(messages(data.reportType.toString))),
+        TableRow(content = Text(messages(data.expiryDate.toString))),
+        TableRow(
+            content = HtmlContent(
+                data.action.map { action =>
+                    s"""<div>
+                        |  <a href="${action.fileURL}" class="govuk-link">
+                        |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
+                        |  </a>
+                        |</div>""".stripMargin
+                    }.mkString
+                )
+            )
+        )
+    },
+    caption = Some(messages("availableReports.thirdPartyReports")),
+    captionClasses = "govuk-table__caption--l"
+  ))
 }
 
 @titleContent = @{
@@ -136,6 +115,7 @@ maybeThirdPartyReports: Boolean
 
    @if(maybeUserReports || maybeThirdPartyReports) {
        <h1 class="govuk-heading-xl">@messages("availableReports.heading")</h1>
+       <p class="govuk-body">@messages("availableReports.message1")</p>
    } else {
        <h1 class="govuk-heading-xl">@messages("availableReports.heading.none")</h1>
         <p class="govuk-body">@messages("availableReports.message1.none")</p>
@@ -186,3 +166,4 @@ maybeThirdPartyReports: Boolean
 
 
 }
+
