@@ -317,7 +317,7 @@ class TradeReportingExtractsConnectorSpec
 
     "auditReportDownload" - {
 
-      val url         = "/trade-reporting-extracts/reports-details"
+      val url         = "/trade-reporting-extracts/downloaded-audit"
       val request     = AuditDownloadRequest(
         reportReference = "some-reference",
         fileName = "report.csv",
