@@ -20,3 +20,5 @@ GET        /dashboard                                    controllers.DashboardCo
 GET        /contact-details                               controllers.ContactDetailsController.onPageLoad()
 
 GET        /available-to-download                        controllers.AvailableReportsController.onPageLoad()
+
+GET        /file-download                                controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)
