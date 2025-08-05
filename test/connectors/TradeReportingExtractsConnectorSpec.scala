@@ -331,7 +331,7 @@ class TradeReportingExtractsConnectorSpec
           val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
           server.stubFor(
             WireMock
-              .get(urlEqualTo(url)) // Note: HttpClientV2's get with a body sends a POST
+              .get(urlEqualTo(url))
               .withRequestBody(equalToJson(requestBody))
               .willReturn(aResponse().withStatus(NO_CONTENT))
           )
