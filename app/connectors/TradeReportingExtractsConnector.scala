@@ -18,7 +18,7 @@ package connectors
 
 import models.availableReports.AvailableReportsViewModel
 import config.FrontendAppConfig
-import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
 
 import java.nio.file.{Files, Paths}
@@ -153,7 +153,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 
   def createReportRequest(
     reportRequestAnswers: ReportRequestUserAnswersModel
-  )(implicit hc: HeaderCarrier): Future[Seq[String]] =
+  )(implicit hc: HeaderCarrier): Future[Seq[ReportConfirmation]] =
     httpClient
       .post(url"${frontendAppConfig.tradeReportingExtractsApi}/create-report-request")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
@@ -163,11 +163,11 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .flatMap { response =>
         response.status match {
           case OK =>
-            val json = Json.parse(response.body)
-            (json \ "references").validate[Seq[String]] match {
-              case JsSuccess(references, _) => Future.successful(references)
-              case JsError(errors)          =>
-                logger.error(s"Failed to parse 'references' from response JSON: $errors")
+            Json.parse(response.body).validate[Seq[ReportConfirmation]] match {
+              case JsSuccess(reportConfirmations, _) =>
+                Future.successful(reportConfirmations)
+              case JsError(errors)                   =>
+                logger.error(s"Failed to parse 'report confirmations' from response JSON: $errors")
                 Future.failed(
                   UpstreamErrorResponse(
                     "Unexpected response from /trade-reporting-extracts/create-report-request",

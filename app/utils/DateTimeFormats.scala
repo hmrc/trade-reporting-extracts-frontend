@@ -18,7 +18,7 @@ package utils
 
 import play.api.i18n.Lang
 
-import java.time.LocalDate
+import java.time._
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
@@ -37,6 +37,14 @@ object DateTimeFormats {
 
   val dateTimeHintFormat: DateTimeFormatter =
     DateTimeFormatter.ofPattern("d M yyyy")
+
+  def formattedSystemTime(clock: Clock)(lang: Lang): String = {
+    val pattern   = "hh:mm a"
+    val locale    = Locale.forLanguageTag(lang.code)
+    val formatter = DateTimeFormatter.ofPattern(pattern, locale)
+    val time      = LocalTime.ofInstant(clock.instant(), ZoneId.systemDefault())
+    time.format(formatter)
+  }
 
   def lastFullCalendarMonth(currentDate: LocalDate): (LocalDate, LocalDate) = {
     val lastDayPrevMonth                             = currentDate.minusMonths(1).`with`(TemporalAdjusters.lastDayOfMonth())
