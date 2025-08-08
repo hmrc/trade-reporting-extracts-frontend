@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
 import models.{CompanyInformation, NotificationEmail, UserDetails}
-import models.report.ReportRequestUserAnswersModel
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -73,7 +73,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       "should return a reference when OK" in {
 
-        when(mockConnector.createReportRequest(any())(any())).thenReturn(Future.successful(Seq("Reference")))
+        when(mockConnector.createReportRequest(any())(any()))
+          .thenReturn(Future.successful(Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))))
 
         val result = service
           .createReportRequest(
@@ -91,8 +92,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           )
           .futureValue
 
-        result mustBe a[Seq[String]]
-        result mustBe Seq("Reference")
+        result mustBe a[Seq[ReportConfirmation]]
+        result mustBe Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
 
       }
     }

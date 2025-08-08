@@ -20,19 +20,20 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.{AlreadySubmittedFlag, UserAnswers}
-import models.report.{EmailSelection, ReportRequestSection}
-import models.report.EmailSelection
+import models.report.{EmailSelection, ReportConfirmation, ReportRequestSection}
 import models.requests.DataRequest
 import pages.report.{DecisionPage, EmailSelectionPage, NewEmailNotificationPage}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
+import utils.DateTimeFormats.{dateTimeFormat, formattedTime}
 import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
+import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,32 +48,62 @@ class RequestConfirmationController @Inject() (
   config: FrontendAppConfig,
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
-  view: RequestConfirmationView
+  view: RequestConfirmationView,
+  clock: Clock,
+
 )(implicit ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val updatedList: Seq[String] = fetchUpdatedData(request)
+    val additionalEmailList: Option[String] = fetchUpdatedData(request)
     val surveyUrl: String        = config.exitSurveyUrl
     val isMoreThanOneReport      = ReportHelpers.isMoreThanOneReport(request.userAnswers)
-
+    val (date, time) = getDateAndTime
     for {
       notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      requestRefs                      <- tradeReportingExtractsService.createReportRequest(
+      reportConfirmations              <- tradeReportingExtractsService.createReportRequest(
                                             reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
                                           )
-      requestRef                        = requestRefs.mkString(", ")
+      transformedConfirmations = trasnformReportConfirmations(reportConfirmations)
       updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
       _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
     } yield {
-      val email = notificationEmail.address
-      Ok(view(updatedList, isMoreThanOneReport, requestRef, surveyUrl, email))
+      Ok(view(additionalEmailList,
+        isMoreThanOneReport,
+        transformedConfirmations,
+        surveyUrl,
+        notificationEmail.address,
+        date,
+        time))
+    }
+
+  }
+
+  private def getDateAndTime(implicit messages: Messages): (String, String) = {
+    (LocalDate.now(clock.withZone(ZoneOffset.UTC)).format(dateTimeFormat()(messages.lang)),
+     formattedTime(clock)(messages.lang))
+  }
+
+
+
+  private def trasnformReportConfirmations(
+    reportConfirmations: Seq[ReportConfirmation]
+  ): Seq[ReportConfirmation] = {
+    reportConfirmations.map { rc =>
+      val newType = rc.reportType match {
+        case "importItem" => "reportTypeImport.importItem"
+        case "importHeader" => "reportTypeImport.importHeader"
+        case "importTaxLine" => "reportTypeImport.importTaxLine"
+        case "exportItem" => "reportTypeImport.exportItem"
+        case other => other
+      }
+      rc.copy(reportType = newType)
     }
   }
 
-  private def fetchUpdatedData(request: DataRequest[AnyContent]): Seq[String] =
+  private def fetchUpdatedData(request: DataRequest[AnyContent]): Option[String] = {
     request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { selected =>
       selected.map {
         case EmailSelection.AddNewEmailValue =>
@@ -83,5 +114,9 @@ class RequestConfirmationController @Inject() (
         case email                           =>
           HtmlFormat.escape(email).toString
       }
+    } match {
+      case Nil => None
+      case emails => Some(emails.mkString(", "))
     }
+  }
 }

@@ -18,7 +18,7 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.report.ReportRequestUserAnswersModel
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.{NotificationEmail, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -32,7 +32,7 @@ import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 import views.html.report.RequestConfirmationView
 
-import java.time.LocalDateTime
+import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import scala.concurrent.Future
 
 class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
@@ -41,12 +41,16 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
   val mockReportRequestDataService: ReportRequestDataService           = mock[ReportRequestDataService]
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
 
+  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
   "RequestConfirmationController" - {
 
     "must return OK and the correct view when EmailSelectionPage is defined" in {
 
       val newEmail          = "new.email@example.com"
       val selectedEmails    = Seq("email1@example.com", "email2@example.com", newEmail)
+      val emailString       = selectedEmails.mkString(", ")
       val notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
 
       val userAnswers = UserAnswers("id")
@@ -71,7 +75,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         )
       )
       when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
-        .thenReturn(Future.successful(Seq("reference")))
+        .thenReturn(Future.successful(Seq(ReportConfirmation("MyReport", "importHeader", "RE00000001"))))
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(notificationEmail))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
@@ -81,7 +85,8 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           .overrides(
             bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
             bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[Clock].toInstance(fixedClock)
           )
           .build()
 
@@ -96,11 +101,13 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          selectedEmails,
+          Some(emailString),
           false,
-          "reference",
+          Seq(ReportConfirmation("MyReport", "reportTypeImport.importHeader", "RE00000001")),
           surveyUrl,
-          notificationEmail.address
+          notificationEmail.address,
+          "5 May 2025",
+          "12:00 AM"
         )(
           request,
           messages(application)
@@ -151,7 +158,15 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "reference", surveyUrl, notificationEmail.address)(
+        contentAsString(result) mustEqual view(
+          None,
+          false,
+          Seq(ReportConfirmation("MyReport", "importHeader", "RE00000001")),
+          surveyUrl,
+          notificationEmail.address,
+          "date",
+          "time"
+        )(
           request,
           messages(application)
         ).toString
@@ -203,7 +218,15 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, false, "RE00000001", surveyUrl, notificationEmail.address)(
+        contentAsString(result) mustEqual view(
+          None,
+          false,
+          Seq(ReportConfirmation("MyReport", "importHeader", "RE00000001")),
+          surveyUrl,
+          notificationEmail.address,
+          "date",
+          "time"
+        )(
           request,
           messages(application)
         ).toString
@@ -256,11 +279,16 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          Seq.empty,
+          None,
           false,
-          "RE00000001, RE00000002",
+          Seq(
+            ReportConfirmation("MyReport", "importHeader", "RE00000001"),
+            ReportConfirmation("MyReport", "importItem", "RE00000002")
+          ),
           surveyUrl,
-          notificationEmail.address
+          notificationEmail.address,
+          "date",
+          "time"
         )(
           request,
           messages(application)
