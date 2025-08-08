@@ -21,9 +21,12 @@ import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.LocalDate
+import java.time.{Clock, Instant, LocalDate, ZoneId, ZoneOffset}
 
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
+
+  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
 
   ".dateTimeFormat" - {
 
@@ -43,6 +46,20 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
       val formatter = dateTimeFormat()(Lang("de"))
       val result    = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
+    }
+  }
+
+  "formattedTime" - {
+    "must return the current time in english" in {
+      val lang   = Lang("en")
+      val result = DateTimeFormats.formattedSystemTime(fixedClock)(lang)
+      result mustBe "12:00 AM"
+    }
+
+    "must return the current time formatted in Welsh" in {
+      val lang   = Lang("cy")
+      val result = DateTimeFormats.formattedSystemTime(fixedClock)(lang)
+      result mustBe "12:00 yb"
     }
   }
 
