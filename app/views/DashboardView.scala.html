@@ -64,7 +64,7 @@
                 heading = Messages("dashboard.thirdPartyAccess.heading"),
                 subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
                 links = Seq(
-                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), "#", None),
+                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url, None),
                     (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
                     (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
                 )
