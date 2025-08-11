@@ -69,5 +69,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("microservice.services.trade-reporting-extracts.context")
 
   val cdsEnrolmentIdentifier: EnrolmentConfig = configuration.get[EnrolmentConfig]("enrolment-config")
+  val internalAuthToken: String               = configuration.get[String]("internal-auth.token")
 
 }
