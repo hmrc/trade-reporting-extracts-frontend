@@ -19,7 +19,7 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
-import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -311,6 +311,89 @@ class TradeReportingExtractsConnectorSpec
             connector.getUserDetails(eori).futureValue
           }
           thrown.getMessage must include("Failed to fetch getUserDetails")
+        }
+      }
+    }
+
+    "auditReportDownload" - {
+
+      val url         = "/trade-reporting-extracts/downloaded-audit"
+      val request     = AuditDownloadRequest(
+        reportReference = "some-reference",
+        fileName = "report.csv",
+        fileUrl = "http://localhost/report.csv"
+      )
+      val requestBody = Json.toJson(request).toString()
+
+      "must return true when the API call is successful (NO_CONTENT)" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(requestBody))
+              .willReturn(aResponse().withStatus(NO_CONTENT))
+          )
+
+          val result = connector.auditReportDownload(request).futureValue
+
+          result mustBe true
+        }
+      }
+
+      "must return false for any other status" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(requestBody))
+              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+          )
+
+          val result = connector.auditReportDownload(request).futureValue
+
+          result mustBe false
+        }
+      }
+    }
+
+    "downloadFile" - {
+
+      "must return a streamed result with correct headers and body" in {
+
+        val app                   = application
+        implicit val materializer = app.materializer
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          val fileUrlPath = "/some/file.csv"
+          val fileUrl     = s"http://localhost:${server.port()}$fileUrlPath"
+          val fileName    = "my-report.csv"
+          val fileContent = "header1,header2\nvalue1,value2"
+          val contentType = "text/csv"
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(fileUrlPath))
+              .willReturn(
+                aResponse()
+                  .withStatus(OK)
+                  .withHeader("Content-Type", contentType)
+                  .withBody(fileContent)
+              )
+          )
+
+          val resultF = connector.downloadFile(fileUrl, fileName)
+
+          status(resultF) mustBe OK
+          header("Content-Disposition", resultF) mustBe Some(s"attachment; filename=$fileName")
+          header("Content-Type", resultF) mustBe Some(contentType)
+
+          val body = contentAsString(resultF)
+          body mustBe fileContent
         }
       }
     }

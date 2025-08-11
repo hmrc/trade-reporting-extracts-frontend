@@ -49,7 +49,7 @@ maybeThirdPartyReports: Boolean
             content = HtmlContent(
                 data.action.map { action =>
                     s"""<div>
-                        |  <a href="${action.fileURL}" class="govuk-link">
+                        |  <a href=${controllers.routes.AvailableReportsController.auditDownloadFile(action.fileURL,action.fileName,data.referenceNumber)} class="govuk-link">
                         |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
                         |  </a>
                         |</div>""".stripMargin

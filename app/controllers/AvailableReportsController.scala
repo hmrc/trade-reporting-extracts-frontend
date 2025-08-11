@@ -17,11 +17,9 @@
 package controllers
 
 import controllers.actions.*
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
 import views.html.AvailableReportsView
 
 import javax.inject.Inject
@@ -30,14 +28,11 @@ import scala.concurrent.ExecutionContext
 class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: AvailableReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport {
+    extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
@@ -45,5 +40,15 @@ class AvailableReportsController @Inject() (
       maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
     } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
+  }
+
+  def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      for {
+        downloadResponse <- tradeReportingExtractsService.downloadFile(file, fileName, reportReference)
+      } yield {
+        tradeReportingExtractsService.auditReportDownload(reportReference, fileName, file)
+        downloadResponse
+      }
   }
 }
