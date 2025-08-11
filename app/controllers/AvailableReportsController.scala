@@ -17,10 +17,8 @@
 package controllers
 
 import controllers.actions.*
-import play.api.http.HttpEntity
 import play.api.i18n.MessagesApi
-import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, ResponseHeader, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import views.html.AvailableReportsView
 
@@ -30,7 +28,6 @@ import scala.concurrent.ExecutionContext
 class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  ws: WSClient,
   val controllerComponents: MessagesControllerComponents,
   view: AvailableReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
@@ -47,35 +44,11 @@ class AvailableReportsController @Inject() (
 
   def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {
     implicit request =>
-      ws.url(file).stream().map { response =>
-        val downloadResponse = downloadFileResponse(fileName, response)
-        tradeReportingExtractsService
-          .auditReportDownload(
-            reportReference,
-            fileName,
-            file
-          )
-          .foreach(_ => ())
+      for {
+        downloadResponse <- tradeReportingExtractsService.downloadFile(file, fileName, reportReference)
+      } yield {
+        tradeReportingExtractsService.auditReportDownload(reportReference, fileName, file)
         downloadResponse
       }
   }
-
-  private def downloadFileResponse(
-    fileName: String,
-    response: play.api.libs.ws.StandaloneWSResponse
-  ): Result =
-    Result(
-      header = ResponseHeader(
-        OK,
-        Map(
-          "Content-Disposition" -> s"attachment; filename=$fileName",
-          "Content-Type"        -> response.contentType
-        )
-      ),
-      body = HttpEntity.Streamed(
-        data = response.bodyAsSource,
-        contentLength = response.headers.get("Content-Length").flatMap(_.headOption).map(_.toLong),
-        contentType = Some(response.contentType)
-      )
-    )
 }

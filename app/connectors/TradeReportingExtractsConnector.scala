@@ -38,6 +38,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.writeableOf_JsValue
+import play.api.mvc.{ResponseHeader, Result}
+import play.api.http.{HttpEntity, Status}
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
@@ -207,4 +209,24 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
+  def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
+    httpClient
+      .get(url"$fileUrl")
+      .execute[HttpResponse]
+      .map { response =>
+        Result(
+          header = ResponseHeader(
+            Status.OK,
+            Map(
+              "Content-Disposition" -> s"attachment; filename=$fileName",
+              "Content-Type"        -> response.header("Content-Type").getOrElse("application/octet-stream")
+            )
+          ),
+          body = HttpEntity.Streamed(
+            data = response.bodyAsSource,
+            contentLength = response.header("Content-Length").map(_.toLong),
+            contentType = response.header("Content-Type")
+          )
+        )
+      }
 }

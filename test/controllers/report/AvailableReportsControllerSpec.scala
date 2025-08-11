@@ -17,22 +17,23 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.AvailableReportsController
 import services.TradeReportingExtractsService
 import models.ReportTypeName
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
-import org.apache.pekko.util.ByteString
-import org.apache.pekko.stream.scaladsl.Source
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers.should
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.http.HttpEntity
 import play.api.inject.bind
-import play.api.libs.ws.{WSClient, WSRequest}
+import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+
 import java.time.Instant
 import scala.concurrent.Future
 
@@ -265,77 +266,43 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "auditDownloadFile" - {
+    "must return download response when audit download file is called" in {
+      implicit val hc: HeaderCarrier        = HeaderCarrier()
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val downloadResponse                  = Result(
+        ResponseHeader(200),
+        HttpEntity.NoEntity
+      )
 
-      "must stream the file, audit the download, and return the file as an attachment" in {
-        val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-        val mockWsClient                      = mock[WSClient]
-        val mockWsRequest                     = mock[WSRequest]
-        val mockWsResponse                    = mock[play.api.libs.ws.WSResponse]
+      when(mockTradeReportingExtractsService.downloadFile(any(), any(), any())(any()))
+        .thenReturn(Future.successful(downloadResponse))
 
-        val fileUrl         = "http://localhost/file.csv"
-        val fileName        = "report.csv"
-        val reportReference = "some-reference"
-        val fileContent     = "col1,col2\nval1,val2"
-        val fileSource      = Source.single(ByteString(fileContent))
+      when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))
+        .thenReturn(Future.successful(NO_CONTENT))
 
-        when(mockWsClient.url(any[String])).thenReturn(mockWsRequest)
-        when(mockWsRequest.stream()).thenReturn(Future.successful(mockWsResponse))
-        when(mockWsResponse.status).thenReturn(OK)
-        when(mockWsResponse.headers).thenReturn(Map("Content-Length" -> Seq("1024")))
-        when(mockWsResponse.contentType).thenReturn("text/csv")
-        when(mockWsResponse.bodyAsSource).thenReturn(fileSource)
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
-        when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))
-          .thenReturn(Future.successful(true))
+      running(application) {
+        val request = FakeRequest(
+          GET,
+          controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
+        )
+        val result  = route(application, request).value
 
-        val application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswers))
-            .overrides(
-              bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-              bind[WSClient].toInstance(mockWsClient)
-            )
-            .build()
+        status(result) mustEqual OK
+        verify(mockTradeReportingExtractsService, times(1))
+          .downloadFile(eqTo("file"), eqTo("fileName"), eqTo("reportReference"))(any[HeaderCarrier])
 
-        running(application) {
-          val controller = application.injector.instanceOf[AvailableReportsController]
-          val result     = controller.auditDownloadFile(fileUrl, fileName, reportReference)(FakeRequest())
-
-          status(result) mustBe OK
-          contentType(result) mustBe Some("text/csv")
-          header("Content-Disposition", result).value mustBe s"attachment; filename=report.csv"
-        }
-      }
-
-      "must fail when the ws call fails" in {
-        val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-        val mockWsClient                      = mock[WSClient]
-        val mockWsRequest                     = mock[WSRequest]
-
-        val fileUrl         = "http://localhost/file.csv"
-        val fileName        = "report.csv"
-        val reportReference = "some-reference"
-        val exception       = new RuntimeException("Failed to stream")
-
-        when(mockWsClient.url(any[String])).thenReturn(mockWsRequest)
-        when(mockWsRequest.stream()).thenReturn(Future.failed(exception))
-
-        val application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswers))
-            .overrides(
-              bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-              bind[WSClient].toInstance(mockWsClient)
-            )
-            .build()
-
-        running(application) {
-          val controller = application.injector.instanceOf[AvailableReportsController]
-
-          val result = intercept[RuntimeException] {
-            controller.auditDownloadFile(fileUrl, fileName, reportReference)(FakeRequest()).futureValue
-          }
-          result.getMessage must include("RuntimeException")
-        }
+        verify(mockTradeReportingExtractsService, times(1)).auditReportDownload(
+          eqTo("reportReference"),
+          eqTo("fileName"),
+          eqTo("file")
+        )(any[HeaderCarrier])
       }
     }
   }
