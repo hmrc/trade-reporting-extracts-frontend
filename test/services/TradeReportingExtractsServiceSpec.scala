@@ -19,6 +19,7 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
@@ -31,6 +32,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc.{Result, Results}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
 
@@ -173,6 +175,68 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.getUserDetails(eori).futureValue
         }
         thrown.getMessage must include("Connector error")
+      }
+    }
+
+    "auditReportDownload" - {
+
+      val reportReference = "some-reference"
+      val fileName        = "report.csv"
+      val fileUrl         = "http://localhost/report.csv"
+      val auditRequest    = AuditDownloadRequest(reportReference, fileName, fileUrl)
+
+      "must call the connector and return true when the connector returns true" in {
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(true))
+
+        val result = service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+
+        result mustBe true
+        verify(mockConnector).auditReportDownload(auditRequest)(hc)
+      }
+
+      "must call the connector and return false when the connector returns false" in {
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(false))
+
+        val result = service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+
+        result mustBe false
+      }
+
+      "must fail the future if the connector fails" in {
+        val exception = new RuntimeException("Connector error.")
+        when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.failed(exception))
+
+        val thrown = intercept[RuntimeException] {
+          service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
+        }
+        thrown.getMessage must include("Connector error.")
+      }
+    }
+
+    "downloadFile" - {
+
+      val fileUrl         = "http://localhost/somefile.csv"
+      val fileName        = "report.csv"
+      val reportReference = "ref123"
+
+      "must return a successful Result when the connector succeeds" in {
+        val expectedResult: Result = Results.Ok("file content")
+        when(mockConnector.downloadFile(fileUrl, fileName)(hc)).thenReturn(Future.successful(expectedResult))
+
+        val result = service.downloadFile(fileUrl, fileName, reportReference).futureValue
+
+        result mustBe expectedResult
+        verify(mockConnector).downloadFile(fileUrl, fileName)(hc)
+      }
+
+      "must return a failed Future when the connector fails" in {
+        val exception = new RuntimeException("Connector failed")
+        when(mockConnector.downloadFile(fileUrl, fileName)(hc)).thenReturn(Future.failed(exception))
+
+        val thrown = intercept[RuntimeException] {
+          service.downloadFile(fileUrl, fileName, reportReference).futureValue
+        }
+        thrown.getMessage must include("Connector failed")
       }
     }
   }

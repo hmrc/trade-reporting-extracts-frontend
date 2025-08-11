@@ -23,20 +23,21 @@ import models.availableReports.{AvailableReportAction, AvailableReportsViewModel
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers.should
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.http.HttpEntity
 import play.api.inject.bind
+import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 
 import java.time.Instant
 import scala.concurrent.Future
-import scala.io.Source
 
 class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
-  // implicit hc: HeaderCarrier
 
   "AvailableReports Controller" - {
 
@@ -262,6 +263,46 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must return download response when audit download file is called" in {
+      implicit val hc: HeaderCarrier        = HeaderCarrier()
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val downloadResponse                  = Result(
+        ResponseHeader(200),
+        HttpEntity.NoEntity
+      )
+
+      when(mockTradeReportingExtractsService.downloadFile(any(), any(), any())(any()))
+        .thenReturn(Future.successful(downloadResponse))
+
+      when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))
+        .thenReturn(Future.successful(NO_CONTENT))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(
+          GET,
+          controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
+        )
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        verify(mockTradeReportingExtractsService, times(1))
+          .downloadFile(eqTo("file"), eqTo("fileName"), eqTo("reportReference"))(any[HeaderCarrier])
+
+        verify(mockTradeReportingExtractsService, times(1)).auditReportDownload(
+          eqTo("reportReference"),
+          eqTo("fileName"),
+          eqTo("file")
+        )(any[HeaderCarrier])
       }
     }
   }

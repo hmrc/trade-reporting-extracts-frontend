@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.{NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -38,11 +38,15 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.writeableOf_JsValue
+import play.api.mvc.{ResponseHeader, Result}
+import play.api.http.{HttpEntity, Status}
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
   implicit ec: ExecutionContext
 ) extends Logging {
+
+  private val defaultPath = "conf/resources/eoriList.json"
 
   def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     httpClient
@@ -205,5 +209,40 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .recover { case ex: Exception =>
         logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
         throw ex
+      }
+
+  def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/downloaded-audit")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case NO_CONTENT => true
+          case _          =>
+            logger.error(s"Failed to audit report download: ${response.status} - ${response.body}")
+            false
+        }
+      }
+
+  def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
+    httpClient
+      .get(url"$fileUrl")
+      .execute[HttpResponse]
+      .map { response =>
+        Result(
+          header = ResponseHeader(
+            Status.OK,
+            Map(
+              "Content-Disposition" -> s"attachment; filename=$fileName",
+              "Content-Type"        -> response.header("Content-Type").getOrElse("application/octet-stream")
+            )
+          ),
+          body = HttpEntity.Streamed(
+            data = response.bodyAsSource,
+            contentLength = response.header("Content-Length").map(_.toLong),
+            contentType = response.header("Content-Type")
+          )
+        )
       }
 }
