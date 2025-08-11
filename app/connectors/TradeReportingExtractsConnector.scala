@@ -57,7 +57,6 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .flatMap:
       response => Future.successful(response)
 
-  private val defaultPath                                                = "conf/resources/eoriList.json"
   // TODO Remove with third party
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
     val path = Paths.get(pathString)
