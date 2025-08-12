@@ -223,4 +223,37 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             false
         }
       }
+
+  def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
+    httpClient
+      .get(url"$fileUrl")
+      .execute[HttpResponse]
+      .map { response =>
+        Result(
+          header = ResponseHeader(
+            Status.OK,
+            Map(
+              "Content-Disposition" -> s"attachment; filename=$fileName",
+              "Content-Type"        -> response.header("Content-Type").getOrElse("application/octet-stream")
+            )
+          ),
+          body = HttpEntity.Streamed(
+            data = response.bodyAsSource,
+            contentLength = response.header("Content-Length").map(_.toLong),
+            contentType = response.header("Content-Type")
+          )
+        )
+      }
+
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-request-limit-number")
+      .execute[String]
+      .flatMap { response =>
+        Future.successful(response)
+      }
+      .recover { case ex: Exception =>
+        logger.error(s"Failed to fetch report request limit number: ${ex.getMessage}", ex)
+        throw ex
+      }
 }
