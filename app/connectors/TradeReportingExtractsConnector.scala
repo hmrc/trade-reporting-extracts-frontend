@@ -27,6 +27,7 @@ import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
+import org.apache.pekko.stream.Materializer
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -43,7 +44,9 @@ import play.api.http.{HttpEntity, Status}
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
-  implicit ec: ExecutionContext
+  implicit
+  ec: ExecutionContext,
+  mat: Materializer
 ) extends Logging {
 
   private val defaultPath = "conf/resources/eoriList.json"
