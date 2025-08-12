@@ -213,6 +213,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/downloaded-audit")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
       .map { response =>
