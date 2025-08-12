@@ -44,7 +44,8 @@ import play.api.http.{HttpEntity, Status}
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
-  implicit ec: ExecutionContext,
+  implicit
+  ec: ExecutionContext,
   mat: Materializer
 ) extends Logging {
 
