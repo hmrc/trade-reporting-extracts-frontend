@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.report.ReportRequestUserAnswersModel
-import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures

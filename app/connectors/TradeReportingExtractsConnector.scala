@@ -30,7 +30,7 @@ import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
-import uk.gov.hmrc.http.client.{HttpClientV2, readStreamHttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Inject
