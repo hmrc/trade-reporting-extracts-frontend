@@ -27,36 +27,41 @@ import repositories.SessionRepository
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
 import play.api.inject.bind
-import controllers.actions._
+import controllers.actions.*
 import models.UserAnswers
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.inject.guice.GuiceApplicationBuilder
+import services.TradeReportingExtractsService
 
 class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
-  def appBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  def appBuilder(
+    userAnswers: Option[UserAnswers] = None,
+    mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[IdentifierAction].to[FakeIdentifierAction]
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
       )
 
   "ReportGuidanceController" - {
 
     "must return OK and the correct view for a GET" in {
+      val mockService = mock[TradeReportingExtractsService]
+      when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
 
-      val application = appBuilder(userAnswers = Some(emptyUserAnswers))
-        .build()
+      val application = appBuilder(userAnswers = Some(emptyUserAnswers), mockService).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ReportGuidanceView]
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[ReportGuidanceView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
       }
     }
 
@@ -76,7 +81,10 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = appBuilder(userAnswers = Some(userAnswers))
+      val mockService = mock[TradeReportingExtractsService]
+      when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+
+      val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
@@ -88,7 +96,7 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
       }
     }
 
@@ -108,7 +116,10 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application = appBuilder(userAnswers = Some(userAnswers))
+      val mockService = mock[TradeReportingExtractsService]
+      when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+
+      val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
@@ -120,7 +131,7 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
       }
     }
 
@@ -134,7 +145,10 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = appBuilder(userAnswers = Some(userAnswers))
+      val mockService = mock[TradeReportingExtractsService]
+      // No need to stub getReportRequestLimitNumber for this test
+
+      val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))

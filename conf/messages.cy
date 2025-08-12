@@ -130,6 +130,7 @@ unauthorisedCdsEnrolment.p2.part2 = cy: and sign in with the correct details.
 reportGuidance.title = cy: Request a CDS report
 reportGuidance.heading = cy: Request a CDS report
 reportGuidance.instructions.title = cy: Before you start
+reportGuidance.limit.message = cy: You can request up to {0} reports each day.
 reportGuidance.intro = cy: When you request a report you can:
 reportGuidance.bullet1 = cy: get data from the last 4 years up to today’s date
 reportGuidance.bullet2 = cy: include up to 31 days of data in one report

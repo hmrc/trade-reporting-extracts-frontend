@@ -210,6 +210,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         throw ex
       }
 
+<<<<<<< Updated upstream
   def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/downloaded-audit")
@@ -243,5 +244,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             contentType = response.header("Content-Type")
           )
         )
+=======
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-request-limit-number")
+      .execute[String]
+      .flatMap { response =>
+        Future.successful(response)
+      }
+      .recover { case ex: Exception =>
+        logger.error(s"Failed to fetch report request limit number: ${ex.getMessage}", ex)
+        throw ex
+>>>>>>> Stashed changes
       }
 }
