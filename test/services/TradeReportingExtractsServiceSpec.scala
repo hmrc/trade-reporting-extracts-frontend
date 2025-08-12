@@ -17,7 +17,6 @@
 package services
 
 import base.SpecBase
-import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
 import models.report.ReportRequestUserAnswersModel
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}

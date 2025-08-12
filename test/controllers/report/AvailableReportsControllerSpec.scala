@@ -266,7 +266,6 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return download response when audit download file is called" in {
-      implicit val hc: HeaderCarrier        = HeaderCarrier()
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val downloadResponse                  = Result(
         ResponseHeader(200),

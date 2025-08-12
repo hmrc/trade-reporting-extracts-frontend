@@ -18,7 +18,6 @@ package viewmodels.checkAnswers.report
 
 import base.SpecBase
 import models.UserAnswers
-import models.report.EmailSelection
 import pages.report.{EmailSelectionPage, MaybeAdditionalEmailPage, NewEmailNotificationPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages

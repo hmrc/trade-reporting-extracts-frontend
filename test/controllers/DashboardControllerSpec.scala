@@ -24,10 +24,9 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
-import play.api.test.{FakeRequest, Helpers}
 import play.api.test.Helpers.*
+import play.api.test.{FakeRequest, Helpers}
 import services.TradeReportingExtractsService
-import views.html.DashboardView
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
@@ -60,7 +59,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
-        val result = route(application, request).value
+        val result  = route(application, request).value
         status(result) mustEqual OK
 
       }
