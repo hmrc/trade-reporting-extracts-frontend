@@ -30,7 +30,7 @@ import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{HttpClientV2, readStreamHttpResponse}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Inject
@@ -212,20 +212,23 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
     httpClient
       .get(url"$fileUrl")
-      .execute[HttpResponse]
+      .stream()
       .map { response =>
         Result(
           header = ResponseHeader(
-            Status.OK,
+            response.status,
             Map(
               "Content-Disposition" -> s"attachment; filename=$fileName",
-              "Content-Type"        -> response.header("Content-Type").getOrElse("application/octet-stream")
+              "Content-Type"        -> response.headers
+                .get("Content-Type")
+                .flatMap(_.headOption)
+                .getOrElse("application/octet-stream")
             )
           ),
           body = HttpEntity.Streamed(
             data = response.bodyAsSource,
-            contentLength = response.header("Content-Length").map(_.toLong),
-            contentType = response.header("Content-Type")
+            contentLength = response.headers.get("Content-Length").flatMap(_.headOption).map(_.toLong),
+            contentType = response.headers.get("Content-Type").flatMap(_.headOption)
           )
         )
       }
