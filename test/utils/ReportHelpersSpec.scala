@@ -17,7 +17,6 @@
 package utils
 
 import base.SpecBase
-import models.ReportTypeName
 import models.report.ReportTypeImport
 import org.scalatest.matchers.must.Matchers
 import pages.report.ReportTypeImportPage

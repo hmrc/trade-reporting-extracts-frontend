@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.behaviours.StringFieldBehaviours
-import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
 import generators.Generators
 import org.scalacheck.Gen
 import play.api.data.FormError
@@ -28,8 +27,8 @@ class AccountsYouHaveAuthorityOverImportFormProviderSpec extends StringFieldBeha
 
   private implicit val messages: Messages = stubMessages()
 
-  val requiredKey  = "accountsYouHaveAuthorityOverImport.error.required"
-  val defaultValue = messages("accountsYouHaveAuthorityOverImport.defaultValue")
+  val requiredKey: String  = "accountsYouHaveAuthorityOverImport.error.required"
+  val defaultValue: String = messages("accountsYouHaveAuthorityOverImport.defaultValue")
 
   val form = new AccountsYouHaveAuthorityOverImportFormProvider()()
 

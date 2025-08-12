@@ -17,7 +17,6 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
 import forms.report.ReportTypeImportFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, UserAnswers}

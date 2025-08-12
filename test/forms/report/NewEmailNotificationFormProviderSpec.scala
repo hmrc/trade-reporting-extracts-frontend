@@ -17,9 +17,7 @@
 package forms.report
 
 import forms.behaviours.StringFieldBehaviours
-import models.StringFieldRegex
 import play.api.data.FormError
-import utils.Constants.maxNameLength
 
 class NewEmailNotificationFormProviderSpec extends StringFieldBehaviours {
 

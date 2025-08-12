@@ -24,7 +24,6 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Actions, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*

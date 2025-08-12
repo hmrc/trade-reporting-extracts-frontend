@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
-import models.report.ReportDateRange
+import models.report.{ReportDateRange, ReportTypeImport}
 import models.{CheckMode, UserAnswers}
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage, ReportTypeImportPage}
 import play.api.i18n.Messages
@@ -25,10 +25,9 @@ import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.{DateTimeFormats, ReportHelpers}
+import utils.DateTimeFormats
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import models.report.ReportTypeImport
 
 import java.time.LocalDate
 

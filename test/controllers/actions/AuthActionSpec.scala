@@ -22,7 +22,6 @@ import config.FrontendAppConfig
 import connectors.UserAllowListConnector
 import controllers.problem.routes
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

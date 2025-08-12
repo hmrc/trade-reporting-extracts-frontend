@@ -65,8 +65,6 @@ class TradeReportingExtractsConnectorSpec
       "must log an error and return a failed future if the file cannot be read" in {
         val app = application
         running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-
           val mockConnector = mock[TradeReportingExtractsConnector]
           when(mockConnector.getEoriList())
             .thenReturn(Future.failed(new RuntimeException("Failed to read or parse EORI list from file")))
