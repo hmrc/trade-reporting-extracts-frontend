@@ -48,6 +48,15 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
 
   private val defaultPath = "conf/resources/eoriList.json"
 
+  def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/setup-user")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[UserDetails]
+      .flatMap:
+      response => Future.successful(response)
+
   // TODO Remove with third party
   def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
     val path = Paths.get(pathString)
@@ -72,6 +81,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/requested-reports")
       .setHeader("Content-Type" -> "application/json")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(requestBody)
       .execute[HttpResponse]
       .flatMap {
@@ -112,6 +122,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/api/available-reports")
       .setHeader("Content-Type" -> "application/json")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.obj(eori -> eoriNumber))
       .execute[AvailableReportsViewModel]
       .recover { ex =>
@@ -122,6 +133,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def getNotificationEmail(eori: String)(implicit hc: HeaderCarrier): Future[NotificationEmail] =
     httpClient
       .post(url"${frontendAppConfig.tradeReportingExtractsApi}/user/notification-email")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.obj("eori" -> eori))
       .execute[NotificationEmail]
       .recover { ex =>
@@ -134,6 +146,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   )(implicit hc: HeaderCarrier): Future[Seq[String]] =
     httpClient
       .post(url"${frontendAppConfig.tradeReportingExtractsApi}/create-report-request")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.toJson(reportRequestAnswers))
       .execute[HttpResponse]
       .logFailureReason("Trade reporting extracts connector on createReportRequest")
@@ -168,6 +181,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def hasReachedSubmissionLimit(eori: String)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-submission-limit/$eori")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .setHeader("Content-Type" -> "application/json")
       .execute[HttpResponse]
       .map { response =>
@@ -185,6 +199,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def getUserDetails(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/get-user-detail")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.obj("eori" -> eori))
       .execute[UserDetails]
       .flatMap { response =>
