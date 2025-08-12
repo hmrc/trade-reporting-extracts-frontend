@@ -16,17 +16,15 @@
 
 package controllers
 
-import controllers.actions.IdentifierAction
-
-import javax.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.GuidancePageView
 
+import javax.inject.Inject
+
 class IndexController @Inject() (
   override val messagesApi: MessagesApi,
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
   view: GuidancePageView
 ) extends BaseController {
 

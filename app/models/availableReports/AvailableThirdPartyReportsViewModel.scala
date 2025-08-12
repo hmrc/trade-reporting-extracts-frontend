@@ -17,8 +17,7 @@
 package models.availableReports
 
 import models.ReportTypeName
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{Format, Json, OFormat, __}
+import play.api.libs.json.{Json, OFormat}
 
 import java.time.Instant
 

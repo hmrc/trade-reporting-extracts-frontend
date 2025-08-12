@@ -19,13 +19,11 @@ package controllers.report
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.{AlreadySubmittedFlag, UserAnswers}
+import models.AlreadySubmittedFlag
 import models.report.{EmailSelection, ReportRequestSection}
-import models.report.EmailSelection
 import models.requests.DataRequest
-import pages.report.{DecisionPage, EmailSelectionPage, NewEmailNotificationPage}
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import repositories.SessionRepository
@@ -45,7 +43,6 @@ class RequestConfirmationController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   reportRequestDataService: ReportRequestDataService,
   config: FrontendAppConfig,
-  reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView
 )(implicit ec: ExecutionContext)

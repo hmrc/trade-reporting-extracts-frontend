@@ -17,13 +17,12 @@
 package controllers.report
 
 import controllers.BaseController
-import controllers.actions._
+import controllers.actions.*
 import forms.report.EmailSelectionFormProvider
 import models.Mode
-import models.report.{EmailSelection, ReportRequestSection}
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
-import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

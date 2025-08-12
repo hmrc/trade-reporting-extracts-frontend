@@ -20,6 +20,7 @@ import controllers.actions.*
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.DashboardView
 
@@ -29,8 +30,6 @@ import scala.concurrent.ExecutionContext
 class DashboardController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: DashboardView,
   tradeReportingExtractsService: TradeReportingExtractsService
@@ -38,7 +37,7 @@ class DashboardController @Inject() (
     extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
-    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
       Ok(view(userDetails))
     }

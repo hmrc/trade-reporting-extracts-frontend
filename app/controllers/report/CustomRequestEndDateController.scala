@@ -21,7 +21,7 @@ import forms.report.CustomRequestEndDateFormProvider
 import models.Mode
 import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, MaybeAdditionalEmailPage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

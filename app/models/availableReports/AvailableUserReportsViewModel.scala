@@ -20,8 +20,8 @@ import models.ReportTypeName
 import play.api.libs.json.{Json, OFormat}
 import utils.ReportHelpers
 
+import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
 import java.util.Locale
 
 case class AvailableUserReportsViewModel(

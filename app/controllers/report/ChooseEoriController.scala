@@ -22,7 +22,7 @@ import forms.report.ChooseEoriFormProvider
 import models.Mode
 import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, MaybeAdditionalEmailPage}
+import pages.report.ChooseEoriPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

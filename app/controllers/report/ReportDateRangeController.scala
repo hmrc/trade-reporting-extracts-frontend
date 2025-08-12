@@ -18,8 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.ReportDateRangeFormProvider
-import models.{CheckMode, Mode, UserAnswers}
 import models.report.{ReportDateRange, ReportRequestSection}
+import models.{Mode, UserAnswers}
 import navigation.ReportNavigator
 import pages.report.ReportDateRangePage
 import play.api.data.Form
@@ -27,11 +27,11 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{DateTimeFormats, ReportHelpers}
 import utils.DateTimeFormats.dateTimeFormat
+import utils.{DateTimeFormats, ReportHelpers}
 import views.html.report.ReportDateRangeView
 
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -21,7 +21,6 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import viewmodels.govuk.all.HintViewModel
 import viewmodels.govuk.checkbox.*
 
 sealed trait ReportTypeImport
