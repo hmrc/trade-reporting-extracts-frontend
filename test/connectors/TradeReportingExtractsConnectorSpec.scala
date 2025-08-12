@@ -315,7 +315,6 @@ class TradeReportingExtractsConnectorSpec
       }
     }
 
-<<<<<<< Updated upstream
     "auditReportDownload" - {
 
       val url         = "/trade-reporting-extracts/downloaded-audit"
@@ -395,7 +394,9 @@ class TradeReportingExtractsConnectorSpec
 
           val body = contentAsString(resultF)
           body mustBe fileContent
-=======
+        }
+      }
+    }
     "getReportRequestLimitNumber" - {
 
       "must return the report request limit number when the API call is successful" in {
@@ -432,7 +433,6 @@ class TradeReportingExtractsConnectorSpec
             connector.getReportRequestLimitNumber.futureValue
           }
           thrown.getMessage must include("error")
->>>>>>> Stashed changes
         }
       }
     }

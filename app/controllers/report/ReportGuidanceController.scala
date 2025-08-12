@@ -47,16 +47,16 @@ class ReportGuidanceController @Inject() (
       case url if url == JourneyRecoveryUrl || (url == checkYourAnswersUrl && alreadySubmittedFlag) =>
         for {
           reportRequestNumberLimit <- tradeReportingExtractsService.getReportRequestLimitNumber
-          answers       <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
-          updatedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(answers)
-          _             <- sessionRepository.set(updatedAnswers)
+          answers                  <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
+          updatedAnswers            = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(answers)
+          _                        <- sessionRepository.set(updatedAnswers)
         } yield Ok(view(NormalMode, reportRequestNumberLimit))
       case initialPage.url                                                                          =>
         for {
-            reportRequestNumberLimit <- tradeReportingExtractsService.getReportRequestLimitNumber
-            updatedAnswers <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
-            _             <- sessionRepository.set(updatedAnswers)
-            } yield Ok(view(NormalMode, reportRequestNumberLimit))
+          reportRequestNumberLimit <- tradeReportingExtractsService.getReportRequestLimitNumber
+          updatedAnswers           <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
+          _                        <- sessionRepository.set(updatedAnswers)
+        } yield Ok(view(NormalMode, reportRequestNumberLimit))
       case _                                                                                        =>
         Future.successful(Redirect(ReportRequestSection().navigateTo(request.userAnswers)))
     }
