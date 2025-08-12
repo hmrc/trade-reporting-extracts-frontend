@@ -47,7 +47,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     val appConfig     = mock[FrontendAppConfig]
 
     when(mockMessages("accountsYouHaveAuthorityOverImport.defaultValue")).thenReturn("Default EORI")
-    val service = new TradeReportingExtractsService()(appConfig, ec, mockConnector)
+    val service = new TradeReportingExtractsService()(ec, mockConnector)
 
     "getEoriList" - {
       "should call connector.getEoriList and return the transformed list" in {
