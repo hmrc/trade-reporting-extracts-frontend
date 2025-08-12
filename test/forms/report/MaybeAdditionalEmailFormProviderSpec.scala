@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.report.MaybeAdditionalEmailFormProvider
 import play.api.data.FormError
 
 class MaybeAdditionalEmailFormProviderSpec extends BooleanFieldBehaviours {

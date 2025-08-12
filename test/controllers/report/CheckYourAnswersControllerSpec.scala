@@ -19,8 +19,6 @@ package controllers.report
 import base.SpecBase
 import controllers.report
 import models.SectionNavigation
-import navigation.ReportNavigator
-import pages.report.CheckYourAnswersPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.govuk.all.SummaryListViewModel

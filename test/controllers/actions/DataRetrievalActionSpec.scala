@@ -17,8 +17,8 @@
 package controllers.actions
 
 import base.SpecBase
+import base.TestConstants.testEori
 import models.UserAnswers
-import base.TestConstants.{testEori, userAnswersId}
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar

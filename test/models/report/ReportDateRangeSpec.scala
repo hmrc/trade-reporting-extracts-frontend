@@ -16,7 +16,6 @@
 
 package models.report
 
-import models.report.ReportDateRange
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues

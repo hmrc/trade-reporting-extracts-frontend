@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.report.ChooseEoriFormProvider
 import models.report.ChooseEori
 import play.api.data.FormError
 

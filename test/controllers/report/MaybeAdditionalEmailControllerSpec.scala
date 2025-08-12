@@ -17,7 +17,6 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
 import forms.report.MaybeAdditionalEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -36,7 +35,7 @@ import scala.concurrent.Future
 
 class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/notification-email")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/notification-email")
 
   val formProvider = new MaybeAdditionalEmailFormProvider()
   val form         = formProvider()

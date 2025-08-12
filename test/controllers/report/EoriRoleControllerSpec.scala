@@ -22,7 +22,6 @@ import models.report.{Decision, ReportTypeImport}
 import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.{DecisionPage, EoriRolePage, ReportTypeImportPage}

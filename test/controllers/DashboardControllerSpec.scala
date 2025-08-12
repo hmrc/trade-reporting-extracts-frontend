@@ -60,11 +60,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
-
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[DashboardView]
-
         status(result) mustEqual OK
 
       }
