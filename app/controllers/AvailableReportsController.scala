@@ -18,12 +18,13 @@ package controllers
 
 import controllers.actions.*
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.TradeReportingExtractsService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
@@ -45,10 +46,13 @@ class AvailableReportsController @Inject() (
   def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {
     implicit request =>
       for {
-        downloadResponse <- tradeReportingExtractsService.downloadFile(file, fileName, reportReference)
+        downloadResponse <- downloadFile(file, fileName)
       } yield {
         tradeReportingExtractsService.auditReportDownload(reportReference, fileName, file)
         downloadResponse
       }
   }
+
+  def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
+    Future.successful(Redirect(fileUrl))
 }

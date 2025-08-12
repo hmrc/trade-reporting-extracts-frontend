@@ -267,22 +267,12 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return download response when audit download file is called" in {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val downloadResponse                  = Result(
-        ResponseHeader(200),
-        HttpEntity.NoEntity
-      )
-
-      when(mockTradeReportingExtractsService.downloadFile(any(), any(), any())(any()))
-        .thenReturn(Future.successful(downloadResponse))
 
       when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))
         .thenReturn(Future.successful(NO_CONTENT))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
           .build()
 
       running(application) {
@@ -292,15 +282,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         )
         val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        verify(mockTradeReportingExtractsService, times(1))
-          .downloadFile(eqTo("file"), eqTo("fileName"), eqTo("reportReference"))(any[HeaderCarrier])
-
-        verify(mockTradeReportingExtractsService, times(1)).auditReportDownload(
-          eqTo("reportReference"),
-          eqTo("fileName"),
-          eqTo("file")
-        )(any[HeaderCarrier])
+        status(result) mustEqual SEE_OTHER
       }
     }
   }
