@@ -18,8 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.MaybeAdditionalEmailFormProvider
+import models.Mode
 import models.report.ReportRequestSection
-import models.{CheckMode, Mode}
 import navigation.ReportNavigator
 import pages.report.MaybeAdditionalEmailPage
 import play.api.data.Form

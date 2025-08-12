@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.report.CustomRequestStartDateFormProvider
 import models.Mode
 import models.report.ReportRequestSection
-import navigation.{Navigator, ReportNavigator}
+import navigation.ReportNavigator
 import pages.report.CustomRequestStartDatePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

@@ -19,7 +19,6 @@ package forms.report
 import forms.mappings.Mappings
 import models.report.EmailSelection
 import play.api.data.Form
-import play.api.data.Forms.{set, text}
 
 import javax.inject.Inject
 

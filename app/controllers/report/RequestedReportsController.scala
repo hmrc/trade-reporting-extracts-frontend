@@ -29,8 +29,6 @@ import scala.concurrent.ExecutionContext
 class RequestedReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: RequestedReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
