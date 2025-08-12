@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.behaviours.CheckboxFieldBehaviours
-import forms.report.EoriRoleFormProvider
 import models.EoriRole
 import play.api.data.FormError
 

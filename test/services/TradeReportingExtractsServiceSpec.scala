@@ -17,16 +17,16 @@
 package services
 
 import base.SpecBase
-import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
+import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
+import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.LocalDateTime
@@ -42,10 +42,9 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
     val mockConnector = mock[TradeReportingExtractsConnector]
     val mockMessages  = mock[Messages]
-    val appConfig     = mock[FrontendAppConfig]
 
     when(mockMessages("accountsYouHaveAuthorityOverImport.defaultValue")).thenReturn("Default EORI")
-    val service = new TradeReportingExtractsService()(appConfig, ec, mockConnector)
+    val service = new TradeReportingExtractsService()(ec, mockConnector)
 
     "getEoriList" - {
       "should call connector.getEoriList and return the transformed list" in {

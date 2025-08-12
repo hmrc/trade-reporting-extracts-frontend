@@ -16,14 +16,13 @@
 
 package models.report
 
+import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import org.scalatest.OptionValues
 import play.api.i18n.{Messages, MessagesImpl}
 import play.api.test.Helpers.stubMessagesApi
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import viewmodels.govuk.checkbox.CheckboxItemViewModel
 
 class EmailSelectionSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 

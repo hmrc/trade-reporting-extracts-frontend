@@ -23,7 +23,7 @@ import play.api.test.Helpers.stubMessages
 import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.{LocalDate, ZoneOffset}
 
 class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
@@ -34,7 +34,6 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
   private val currentDateMinusDay: LocalDate = currentDate.minusDays(1)
   private val beforeStartDate: LocalDate     = startDate.minusDays(1)
   private val illegalReportLengthDate        = startDate.plusDays(32)
-  private val maxReportLength: LocalDate     = startDate.plusDays(31)
   private val form                           = new CustomRequestEndDateFormProvider()(startDate)
 
   ".value" - {

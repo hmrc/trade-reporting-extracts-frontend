@@ -17,11 +17,10 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
 import forms.report.CustomRequestStartDateFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator, ReportNavigator}
+import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

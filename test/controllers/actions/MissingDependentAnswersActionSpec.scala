@@ -17,16 +17,15 @@
 package controllers.actions
 
 import base.SpecBase
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.{AnyContent, Request, Result}
 import models.report.ReportRequestSection
 import models.requests.DataRequest
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.{AnyContent, Request, Result}
 import uk.gov.hmrc.auth.core.AffinityGroup
 
-import java.lang.ProcessBuilder.Redirect
 import scala.concurrent.{ExecutionContext, Future}
 
 class MissingDependentAnswersActionSpec extends SpecBase with ScalaFutures with MockitoSugar {

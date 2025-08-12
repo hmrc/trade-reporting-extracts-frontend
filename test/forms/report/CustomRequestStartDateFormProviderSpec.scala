@@ -17,11 +17,9 @@
 package forms.report
 
 import forms.behaviours.DateBehaviours
-import forms.report.CustomRequestStartDateFormProvider
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.{LocalDate, ZoneOffset}
 
@@ -30,8 +28,8 @@ class CustomRequestStartDateFormProviderSpec extends DateBehaviours {
   private implicit val messages: Messages = stubMessages()
   private val form                        = new CustomRequestStartDateFormProvider()()
 
-  val min = LocalDate.now(ZoneOffset.UTC).minusYears(4)
-  val max = LocalDate.now(ZoneOffset.UTC)
+  val min: LocalDate = LocalDate.now(ZoneOffset.UTC).minusYears(4)
+  val max: LocalDate = LocalDate.now(ZoneOffset.UTC)
 
   ".value" - {
 

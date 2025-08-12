@@ -18,8 +18,8 @@ package controllers
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.{GuidancePageView, IndexView}
+import play.api.test.Helpers.*
+import views.html.GuidancePageView
 
 class IndexControllerSpec extends SpecBase {
 

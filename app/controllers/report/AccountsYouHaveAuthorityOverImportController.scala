@@ -18,15 +18,14 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import models.Mode
+import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import navigation.ReportNavigator
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, MaybeAdditionalEmailPage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
-import uk.gov.hmrc.govukfrontend.views.html.components.GovukInput
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.report.AccountsYouHaveAuthorityOverImportView
 
@@ -43,7 +42,6 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
   formProvider: AccountsYouHaveAuthorityOverImportFormProvider,
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
-  govukInput: GovukInput,
   view: AccountsYouHaveAuthorityOverImportView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)

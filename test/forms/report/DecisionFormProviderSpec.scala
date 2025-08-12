@@ -16,9 +16,9 @@
 
 package forms.report
 
-import forms.behaviours.{OptionFieldBehaviours, StringFieldBehaviours}
+import forms.behaviours.OptionFieldBehaviours
 import models.report.Decision
-import play.api.data.{Form, FormError}
+import play.api.data.FormError
 
 class DecisionFormProviderSpec extends OptionFieldBehaviours {
 

@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.behaviours.CheckboxFieldBehaviours
-import forms.report.ReportTypeImportFormProvider
 import models.report.ReportTypeImport
 import play.api.data.FormError
 

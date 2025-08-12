@@ -57,11 +57,6 @@ class NavigatorSpec extends SpecBase {
         controllers.problem.routes.JourneyRecoveryController.onPageLoad(continueUrl)
       )
     }
-
-    def checkNavigation(nextUrl: String, expectedUrl: String) = {
-      val urlWithNoContext = nextUrl.replace("/public-pension-adjustment", "")
-      urlWithNoContext mustBe expectedUrl
-    }
   }
 
 }

@@ -17,22 +17,21 @@
 package controllers.report
 
 import base.SpecBase
-import services.TradeReportingExtractsService
 import models.ReportTypeName
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.any
-import org.scalatest.matchers.should.Matchers.should
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.matchers.should.Matchers.should
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HttpEntity
 import play.api.inject.bind
 import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 
 import java.time.Instant
 import scala.concurrent.Future
@@ -267,7 +266,6 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return download response when audit download file is called" in {
-      implicit val hc: HeaderCarrier        = HeaderCarrier()
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
       when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))

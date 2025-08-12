@@ -50,6 +50,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
       userAnswers.get(DecisionPage).get match {
         case decision if decision == Export => Set(EoriRole.Exporter.toString)
         case decision if decision == Import => Set(EoriRole.Importer.toString)
+        case _                              => Set.empty[String]
       }
     } else {
       userAnswers.get(EoriRolePage).get.map(i => i.toString)

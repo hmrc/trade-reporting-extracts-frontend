@@ -18,7 +18,6 @@ package pages.report
 
 import base.SpecBase
 import models.UserAnswers
-import models.report.EmailSelection
 
 class MaybeAdditionalEmailPageSpec extends SpecBase {
 

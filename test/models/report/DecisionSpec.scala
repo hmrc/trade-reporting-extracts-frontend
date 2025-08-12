@@ -16,7 +16,6 @@
 
 package models.report
 
-import models.report.Decision
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
@@ -31,7 +30,7 @@ class DecisionSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChec
 
     "must deserialise valid values" in {
 
-      val gen = Gen.oneOf(Decision.values.toSeq)
+      val gen = Gen.oneOf(Decision.values)
 
       forAll(gen) { decision =>
         JsString(decision.toString).validate[Decision].asOpt.value mustEqual decision
@@ -49,7 +48,7 @@ class DecisionSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChec
 
     "must serialise" in {
 
-      val gen = Gen.oneOf(Decision.values.toSeq)
+      val gen = Gen.oneOf(Decision.values)
 
       forAll(gen) { decision =>
         Json.toJson(decision) mustEqual JsString(decision.toString)

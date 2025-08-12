@@ -17,10 +17,9 @@
 package forms.mappings
 
 import models.Enumerable
+import play.api.data.Forms.{of, set}
 import play.api.data.{FieldMapping, Mapping}
-import play.api.data.Forms.of
 import play.api.i18n.Messages
-import play.api.data.Forms.{set, text}
 
 import java.time.LocalDate
 

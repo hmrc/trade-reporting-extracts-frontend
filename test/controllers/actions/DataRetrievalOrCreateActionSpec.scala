@@ -17,7 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
-import base.TestConstants.{testEori, userAnswersId}
+import base.TestConstants.testEori
 import models.UserAnswers
 import models.requests.{DataRequest, IdentifierRequest}
 import org.mockito.ArgumentCaptor

@@ -16,13 +16,13 @@
 
 package services
 
-import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
-import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
+import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
+import play.api.mvc.Result
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -32,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class TradeReportingExtractsService @Inject() (
 )(implicit
-  appConfig: FrontendAppConfig,
   ec: ExecutionContext,
   connector: TradeReportingExtractsConnector
 ) extends Logging {
@@ -83,5 +82,4 @@ class TradeReportingExtractsService @Inject() (
     val auditData = AuditDownloadRequest(reportReference, fileName, fileUrl)
     connector.auditReportDownload(auditData)
   }
-
 }
