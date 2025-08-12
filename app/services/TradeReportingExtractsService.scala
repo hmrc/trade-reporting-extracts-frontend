@@ -21,12 +21,8 @@ import connectors.TradeReportingExtractsConnector
 import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.libs.json.Json
-import play.api.libs.ws.writeableOf_JsValue
-import play.api.mvc.Result
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -88,11 +84,4 @@ class TradeReportingExtractsService @Inject() (
     connector.auditReportDownload(auditData)
   }
 
-  def downloadFile(fileUrl: String, fileName: String, reportReference: String)(implicit
-    hc: HeaderCarrier
-  ): Future[Result] =
-    connector.downloadFile(fileUrl, fileName).recoverWith { case e =>
-      logger.error(s"Failed to download file: ${e.getMessage}")
-      Future.failed(e)
-    }
 }

@@ -359,43 +359,5 @@ class TradeReportingExtractsConnectorSpec
         }
       }
     }
-
-    "downloadFile" - {
-
-      "must return a streamed result with correct headers and body" in {
-
-        val app                   = application
-        implicit val materializer = app.materializer
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-
-          val fileUrlPath = "/some/file.csv"
-          val fileUrl     = s"http://localhost:${server.port()}$fileUrlPath"
-          val fileName    = "my-report.csv"
-          val fileContent = "header1,header2\nvalue1,value2"
-          val contentType = "text/csv"
-
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(fileUrlPath))
-              .willReturn(
-                aResponse()
-                  .withStatus(OK)
-                  .withHeader("Content-Type", contentType)
-                  .withBody(fileContent)
-              )
-          )
-
-          val resultF = connector.downloadFile(fileUrl, fileName)
-
-          status(resultF) mustBe OK
-          header("Content-Disposition", resultF) mustBe Some(s"attachment; filename=$fileName")
-          header("Content-Type", resultF) mustBe Some(contentType)
-
-          val body = contentAsString(resultF)
-          body mustBe fileContent
-        }
-      }
-    }
   }
 }

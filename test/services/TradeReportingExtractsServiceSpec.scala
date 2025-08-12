@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import connectors.TradeReportingExtractsConnector
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
-import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -32,7 +31,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.{Result, Results}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
 
@@ -210,33 +208,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
         }
         thrown.getMessage must include("Connector error.")
-      }
-    }
-
-    "downloadFile" - {
-
-      val fileUrl         = "http://localhost/somefile.csv"
-      val fileName        = "report.csv"
-      val reportReference = "ref123"
-
-      "must return a successful Result when the connector succeeds" in {
-        val expectedResult: Result = Results.Ok("file content")
-        when(mockConnector.downloadFile(fileUrl, fileName)(hc)).thenReturn(Future.successful(expectedResult))
-
-        val result = service.downloadFile(fileUrl, fileName, reportReference).futureValue
-
-        result mustBe expectedResult
-        verify(mockConnector).downloadFile(fileUrl, fileName)(hc)
-      }
-
-      "must return a failed Future when the connector fails" in {
-        val exception = new RuntimeException("Connector failed")
-        when(mockConnector.downloadFile(fileUrl, fileName)(hc)).thenReturn(Future.failed(exception))
-
-        val thrown = intercept[RuntimeException] {
-          service.downloadFile(fileUrl, fileName, reportReference).futureValue
-        }
-        thrown.getMessage must include("Connector failed")
       }
     }
   }

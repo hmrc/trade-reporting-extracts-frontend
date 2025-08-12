@@ -27,7 +27,6 @@ import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
-import org.apache.pekko.stream.Materializer
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -39,14 +38,11 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.writeableOf_JsValue
-import play.api.mvc.{ResponseHeader, Result}
-import play.api.http.{HttpEntity, Status}
+import play.api.http.Status
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
-  implicit
-  ec: ExecutionContext,
-  mat: Materializer
+  implicit ec: ExecutionContext
 ) extends Logging {
 
   private val defaultPath = "conf/resources/eoriList.json"
@@ -226,29 +222,5 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             logger.error(s"Failed to audit report download: ${response.status} - ${response.body}")
             false
         }
-      }
-
-  def downloadFile(fileUrl: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] =
-    httpClient
-      .get(url"$fileUrl")
-      .stream()
-      .map { response =>
-        Result(
-          header = ResponseHeader(
-            response.status,
-            Map(
-              "Content-Disposition" -> s"attachment; filename=$fileName",
-              "Content-Type"        -> response.headers
-                .get("Content-Type")
-                .flatMap(_.headOption)
-                .getOrElse("application/octet-stream")
-            )
-          ),
-          body = HttpEntity.Streamed(
-            data = response.bodyAsSource,
-            contentLength = response.headers.get("Content-Length").flatMap(_.headOption).map(_.toLong),
-            contentType = response.headers.get("Content-Type").flatMap(_.headOption)
-          )
-        )
       }
 }
