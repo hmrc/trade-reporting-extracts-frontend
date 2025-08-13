@@ -69,6 +69,9 @@ class TradeReportingExtractsService @Inject() (
   def hasReachedSubmissionLimit(eori: String)(implicit hc: HeaderCarrier): Future[Boolean] =
     connector.hasReachedSubmissionLimit(eori)
 
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String] =
+    connector.getReportRequestLimitNumber
+
   def getUserDetails(eori: String)(implicit
     hc: HeaderCarrier
   ): Future[UserDetails] =
