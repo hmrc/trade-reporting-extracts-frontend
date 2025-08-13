@@ -32,7 +32,7 @@ import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 import views.html.report.RequestConfirmationView
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import java.time.{Clock, Instant, LocalDateTime, ZoneId, ZoneOffset}
 import scala.concurrent.Future
 
 class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
@@ -42,7 +42,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
 
   val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
 
   "RequestConfirmationController" - {
 
