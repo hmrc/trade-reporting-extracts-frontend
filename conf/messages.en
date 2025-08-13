@@ -361,3 +361,11 @@ missingDependentAnswers.message = You need to answer all the remaining questions
 
 tooManySubmissions.title = You have reached the limit for report request submissions today
 tooManySubmissions.heading = You have reached the limit for report request submissions today
+
+thirdPartyReference.title = What name will you use to reference this EORI number?
+thirdPartyReference.heading = What name will you use to reference this EORI number?
+thirdPartyReference.checkYourAnswersLabel = Reference name
+thirdPartyReference.error.required = Enter the name you will use to reference this EORI number
+thirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
+thirdPartyReference.change.hidden = reference name
+thirdPartyReference.message = This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
