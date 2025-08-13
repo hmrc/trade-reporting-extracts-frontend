@@ -19,7 +19,7 @@ package navigation
 import com.google.inject.Inject
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.{DataTypesPage, EoriNumberPage, ThirdPartyDataOwnerConsentPage}
+import pages.thirdparty._
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
@@ -34,15 +34,33 @@ class ThirdPartyNavigator @Inject() extends Navigator {
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(CheckMode)
+    case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
+  }
+
+  override val checkRoutes: Page => UserAnswers => Call = {
     case ThirdPartyDataOwnerConsentPage =>
-      dataOwnerConsentRoutes(NormalMode)
+      dataOwnerConsentRoutes(CheckMode)
     case DataTypesPage                  =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
     case EoriNumberPage                 =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
+    case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
+
+  private def thirdPartyReferenceRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ThirdPartyReferencePage) match {
+      case Some(_) =>
+        mode match {
+          // CHANGE TO ACCESS START PAGE
+          case NormalMode => controllers.routes.DashboardController.onPageLoad()
+          // CHANGE FOR CHECKMODE
+          case CheckMode  => controllers.thirdparty.routes.ThirdPartyDataOwnerConsentController.onPageLoad(CheckMode)
+        }
+      case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
 
   // TODO CHECKMODE AND ONWARDS NAVIGATION
   private def dataOwnerConsentRoutes(mode: Mode)(answers: UserAnswers): Call =
