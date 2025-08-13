@@ -6,3 +6,8 @@ GET        /change-importer-or-exporter                  controllers.thirdparty.
 POST       /change-importer-or-exporter                  controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = CheckMode)
 
 GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
+
+GET        /reference-name                      controllers.thirdparty.ThirdPartyReferenceController.onPageLoad(mode: Mode = NormalMode)
+POST       /reference-name                        controllers.thirdparty.ThirdPartyReferenceController.onSubmit(mode: Mode = NormalMode)
+GET        /change-reference-name                  controllers.thirdparty.ThirdPartyReferenceController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-reference-name                  controllers.thirdparty.ThirdPartyReferenceController.onSubmit(mode: Mode = CheckMode)
