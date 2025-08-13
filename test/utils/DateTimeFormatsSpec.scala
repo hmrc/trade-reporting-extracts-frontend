@@ -53,13 +53,13 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
     "must return the current time in english" in {
       val lang   = Lang("en")
       val result = DateTimeFormats.formattedSystemTime(fixedClock)(lang)
-      result mustBe "01:00 AM"
+      result mustBe "12:00 AM"
     }
 
     "must return the current time formatted in Welsh" in {
       val lang   = Lang("cy")
       val result = DateTimeFormats.formattedSystemTime(fixedClock)(lang)
-      result mustBe "01:00 yb"
+      result mustBe "12:00 yb"
     }
   }
 

@@ -124,7 +124,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "01:00 AM"
+          "12:00 AM"
         )(
           request,
           messages(application)
@@ -217,7 +217,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "01:00 AM"
+          "12:00 AM"
         )(
           request,
           messages(application)
@@ -289,7 +289,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "01:00 AM"
+          "12:00 AM"
         )(
           request,
           messages(application)
