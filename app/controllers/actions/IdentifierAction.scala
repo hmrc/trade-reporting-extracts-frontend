@@ -83,7 +83,7 @@ class AuthenticatedIdentifierAction @Inject() (
                 block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
               case false =>
                 logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
-                Future.successful(Redirect(controllers.problem.routes.UnauthorisedController.onPageLoad()))
+                Future.successful(Redirect(controllers.problem.routes.NoPermissionController.onPageLoad()))
             }
           case false =>
             block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
