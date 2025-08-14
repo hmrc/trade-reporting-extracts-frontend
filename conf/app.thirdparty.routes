@@ -1,0 +1,1 @@
+GET        /add-a-third-party                       controllers.thirdparty.AddThirdPartyController.onPageLoad()

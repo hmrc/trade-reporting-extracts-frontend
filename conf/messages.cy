@@ -361,3 +361,16 @@ missingDependentAnswers.message = cy: You need to answer all the remaining quest
 
 tooManySubmissions.title = cy: You have reached the limit for report request submissions today
 tooManySubmissions.heading = cy: You have reached the limit for report request submissions today
+
+addThirdParty.title = cy: Add a third party
+addThirdParty.heading = cy: Add a third party
+addThirdParty.eligibility = cy: Only importers and exporters can give third party access to customs declaration data, as they own the data.
+addThirdParty.cannotAdd.intro = cy: You cannot add a third party if you are only:
+addThirdParty.cannotAdd.declarant = cy: a declarant, like a customs agent who submits customs declarations on behalf of someone else
+addThirdParty.cannotAdd.thirdParty = cy: a third party, like a consultancy firm or accountant acting on behalf of someone else
+addThirdParty.beforeYouStart = cy: Before you start
+addThirdParty.beforeYouStart.detail = cy: You'll need the EORI number of the business that you want to give third-party access to. You can choose whether to give access to import data, export data, or both. After you add them, you can change or remove their access at any time.
+addThirdParty.subscription.p1 = cy: Your third party must
+addThirdParty.subscription.cds = cy: subscribe to CDS
+addThirdParty.subscription.p2 = cy: before they can access the data.
+addThirdParty.continue = cy: Continue
