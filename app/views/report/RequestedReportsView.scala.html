@@ -111,13 +111,13 @@
    <a href="@controllers.routes.AvailableReportsController.onPageLoad().url"
       class="govuk-link govuk-link--no-visited-state">
     @messages("requestedReports.link1")
-   </a>
+   </a>.
   </p>
   } else {
   <h1 class="govuk-heading-xl">@messages("requestedReports.heading.none")</h1>
   <p class="govuk-body">@messages("requestedReports.message1")<a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">
       @messages("requestedReports.link2.none")
-  </a></p>
+  </a>.</p>
   <p class="govuk-body">
    <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">
     @messages("requestedReports.home.link")
