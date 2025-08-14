@@ -82,12 +82,4 @@ class TradeReportingExtractsService @Inject() (
     val auditData = AuditDownloadRequest(reportReference, fileName, fileUrl)
     connector.auditReportDownload(auditData)
   }
-
-  def downloadFile(fileUrl: String, fileName: String, reportReference: String)(implicit
-    hc: HeaderCarrier
-  ): Future[Result] =
-    connector.downloadFile(fileUrl, fileName).recoverWith { case e =>
-      logger.error(s"Failed to download file: ${e.getMessage}")
-      Future.failed(e)
-    }
 }
