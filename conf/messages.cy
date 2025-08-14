@@ -85,7 +85,6 @@ guidancePage.requestReport.thirdParty = cy: If you are a third party, your clien
 guidancePage.dataDelivery.title = cy: You'll get an email notification when your reports are available. You can then download them as CSV files through this service.
 guidancePage.dataDescriptionsLinkText = cy: Customs Declaration Service data import and export descriptions.
 guidancePage.more = cy: More
-guidancePage.start = cy: Start now
 
 dashboard.title = cy: dashboard
 dashboard.heading = cy: Get customs declaration data for imports and exports
