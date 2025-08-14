@@ -362,6 +362,12 @@ missingDependentAnswers.message = You need to answer all the remaining questions
 tooManySubmissions.title = You have reached the limit for report request submissions today
 tooManySubmissions.heading = You have reached the limit for report request submissions today
 
+noPermission.title = You do not have permission to access this service
+noPermission.heading = You do not have permission to access this service
+noPermission.intro = This service is only available to invited users while it is being tested.
+noPermission.p1 = You can still
+noPermission.p1.linkText = request a Customs Declaration Service report
+
 addThirdParty.title = Add a third party
 addThirdParty.heading = Add a third party
 addThirdParty.eligibility = Only importers and exporters can give third party access to customs declaration data, as they own the data.

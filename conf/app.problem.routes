@@ -5,3 +5,4 @@ GET        /problem/tooManySubmissions                       controllers.problem
 GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
 
 GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()
+GET        /no-permission                             controllers.problem.NoPermissionController.onPageLoad()
