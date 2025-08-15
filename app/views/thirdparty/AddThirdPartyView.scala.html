@@ -48,7 +48,7 @@
 </div>
 <div class="govuk-button-group">
     @govukButton(
-        ButtonViewModel(messages("addThirdParty.continue"))
+        ButtonViewModel(messages("addThirdParty.continue")).asLink(controllers.thirdparty.routes.ThirdPartyDataOwnerConsentController.onPageLoad(NormalMode).url)
     )
 </div>
 }

@@ -362,6 +362,12 @@ missingDependentAnswers.message = cy: You need to answer all the remaining quest
 tooManySubmissions.title = cy: You have reached the limit for report request submissions today
 tooManySubmissions.heading = cy: You have reached the limit for report request submissions today
 
+noPermission.title = cy: You do not have permission to access this service
+noPermission.heading = cy: You do not have permission to access this service
+noPermission.intro = cy: This service is only available to invited users while it is being tested.
+noPermission.p1 = cy: You can still
+noPermission.p1.linkText = cy: request a Customs Declaration Service report
+
 addThirdParty.title = cy: Add a third party
 addThirdParty.heading = cy: Add a third party
 addThirdParty.eligibility = cy: Only importers and exporters can give third party access to customs declaration data, as they own the data.
@@ -374,3 +380,17 @@ addThirdParty.subscription.p1 = cy: Your third party must
 addThirdParty.subscription.cds = cy: subscribe to CDS
 addThirdParty.subscription.p2 = cy: before they can access the data.
 addThirdParty.continue = cy: Continue
+
+thirdPartyDataOwnerConsent.title = Are you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.heading = Are you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.checkYourAnswersLabel = Are you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.error.required = Select yes if you are the importer or exporter for the data you want to share
+thirdPartyDataOwnerConsent.change.hidden = if you are the importer or exporter for the data you want to share
+thirdPartyDataOwnerConsent.yes = Yes, I own the customs declaration data
+
+cannotAddThirdParty.title = You cannot add a third party to your account
+cannotAddThirdParty.heading = You cannot add a third party to your account
+cannotAddThirdParty.message1 = Only importers and exporters can give a third party access to their customs declaration data because they are the owners of that data.
+cannotAddThirdParty.message2 = If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
+cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
+cannotAddThirdParty.link = Go to homepage
