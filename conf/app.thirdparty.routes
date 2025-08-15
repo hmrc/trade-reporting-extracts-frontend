@@ -1,1 +1,8 @@
 GET        /add-a-third-party                       controllers.thirdparty.AddThirdPartyController.onPageLoad()
+
+GET        /importer-or-exporter                        controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = NormalMode)
+POST       /importer-or-exporter                        controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = NormalMode)
+GET        /change-importer-or-exporter                  controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-importer-or-exporter                  controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = CheckMode)
+
+GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
