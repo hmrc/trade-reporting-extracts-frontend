@@ -6,3 +6,8 @@ GET        /change-importer-or-exporter                  controllers.thirdparty.
 POST       /change-importer-or-exporter                  controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = CheckMode)
 
 GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
+
+GET        /access-start-date                  controllers.thirdparty.ThirdPartyAccessStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /access-start-date                  controllers.thirdparty.ThirdPartyAccessStartDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-access-start-date                        controllers.thirdparty.ThirdPartyAccessStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-access-start-date                        controllers.thirdparty.ThirdPartyAccessStartDateController.onSubmit(mode: Mode = CheckMode)
