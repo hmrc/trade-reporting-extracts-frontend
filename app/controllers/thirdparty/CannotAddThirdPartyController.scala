@@ -17,24 +17,32 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import models.thirdparty.AddThirdPartySection
+import pages.thirdparty.ThirdPartyDataOwnerConsentPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.thirdparty.AddThirdPartyView
+import views.html.thirdparty.CannotAddThirdPartyView
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class AddThirdPartyController @Inject() (
+class CannotAddThirdPartyController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getOrCreate: DataRetrievalOrCreateAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  view: AddThirdPartyView
-) extends FrontendBaseController
+  view: CannotAddThirdPartyView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
-    Future.successful(Ok(view()))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    for {
+      _ <- sessionRepository.set(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers))
+    } yield Ok(view())
   }
 }
