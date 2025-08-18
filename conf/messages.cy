@@ -445,3 +445,30 @@ confirmEori.checkYourAnswersLabel = cy: Confirm the EORI number for third-party 
 confirmEori.error.required = cy: Select yes if you want to give this EORI number third-party access
 confirmEori.change.hidden = cy: Confirm the EORI number for third-party access
 confirmEori.noConsent = cy: This business has not agreed to share their data. Contact them directly for more information.
+
+thirdPartyAccessStartDate.title = cy: When do you want this access to start?
+thirdPartyAccessStartDate.heading = cy: When do you want this access to start?
+thirdPartyAccessStartDate.message = cy: You can enter today’s date or choose a future date.
+thirdPartyAccessStartDate.hint = cy: For example, {0}.
+thirdPartyAccessStartDate.error.required.all = cy: Enter the date this access will start
+thirdPartyAccessStartDate.error.required.two = cy: The date this access will start must include {0} and a {1}
+thirdPartyAccessStartDate.error.required = cy: The date this access will start must include a {0}
+thirdPartyAccessStartDate.error.invalid = cy: The date this access will start must be a real date and only include numbers 0 to 9
+thirdPartyAccessStartDate.error.min = cy: The date this access will start must be today or in the future
+thirdPartyAccessStartDate.error.max = cy: The date this access will start must be before {0}
+
+thirdPartyAccessPeriod.checkYourAnswersLabel = cy: Third-party access period
+thirdPartyAccessPeriod.fixed.answerLabel = cy: {0} to {1}
+thirdPartyAccessPeriod.ongoing.answerLabel = cy: From {0} - ongoing
+thirdPartyAccessPeriod.change.hidden = cy: third-party access period
+
+thirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
+thirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
+thirdPartyAccessEndDate.message = cy:  You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
+thirdPartyAccessEndDate.hint = cy: For example, 27 12 2025.
+thirdPartyAccessEndDate.error.required.all = cy: Enter the thirdPartyAccessEndDate
+thirdPartyAccessEndDate.error.required.two = cy: The date this access will end must include a {0} and a {1}
+thirdPartyAccessEndDate.error.required = cy: The date this access will end must include a {0}
+thirdPartyAccessEndDate.error.invalid = cy: The date this access will end must be a real date and only include numbers 0 to 9
+thirdPartyAccessEndDate.error.min = cy: The date this access will end must be on or after {0}
+thirdPartyAccessEndDate.error.max = cy: The date this access will end must be before {0}

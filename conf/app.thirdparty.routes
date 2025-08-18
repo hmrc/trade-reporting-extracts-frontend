@@ -26,3 +26,13 @@ GET        /reference-name                      controllers.thirdparty.ThirdPart
 POST       /reference-name                        controllers.thirdparty.ThirdPartyReferenceController.onSubmit(mode: Mode = NormalMode)
 GET        /change-reference-name                  controllers.thirdparty.ThirdPartyReferenceController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-reference-name                  controllers.thirdparty.ThirdPartyReferenceController.onSubmit(mode: Mode = CheckMode)
+
+GET        /access-start-date                  controllers.thirdparty.ThirdPartyAccessStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /access-start-date                  controllers.thirdparty.ThirdPartyAccessStartDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-access-start-date                        controllers.thirdparty.ThirdPartyAccessStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-access-start-date                        controllers.thirdparty.ThirdPartyAccessStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /access-end-date                  controllers.thirdparty.ThirdPartyAccessEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /access-end-date                  controllers.thirdparty.ThirdPartyAccessEndDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-access-end-date                        controllers.thirdparty.ThirdPartyAccessEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-access-end-date                        controllers.thirdparty.ThirdPartyAccessEndDateController.onSubmit(mode: Mode = CheckMode)
