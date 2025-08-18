@@ -104,6 +104,21 @@ trait Generators extends ModelGenerators {
     chars     <- listOfN(length, arbitrary[Char])
   } yield chars.mkString
 
+  def stringsShorterThan(n: Int): Gen[String] =
+    Gen.choose(1, n - 1).flatMap(len => Gen.listOfN(len, Gen.alphaNumChar).map(_.mkString))
+
+  def stringsOfExactLength(length: Int): Gen[String] =
+    Gen.listOfN(length, Gen.alphaNumChar).map(_.mkString)
+
+  def stringsNotMatchingRegexWithExactLength(regexString: String, exactLength: Int): Gen[String] = {
+    val regex = new Regex(regexString)
+
+    Gen
+      .listOfN(exactLength, Gen.alphaNumChar)
+      .map(_.mkString)
+      .suchThat(s => !regex.pattern.matcher(s).matches)
+  }
+
   def stringsExceptSpecificValues(excluded: Seq[String]): Gen[String] =
     nonEmptyString suchThat (!excluded.contains(_))
 
@@ -124,4 +139,17 @@ trait Generators extends ModelGenerators {
       Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
     }
   }
+
+  def validEoriGen: Gen[String] = for {
+    prefix   <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString)
+    digits   <- Gen.listOfN(12, Gen.numChar).map(_.mkString)
+    optional <- Gen.option(Gen.listOfN(3, Gen.numChar).map(_.mkString))
+  } yield prefix + digits + optional.getOrElse("")
+
+  def invalidEoriStringsOfExactLength(exactLength: Int): Gen[String] = {
+    val invalidChars = Gen.oneOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '虛', '聾', '€', '♥')
+
+    Gen.listOfN(exactLength, invalidChars).map(_.mkString)
+  }
+
 }
