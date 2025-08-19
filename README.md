@@ -21,29 +21,15 @@ To use the service manager CLI (sm2), please refer to the [official setup guide]
 Once set up:
 - To start the service:
   ```sh
-  sm2 --start TRADE_REPORTING_EXTRACTS_FRONEND
+  sm2 --start TRE_ALL
   ```
 - To stop the service:
   ```sh
-  sm2 --stop TRADE_REPORTING_EXTRACTS_FRONEND
+  sm2 --stop TRE_ALL
   ```
 
-### Required dependencies
-This service is dependent on the following services:
-- AUTH
-- AUTH_LOGIN_API
-- AUTH_LOGIN_STUB
-- IDENTITY_VERIFICATION
-- USER_DETAILS
-- FEEDBACK_FRONTEND
-- BAS_GATEWAY
-- BAS_GATEWAY_FRONTEND
-- BAS_STUBS
-
-You can start all the dependent services at once using:
-  ```sh
-  sm2 --start TRE_ALL
-  ```
+## URL
+http://localhost:2102/request-customs-declaration-data
 
 ## Login enrolments
 
