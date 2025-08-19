@@ -25,19 +25,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object ThirdPartyReferenceSummary  {
+object ThirdPartyReferenceSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ThirdPartyReferencePage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "thirdPartyReference.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
+    answers.get(ThirdPartyReferencePage).map { answer =>
+      SummaryListRowViewModel(
+        key = "thirdPartyReference.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
         )
+      )
     }
 }

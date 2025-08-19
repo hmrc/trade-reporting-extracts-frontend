@@ -19,7 +19,8 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ThirdPartyReferenceFormProvider
 import models.Mode
-import navigation.Navigator
+import models.thirdparty.AddThirdPartySection
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.ThirdPartyReferencePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,43 +31,46 @@ import views.html.thirdparty.ThirdPartyReferenceView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ThirdPartyReferenceController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: ThirdPartyReferenceFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: ThirdPartyReferenceView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class ThirdPartyReferenceController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  thirdPartyNavigator: ThirdPartyNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  addThirdPartySection: AddThirdPartySection,
+  requireData: DataRequiredAction,
+  formProvider: ThirdPartyReferenceFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyReferenceView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(ThirdPartyReferencePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(ThirdPartyReferencePage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyReferencePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ThirdPartyReferencePage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyReferencePage, value))
+              redirectUrl     = thirdPartyNavigator.nextPage(ThirdPartyReferencePage, mode, updatedAnswers).url
+              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyReferencePage, mode, answersWithNav))
+        )
   }
 }

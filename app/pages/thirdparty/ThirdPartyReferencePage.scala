@@ -21,7 +21,7 @@ import play.api.libs.json.JsPath
 
 case object ThirdPartyReferencePage extends QuestionPage[String] {
 
-  override def path: JsPath = JsPath \ "thirdparty" \ toString
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "thirdPartyReference"
 }

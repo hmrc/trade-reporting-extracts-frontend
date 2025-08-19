@@ -23,8 +23,8 @@ import play.api.data.FormError
 class ThirdPartyReferenceFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey = "thirdPartyReference.error.required"
-  val lengthKey = "thirdPartyReference.error.length"
-  val maxLength = 100
+  val lengthKey   = "thirdPartyReference.error.length"
+  val maxLength   = 100
 
   val form = new ThirdPartyReferenceFormProvider()()
 

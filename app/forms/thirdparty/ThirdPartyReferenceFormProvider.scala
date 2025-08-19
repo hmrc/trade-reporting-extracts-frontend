@@ -27,6 +27,5 @@ class ThirdPartyReferenceFormProvider @Inject() extends Mappings {
     Form(
       "value" -> text("thirdPartyReference.error.required")
         .verifying(maxLength(100, "thirdPartyReference.error.length"))
-      
     )
 }
