@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.thirdparty.EoriNumberPage
 import play.api.i18n.Messages
@@ -25,19 +24,20 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object EoriNumberSummary  {
+object EoriNumberSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EoriNumberPage).map {
-      answer =>
-
-        SummaryListRowViewModel(
-          key     = "eoriNumber.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.thirdparty.routes.EoriNumberController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("eoriNumber.change.hidden"))
+    answers.get(EoriNumberPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "eoriNumber.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.thirdparty.routes.EoriNumberController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("eoriNumber.change.hidden"))
         )
+      )
     }
 }

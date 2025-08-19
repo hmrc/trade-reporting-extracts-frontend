@@ -20,16 +20,13 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.{DataTypesPage, ThirdPartyDataOwnerConsentPage}
+import pages.thirdparty.ThirdPartyDataOwnerConsentPage
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = {
-    case ThirdPartyDataOwnerConsentPage =>
-      dataOwnerConsentRoutes(NormalMode)
-    case DataTypesPage                  =>
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
+  override val normalRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
+    dataOwnerConsentRoutes(NormalMode)
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
@@ -46,7 +43,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     answers.get(ThirdPartyDataOwnerConsentPage) match {
       case Some(true)  =>
         mode match {
-          case NormalMode => controllers.routes.DashboardController.onPageLoad()
+          case NormalMode => controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode)
           case CheckMode  => controllers.routes.DashboardController.onPageLoad()
         }
       case Some(false) =>

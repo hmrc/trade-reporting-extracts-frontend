@@ -17,9 +17,8 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import controllers.routes
 import forms.thirdparty.EoriNumberFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{CompanyInformation, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,13 +29,14 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.thirdparty.EoriNumberView
 
 import scala.concurrent.Future
 
 class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/dashboard")
 
   val formProvider = new EoriNumberFormProvider()
   val form         = formProvider()
@@ -63,9 +63,17 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val companyInfo                       = CompanyInformation(name = "Test", consent = "1")
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
+
       val userAnswers = UserAnswers(userAnswersId).set(EoriNumberPage, "answer").success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, eoriNumberRoute)
@@ -81,25 +89,33 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      import uk.gov.hmrc.http.HeaderCarrier
+      implicit val hc: HeaderCarrier = HeaderCarrier()
 
+      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val companyInfo                       = CompanyInformation(name = "Test", consent = "1")
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
           .build()
 
       running(application) {
         val request =
           FakeRequest(POST, eoriNumberRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "GB123456123456"))
 
         val result = route(application, request).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }

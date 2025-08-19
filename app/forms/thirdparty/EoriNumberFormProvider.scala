@@ -41,7 +41,7 @@ class EoriNumberFormProvider @Inject() extends Mappings {
           regexp(
             StringFieldRegex.eoriFormatRegex,
             "eoriNumber.error.invalidFormat"
-            )
           )
+        )
     )
 }

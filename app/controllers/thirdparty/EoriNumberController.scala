@@ -19,11 +19,12 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.EoriNumberFormProvider
 import models.Mode
-import navigation.Navigator
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.EoriNumberPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.thirdparty.EoriNumberView
 
@@ -33,11 +34,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class EoriNumberController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ThirdPartyNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: EoriNumberFormProvider,
+  tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: EoriNumberView
 )(implicit ec: ExecutionContext)
@@ -63,11 +65,18 @@ class EoriNumberController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
+          eori =>
+            tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
+              if (companyInfo.consent.isEmpty) {
+                val formWithApiError = form.withError("value", "eoriNumber.error.notFound")
+                Future.successful(BadRequest(view(formWithApiError, mode)))
+              } else {
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
+              }
+            }
         )
   }
 }

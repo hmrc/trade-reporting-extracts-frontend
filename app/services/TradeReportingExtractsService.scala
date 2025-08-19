@@ -19,10 +19,9 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.Result
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -60,6 +59,11 @@ class TradeReportingExtractsService @Inject() (
     hc: HeaderCarrier
   ): Future[NotificationEmail] =
     connector.getNotificationEmail(eori)
+
+  def getCompanyInformation(eori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[CompanyInformation] =
+    connector.getCompanyInformation(eori)
 
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier
