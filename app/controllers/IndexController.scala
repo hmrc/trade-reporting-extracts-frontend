@@ -18,17 +18,15 @@ package controllers
 
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.GuidancePageView
 
 import javax.inject.Inject
 
 class IndexController @Inject() (
   override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  view: GuidancePageView
+  val controllerComponents: MessagesControllerComponents
 ) extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
+    Redirect(controllers.routes.DashboardController.onPageLoad())
   }
 }
