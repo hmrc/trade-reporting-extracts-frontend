@@ -25,7 +25,7 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
   val requiredKey      = "eoriNumber.error.required"
   val lengthKey        = "eoriNumber.error.length"
   val minLengthKey     = "eoriNumber.error.minLength"
-  val invalidFormatKey = "eoriNumber.error.invalidformat"
+  val invalidFormatKey = "eoriNumber.error.invalidFormat"
   val invalidKey       = "eoriNumber.error.invalidCharacters"
   val maxLength: Int   = eoriMaxLength
   val minLength: Int   = eoriMinLength

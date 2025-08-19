@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.{AuditDownloadRequest, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -137,6 +137,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .execute[NotificationEmail]
       .recover { ex =>
         logger.error(s"Failed to fetch notification email: ${ex.getMessage}", ex)
+        throw ex
+      }
+
+  def getCompanyInformation(eori: String)(implicit hc: HeaderCarrier): Future[CompanyInformation] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/company-information")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[CompanyInformation]
+      .recover { ex =>
+        logger.error(s"Failed to fetch company information: ${ex.getMessage}", ex)
         throw ex
       }
 
