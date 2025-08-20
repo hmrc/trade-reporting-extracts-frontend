@@ -354,3 +354,11 @@ cannotAddThirdParty.message1 = Only importers and exporters can give a third par
 cannotAddThirdParty.message2 = If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
 cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
 cannotAddThirdParty.link = Go to homepage
+
+declarationDate.title = Do you want to give access to all of your available {0} data?
+declarationDate.heading = Do you want to give access to all of your available {0} data?
+declarationDate.allAvailableData = Yes
+declarationDate.customDateRange = No, I want to add a custom date range
+declarationDate.checkYourAnswersLabel = Do you want to give access to all of your available {0} data?
+declarationDate.error.required = Select yes if you want to give access to all of your {0} data
+declarationDate.change.hidden = if you want to give access to all of your available {0} data
