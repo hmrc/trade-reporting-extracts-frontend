@@ -27,13 +27,13 @@ class DataTypesFormProviderSpec extends CheckboxFieldBehaviours {
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName   = "value"
     val requiredKey = "dataTypes.error.required"
 
     behave like checkboxField[DataTypes](
       form,
       fieldName,
-      validValues  = DataTypes.values,
+      validValues = DataTypes.values,
       invalidError = FormError(s"$fieldName[0]", "error.invalid")
     )
 

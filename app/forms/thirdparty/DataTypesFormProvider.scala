@@ -27,6 +27,7 @@ class DataTypesFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Set[DataTypes]] =
     Form(
-      "value" -> set(enumerable[DataTypes]("dataTypes.error.required")).verifying(nonEmptySet("dataTypes.error.required"))
+      "value" -> set(enumerable[DataTypes]("dataTypes.error.required"))
+        .verifying(nonEmptySet("dataTypes.error.required"))
     )
 }

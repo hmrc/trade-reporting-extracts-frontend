@@ -25,7 +25,12 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsError, JsString, Json}
 
-class DataTypesSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues with ModelGenerators {
+class DataTypesSpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with OptionValues
+    with ModelGenerators {
 
   "DataTypes" - {
 
@@ -33,10 +38,8 @@ class DataTypesSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChe
 
       val gen = arbitrary[DataTypes]
 
-      forAll(gen) {
-        dataTypes =>
-
-          JsString(dataTypes.toString).validate[DataTypes].asOpt.value mustEqual dataTypes
+      forAll(gen) { dataTypes =>
+        JsString(dataTypes.toString).validate[DataTypes].asOpt.value mustEqual dataTypes
       }
     }
 
@@ -44,10 +47,8 @@ class DataTypesSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChe
 
       val gen = arbitrary[String] suchThat (!DataTypes.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
-
-          JsString(invalidValue).validate[DataTypes] mustEqual JsError("error.invalid")
+      forAll(gen) { invalidValue =>
+        JsString(invalidValue).validate[DataTypes] mustEqual JsError("error.invalid")
       }
     }
 
@@ -55,10 +56,8 @@ class DataTypesSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChe
 
       val gen = arbitrary[DataTypes]
 
-      forAll(gen) {
-        dataTypes =>
-
-          Json.toJson(dataTypes) mustEqual JsString(dataTypes.toString)
+      forAll(gen) { dataTypes =>
+        Json.toJson(dataTypes) mustEqual JsString(dataTypes.toString)
       }
     }
   }
