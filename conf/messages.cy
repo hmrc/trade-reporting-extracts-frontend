@@ -341,16 +341,24 @@ addThirdParty.subscription.cds = cy: subscribe to CDS
 addThirdParty.subscription.p2 = cy: before they can access the data.
 addThirdParty.continue = cy: Continue
 
-thirdPartyDataOwnerConsent.title = Are you the importer or exporter for the data you want to share?
-thirdPartyDataOwnerConsent.heading = Are you the importer or exporter for the data you want to share?
-thirdPartyDataOwnerConsent.checkYourAnswersLabel = Are you the importer or exporter for the data you want to share?
-thirdPartyDataOwnerConsent.error.required = Select yes if you are the importer or exporter for the data you want to share
-thirdPartyDataOwnerConsent.change.hidden = if you are the importer or exporter for the data you want to share
-thirdPartyDataOwnerConsent.yes = Yes, I own the customs declaration data
+thirdPartyDataOwnerConsent.title = cy: Are you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.heading = cy: Are you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.checkYourAnswersLabel = vAre you the importer or exporter for the data you want to share?
+thirdPartyDataOwnerConsent.error.required = cy: Select yes if you are the importer or exporter for the data you want to share
+thirdPartyDataOwnerConsent.change.hidden = cy: if you are the importer or exporter for the data you want to share
+thirdPartyDataOwnerConsent.yes = cy: Yes, I own the customs declaration data
 
-cannotAddThirdParty.title = You cannot add a third party to your account
-cannotAddThirdParty.heading = You cannot add a third party to your account
-cannotAddThirdParty.message1 = Only importers and exporters can give a third party access to their customs declaration data because they are the owners of that data.
-cannotAddThirdParty.message2 = If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
-cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
-cannotAddThirdParty.link = Go to homepage
+cannotAddThirdParty.title = cy: You cannot add a third party to your account
+cannotAddThirdParty.heading = cy: You cannot add a third party to your account
+cannotAddThirdParty.message1 = cy: Only importers and exporters can give a third party access to their customs declaration data because they are the owners of that data.
+cannotAddThirdParty.message2 = cy: If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
+cannotAddThirdParty.message3 = cy: Third parties acting for another person or business also cannot give access to the data.
+cannotAddThirdParty.link = cy: Go to homepage
+
+declarationDate.title = cy: How much of your data do you want to give access to?
+declarationDate.heading = cy: How much of your data do you want to give access to?
+declarationDate.allAvailableData = cy: All available data
+declarationDate.customDateRange = cy: Custom date range
+declarationDate.checkYourAnswersLabel = cy: Data you want to give access to
+declarationDate.error.required = cy: Select how much of your data do you want to give access to
+declarationDate.change.hidden = cy: how much of your data do you want to give access to

@@ -38,6 +38,15 @@ class ThirdPartyNavigatorSpec extends SpecBase {
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       }
+
+      "navigate from declarationDate" - {
+        "to next page when true" in {
+          // TODO with TRE-594
+        }
+        "to CannotAddThirdParty when false" in {
+          // TODO with TRE-591
+        }
+      }
     }
 
     "in Check Mode" - {}

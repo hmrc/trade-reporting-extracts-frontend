@@ -20,17 +20,22 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import pages.thirdparty.{DeclarationDatePage, ThirdPartyDataOwnerConsentPage}
+import models.thirdparty.DeclarationDate
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val normalRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage =>
+      dataOwnerConsentRoutes(NormalMode)
+    case declarationDatePage            => declarationDateRoutes(NormalMode)
   }
 
-  override val checkRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val checkRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage =>
+      dataOwnerConsentRoutes(CheckMode)
+    case declarationDatePage            => declarationDateRoutes(NormalMode)
   }
 
   // TODO CHECKMODE AND ONWARDS NAVIGATION
@@ -47,5 +52,22 @@ class ThirdPartyNavigator @Inject() extends Navigator {
           case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def declarationDateRoutes(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case NormalMode =>
+        answers
+          .get(DeclarationDatePage)
+          .map {
+            // TODO with TRE-594
+            case DeclarationDate.AllAvailableData => controllers.routes.DashboardController.onPageLoad()
+            // TODO with TRE-591
+            case DeclarationDate.CustomDateRange  => controllers.routes.DashboardController.onPageLoad()
+          }
+          .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+
+      case CheckMode =>
+        controllers.routes.DashboardController.onPageLoad()
     }
 }
