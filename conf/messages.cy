@@ -355,10 +355,10 @@ cannotAddThirdParty.message2 = cy: If you are a declarant who submitted a custom
 cannotAddThirdParty.message3 = cy: Third parties acting for another person or business also cannot give access to the data.
 cannotAddThirdParty.link = cy: Go to homepage
 
-declarationDate.title = cy: How much of your data do you want to give access to?
-declarationDate.heading = cy: How much of your data do you want to give access to?
-declarationDate.allAvailableData = cy: All available data
-declarationDate.customDateRange = cy: Custom date range
-declarationDate.checkYourAnswersLabel = cy: Data you want to give access to
-declarationDate.error.required = cy: Select how much of your data do you want to give access to
-declarationDate.change.hidden = cy: how much of your data do you want to give access to
+declarationDate.title = cy: Do you want to give access to all of your available {0} data?
+declarationDate.heading = cy: Do you want to give access to all of your available {0} data?
+declarationDate.allAvailableData = cy: Yes
+declarationDate.customDateRange = cy: No, I want to add a custom date range
+declarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
+declarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
+declarationDate.change.hidden = cy: if you want to give access to all of your available {0} data

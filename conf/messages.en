@@ -355,10 +355,10 @@ cannotAddThirdParty.message2 = If you are a declarant who submitted a customs de
 cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
 cannotAddThirdParty.link = Go to homepage
 
-declarationDate.title = How much of your data do you want to give access to?
-declarationDate.heading = How much of your data do you want to give access to?
-declarationDate.allAvailableData = All available data
-declarationDate.customDateRange = Custom date range
-declarationDate.checkYourAnswersLabel = Data you want to give access to
-declarationDate.error.required = Select how much of your data do you want to give access to
-declarationDate.change.hidden = how much of your data do you want to give access to
+declarationDate.title = Do you want to give access to all of your available {0} data?
+declarationDate.heading = Do you want to give access to all of your available {0} data?
+declarationDate.allAvailableData = Yes
+declarationDate.customDateRange = No, I want to add a custom date range
+declarationDate.checkYourAnswersLabel = Do you want to give access to all of your available {0} data?
+declarationDate.error.required = Select yes if you want to give access to all of your {0} data
+declarationDate.change.hidden = if you want to give access to all of your available {0} data

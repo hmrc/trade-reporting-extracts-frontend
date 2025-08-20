@@ -7,7 +7,7 @@ POST       /change-importer-or-exporter                  controllers.thirdparty.
 
 GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
 
-GET        /declaration-date                        controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = NormalMode)
-POST       /declaration-date                        controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = NormalMode)
-GET        /change-declaration-date                  controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-declaration-date                  controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = CheckMode)
+GET        /data-access-range                        controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-access-range                        controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = CheckMode)

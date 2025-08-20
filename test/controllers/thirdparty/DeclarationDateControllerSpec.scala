@@ -42,7 +42,7 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
   lazy val declarationDateRoute = controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode).url
 
   val formProvider = new DeclarationDateFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   "DeclarationDate Controller" - {
 
@@ -76,7 +76,10 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(DeclarationDate.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(DeclarationDate.values.head), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

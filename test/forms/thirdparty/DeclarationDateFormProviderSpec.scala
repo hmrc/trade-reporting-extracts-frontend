@@ -27,13 +27,13 @@ class DeclarationDateFormProviderSpec extends OptionFieldBehaviours {
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName   = "value"
     val requiredKey = "declarationDate.error.required"
 
     behave like optionsField[DeclarationDate](
       form,
       fieldName,
-      validValues  = DeclarationDate.values,
+      validValues = DeclarationDate.values,
       invalidError = FormError(fieldName, "error.invalid")
     )
 

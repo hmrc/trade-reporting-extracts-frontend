@@ -26,25 +26,27 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object DeclarationDateSummary  {
+object DeclarationDateSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclarationDatePage).map {
-      answer =>
+    answers.get(DeclarationDatePage).map { answer =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            HtmlFormat.escape(messages(s"declarationDate.$answer"))
-          )
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"declarationDate.$answer"))
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "declarationDate.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("declarationDate.change.hidden"))
+      SummaryListRowViewModel(
+        key = "declarationDate.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("declarationDate.change.hidden"))
         )
+      )
     }
 }

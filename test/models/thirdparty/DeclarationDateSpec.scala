@@ -33,10 +33,8 @@ class DeclarationDateSpec extends AnyFreeSpec with Matchers with ScalaCheckPrope
 
       val gen = Gen.oneOf(DeclarationDate.values.toSeq)
 
-      forAll(gen) {
-        declarationDate =>
-
-          JsString(declarationDate.toString).validate[DeclarationDate].asOpt.value mustEqual declarationDate
+      forAll(gen) { declarationDate =>
+        JsString(declarationDate.toString).validate[DeclarationDate].asOpt.value mustEqual declarationDate
       }
     }
 
@@ -44,10 +42,8 @@ class DeclarationDateSpec extends AnyFreeSpec with Matchers with ScalaCheckPrope
 
       val gen = arbitrary[String] suchThat (!DeclarationDate.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
-
-          JsString(invalidValue).validate[DeclarationDate] mustEqual JsError("error.invalid")
+      forAll(gen) { invalidValue =>
+        JsString(invalidValue).validate[DeclarationDate] mustEqual JsError("error.invalid")
       }
     }
 
@@ -55,10 +51,8 @@ class DeclarationDateSpec extends AnyFreeSpec with Matchers with ScalaCheckPrope
 
       val gen = Gen.oneOf(DeclarationDate.values.toSeq)
 
-      forAll(gen) {
-        declarationDate =>
-
-          Json.toJson(declarationDate) mustEqual JsString(declarationDate.toString)
+      forAll(gen) { declarationDate =>
+        Json.toJson(declarationDate) mustEqual JsString(declarationDate.toString)
       }
     }
   }
