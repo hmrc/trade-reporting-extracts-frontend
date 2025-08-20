@@ -43,15 +43,16 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider = new ThirdPartyAccessStartDateFormProvider()
-  private def form = formProvider()
+  private def form         = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
-  
+
   val currentDate: String = LocalDate.now.format(DateTimeFormats.dateTimeHintFormat)
 
   val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
-  lazy val thirdPartyAccessStartDateRoute = controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode).url
+  lazy val thirdPartyAccessStartDateRoute =
+    controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
@@ -78,7 +79,10 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
         val view = application.injector.instanceOf[ThirdPartyAccessStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, currentDate)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, currentDate)(
+          getRequest(),
+          messages(application)
+        ).toString
       }
     }
 
@@ -94,7 +98,10 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, currentDate)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, currentDate)(
+          getRequest(),
+          messages(application)
+        ).toString
       }
     }
 
@@ -135,7 +142,10 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, currentDate)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, currentDate)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

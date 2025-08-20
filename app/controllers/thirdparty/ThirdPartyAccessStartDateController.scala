@@ -19,7 +19,7 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ThirdPartyAccessStartDateFormProvider
 import models.Mode
-import navigation.Navigator
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.ThirdPartyAccessStartDatePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,21 +27,23 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessStartDateView
+import models.thirdparty.AddThirdPartySection
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ThirdPartyAccessStartDateController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: ThirdPartyAccessStartDateFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: ThirdPartyAccessStartDateView,
+                                                     override val messagesApi: MessagesApi,
+                                                     sessionRepository: SessionRepository,
+                                                     thirdPartyNavigator: ThirdPartyNavigator,
+                                                     identify: IdentifierAction,
+                                                     getData: DataRetrievalAction,
+                                                     requireData: DataRequiredAction,
+                                                     formProvider: ThirdPartyAccessStartDateFormProvider,
+                                                     addThirdPartySection: AddThirdPartySection,
+                                                     val controllerComponents: MessagesControllerComponents,
+                                                     view: ThirdPartyAccessStartDateView,
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val currentDate: LocalDate = LocalDate.now()
@@ -68,12 +70,13 @@ class ThirdPartyAccessStartDateController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode, currentDateFormatted))),
-
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessStartDatePage, value))
+            redirectUrl = thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, updatedAnswers).url
+            answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ThirdPartyAccessStartDatePage, mode, updatedAnswers))
+          } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, answersWithNav))
       )
   }
 }

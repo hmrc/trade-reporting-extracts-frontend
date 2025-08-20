@@ -29,7 +29,7 @@ import java.time.{LocalDate, ZoneOffset}
 class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  private val form = new ThirdPartyAccessStartDateFormProvider()()
+  private val form                        = new ThirdPartyAccessStartDateFormProvider()()
 
   val min: LocalDate = LocalDate.now
   val max: LocalDate = LocalDate.now.plusYears(1).minusDays(1)
@@ -49,7 +49,11 @@ class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
       form,
       "value",
       max,
-      FormError("value", "thirdPartyAccessStartDate.error.max", Seq(LocalDate.now.plusYears(1).format(dateTimeFormat()(Lang("en")))))
+      FormError(
+        "value",
+        "thirdPartyAccessStartDate.error.max",
+        Seq(LocalDate.now.plusYears(1).format(dateTimeFormat()(Lang("en"))))
+      )
     )
 
     behave like dateFieldWithMin(

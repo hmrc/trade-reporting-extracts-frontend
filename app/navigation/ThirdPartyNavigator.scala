@@ -20,32 +20,47 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import pages.thirdparty.{ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val normalRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage => accessStartDateRoutes(NormalMode)
   }
 
-  override val checkRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val checkRoutes: Page => UserAnswers => Call = { 
+    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage => accessStartDateRoutes(CheckMode)
   }
 
   // TODO CHECKMODE AND ONWARDS NAVIGATION
-  private def dataOwnerConsentRoutes(mode: Mode)(answers: UserAnswers): Call =
+  private def dataOwnerConsentRoutes(mode: Mode)(answers: UserAnswers): Call = {
     answers.get(ThirdPartyDataOwnerConsentPage) match {
-      case Some(true)  =>
+      case Some(true) =>
         mode match {
           case NormalMode => controllers.routes.DashboardController.onPageLoad()
-          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
+          case CheckMode => controllers.routes.DashboardController.onPageLoad()
         }
       case Some(false) =>
         mode match {
           case NormalMode => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
-          case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
+          case CheckMode => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
-      case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+      case None => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
+
+  // TODO CHECKMODE AND ONWARDS NAVIGATION
+    private def accessStartDateRoutes(mode: Mode)(answers: UserAnswers): Call = {
+      answers.get(ThirdPartyAccessStartDatePage) match {
+        case Some(_) =>
+          mode match {
+            case NormalMode => controllers.routes.DashboardController.onPageLoad()
+            case CheckMode  => controllers.routes.DashboardController.onPageLoad()
+          }
+        case None => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 }
