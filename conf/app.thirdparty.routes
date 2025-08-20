@@ -38,3 +38,8 @@ GET        /access-end-date                  controllers.thirdparty.ThirdPartyAc
 POST       /access-end-date                  controllers.thirdparty.ThirdPartyAccessEndDateController.onSubmit(mode: Mode = NormalMode)
 GET        /change-access-end-date                        controllers.thirdparty.ThirdPartyAccessEndDateController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-access-end-date                        controllers.thirdparty.ThirdPartyAccessEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /data-access-range                        controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-access-range                        controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = CheckMode)

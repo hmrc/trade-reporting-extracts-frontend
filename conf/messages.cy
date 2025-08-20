@@ -479,3 +479,12 @@ thirdPartyAccessEndDate.error.required = cy: The date this access will end must 
 thirdPartyAccessEndDate.error.invalid = cy: The date this access will end must be a real date and only include numbers 0 to 9
 thirdPartyAccessEndDate.error.min = cy: The date this access will end must be on or after {0}
 thirdPartyAccessEndDate.error.max = cy: The date this access will end must be before {0}
+
+declarationDate.title = cy: Do you want to give access to all of your available {0} data?
+declarationDate.heading = cy: Do you want to give access to all of your available {0} data?
+declarationDate.allAvailableData = cy: Yes
+declarationDate.customDateRange = cy: No, I want to add a custom date range
+declarationDate.message1 = cy: The service holds data from the past 4 years.
+declarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
+declarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
+declarationDate.change.hidden = cy: if you want to give access to all of your available {0} data
