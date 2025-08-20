@@ -20,18 +20,26 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import pages.thirdparty.{DataTypesPage, ThirdPartyDataOwnerConsentPage}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val normalRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage =>
+      dataOwnerConsentRoutes(NormalMode)
+    case DataTypesPage                  =>
+      navigateTo(controllers.routes.DashboardController.onPageLoad())
   }
 
-  override val checkRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val checkRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage =>
+      dataOwnerConsentRoutes(NormalMode)
+    case DataTypesPage                  =>
+      navigateTo(controllers.routes.DashboardController.onPageLoad())
   }
+
+  private def navigateTo(call: => Call): UserAnswers => Call = _ => call
 
   // TODO CHECKMODE AND ONWARDS NAVIGATION
   private def dataOwnerConsentRoutes(mode: Mode)(answers: UserAnswers): Call =
