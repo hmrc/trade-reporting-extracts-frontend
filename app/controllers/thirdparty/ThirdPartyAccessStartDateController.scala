@@ -33,33 +33,34 @@ import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ThirdPartyAccessStartDateController @Inject()(
-                                                     override val messagesApi: MessagesApi,
-                                                     sessionRepository: SessionRepository,
-                                                     thirdPartyNavigator: ThirdPartyNavigator,
-                                                     identify: IdentifierAction,
-                                                     getData: DataRetrievalAction,
-                                                     requireData: DataRequiredAction,
-                                                     formProvider: ThirdPartyAccessStartDateFormProvider,
-                                                     addThirdPartySection: AddThirdPartySection,
-                                                     val controllerComponents: MessagesControllerComponents,
-                                                     view: ThirdPartyAccessStartDateView,
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class ThirdPartyAccessStartDateController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  thirdPartyNavigator: ThirdPartyNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ThirdPartyAccessStartDateFormProvider,
+  addThirdPartySection: AddThirdPartySection,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyAccessStartDateView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  val currentDate: LocalDate = LocalDate.now()
+  val currentDate: LocalDate               = LocalDate.now()
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      val form = formProvider()
+    val form = formProvider()
 
-      val preparedForm = request.userAnswers.get(ThirdPartyAccessStartDatePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(ThirdPartyAccessStartDatePage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, mode, currentDateFormatted))
+    Ok(view(preparedForm, mode, currentDateFormatted))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -67,16 +68,17 @@ class ThirdPartyAccessStartDateController @Inject()(
 
       val form = formProvider()
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, currentDateFormatted))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessStartDatePage, value))
-            redirectUrl = thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, updatedAnswers).url
-            answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, answersWithNav))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, currentDateFormatted))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessStartDatePage, value))
+              redirectUrl     = thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, updatedAnswers).url
+              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessStartDatePage, mode, answersWithNav))
+        )
   }
 }

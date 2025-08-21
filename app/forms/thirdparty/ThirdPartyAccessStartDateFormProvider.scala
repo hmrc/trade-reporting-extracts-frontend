@@ -27,21 +27,24 @@ import javax.inject.Inject
 
 class ThirdPartyAccessStartDateFormProvider @Inject() extends Mappings {
 
-  private val currentDate: LocalDate = LocalDate.now()
+  private val currentDate: LocalDate   = LocalDate.now()
   private val dateInOneYear: LocalDate = currentDate.plusYears(1)
-
 
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
-        invalidKey     = "thirdPartyAccessStartDate.error.invalid",
+        invalidKey = "thirdPartyAccessStartDate.error.invalid",
         allRequiredKey = "thirdPartyAccessStartDate.error.required.all",
         twoRequiredKey = "thirdPartyAccessStartDate.error.required.two",
-        requiredKey    = "thirdPartyAccessStartDate.error.required"
+        requiredKey = "thirdPartyAccessStartDate.error.required"
       )
-        //TODO Current max date set at currentDate plus one year minus one day, to double check what is appropriate for this field
+        // TODO Current max date set at currentDate plus one year minus one day, to double check what is appropriate for this field
         .verifying(
-          maxDate(dateInOneYear.minusDays(1), "thirdPartyAccessStartDate.error.max", dateInOneYear.format(dateTimeFormat()(messages.lang)))
+          maxDate(
+            dateInOneYear.minusDays(1),
+            "thirdPartyAccessStartDate.error.max",
+            dateInOneYear.format(dateTimeFormat()(messages.lang))
+          )
         )
         .verifying(
           minDate(

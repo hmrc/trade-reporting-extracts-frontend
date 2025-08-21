@@ -16,25 +16,14 @@
 
 package pages.thirdparty
 
-import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import java.time.LocalDate
-import scala.util.Try
 
-case object ThirdPartyAccessStartDatePage extends QuestionPage[LocalDate] {
+case object ThirdPartyAccessEndDatePage extends QuestionPage[Option[LocalDate]] {
 
   override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
-  override def toString: String = "thirdPartyAccessStartDate"
-
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(ThirdPartyAccessEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
-
+  override def toString: String = "thirdPartyAccessEndDate"
 }

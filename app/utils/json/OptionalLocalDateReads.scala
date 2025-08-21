@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package pages.thirdparty
+package utils.json
 
-import models.UserAnswers
-import pages.QuestionPage
-import play.api.libs.json.JsPath
-
+import play.api.libs.json.{Reads, __}
 import java.time.LocalDate
-import scala.util.Try
 
-case object ThirdPartyAccessStartDatePage extends QuestionPage[LocalDate] {
+object OptionalLocalDateReads {
 
-  override def path: JsPath = JsPath \ "addThirdParty" \ toString
-
-  override def toString: String = "thirdPartyAccessStartDate"
-
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(ThirdPartyAccessEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
-
+  implicit val reads: Reads[Option[LocalDate]] =
+    Reads.nullable[LocalDate](__)
 }
