@@ -354,3 +354,12 @@ cannotAddThirdParty.message1 = Only importers and exporters can give a third par
 cannotAddThirdParty.message2 = If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
 cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
 cannotAddThirdParty.link = Go to homepage
+
+dataTypes.title = Which types of data do you want to give access to?
+dataTypes.heading = Which types of data do you want to give access to?
+dataTypes.import = Import
+dataTypes.export = Export
+dataTypes.checkYourAnswersLabel = Types of data to give access to
+dataTypes.error.required = Select which types of data you want to give access to
+dataTypes.change.hidden = Types of data to give access to
+dataTypes.hint = Select all that apply.

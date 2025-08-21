@@ -6,3 +6,8 @@ GET        /change-importer-or-exporter                  controllers.thirdparty.
 POST       /change-importer-or-exporter                  controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = CheckMode)
 
 GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
+
+GET        /data-types                                   controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-types                                   controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-types                            controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-types                            controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = CheckMode)

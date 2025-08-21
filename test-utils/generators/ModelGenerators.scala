@@ -18,9 +18,15 @@ package generators
 
 import models.*
 import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
+import models.thirdparty.DataTypes
 import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
+
+  implicit lazy val arbitraryDataTypes: Arbitrary[DataTypes] =
+    Arbitrary {
+      Gen.oneOf(DataTypes.values)
+    }
 
   implicit lazy val arbitraryEmailSelection: Arbitrary[String] =
     Arbitrary {
