@@ -331,6 +331,7 @@ eoriNumber.error.minLength = cy: The EORI number you want to give access to must
 eoriNumber.error.invalidCharacters = cy: The EORI number you want to give access to must only include letters a to z and numbers 0 to 9
 eoriNumber.error.invalidFormat = cy: Enter the EORI number you want to give access to in the right format, such as GB123456123456
 eoriNumber.error.notFound = cy: Enter a real EORI number
+eoriNumber.error.cannotBeOwnEori = cy: You cannot give access to your own EORI number
 eoriNumber.change.hidden = cy: EORI number you want to give access to
 eoriNumber.hint = cy: The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
 

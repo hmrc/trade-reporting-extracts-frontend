@@ -17,7 +17,7 @@
 package forms.thirdparty
 
 import forms.behaviours.StringFieldBehaviours
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 import utils.Constants.{eoriMaxLength, eoriMinLength}
 
 class EoriNumberFormProviderSpec extends StringFieldBehaviours {
@@ -30,7 +30,8 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
   val maxLength: Int   = eoriMaxLength
   val minLength: Int   = eoriMinLength
 
-  val form = new EoriNumberFormProvider()()
+  val userEori           = "GB123456789000"
+  val form: Form[String] = new EoriNumberFormProvider().apply(userEori)
 
   ".value" - {
 

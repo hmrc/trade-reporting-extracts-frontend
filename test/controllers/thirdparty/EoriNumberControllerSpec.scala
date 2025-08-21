@@ -38,8 +38,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/dashboard")
 
-  val formProvider = new EoriNumberFormProvider()
-  val form         = formProvider()
+  val userEori = "GB123456789000"
 
   lazy val eoriNumberRoute = controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode).url
 
@@ -55,6 +54,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[EoriNumberView]
+        val form = new EoriNumberFormProvider().apply(userEori)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -79,6 +79,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, eoriNumberRoute)
 
         val view = application.injector.instanceOf[EoriNumberView]
+        val form = new EoriNumberFormProvider().apply(userEori)
 
         val result = route(application, request).value
 
@@ -129,6 +130,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
         val request =
           FakeRequest(POST, eoriNumberRoute)
             .withFormUrlEncodedBody(("value", ""))
+        val form    = new EoriNumberFormProvider().apply(userEori)
 
         val boundForm = form.bind(Map("value" -> ""))
 
