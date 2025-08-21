@@ -322,6 +322,18 @@ missingDependentAnswers.message = cy: You need to answer all the remaining quest
 tooManySubmissions.title = cy: You have reached the limit for report request submissions today
 tooManySubmissions.heading = cy: You have reached the limit for report request submissions today
 
+eoriNumber.title = cy: What is the EORI number you want to give access to?
+eoriNumber.heading = cy: What is the EORI number you want to give access to?
+eoriNumber.checkYourAnswersLabel = cy: EORI number you want to give access to
+eoriNumber.error.required = cy: Enter the EORI number you want to give access to
+eoriNumber.error.length = cy: The EORI number you want to give access to must be 17 characters or fewer
+eoriNumber.error.minLength = cy: The EORI number you want to give access to must be 14 characters or more
+eoriNumber.error.invalidCharacters = cy: The EORI number you want to give access to must only include letters a to z and numbers 0 to 9
+eoriNumber.error.invalidFormat = cy: Enter the EORI number you want to give access to in the right format, such as GB123456123456
+eoriNumber.error.notFound = cy: Enter a real EORI number
+eoriNumber.change.hidden = cy: EORI number you want to give access to
+eoriNumber.hint = cy: The first 2 letters are the country code, like GB or XI. This is followed by 12 or 15 digits, like GB123456123456.
+
 noPermission.title = cy: You do not have permission to access this service
 noPermission.heading = cy: You do not have permission to access this service
 noPermission.intro = cy: This service is only available to invited users while it is being tested.

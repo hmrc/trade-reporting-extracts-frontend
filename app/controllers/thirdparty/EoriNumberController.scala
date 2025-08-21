@@ -19,8 +19,9 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.EoriNumberFormProvider
 import models.Mode
+import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
-import pages.thirdparty.EoriNumberPage
+import pages.thirdparty.{EoriNumberPage, ThirdPartyDataOwnerConsentPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -35,6 +36,7 @@ class EoriNumberController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: ThirdPartyNavigator,
+  addThirdPartySection: AddThirdPartySection,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -73,6 +75,8 @@ class EoriNumberController @Inject() (
               } else {
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
+                  redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
+                  answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
                   _              <- sessionRepository.set(updatedAnswers)
                 } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
               }
