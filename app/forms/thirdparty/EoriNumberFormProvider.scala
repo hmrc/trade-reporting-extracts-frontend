@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class EoriNumberFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(userEori: String): Form[String] =
     Form(
       "value" -> text("eoriNumber.error.required")
         .verifying(maxLength(eoriMaxLength, "eoriNumber.error.length"))
@@ -43,5 +43,6 @@ class EoriNumberFormProvider @Inject() extends Mappings {
             "eoriNumber.error.invalidFormat"
           )
         )
+        .verifying("eoriNumber.error.cannotBeOwnEori", eori => !eori.equalsIgnoreCase(userEori))
     )
 }

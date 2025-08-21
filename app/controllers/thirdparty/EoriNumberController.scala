@@ -48,9 +48,9 @@ class EoriNumberController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val userEori = request.eori
+    val form     = formProvider(userEori)
 
     val preparedForm = request.userAnswers.get(EoriNumberPage) match {
       case None        => form
@@ -58,18 +58,20 @@ class EoriNumberController @Inject() (
     }
 
     Ok(view(preparedForm, mode))
-
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      val userEori = request.eori
+      val form     = formProvider(userEori)
+
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           eori =>
             tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
-              if (companyInfo.consent.isEmpty) {
+              if (companyInfo.name.isEmpty) {
                 val formWithApiError = form.withError("value", "eoriNumber.error.notFound")
                 Future.successful(BadRequest(view(formWithApiError, mode)))
               } else {
