@@ -17,8 +17,10 @@
 package navigation
 
 import base.SpecBase
-import models.NormalMode
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import models.{CheckMode, NormalMode}
+import pages.thirdparty.{ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage}
+
+import java.time.LocalDate
 
 class ThirdPartyNavigatorSpec extends SpecBase {
 
@@ -38,8 +40,39 @@ class ThirdPartyNavigatorSpec extends SpecBase {
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       }
+
+      "navigate from ThirdPartyAccessStartPage" - {
+
+        "to ThirdPartyAccessEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(ThirdPartyAccessStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(ThirdPartyAccessStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyAccessStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
     }
 
-    "in Check Mode" - {}
+    "in Check Mode" - {
+
+      "navigate from ThirdPartyAccessStartPage" - {
+
+        "to ThirdPartyAccessEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(ThirdPartyAccessStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(ThirdPartyAccessStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(CheckMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyAccessStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+    }
   }
 }

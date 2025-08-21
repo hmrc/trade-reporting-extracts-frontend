@@ -20,17 +20,19 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import pages.thirdparty.{ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val normalRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
   }
 
-  override val checkRoutes: Page => UserAnswers => Call = { case ThirdPartyDataOwnerConsentPage =>
-    dataOwnerConsentRoutes(NormalMode)
+  override val checkRoutes: Page => UserAnswers => Call = {
+    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
   }
 
   // TODO CHECKMODE AND ONWARDS NAVIGATION
@@ -47,5 +49,15 @@ class ThirdPartyNavigator @Inject() extends Navigator {
           case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def accessStartDateRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ThirdPartyAccessStartDatePage) match {
+      case Some(_) =>
+        mode match {
+          case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode)
+          case CheckMode  => controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(CheckMode)
+        }
+      case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 }

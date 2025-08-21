@@ -354,3 +354,16 @@ cannotAddThirdParty.message1 = Only importers and exporters can give a third par
 cannotAddThirdParty.message2 = If you are a declarant who submitted a customs declaration for them, you cannot give access to the data - even if your name is on the declaration.
 cannotAddThirdParty.message3 = Third parties acting for another person or business also cannot give access to the data.
 cannotAddThirdParty.link = Go to homepage
+
+thirdPartyAccessStartDate.title = cy: When do you want this access to start?
+thirdPartyAccessStartDate.heading = cy: When do you want this access to start?
+thirdPartyAccessStartDate.message = cy: You can enter today’s date or choose a future date.
+thirdPartyAccessStartDate.hint = cy: For example, {0}.
+thirdPartyAccessStartDate.checkYourAnswersLabel = cy: Third-party access period
+thirdPartyAccessStartDate.error.required.all = cy: Enter the date this access will start
+thirdPartyAccessStartDate.error.required.two = cy: The date this access will start must include {0} and {1}
+thirdPartyAccessStartDate.error.required = cy: The date this access will start must include {0}
+thirdPartyAccessStartDate.error.invalid = cy: Enter a real ThirdPartyAccessStartDate
+thirdPartyAccessStartDate.error.min = cy: The date this access will start must be today or in the future
+thirdPartyAccessStartDate.error.max = cy: The date this access will start must be before {0}
+thirdPartyAccessStartDate.change.hidden = cy: Third-party access period
