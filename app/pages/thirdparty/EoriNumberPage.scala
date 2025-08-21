@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package pages.thirdparty
 
-case object Constants {
-  val maxNameLength: Int = 70
-  val eori: String       = "eori"
-  val eoriMaxLength: Int = 17
-  val eoriMinLength: Int = 14
+import pages.QuestionPage
+import play.api.libs.json.JsPath
+
+case object EoriNumberPage extends QuestionPage[String] {
+
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
+
+  override def toString: String = "eoriNumber"
 }
