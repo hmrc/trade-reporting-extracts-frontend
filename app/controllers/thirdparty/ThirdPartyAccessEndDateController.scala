@@ -35,49 +35,54 @@ import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ThirdPartyAccessEndDateController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: ThirdPartyAccessEndDateFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: ThirdPartyAccessEndDateView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class ThirdPartyAccessEndDateController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: ThirdPartyAccessEndDateFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyAccessEndDateView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
-      
-      val preparedForm = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
+    val preparedForm = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)))
+    Ok(view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      
+
       val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessEndDatePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(
+              BadRequest(
+                view(formWithErrors, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get))
+              )
+            ),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessEndDatePage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
+        )
   }
-  
+
   private def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
     val languageTag = if (messages.lang.code == "cy") "cy" else "en"
     date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))

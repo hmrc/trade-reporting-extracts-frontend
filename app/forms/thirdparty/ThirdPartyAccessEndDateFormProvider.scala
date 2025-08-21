@@ -30,22 +30,23 @@ class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
   def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] = {
     val startDatePlus5Years = startDate.plusYears(5)
     Form(
-      "value" -> optional(localDate(
-        invalidKey     = "thirdPartyAccessEndDate.error.invalid",
-        allRequiredKey = "thirdPartyAccessEndDate.error.required.all",
-        twoRequiredKey = "thirdPartyAccessEndDate.error.required.two",
-        requiredKey    = "thirdPartyAccessEndDate.error.required"
-      ).verifying(
+      "value" -> optional(
+        localDate(
+          invalidKey = "thirdPartyAccessEndDate.error.invalid",
+          allRequiredKey = "thirdPartyAccessEndDate.error.required.all",
+          twoRequiredKey = "thirdPartyAccessEndDate.error.required.two",
+          requiredKey = "thirdPartyAccessEndDate.error.required"
+        ).verifying(
           minDate(
             startDate,
             "thirdPartyAccessEndDate.error.min",
             startDate.format(dateTimeFormat()(messages.lang))
           )
-      ).verifying(
-        maxDate(
-          startDatePlus5Years,
-          "thirdPartyAccessEndDate.error.max",
-          startDatePlus5Years.format(dateTimeFormat()(messages.lang))
+        ).verifying(
+          maxDate(
+            startDatePlus5Years,
+            "thirdPartyAccessEndDate.error.max",
+            startDatePlus5Years.format(dateTimeFormat()(messages.lang))
           )
         )
       )

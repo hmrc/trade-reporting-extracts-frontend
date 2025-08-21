@@ -26,11 +26,9 @@ import java.time.{LocalDate, ZoneOffset}
 class ThirdPartyAccessEndDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  
 
-  private val currentDate: LocalDate         = LocalDate.now(ZoneOffset.UTC)
-  private val form = new ThirdPartyAccessEndDateFormProvider()(LocalDate.now)
-
+  private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
+  private val form                   = new ThirdPartyAccessEndDateFormProvider()(LocalDate.now)
 
   ".value" - {
 
@@ -38,7 +36,6 @@ class ThirdPartyAccessEndDateFormProviderSpec extends DateBehaviours {
       min = LocalDate.now,
       max = LocalDate.now.plusYears(5)
     )
-
 
     behave like optionalDateField(form, "value")
 
