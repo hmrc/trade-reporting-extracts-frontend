@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 case object DataTypesPage extends QuestionPage[Set[DataTypes]] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "dataTypes"
 }
