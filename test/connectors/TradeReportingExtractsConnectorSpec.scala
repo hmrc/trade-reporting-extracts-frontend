@@ -357,5 +357,82 @@ class TradeReportingExtractsConnectorSpec
         }
       }
     }
+
+    "downloadFile" - {
+
+      "must return a streamed result with correct headers and body" in {
+
+        val app                   = application
+        implicit val materializer = app.materializer
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          val fileUrlPath = "/some/file.csv"
+          val fileUrl     = s"http://localhost:${server.port()}$fileUrlPath"
+          val fileName    = "my-report.csv"
+          val fileContent = "header1,header2\nvalue1,value2"
+          val contentType = "text/csv"
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(fileUrlPath))
+              .willReturn(
+                aResponse()
+                  .withStatus(OK)
+                  .withHeader("Content-Type", contentType)
+                  .withBody(fileContent)
+              )
+          )
+
+          val resultF = connector.downloadFile(fileUrl, fileName)
+
+          status(resultF) mustBe OK
+          header("Content-Disposition", resultF) mustBe Some(s"attachment; filename=$fileName")
+          header("Content-Type", resultF) mustBe Some(contentType)
+
+          val body = contentAsString(resultF)
+          body mustBe fileContent
+        }
+      }
+    }
+    "getReportRequestLimitNumber" - {
+
+      "must return the report request limit number when the API call is successful" in {
+        val app = application
+        running(app) {
+          val connector           = app.injector.instanceOf[TradeReportingExtractsConnector]
+          val expectedLimitNumber = "25"
+
+          server.stubFor(
+            WireMock
+              .get(WireMock.urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+              .willReturn(WireMock.ok("\"25\""))
+          )
+
+          val result = connector.getReportRequestLimitNumber.futureValue
+          result mustBe expectedLimitNumber
+        }
+      }
+
+      "must throw an exception when the API call fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+              .willReturn(
+                aResponse().withStatus(500).withBody("error")
+              )
+          )
+
+          val thrown = intercept[RuntimeException] {
+            connector.getReportRequestLimitNumber.futureValue
+          }
+          thrown.getMessage must include("error")
+        }
+      }
+    }
   }
 }

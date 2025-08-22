@@ -19,7 +19,7 @@
     govukButton: GovukButton
 )
 
-@(mode: Mode)(implicit request: Request[_], messages: Messages)
+@(mode: Mode, reportRequestNumberLimit: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("reportGuidance.title")),
@@ -32,6 +32,7 @@
     <h1 class="govuk-heading-xl">@messages("reportGuidance.title")</h1>
     <h2 class="govuk-heading-m">@messages("reportGuidance.instructions.title")</h2>
     <div class="govuk-body">
+        <p>@messages("reportGuidance.limit.message", reportRequestNumberLimit)</p>
         <p>@messages("reportGuidance.intro")</p>
         <ul class="govuk-list govuk-list--bullet">
             <li>@messages("reportGuidance.bullet1")</li>
@@ -53,7 +54,7 @@
     </div>
     <div class="govuk-button-group">
         @govukButton(
-            ButtonViewModel(messages("reportGuidance.start")).asLink(controllers.report.routes.DecisionController.onPageLoad(mode).url)
+            ButtonViewModel(messages("site.continue")).asLink(controllers.report.routes.DecisionController.onPageLoad(mode).url)
         )
     </div>
 }
