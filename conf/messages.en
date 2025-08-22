@@ -360,9 +360,9 @@ thirdPartyAccessStartDate.heading = When do you want this access to start?
 thirdPartyAccessStartDate.message = You can enter today’s date or choose a future date.
 thirdPartyAccessStartDate.hint = For example, {0}.
 thirdPartyAccessStartDate.error.required.all = Enter the date this access will start
-thirdPartyAccessStartDate.error.required.two = The date this access will start must include {0} and {1}
-thirdPartyAccessStartDate.error.required = The date this access will start must include {0}
-thirdPartyAccessStartDate.error.invalid = Enter a real ThirdPartyAccessStartDate
+thirdPartyAccessStartDate.error.required.two = The date this access will start must include {0} and a {1}
+thirdPartyAccessStartDate.error.required = The date this access will start must include a {0}
+thirdPartyAccessStartDate.error.invalid = The date this access will start must be a real date and only include numbers 0 to 9
 thirdPartyAccessStartDate.error.min = The date this access will start must be today or in the future
 thirdPartyAccessStartDate.error.max = The date this access will start must be before {0}
 
