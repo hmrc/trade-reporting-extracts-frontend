@@ -41,9 +41,9 @@ class ThirdPartyNavigatorSpec extends SpecBase {
       }
 
       "navigate from DataTypesPage" - {
-        "to declarationDate page with any answer normal mode" in {
+        "to declarationDate page with any answer" in {
           val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
-          navigator.nextPage(DeclarationDatePage, NormalMode, userAnswers) mustBe
+          navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
             controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
 
         }
