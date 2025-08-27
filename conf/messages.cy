@@ -50,8 +50,8 @@ dashboard.title = cy: dashboard
 dashboard.heading = cy: Get customs declaration data for imports and exports
 
 dashboard.reports.heading = cy: Reports
-dashboard.reports.subHeading = cy: Manage and view your reports
-dashboard.reports.requestNewReport = cy: Request a new report
+dashboard.reports.subHeading = cy: Request and download your reports
+dashboard.reports.requestNewReport = cy: Request a report
 dashboard.reports.requestedReports = cy: Requested reports
 dashboard.reports.availableForDownload = cy: Available to download
 dashboard.reports.reportHistory = cy: Report history
@@ -61,15 +61,18 @@ dashboard.account.subHeading = cy: Manage your account information
 dashboard.account.yourDetails = cy: Your contact details
 dashboard.account.messages = cy: Notifications
 
-dashboard.thirdPartyAccess.heading = cy: Third-party access
-dashboard.thirdPartyAccess.subHeading = cy: Manage who has access to your data and whose data you can access
+dashboard.thirdPartyAccess.heading = cy: Give data access
+dashboard.thirdPartyAccess.subHeading = cy: Importers and exporters can give third-party access and manage who has access to their data
 dashboard.thirdPartyAccess.addNewThirdParty = cy: Add a third party
-dashboard.thirdPartyAccess.authorisedThirdParty = cy: Third parties that can access your data
+dashboard.thirdPartyAccess.authorisedThirdParty = cy: Manage third parties that can access your data
+
+dashboard.viewDataAccess.heading = cy: View data access
+dashboard.viewDataAccess.subHeading = cy: Third parties such as consultancy firms can view whose data they can access
 dashboard.thirdPartyAccess.authorisedAccounts = cy: Businesses you have third-party access to
 
-dashboard.help.heading = cy: Help
-dashboard.help.fieldsInReport = cy: What do the fields in my report mean?
-dashboard.help.reportTypes = cy: What are the different report types?
+dashboard.support.heading = cy: Support
+dashboard.support.fieldsInReport = cy: What do the fields in my report mean?
+dashboard.support.reportTypes = cy: What are the different report types?
 
 contactDetails.title = cy: Your contact details
 contactDetails.heading = cy: Your contact details

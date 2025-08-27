@@ -28,6 +28,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReportHelpers
 import views.html.report.CustomRequestEndDateView
+import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, ZoneOffset}
@@ -103,8 +104,7 @@ class CustomRequestEndDateController @Inject() (
   }
 
   private def reportLengthStringGen(startDate: LocalDate, plus31Days: Boolean)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    val formatter   = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
+    val formatter   = dateTimeFormat()(lang = messages.lang)
     if (plus31Days) {
       if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
         LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatter)

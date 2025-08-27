@@ -45,37 +45,44 @@
                 (Messages("dashboard.reports.availableForDownload"), controllers.routes.AvailableReportsController.onPageLoad().url, None)
             )
         )
+        @if(appConfig.thirdPartyEnabled) {
+            @Card(
+                id = "give-data-access-card",
+                heading = Messages("dashboard.thirdPartyAccess.heading"),
+                subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
+                links = Seq(
+                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url, None),
+                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
+                )
+            )
+            @Card(
+                id = "view-data-access-card",
+                heading = Messages("dashboard.viewDataAccess.heading"),
+                subHeading = Some(Messages("dashboard.viewDataAccess.subHeading")),
+                links = Seq(
+                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+                )
+            )
+        }
         @Card(
             id = "account-card",
             heading = Messages("dashboard.account.heading"),
             subHeading = Some(Messages("dashboard.account.subHeading")),
             links = Seq(
                 (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
-            ) ++ (
+                ) ++ (
                 if(appConfig.notificationsEnabled)
-                  Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
+                    Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
                 else
-                  Seq.empty
+                    Seq.empty
             )
         )
-        @if(appConfig.thirdPartyEnabled) {
-            @Card(
-                id = "help-card",
-                heading = Messages("dashboard.thirdPartyAccess.heading"),
-                subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
-                links = Seq(
-                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url, None),
-                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
-                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
-                )
-            )
-        }
         @Card(
-            id = "help-card",
-            heading = Messages("dashboard.help.heading"),
+            id = "support-card",
+            heading = Messages("dashboard.support.heading"),
             links = Seq(
-                (Messages("dashboard.help.fieldsInReport"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/customs-declaration-service-data-import-and-export-descriptions/", None),
-                (Messages("dashboard.help.reportTypes"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/#what-information-is-in-a-report", None)
+                (Messages("dashboard.support.fieldsInReport"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/customs-declaration-service-data-import-and-export-descriptions/", None),
+                (Messages("dashboard.support.reportTypes"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/#what-information-is-in-a-report", None)
             )
         )
 </div>
