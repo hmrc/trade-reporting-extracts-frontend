@@ -18,7 +18,8 @@ package navigation
 
 import base.SpecBase
 import models.NormalMode
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import models.thirdparty.DataTypes
+import pages.thirdparty.{DataTypesPage, DeclarationDatePage, ThirdPartyDataOwnerConsentPage}
 
 class ThirdPartyNavigatorSpec extends SpecBase {
 
@@ -36,6 +37,24 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers.set(ThirdPartyDataOwnerConsentPage, false).success.value
           navigator.nextPage(ThirdPartyDataOwnerConsentPage, NormalMode, userAnswers) mustBe
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
+        }
+      }
+
+      "navigate from DataTypesPage" - {
+        "to declarationDate page with any answer" in {
+          val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
+          navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
+
+        }
+      }
+
+      "navigate from declarationDate" - {
+        "to next page when true" in {
+          // TODO with TRE-594
+        }
+        "to CannotAddThirdParty when false" in {
+          // TODO with TRE-591
         }
       }
     }

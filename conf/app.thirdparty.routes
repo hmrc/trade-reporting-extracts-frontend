@@ -11,3 +11,8 @@ GET        /data-types                                   controllers.thirdparty.
 POST       /data-types                                   controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = NormalMode)
 GET        /change-data-types                            controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-data-types                            controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = CheckMode)
+
+GET        /data-access-range                        controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-access-range                        controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = CheckMode)
