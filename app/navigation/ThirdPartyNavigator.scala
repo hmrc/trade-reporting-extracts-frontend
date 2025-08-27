@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty.{DataTypesPage, ThirdPartyDataOwnerConsentPage}
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, ThirdPartyDataOwnerConsentPage}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
@@ -30,6 +30,8 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       dataOwnerConsentRoutes(NormalMode)
     case DataTypesPage                  =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
+    case DataStartDatePage              => dataStartDateRoutes(NormalMode)
+    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad())
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
@@ -37,6 +39,9 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       dataOwnerConsentRoutes(NormalMode)
     case DataTypesPage                  =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
+    case DataStartDatePage              => dataStartDateRoutes(CheckMode)
+    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad())
+
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
@@ -55,5 +60,15 @@ class ThirdPartyNavigator @Inject() extends Navigator {
           case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def dataStartDateRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(DataStartDatePage) match {
+      case Some(_) =>
+        mode match {
+          case NormalMode => controllers.thirdparty.routes.DataEndDateController.onPageLoad(NormalMode)
+          case CheckMode  => controllers.thirdparty.routes.DataEndDateController.onPageLoad(CheckMode)
+        }
+      case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 }
