@@ -30,16 +30,16 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(NormalMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
-    case declarationDatePage            => declarationDateRoutes(NormalMode)
+      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
+    case DeclarationDatePage            => declarationDateRoutes(NormalMode)
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(NormalMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
-    case declarationDatePage            => declarationDateRoutes(NormalMode)
+      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
+    case DeclarationDatePage            => declarationDateRoutes(NormalMode)
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call

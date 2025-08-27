@@ -24,8 +24,8 @@ import javax.inject.Inject
 
 class DeclarationDateFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[DeclarationDate] =
+  def apply(args: Seq[String]): Form[DeclarationDate] =
     Form(
-      "value" -> enumerable[DeclarationDate]("declarationDate.error.required")
+      "value" -> enumerable[DeclarationDate]("declarationDate.error.required", args = args)
     )
 }

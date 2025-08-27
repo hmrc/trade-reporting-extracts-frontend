@@ -19,13 +19,13 @@ package controllers.thirdparty
 import base.SpecBase
 import controllers.routes
 import forms.thirdparty.DeclarationDateFormProvider
-import models.thirdparty.DeclarationDate
+import models.thirdparty.{DataTypes, DeclarationDate}
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.DeclarationDatePage
+import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -42,68 +42,81 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
   lazy val declarationDateRoute = controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode).url
 
   val formProvider = new DeclarationDateFormProvider()
-  val form         = formProvider()
 
   "DeclarationDate Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    val importOnlyAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Import)).success.value
+    val exportOnlyAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
+    val bothAnswers       = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Import, DataTypes.Export)).success.value
+    val noAnswers         = emptyUserAnswers
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
+    "must return OK and the correct view for a GET with import only" in {
+      val application = applicationBuilder(userAnswers = Some(importOnlyAnswers)).build()
       running(application) {
         val request = FakeRequest(GET, declarationDateRoute)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[DeclarationDateView]
+        val view    = application.injector.instanceOf[DeclarationDateView]
+        val form    = formProvider(Seq("import"))
+        val result  = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, "import")(request, messages(application)).toString
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      val userAnswers = UserAnswers(userAnswersId).set(DeclarationDatePage, DeclarationDate.values.head).success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
-
+    "must return OK and the correct view for a GET with export only" in {
+      val application = applicationBuilder(userAnswers = Some(exportOnlyAnswers)).build()
       running(application) {
         val request = FakeRequest(GET, declarationDateRoute)
-
-        val view = application.injector.instanceOf[DeclarationDateView]
-
-        val result = route(application, request).value
-
+        val view    = application.injector.instanceOf[DeclarationDateView]
+        val form    = formProvider(Seq("export"))
+        val result  = route(application, request).value
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(DeclarationDate.values.head), NormalMode)(
+        contentAsString(result) mustEqual view(form, NormalMode, "export")(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET with import and export" in {
+      val application = applicationBuilder(userAnswers = Some(bothAnswers)).build()
+      running(application) {
+        val request = FakeRequest(GET, declarationDateRoute)
+        val view    = application.injector.instanceOf[DeclarationDateView]
+        val form    = formProvider(Seq("import and export"))
+        val result  = route(application, request).value
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, "import and export")(
           request,
           messages(application)
         ).toString
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must return OK and the correct view for a GET with no DataTypes" in {
+      val application = applicationBuilder(userAnswers = Some(noAnswers)).build()
+      running(application) {
+        val request = FakeRequest(GET, declarationDateRoute)
+        val view    = application.injector.instanceOf[DeclarationDateView]
+        val form    = formProvider(Seq(""))
+        val result  = route(application, request).value
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, "")(request, messages(application)).toString
+      }
+    }
 
+    "must redirect to the next page when valid data is submitted with import only" in {
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application           =
+        applicationBuilder(userAnswers = Some(importOnlyAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
-
       running(application) {
         val request =
           FakeRequest(POST, declarationDateRoute)
             .withFormUrlEncodedBody(("value", DeclarationDate.values.head.toString))
-
-        val result = route(application, request).value
-
+        val result  = route(application, request).value
         status(result) mustEqual SEE_OTHER
       }
     }
@@ -117,6 +130,8 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, declarationDateRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
+        val form = formProvider(Seq(""))
+
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[DeclarationDateView]
@@ -124,7 +139,7 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "")(request, messages(application)).toString
       }
     }
 

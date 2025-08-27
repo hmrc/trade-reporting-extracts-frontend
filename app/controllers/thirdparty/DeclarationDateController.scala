@@ -19,9 +19,9 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.DeclarationDateFormProvider
 import models.Mode
-import models.thirdparty.AddThirdPartySection
+import models.thirdparty.{AddThirdPartySection, DataTypes}
 import navigation.{Navigator, ThirdPartyNavigator}
-import pages.thirdparty.DeclarationDatePage
+import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,24 +47,27 @@ class DeclarationDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val dataTypesString = getDataTypesString(request.userAnswers.get(DataTypesPage))
+    val form            = formProvider(Seq(dataTypesString))
 
     val preparedForm = request.userAnswers.get(DeclarationDatePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, dataTypesString))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      val dataTypesString = getDataTypesString(request.userAnswers.get(DataTypesPage))
+      val form            = formProvider(Seq(dataTypesString))
+
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, dataTypesString))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclarationDatePage, value))
@@ -74,4 +77,12 @@ class DeclarationDateController @Inject() (
             } yield Redirect(thirdPartyNavigator.nextPage(DeclarationDatePage, mode, updatedAnswers))
         )
   }
+
+  def getDataTypesString(dataTypesAnswer: Option[Set[DataTypes]]): String =
+    dataTypesAnswer match {
+      case Some(set) if set == Set(DataTypes.Import)                   => "import"
+      case Some(set) if set == Set(DataTypes.Export)                   => "export"
+      case Some(set) if set == Set(DataTypes.Import, DataTypes.Export) => "import and export"
+      case _                                                           => ""
+    }
 }

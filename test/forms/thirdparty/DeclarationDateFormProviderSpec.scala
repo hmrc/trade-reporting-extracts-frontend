@@ -19,11 +19,9 @@ package forms.thirdparty
 import forms.behaviours.OptionFieldBehaviours
 import forms.thirdparty.DeclarationDateFormProvider
 import models.thirdparty.DeclarationDate
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 
 class DeclarationDateFormProviderSpec extends OptionFieldBehaviours {
-
-  val form = new DeclarationDateFormProvider()()
 
   ".value" - {
 
@@ -31,16 +29,21 @@ class DeclarationDateFormProviderSpec extends OptionFieldBehaviours {
     val requiredKey = "declarationDate.error.required"
 
     behave like optionsField[DeclarationDate](
-      form,
+      newForm(),
       fieldName,
       validValues = DeclarationDate.values,
-      invalidError = FormError(fieldName, "error.invalid")
+      invalidError = FormError(fieldName, "error.invalid", Seq(""))
     )
 
     behave like mandatoryField(
-      form,
+      newForm(),
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(""))
     )
+  }
+
+  private def newForm(): Form[DeclarationDate] = {
+    val form = new DeclarationDateFormProvider()
+    form(Seq(""))
   }
 }

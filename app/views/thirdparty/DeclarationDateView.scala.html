@@ -24,9 +24,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, dataTypes: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("declarationDate.title"))) {
+@layout(pageTitle = title(form, messages("declarationDate.title", dataTypes))) {
 
     @formHelper(action = controllers.thirdparty.routes.DeclarationDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -37,7 +37,7 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("declarationDate.heading")).asPageHeading(),
+                legend = LegendViewModel(messages("declarationDate.heading", dataTypes)).asPageHeading(),
                 items  = DeclarationDate.options
             )
         )
