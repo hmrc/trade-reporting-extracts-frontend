@@ -26,6 +26,10 @@
 
 @(form: Form[_], mode: Mode, dataTypes: String)(implicit request: Request[_], messages: Messages)
 
+@contentText = {
+    <p class="govuk-body">@messages("declarationDate.message1")</p>
+}
+
 @layout(pageTitle = title(form, messages("declarationDate.title", dataTypes))) {
 
     @formHelper(action = controllers.thirdparty.routes.DeclarationDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -39,7 +43,7 @@
                 field  = form("value"),
                 legend = LegendViewModel(messages("declarationDate.heading", dataTypes)).asPageHeading(),
                 items  = DeclarationDate.options
-            )
+            ).withHint(HintViewModel(HtmlContent(contentText)))
         )
 
         @govukButton(

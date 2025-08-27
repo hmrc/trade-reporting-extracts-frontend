@@ -359,6 +359,7 @@ declarationDate.title = Do you want to give access to all of your available {0} 
 declarationDate.heading = Do you want to give access to all of your available {0} data?
 declarationDate.allAvailableData = Yes
 declarationDate.customDateRange = No, I want to add a custom date range
+declarationDate.message1 = The service holds data from the past 4 years.
 declarationDate.checkYourAnswersLabel = Do you want to give access to all of your available {0} data?
 declarationDate.error.required = Select yes if you want to give access to all of your {0} data
 declarationDate.change.hidden = if you want to give access to all of your available {0} data
