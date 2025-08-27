@@ -43,3 +43,13 @@ GET        /data-access-range                        controllers.thirdparty.Decl
 POST       /data-access-range                        controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = NormalMode)
 GET        /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-data-access-range                  controllers.thirdparty.DeclarationDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /data-start-date                  controllers.thirdparty.DataStartDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-start-date                  controllers.thirdparty.DataStartDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-start-date                        controllers.thirdparty.DataStartDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-start-date                        controllers.thirdparty.DataStartDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /data-end-date                  controllers.thirdparty.DataEndDateController.onPageLoad(mode: Mode = NormalMode)
+POST       /data-end-date                  controllers.thirdparty.DataEndDateController.onSubmit(mode: Mode = NormalMode)
+GET        /change-data-end-date                        controllers.thirdparty.DataEndDateController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-data-end-date                        controllers.thirdparty.DataEndDateController.onSubmit(mode: Mode = CheckMode)
