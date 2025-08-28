@@ -7,6 +7,11 @@ POST       /change-importer-or-exporter                  controllers.thirdparty.
 
 GET        /cannot-add-third-party                       controllers.thirdparty.CannotAddThirdPartyController.onPageLoad()
 
+GET        /eori-number                             controllers.thirdparty.EoriNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /eori-number                             controllers.thirdparty.EoriNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /change-eori-number                      controllers.thirdparty.EoriNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-eori-number                      controllers.thirdparty.EoriNumberController.onSubmit(mode: Mode = CheckMode)
+
 GET        /data-types                                   controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = NormalMode)
 POST       /data-types                                   controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = NormalMode)
 GET        /change-data-types                            controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = CheckMode)
