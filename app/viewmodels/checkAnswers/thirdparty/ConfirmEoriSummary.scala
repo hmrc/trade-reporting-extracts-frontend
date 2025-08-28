@@ -14,37 +14,38 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers
+package viewmodels.checkAnswers.thirdparty
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.ConfirmEoriPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
-object ConfirmEoriSummary  {
+object ConfirmEoriSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ConfirmEoriPage).map {
-      answer =>
+    answers.get(ConfirmEoriPage).map { answer =>
 
-        val value = ValueViewModel(
-          HtmlContent(
-            HtmlFormat.escape(messages(s"confirmEori.$answer"))
-          )
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"confirmEori.$answer"))
         )
+      )
 
-        SummaryListRowViewModel(
-          key     = "confirmEori.checkYourAnswersLabel",
-          value   = value,
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.ConfirmEoriController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("confirmEori.change.hidden"))
+      SummaryListRowViewModel(
+        key = "confirmEori.checkYourAnswersLabel",
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(CheckMode).url
           )
+            .withVisuallyHiddenText(messages("confirmEori.change.hidden"))
         )
+      )
     }
 }

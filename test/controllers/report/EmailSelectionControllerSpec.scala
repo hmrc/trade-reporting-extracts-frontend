@@ -18,6 +18,7 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.EmailSelectionFormProvider
+import models.ConsentStatus.Granted
 import models.report.EmailSelection
 import models.{CompanyInformation, NormalMode, NotificationEmail, UserAnswers, UserDetails}
 import navigation.{FakeNavigator, Navigator}
@@ -53,7 +54,7 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
     authorisedUsers = Seq.empty,
     companyInformation = CompanyInformation(
       name = "Test Ltd",
-      consent = "1"
+      consent = Granted
     ),
     notificationEmail = NotificationEmail("user@example.com", LocalDateTime.now())
   )

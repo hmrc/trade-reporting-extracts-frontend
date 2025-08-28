@@ -16,7 +16,7 @@
 
 package pages
 
-import models.ConfirmEori
+import models.thirdparty.ConfirmEori
 import play.api.libs.json.JsPath
 
 case object ConfirmEoriPage extends QuestionPage[ConfirmEori] {

@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import base.TestConstants.testEori
+import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -33,7 +34,7 @@ import scala.concurrent.Future
 
 class DashboardControllerSpec extends SpecBase with MockitoSugar {
   val companyInformation: CompanyInformation =
-    CompanyInformation("Test Company", "1")
+    CompanyInformation("Test Company", Granted)
   val userDetails: UserDetails               = UserDetails(
     eori = testEori,
     additionalEmails = Seq.empty,

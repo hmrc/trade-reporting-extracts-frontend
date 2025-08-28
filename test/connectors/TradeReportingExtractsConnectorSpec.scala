@@ -19,6 +19,7 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
+import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.ReportRequestUserAnswersModel
 import org.mockito.Mockito.when
@@ -273,7 +274,7 @@ class TradeReportingExtractsConnectorSpec
             authorisedUsers = Seq.empty,
             companyInformation = CompanyInformation(
               name = "Test Company",
-              consent = "1"
+              consent = Granted
             ),
             notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now())
           )

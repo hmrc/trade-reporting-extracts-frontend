@@ -18,6 +18,7 @@ package services
 
 import base.SpecBase
 import connectors.TradeReportingExtractsConnector
+import models.ConsentStatus.Granted
 import models.report.ReportRequestUserAnswersModel
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
@@ -150,7 +151,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val companyInformation = CompanyInformation(
           name = "Test Company",
-          consent = "1"
+          consent = Granted
         )
         val eori               = "GB123456789000"
         val userDetails        = UserDetails(

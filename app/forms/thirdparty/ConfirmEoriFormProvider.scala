@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package forms
-
-import javax.inject.Inject
+package forms.thirdparty
 
 import forms.mappings.Mappings
+import models.thirdparty.ConfirmEori
 import play.api.data.Form
-import models.ConfirmEori
+
+import javax.inject.Inject
 
 class ConfirmEoriFormProvider @Inject() extends Mappings {
 

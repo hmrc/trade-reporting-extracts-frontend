@@ -376,6 +376,7 @@ dataTypes.checkYourAnswersLabel = Types of data to give access to
 dataTypes.error.required = Select which types of data you want to give access to
 dataTypes.change.hidden = Types of data to give access to
 dataTypes.hint = Select all that apply.
+
 confirmEori.title = Confirm the EORI number for third-party access
 confirmEori.heading = Confirm the EORI number for third-party access
 confirmEori.heading2 = Do you want to give this EORI number third-party access?
@@ -383,5 +384,6 @@ confirmEori.warning = Giving third-party access lets this business request and d
 confirmEori.yes = Yes, I have consent from this business
 confirmEori.no = No, I want to enter a different EORI number
 confirmEori.checkYourAnswersLabel = Confirm the EORI number for third-party access
-confirmEori.error.required = Select confirmEori
-confirmEori.change.hidden = ConfirmEori
+confirmEori.error.required = Select yes if you want to give this EORI number third-party access
+confirmEori.change.hidden = Confirm the EORI number for third-party access
+confirmEori.noConsent = This business has not agreed to share their data. Contact them directly for more information.
