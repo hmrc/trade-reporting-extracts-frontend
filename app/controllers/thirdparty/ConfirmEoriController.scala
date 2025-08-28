@@ -19,7 +19,7 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ConfirmEoriFormProvider
 import models.{CompanyInformation, ConsentStatus, Mode}
-import models.thirdparty.ConfirmEori
+import models.thirdparty.{AddThirdPartySection, ConfirmEori}
 import navigation.Navigator
 import pages.ConfirmEoriPage
 import pages.thirdparty.EoriNumberPage
@@ -41,6 +41,7 @@ class ConfirmEoriController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: ConfirmEoriFormProvider,
+  addThirdPartySection: AddThirdPartySection,
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ConfirmEoriView
@@ -93,6 +94,8 @@ class ConfirmEoriController @Inject() (
                 case confirmValue =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmEoriPage, confirmValue))
+                    redirectUrl     = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers).url
+                    answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
                     _              <- sessionRepository.set(updatedAnswers)
                   } yield Redirect(navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers))
               }
