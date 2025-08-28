@@ -16,25 +16,32 @@
 
 package pages.thirdparty
 
-import models.UserAnswers
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import base.SpecBase
+import utils.json.OptionalLocalDateReads._
 
 import java.time.LocalDate
-import scala.util.Try
 
-case object DataStartDatePage extends QuestionPage[LocalDate] {
+class DataStartDatePageSpec extends SpecBase {
 
-  override def path: JsPath = JsPath \ "addThirdParty" \ toString
+  "cleanup" - {
+    "must cleanup correctly" in {
 
-  override def toString: String = "dataStartDate"
+      val cleanedUserAnswers = emptyUserAnswers
+        .set(
+          DataEndDatePage,
+          Some(LocalDate.now())
+        )
+        .success
+        .value
+        .set(
+          DataStartDatePage,
+          LocalDate.now()
+        )
+        .success
+        .value
 
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(DataEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
+      cleanedUserAnswers.get(DataEndDatePage) mustBe None
+    }
+  }
 
 }
