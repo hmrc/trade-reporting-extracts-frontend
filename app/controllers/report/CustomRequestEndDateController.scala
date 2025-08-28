@@ -103,9 +103,9 @@ class CustomRequestEndDateController @Inject() (
   }
 
   private def reportLengthStringGen(startDate: LocalDate, plus31Days: Boolean)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    val formatterForHint   = DateTimeFormatter.ofPattern("d MM yyyy", Locale.forLanguageTag(languageTag))
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
+    val languageTag      = if (messages.lang.code == "cy") "cy" else "en"
+    val formatterForHint = DateTimeFormatter.ofPattern("d MM yyyy", Locale.forLanguageTag(languageTag))
+    val formatter        = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
     if (plus31Days) {
       if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
         LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatterForHint)
