@@ -50,8 +50,8 @@ dashboard.title = dashboard
 dashboard.heading = Get customs declaration data for imports and exports
 
 dashboard.reports.heading = Reports
-dashboard.reports.subHeading = Manage and view your reports
-dashboard.reports.requestNewReport = Request a new report
+dashboard.reports.subHeading = Request and download your reports
+dashboard.reports.requestNewReport = Request a report
 dashboard.reports.requestedReports = Requested reports
 dashboard.reports.availableForDownload = Available to download
 dashboard.reports.reportHistory = Report history
@@ -61,15 +61,18 @@ dashboard.account.subHeading = Manage your account information
 dashboard.account.yourDetails = Your contact details
 dashboard.account.messages = Notifications
 
-dashboard.thirdPartyAccess.heading = Third-party access
-dashboard.thirdPartyAccess.subHeading = Manage who has access to your data and whose data you can access
+dashboard.thirdPartyAccess.heading = Give data access
+dashboard.thirdPartyAccess.subHeading = Importers and exporters can give third-party access and manage who has access to their data
 dashboard.thirdPartyAccess.addNewThirdParty = Add a third party
-dashboard.thirdPartyAccess.authorisedThirdParty = Third parties that can access your data
+dashboard.thirdPartyAccess.authorisedThirdParty = Manage third parties that can access your data
+
+dashboard.viewDataAccess.heading = View data access
+dashboard.viewDataAccess.subHeading = Third parties such as consultancy firms can view whose data they can access
 dashboard.thirdPartyAccess.authorisedAccounts = Businesses you have third-party access to
 
-dashboard.help.heading = Help
-dashboard.help.fieldsInReport = What do the fields in my report mean?
-dashboard.help.reportTypes = What are the different report types?
+dashboard.support.heading = Support
+dashboard.support.fieldsInReport = What do the fields in my report mean?
+dashboard.support.reportTypes = What are the different report types?
 
 contactDetails.title = Your contact details
 contactDetails.heading = Your contact details
