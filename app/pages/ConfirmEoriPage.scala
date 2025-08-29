@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Json, OFormat}
+import models.thirdparty.ConfirmEori
+import play.api.libs.json.JsPath
 
-case class CompanyInformation(name: String, consent: ConsentStatus)
+case object ConfirmEoriPage extends QuestionPage[ConfirmEori] {
 
-object CompanyInformation {
-  implicit val format: OFormat[CompanyInformation] = Json.format[CompanyInformation]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "confirmEori"
 }

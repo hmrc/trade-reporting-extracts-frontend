@@ -17,18 +17,19 @@
 package controllers
 
 import base.SpecBase
+import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ContactDetailsView
-import java.time.LocalDateTime
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class ContactDetailsControllerSpec extends SpecBase {
@@ -70,7 +71,7 @@ class ContactDetailsControllerSpec extends SpecBase {
     val companyInformation: CompanyInformation =
       CompanyInformation(
         name = "ABC Company",
-        consent = "1"
+        consent = Granted
       )
 
     val eori: String = "GB123456789002"

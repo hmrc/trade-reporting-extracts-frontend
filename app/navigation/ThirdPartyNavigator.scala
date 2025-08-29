@@ -30,7 +30,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case DataTypesPage                  =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
     case EoriNumberPage                 =>
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
+      navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
