@@ -70,19 +70,13 @@
             subHeading = Some(Messages("dashboard.account.subHeading")),
             links = Seq(
                 (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
-                ) ++ (
-                if(appConfig.notificationsEnabled)
-                    Seq((Messages("dashboard.account.messages"), "#", Some(NotificationBadge("2"))))
-                else
-                    Seq.empty
-            )
+                )
         )
         @Card(
             id = "support-card",
             heading = Messages("dashboard.support.heading"),
             links = Seq(
                 (Messages("dashboard.support.fieldsInReport"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/customs-declaration-service-data-import-and-export-descriptions/", None),
-                (Messages("dashboard.support.reportTypes"), "https://www.uktradeinfo.com/trade-data/request-customs-declaration-service-data-on-imports-and-exports/#what-information-is-in-a-report", None)
             )
         )
 </div>
