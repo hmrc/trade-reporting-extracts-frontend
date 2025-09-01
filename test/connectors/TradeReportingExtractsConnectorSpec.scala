@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
-import models.report.ReportRequestUserAnswersModel
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -94,12 +94,14 @@ class TradeReportingExtractsConnectorSpec
 
       val url = "/trade-reporting-extracts/create-report-request"
 
-      "must return an OK response and reference when JSON is valid" in {
+      "must return an OK response single request confirmation when JSON is valid" in {
 
         val responseBody =
-          s"""{
-             |  "references" : [ "TR-00000001" ]
-             |}""".stripMargin
+          s"""[{
+             |  "reportName": "name1",
+             |  "reportType": "importHeader",
+             |  "reportReference": "RE00000001"
+             |}]""".stripMargin
 
         val app = application
         running(app) {
@@ -125,7 +127,54 @@ class TradeReportingExtractsConnectorSpec
             )
             .futureValue
 
-          result mustBe Seq("TR-00000001")
+          result mustBe Seq(ReportConfirmation("name1", "importHeader", "RE00000001"))
+        }
+      }
+
+      "must return an OK response multiple request confirmations when JSON is valid" in {
+
+        val responseBody =
+          s"""[
+             |  {
+             |    "reportName": "name1",
+             |    "reportType": "importHeader",
+             |    "reportReference": "RE00000001"
+             |  },
+             |  {
+             |    "reportName": "name1",
+             |    "reportType": "importItem",
+             |    "reportReference": "RE00000002"
+             |  }
+             |]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(ok(responseBody))
+          )
+
+          val result = connector
+            .createReportRequest(
+              ReportRequestUserAnswersModel(
+                eori = "eori",
+                dataType = "import",
+                whichEori = Some("eori"),
+                eoriRole = Set("declarant"),
+                reportType = Set("importHeader", "importItem"),
+                reportStartDate = "2025-04-16",
+                reportEndDate = "2025-05-16",
+                reportName = "name1",
+                additionalEmail = Some(Set("email@email.com"))
+              )
+            )
+            .futureValue
+
+          result mustBe Seq(
+            ReportConfirmation("name1", "importHeader", "RE00000001"),
+            ReportConfirmation("name1", "importItem", "RE00000002")
+          )
         }
       }
 

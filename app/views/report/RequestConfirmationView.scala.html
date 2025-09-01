@@ -14,43 +14,81 @@
  * limitations under the License.
  *@
 
+@import models.report.ReportConfirmation
+@import views.html.helper.CSPNonce
+
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
-        govukPanel: GovukPanel
+        govukPanel: GovukPanel,
+        govukTable: GovukTable
 )
 
-@(list : Seq[String], isMoreThanOneReport: Boolean, reqReference: String, surveyUrl: String, notificationEmail: String)(implicit request: Request[_], messages: Messages)
+@(additionalEmailList : Option[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, notificationEmail: String, date: String, time: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
     @govukPanel(Panel(
-       title = messages("requestConfirmation.heading"),
-       content = HtmlContent(messages("requestConfirmation.referenceNumber", reqReference)),
+       title = messages("requestConfirmation.heading")
     ))
 
-<p class="govuk-body">@messages("requestConfirmation.emailSent", notificationEmail)</p>
+    <p class="govuk-body">@messages("requestConfirmation.message.dateAndTime", date, time)</p>
 
-@if(list.nonEmpty) {
-    <p class="govuk-body">@messages("requestConfirmation.additionalEmail")</p>
-    <ul class="govuk-list">
-        @list.map { item =>
-        <li>@messages(item)</li>
-         }
-    </ul>
-}
-<h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
+    <p class="govuk-body">@messages("requestConfirmation.print.message")
+        <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("requestConfirmation.print.link")</a>.
+    </p>
 
-@if(isMoreThanOneReport) {
-    <p class="govuk-body">@messages("requestConfirmation.pluralReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link" >@messages("requestConfirmation.pluralReport.monitorStatusLink")</a>.</p>
-} else {
-    <p class="govuk-body">@messages("requestConfirmation.singleReport.processingRequest")</p>
-    <p class="govuk-body">@messages("requestConfirmation.monitorStatus") <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link" >@messages("requestConfirmation.singleReport.monitorStatusLink")</a>.</p>
-}
+    <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
 
-<p class="govuk-body"><a href="dashboard" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.goToHomepage")</a></p>
+    @if(isMoreThanOneReport) {
+    <table class="govuk-table">
+        <caption class="govuk-table__caption govuk-table__caption--m">@messages("requestConfirmation.message1")</caption>
+        <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header govuk-!-width-one-third">@messages("requestConfirmation.reportName")</th>
+            <th scope="col" class="govuk-table__header govuk-!-width-one-third">@messages("requestConfirmation.reportType")</th>
+            <th scope="col" class="govuk-table__header govuk-!-width-one-third">@messages("requestConfirmation.reportReference")</th>
+        </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            @reportConfirmations.map { report =>
+            <tr class="govuk-table__row">
+                <td class="govuk-table__cell">@report.reportName</td>
+                <td class="govuk-table__cell">@messages(report.reportType)</td>
+                <td class="govuk-table__cell">@report.reportReference</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    } else { @reportConfirmations.map { report => <p class="govuk-body">@messages("requestConfirmation.single.details", messages(report.reportType).toLowerCase, report.reportName, report.reportReference)</p>
+        }
+    }
 
-<p class="govuk-body"><a href="@surveyUrl" class="govuk-link govuk-link--no-visited-state">@messages("requestConfirmation.feedbackLink")</a> @messages("requestConfirmation.feedbackDuration")</p>
+    <h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
+
+    @if(isMoreThanOneReport) {
+        <p class="govuk-body">@messages("requestConfirmation.plural.processingRequest", notificationEmail)</p>
+        } else {
+        <p class="govuk-body">@messages("requestConfirmation.single.processingRequest", notificationEmail)</p>
+    }
+
+
+    @if(!additionalEmailList.isEmpty) {
+    <p class="govuk-body">@messages("requestConfirmation.additionalEmail", additionalEmailList.get)</p>
+    }
+
+    @if(isMoreThanOneReport) {
+        <p class="govuk-body">@messages("requestConfirmation.youCan")
+            <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link">@messages("requestConfirmation.plural.status")</a>.
+        </p>
+    } else {
+        <p class="govuk-body">@messages("requestConfirmation.youCan")
+            <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link">@messages("requestConfirmation.single.status")</a>.
+        </p>
+    }
+
+    <p class="govuk-body"><a href="dashboard" class="govuk-link">@messages("requestConfirmation.goToHomepage")</a></p>
+
+        <p class="govuk-body"><a href="@surveyUrl" class="govuk-link">@messages("requestConfirmation.feedbackLink")</a> @messages("requestConfirmation.feedbackDuration")</p>
 
 }

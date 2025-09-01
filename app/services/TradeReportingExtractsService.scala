@@ -18,7 +18,7 @@ package services
 
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
-import models.report.{ReportRequestUserAnswersModel, RequestedReportsViewModel}
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
@@ -67,7 +67,7 @@ class TradeReportingExtractsService @Inject() (
 
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier
-  ): Future[Seq[String]] =
+  ): Future[Seq[ReportConfirmation]] =
     connector.createReportRequest(reportRequestAnswers)
 
   def hasReachedSubmissionLimit(eori: String)(implicit hc: HeaderCarrier): Future[Boolean] =
