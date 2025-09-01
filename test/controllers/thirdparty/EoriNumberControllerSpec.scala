@@ -18,6 +18,7 @@ package controllers.thirdparty
 
 import base.SpecBase
 import forms.thirdparty.EoriNumberFormProvider
+import models.ConsentStatus.{Denied, Granted}
 import models.{CompanyInformation, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -36,7 +37,7 @@ import scala.concurrent.Future
 
 class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/dashboard")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/confirm-eori")
 
   val userEori = "GB123456789000"
 
@@ -64,7 +65,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val companyInfo                       = CompanyInformation(name = "Test", consent = "1")
+      val companyInfo                       = CompanyInformation(name = "Test", consent = Granted)
 
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(companyInfo))
@@ -97,7 +98,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val companyInfo                       = CompanyInformation(name = "Test", consent = "1")
+      val companyInfo                       = CompanyInformation(name = "Test", consent = Denied)
 
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(companyInfo))

@@ -423,3 +423,14 @@ dataTypes.checkYourAnswersLabel = cy: Types of data to give access to
 dataTypes.error.required = cy: Select which types of data you want to give access to
 dataTypes.change.hidden = cy: Types of data to give access to
 dataTypes.hint = cy: Select all that apply.
+
+confirmEori.title = cy: Confirm the EORI number for third-party access
+confirmEori.heading = cy: Confirm the EORI number for third-party access
+confirmEori.heading2 = cy: Do you want to give this EORI number third-party access?
+confirmEori.warning = cy: Giving third-party access lets this business request and download reports with your customs declaration data. Only give access if you trust them and have their consent.
+confirmEori.yes = cy: Yes, I have consent from this business
+confirmEori.no = cy: No, I want to enter a different EORI number
+confirmEori.checkYourAnswersLabel = cy: Confirm the EORI number for third-party access
+confirmEori.error.required = cy: Select yes if you want to give this EORI number third-party access
+confirmEori.change.hidden = cy: Confirm the EORI number for third-party access
+confirmEori.noConsent = cy: This business has not agreed to share their data. Contact them directly for more information.
