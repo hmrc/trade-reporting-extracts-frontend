@@ -29,4 +29,3 @@ class EoriAlreadyAddedControllerSpec extends SpecBase {
     }
   }
 }
-
