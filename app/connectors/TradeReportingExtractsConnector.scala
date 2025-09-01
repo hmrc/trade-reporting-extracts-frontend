@@ -234,4 +234,15 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             false
         }
       }
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String]                         =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-request-limit-number")
+      .execute[String]
+      .flatMap { response =>
+        Future.successful(response)
+      }
+      .recover { case ex: Exception =>
+        logger.error(s"Failed to fetch report request limit number: ${ex.getMessage}", ex)
+        throw ex
+      }
 }

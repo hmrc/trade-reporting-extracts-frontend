@@ -406,5 +406,45 @@ class TradeReportingExtractsConnectorSpec
         }
       }
     }
+
+    "getReportRequestLimitNumber" - {
+
+      "must return the report request limit number when the API call is successful" in {
+        val app = application
+        running(app) {
+          val connector           = app.injector.instanceOf[TradeReportingExtractsConnector]
+          val expectedLimitNumber = "25"
+
+          server.stubFor(
+            WireMock
+              .get(WireMock.urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+              .willReturn(WireMock.ok("\"25\""))
+          )
+
+          val result = connector.getReportRequestLimitNumber.futureValue
+          result mustBe expectedLimitNumber
+        }
+      }
+
+      "must throw an exception when the API call fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+              .willReturn(
+                aResponse().withStatus(500).withBody("error")
+              )
+          )
+
+          val thrown = intercept[RuntimeException] {
+            connector.getReportRequestLimitNumber.futureValue
+          }
+          thrown.getMessage must include("error")
+        }
+      }
+    }
   }
 }

@@ -212,5 +212,25 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         thrown.getMessage must include("Connector error.")
       }
     }
+
+    "getReportRequestLimitNumber" - {
+      "should return the report request limit number from the connector" in {
+        when(mockConnector.getReportRequestLimitNumber(any()))
+          .thenReturn(Future.successful("25"))
+
+        val result = service.getReportRequestLimitNumber.futureValue
+        result mustBe "25"
+      }
+
+      "should fail the future if the connector fails" in {
+        when(mockConnector.getReportRequestLimitNumber(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getReportRequestLimitNumber.futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
   }
 }
