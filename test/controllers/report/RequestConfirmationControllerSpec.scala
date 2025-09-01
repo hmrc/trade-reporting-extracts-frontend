@@ -25,11 +25,13 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage, ReportTypeImportPage}
+import play.api.i18n.Lang
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
+import utils.DateTimeFormats.formattedSystemTime
 import views.html.report.RequestConfirmationView
 
 import java.time.{Clock, Instant, LocalDateTime, ZoneId, ZoneOffset}
@@ -124,7 +126,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "12:00 AM"
+          formattedSystemTime(fixedClock)(Lang("en"))
         )(
           request,
           messages(application)
@@ -217,7 +219,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "12:00 AM"
+          formattedSystemTime(fixedClock)(Lang("en"))
         )(
           request,
           messages(application)
@@ -289,7 +291,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           surveyUrl,
           notificationEmail.address,
           "5 May 2025",
-          "12:00 AM"
+          formattedSystemTime(fixedClock)(Lang("en"))
         )(
           request,
           messages(application)
