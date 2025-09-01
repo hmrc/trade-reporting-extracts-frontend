@@ -70,17 +70,26 @@ class EoriNumberController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           eori =>
-            tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
-              if (companyInfo.name.isEmpty) {
-                val formWithApiError = form.withError("value", "eoriNumber.error.notFound")
-                Future.successful(BadRequest(view(formWithApiError, mode)))
+            tradeReportingExtractsService.getAuthorisedEoris(userEori).flatMap { authorisedEoris =>
+              if (authorisedEoris.contains(eori)) {
+                Future.successful(
+                  Redirect(controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad())
+                    .flashing("alreadyAddedEori" -> eori)
+                )
               } else {
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
-                  redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
-                  answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
+                tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
+                  if (companyInfo.name.isEmpty) {
+                    val formWithApiError = form.withError("value", "eoriNumber.error.notFound")
+                    Future.successful(BadRequest(view(formWithApiError, mode)))
+                  } else {
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
+                      redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
+                      answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                      _              <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
+                  }
+                }
               }
             }
         )

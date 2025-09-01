@@ -17,6 +17,8 @@ POST       /data-types                                   controllers.thirdparty.
 GET        /change-data-types                            controllers.thirdparty.DataTypesController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-data-types                            controllers.thirdparty.DataTypesController.onSubmit(mode: Mode = CheckMode)
 
+GET        /eori-already-added                       controllers.thirdparty.EoriAlreadyAddedController.onPageLoad()
+
 GET        /confirm-eori                                 controllers.thirdparty.ConfirmEoriController.onPageLoad(mode: Mode = NormalMode)
 POST       /confirm-eori                                 controllers.thirdparty.ConfirmEoriController.onSubmit(mode: Mode = NormalMode)
 GET        /change-confirm-eori                          controllers.thirdparty.ConfirmEoriController.onPageLoad(mode: Mode = CheckMode)
