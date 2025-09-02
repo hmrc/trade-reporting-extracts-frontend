@@ -32,6 +32,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case EoriNumberPage                 =>
       navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
@@ -42,6 +43,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case EoriNumberPage                 =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
+    case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
@@ -50,10 +52,9 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     answers.get(ThirdPartyReferencePage) match {
       case Some(_) =>
         mode match {
-          // CHANGE TO ACCESS START PAGE
-          case NormalMode => controllers.routes.DashboardController.onPageLoad()
+          case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode)
           // CHANGE FOR CHECKMODE
-          case CheckMode  => controllers.thirdparty.routes.ThirdPartyDataOwnerConsentController.onPageLoad(CheckMode)
+          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
         }
       case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
@@ -72,5 +73,15 @@ class ThirdPartyNavigator @Inject() extends Navigator {
           case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def accessStartDateRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ThirdPartyAccessStartDatePage) match {
+      case Some(_) =>
+        mode match {
+          case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode)
+          case CheckMode  => controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(CheckMode)
+        }
+      case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 }

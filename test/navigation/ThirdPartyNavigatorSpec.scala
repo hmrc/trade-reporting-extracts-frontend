@@ -17,8 +17,10 @@
 package navigation
 
 import base.SpecBase
-import models.NormalMode
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
+import models.{CheckMode, NormalMode}
+import pages.thirdparty.{ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
+
+import java.time.LocalDate
 
 class ThirdPartyNavigatorSpec extends SpecBase {
 
@@ -30,7 +32,7 @@ class ThirdPartyNavigatorSpec extends SpecBase {
 
       "navigate from ThirdPartyDataOwnerConsentPage" - {
         "to next page when true" in {
-          // TODO COMPLETE
+          // TODO
         }
         "to CannotAddThirdParty when false" in {
           val userAnswers = emptyUserAnswers.set(ThirdPartyDataOwnerConsentPage, false).success.value
@@ -38,8 +40,70 @@ class ThirdPartyNavigatorSpec extends SpecBase {
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
       }
+
+      "navigate from third party reference page" - {
+
+        "to ThirdPartyAccessStartDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(ThirdPartyReferencePage, "ref").success.value
+          navigator.nextPage(ThirdPartyReferencePage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyReferencePage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from ThirdPartyAccessStartPage" - {
+
+        "to ThirdPartyAccessEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(ThirdPartyAccessStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(ThirdPartyAccessStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyAccessStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
     }
 
-    "in Check Mode" - {}
+    "in Check Mode" - {
+
+      "navigate from ThirdPartyAccessStartPage" - {
+
+        "to ThirdPartyAccessEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(ThirdPartyAccessStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(ThirdPartyAccessStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(CheckMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyAccessStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from third party reference page" - {
+
+        "to CYA when answered" in {
+          // TODO Change to CYA page
+          val userAnswers = emptyUserAnswers.set(ThirdPartyReferencePage, "ref").success.value
+          navigator.nextPage(ThirdPartyReferencePage, CheckMode, userAnswers) mustBe
+            controllers.routes.DashboardController.onPageLoad()
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyReferencePage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+    }
   }
 }

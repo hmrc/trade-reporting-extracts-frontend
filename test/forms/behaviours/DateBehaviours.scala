@@ -84,4 +84,12 @@ class DateBehaviours extends FieldBehaviours {
 
       result.errors must contain only FormError(key, requiredAllKey, errorArgs)
     }
+
+  def optionalDateField(form: Form[_], key: String): Unit =
+    "bind an empty date" in {
+
+      val result = form.bind(Map.empty[String, String])
+
+      result(key).errors mustBe empty
+    }
 }
