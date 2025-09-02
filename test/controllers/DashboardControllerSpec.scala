@@ -66,48 +66,6 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must show the notifications card when notificationsEnabled is true" in new Setup {
-      val application: Application = applicationBuilder()
-        .configure(
-          "features.notifications" -> true,
-          "features.third-party"   -> false,
-          "allowedEoris"           -> Seq(testEori)
-        )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
-        val result  = route(application, request).value
-
-        val content = contentAsString(result)
-
-        content.contains("Notifications") mustBe true
-      }
-    }
-
-    "must not show the notifications card when notificationsEnabled is false" in new Setup {
-      val application: Application = applicationBuilder()
-        .configure(
-          "features.notifications" -> false,
-          "features.third-party"   -> false
-        )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
-        val result  = route(application, request).value
-
-        val content = contentAsString(result)
-        content.contains("Notifications") mustBe false
-      }
-    }
-
     "must show the third party card when thirdPartyEnabled is true" in new Setup {
       val application: Application = applicationBuilder()
         .configure(
@@ -124,7 +82,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        content.contains("Third-party access") mustBe true
+        content.contains("Give data access") mustBe true
+        content.contains("View data access") mustBe true
       }
     }
 
@@ -144,7 +103,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        content.contains("Third-party access") mustBe false
+        content.contains("Give data access") mustBe false
+        content.contains("View data access") mustBe false
       }
     }
   }
