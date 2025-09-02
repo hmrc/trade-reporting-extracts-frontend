@@ -52,10 +52,9 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     answers.get(ThirdPartyReferencePage) match {
       case Some(_) =>
         mode match {
-          // CHANGE TO ACCESS START PAGE
-          case NormalMode => controllers.routes.DashboardController.onPageLoad()
+          case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode)
           // CHANGE FOR CHECKMODE
-          case CheckMode  => controllers.thirdparty.routes.ThirdPartyDataOwnerConsentController.onPageLoad(CheckMode)
+          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
         }
       case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
