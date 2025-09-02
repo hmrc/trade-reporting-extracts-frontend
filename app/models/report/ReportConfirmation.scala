@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package models.report
 
 import play.api.libs.json.{Json, OFormat}
 
-case class CompanyInformation(name: String, consent: ConsentStatus)
+case class ReportConfirmation(
+  reportName: String,
+  reportType: String,
+  reportReference: String
+)
 
-object CompanyInformation {
-  implicit val format: OFormat[CompanyInformation] = Json.format[CompanyInformation]
-}
+object ReportConfirmation:
+  implicit val format: OFormat[ReportConfirmation] = Json.format[ReportConfirmation]

@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package forms.thirdparty
 
-import play.api.libs.json.{Json, OFormat}
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case class CompanyInformation(name: String, consent: ConsentStatus)
+import javax.inject.Inject
 
-object CompanyInformation {
-  implicit val format: OFormat[CompanyInformation] = Json.format[CompanyInformation]
+class ThirdPartyReferenceFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("thirdPartyReference.error.required")
+        .verifying(maxLength(100, "thirdPartyReference.error.length"))
+    )
 }

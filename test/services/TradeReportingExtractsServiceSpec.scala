@@ -18,8 +18,11 @@ package services
 
 import base.SpecBase
 import connectors.TradeReportingExtractsConnector
+import models.ConsentStatus.Granted
 import models.report.ReportRequestUserAnswersModel
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
+import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -70,7 +73,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       "should return a reference when OK" in {
 
-        when(mockConnector.createReportRequest(any())(any())).thenReturn(Future.successful(Seq("Reference")))
+        when(mockConnector.createReportRequest(any())(any()))
+          .thenReturn(Future.successful(Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))))
 
         val result = service
           .createReportRequest(
@@ -88,8 +92,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           )
           .futureValue
 
-        result mustBe a[Seq[String]]
-        result mustBe Seq("Reference")
+        result mustBe a[Seq[ReportConfirmation]]
+        result mustBe Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
 
       }
     }
@@ -150,7 +154,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val companyInformation = CompanyInformation(
           name = "Test Company",
-          consent = "1"
+          consent = Granted
         )
         val eori               = "GB123456789000"
         val userDetails        = UserDetails(
@@ -207,6 +211,26 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.auditReportDownload(reportReference, fileName, fileUrl).futureValue
         }
         thrown.getMessage must include("Connector error.")
+      }
+    }
+
+    "getReportRequestLimitNumber" - {
+      "should return the report request limit number from the connector" in {
+        when(mockConnector.getReportRequestLimitNumber(any()))
+          .thenReturn(Future.successful("25"))
+
+        val result = service.getReportRequestLimitNumber.futureValue
+        result mustBe "25"
+      }
+
+      "should fail the future if the connector fails" in {
+        when(mockConnector.getReportRequestLimitNumber(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getReportRequestLimitNumber.futureValue
+        }
+        thrown.getMessage must include("error")
       }
     }
   }

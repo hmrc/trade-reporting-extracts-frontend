@@ -17,45 +17,45 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import forms.thirdparty.EoriNumberFormProvider
-import models.ConsentStatus.{Denied, Granted}
-import models.{CompanyInformation, NormalMode, UserAnswers}
+import controllers.routes
+import forms.thirdparty.ThirdPartyReferenceFormProvider
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.EoriNumberPage
+import pages.thirdparty.ThirdPartyReferencePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import services.TradeReportingExtractsService
-import views.html.thirdparty.EoriNumberView
+import views.html.thirdparty.ThirdPartyReferenceView
 
 import scala.concurrent.Future
 
-class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyReferenceControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/confirm-eori")
+  def onwardRoute = Call("GET", "/foo")
 
-  val userEori = "GB123456789000"
+  val formProvider = new ThirdPartyReferenceFormProvider()
+  val form         = formProvider()
 
-  lazy val eoriNumberRoute = controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode).url
+  lazy val thirdPartyReferenceRoute =
+    controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(NormalMode).url
 
-  "EoriNumber Controller" - {
+  "ThirdPartyReference Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriNumberRoute)
+        val request = FakeRequest(GET, thirdPartyReferenceRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EoriNumberView]
-        val form = new EoriNumberFormProvider().apply(userEori)
+        val view = application.injector.instanceOf[ThirdPartyReferenceView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -64,23 +64,14 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val companyInfo                       = CompanyInformation(name = "Test", consent = Granted)
+      val userAnswers = UserAnswers(userAnswersId).set(ThirdPartyReferencePage, "answer").success.value
 
-      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
-        .thenReturn(Future.successful(companyInfo))
-
-      val userAnswers = UserAnswers(userAnswersId).set(EoriNumberPage, "answer").success.value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriNumberRoute)
+        val request = FakeRequest(GET, thirdPartyReferenceRoute)
 
-        val view = application.injector.instanceOf[EoriNumberView]
-        val form = new EoriNumberFormProvider().apply(userEori)
+        val view = application.injector.instanceOf[ThirdPartyReferenceView]
 
         val result = route(application, request).value
 
@@ -91,35 +82,26 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      import uk.gov.hmrc.http.HeaderCarrier
-      implicit val hc: HeaderCarrier = HeaderCarrier()
-
       val mockSessionRepository = mock[SessionRepository]
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val companyInfo                       = CompanyInformation(name = "Test", consent = Denied)
-
-      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
-        .thenReturn(Future.successful(companyInfo))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriNumberRoute)
-            .withFormUrlEncodedBody(("value", "GB123456123456"))
+          FakeRequest(POST, thirdPartyReferenceRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
+
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
@@ -129,13 +111,12 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriNumberRoute)
+          FakeRequest(POST, thirdPartyReferenceRoute)
             .withFormUrlEncodedBody(("value", ""))
-        val form    = new EoriNumberFormProvider().apply(userEori)
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[EoriNumberView]
+        val view = application.injector.instanceOf[ThirdPartyReferenceView]
 
         val result = route(application, request).value
 
@@ -149,7 +130,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, eoriNumberRoute)
+        val request = FakeRequest(GET, thirdPartyReferenceRoute)
 
         val result = route(application, request).value
 
@@ -164,7 +145,7 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, eoriNumberRoute)
+          FakeRequest(POST, thirdPartyReferenceRoute)
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages.thirdparty
 
-import play.api.libs.json.{Json, OFormat}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class CompanyInformation(name: String, consent: ConsentStatus)
+case object ThirdPartyReferencePage extends QuestionPage[String] {
 
-object CompanyInformation {
-  implicit val format: OFormat[CompanyInformation] = Json.format[CompanyInformation]
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
+
+  override def toString: String = "thirdPartyReference"
 }
