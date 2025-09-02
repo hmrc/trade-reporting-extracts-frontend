@@ -65,6 +65,11 @@ class TradeReportingExtractsService @Inject() (
   ): Future[CompanyInformation] =
     connector.getCompanyInformation(eori)
 
+  def getAuthorisedEoris(eori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Seq[String]] =
+    connector.getAuthorisedEoris(eori)
+
   def createReportRequest(reportRequestAnswers: ReportRequestUserAnswersModel)(implicit
     hc: HeaderCarrier
   ): Future[Seq[ReportConfirmation]] =

@@ -151,6 +151,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         throw ex
       }
 
+  def getAuthorisedEoris(eori: String)(implicit hc: HeaderCarrier): Future[Seq[String]] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/user/authorised-eoris")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[Seq[String]]
+      .recover { ex =>
+        logger.error(s"Failed to fetch authorised eoris: ${ex.getMessage}", ex)
+        throw ex
+      }
+
   def createReportRequest(
     reportRequestAnswers: ReportRequestUserAnswersModel
   )(implicit hc: HeaderCarrier): Future[Seq[ReportConfirmation]] =

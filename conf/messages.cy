@@ -435,6 +435,13 @@ dataTypes.error.required = cy: Select which types of data you want to give acces
 dataTypes.change.hidden = cy: Types of data to give access to
 dataTypes.hint = cy: Select all that apply.
 
+eoriAlreadyAdded.title = cy: You have already given this EORI number third-party access
+eoriAlreadyAdded.heading = cy: You have already given this EORI number third-party access
+eoriAlreadyAdded.message1 = cy: This EORI number {0} already has third-party access to your customs declaration data.
+eoriAlreadyAdded.message2 = cy: You can
+eoriAlreadyAdded.link1 = cy: update access details for this third party.
+eoriAlreadyAdded.link2 = cy: Go to homepage
+
 confirmEori.title = cy: Confirm the EORI number for third-party access
 confirmEori.heading = cy: Confirm the EORI number for third-party access
 confirmEori.heading2 = cy: Do you want to give this EORI number third-party access?

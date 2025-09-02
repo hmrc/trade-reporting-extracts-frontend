@@ -103,6 +103,9 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(companyInfo))
 
+      when(mockTradeReportingExtractsService.getAuthorisedEoris(any())(any()))
+        .thenReturn(Future.successful(Seq("GB123456123447")))
+
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
