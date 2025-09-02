@@ -31,13 +31,9 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       navigateTo(controllers.routes.DashboardController.onPageLoad())
     case EoriNumberPage                 =>
       navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
+    case ThirdPartyReferencePage => thirdPartyReferenceRoutes(NormalMode)
   }
-
-  override val checkRoutes: Page => UserAnswers => Call = {
-    case ThirdPartyDataOwnerConsentPage => dataOwnerConsentRoutes(CheckMode)
-    case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
-  }
-
+  
   override val checkRoutes: Page => UserAnswers => Call = {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(CheckMode)
