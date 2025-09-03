@@ -514,7 +514,7 @@ dataEndDate.error.required = The date you want to stop giving access to your dat
 dataEndDate.error.invalid = The date you want to stop giving access to your data must be a real date and only include numbers 0 to 9
 dataEndDate.error.min = The date you want to stop giving access to your data from must be on or after {0}
 
-dataTheyCanView.checkYourAnswersLabel = Third-party access period
+dataTheyCanView.checkYourAnswersLabel = Data they can view
 dataTheyCanView.fixed.answerLabel = {0} to {1}
 dataTheyCanView.ongoing.answerLabel = From {0} - ongoing
-dataTheyCanView.change.hidden = third-party access period
+dataTheyCanView.change.hidden = data they can view
