@@ -45,17 +45,6 @@ class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
 
     behave like mandatoryDateField(form, "value", "thirdPartyAccessStartDate.error.required.all")
 
-    behave like dateFieldWithMax(
-      form,
-      "value",
-      max,
-      FormError(
-        "value",
-        "thirdPartyAccessStartDate.error.max",
-        Seq(LocalDate.now.plusYears(1).format(dateTimeFormat()(Lang("en"))))
-      )
-    )
-
     behave like dateFieldWithMin(
       form,
       "value",

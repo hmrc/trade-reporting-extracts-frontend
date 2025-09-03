@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import models.{CheckMode, NormalMode}
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
-import models.thirdparty.DataTypes
+import models.thirdparty.{DataTypes, DeclarationDate}
 
 import java.time.LocalDate
 
@@ -67,11 +67,21 @@ class ThirdPartyNavigatorSpec extends SpecBase {
       }
 
       "navigate from declarationDate" - {
-        "to next page when true" in {
-          // TODO with TRE-594
+        "to next page when AllAvailableData" in {
+          // TODO complete with check your answers page when available
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.AllAvailableData).success.value
+          navigator.nextPage(DeclarationDatePage, NormalMode, ua) mustBe controllers.routes.DashboardController
+            .onPageLoad()
+
         }
-        "to CannotAddThirdParty when false" in {
-          // TODO with TRE-591
+        "to DataStartDateController when CustomDateRange answered" in {
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.CustomDateRange).success.value
+          navigator.nextPage(
+            DeclarationDatePage,
+            NormalMode,
+            ua
+          ) mustBe controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
+
         }
       }
 
@@ -110,6 +120,8 @@ class ThirdPartyNavigatorSpec extends SpecBase {
         "to DataEndDatePage when answered" in {
           val userAnswers = emptyUserAnswers.set(DataEndDatePage, Option(LocalDate.now())).success.value
           // TODO complete with check your answers page when available
+          navigator.nextPage(DataEndDatePage, NormalMode, userAnswers) mustBe
+            controllers.routes.DashboardController.onPageLoad()
         }
       }
     }

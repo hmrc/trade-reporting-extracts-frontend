@@ -35,9 +35,8 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(NormalMode)
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
     case DeclarationDatePage            => declarationDateRoutes(NormalMode)
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
     case DataStartDatePage              => dataStartDateRoutes(NormalMode)
-    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad())
+    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad()) // TODO CheckYourAnswers
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
@@ -100,10 +99,10 @@ class ThirdPartyNavigator @Inject() extends Navigator {
         answers
           .get(DeclarationDatePage)
           .map {
-            // TODO with TRE-594
-            case DeclarationDate.AllAvailableData => controllers.routes.DashboardController.onPageLoad()
-            // TODO with TRE-591
-            case DeclarationDate.CustomDateRange  => controllers.routes.DashboardController.onPageLoad()
+            case DeclarationDate.AllAvailableData =>
+              controllers.routes.DashboardController.onPageLoad() // TODO with TRE-594
+            case DeclarationDate.CustomDateRange  =>
+              controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
           }
           .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 

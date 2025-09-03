@@ -27,8 +27,7 @@ import javax.inject.Inject
 
 class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
 
-  def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] = {
-    val startDatePlus5Years = startDate.plusYears(5)
+  def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] =
     Form(
       "value" -> optional(
         localDate(
@@ -42,14 +41,7 @@ class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
             "thirdPartyAccessEndDate.error.min",
             startDate.format(dateTimeFormat()(messages.lang))
           )
-        ).verifying(
-          maxDate(
-            startDatePlus5Years,
-            "thirdPartyAccessEndDate.error.max",
-            startDatePlus5Years.format(dateTimeFormat()(messages.lang))
-          )
         )
       )
     )
-  }
 }

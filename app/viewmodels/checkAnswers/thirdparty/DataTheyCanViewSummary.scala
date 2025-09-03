@@ -32,15 +32,15 @@ object DataTheyCanViewSummary {
 
       implicit val lang: Lang = messages.lang
 
-      val thirdPartyEndDate = answers.get(DataEndDatePage)
+      val dataEndDate = answers.get(DataEndDatePage)
 
-      val value = thirdPartyEndDate match {
+      val value = dataEndDate match {
         case Some(Some(endDate)) =>
           ValueViewModel(
             messages(
               "dataTheyCanView.fixed.answerLabel",
               answer.format(dateTimeFormat()),
-              thirdPartyEndDate.get.get.format(dateTimeFormat())
+              dataEndDate.get.get.format(dateTimeFormat())
             )
           )
         case _                   =>
