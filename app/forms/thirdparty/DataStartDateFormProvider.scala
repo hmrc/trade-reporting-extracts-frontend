@@ -18,30 +18,31 @@ package forms.thirdparty
 
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.Forms.optional
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
+import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.LocalDate
 import javax.inject.Inject
 
-class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
+class DataStartDateFormProvider @Inject() extends Mappings {
 
-  def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] =
+  private val currentDate: LocalDate        = LocalDate.now()
+  private val dateMinusFourYears: LocalDate = currentDate.minusYears(4)
+
+  def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
-      "value" -> optional(
-        localDate(
-          invalidKey = "thirdPartyAccessEndDate.error.invalid",
-          allRequiredKey = "thirdPartyAccessEndDate.error.required.all",
-          twoRequiredKey = "thirdPartyAccessEndDate.error.required.two",
-          requiredKey = "thirdPartyAccessEndDate.error.required"
-        ).verifying(
+      "value" -> localDate(
+        invalidKey = "dataStartDate.error.invalid",
+        allRequiredKey = "dataStartDate.error.required.all",
+        twoRequiredKey = "dataStartDate.error.required.two",
+        requiredKey = "dataStartDate.error.required"
+      )
+        .verifying(
           minDate(
-            startDate,
-            "thirdPartyAccessEndDate.error.min",
-            startDate.format(dateTimeFormat()(messages.lang))
+            dateMinusFourYears,
+            "dataStartDate.error.min"
           )
         )
-      )
     )
 }

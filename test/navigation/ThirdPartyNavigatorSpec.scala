@@ -18,8 +18,8 @@ package navigation
 
 import base.SpecBase
 import models.{CheckMode, NormalMode}
-import pages.thirdparty.{DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
-import models.thirdparty.DataTypes
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
+import models.thirdparty.{DataTypes, DeclarationDate}
 
 import java.time.LocalDate
 
@@ -67,11 +67,21 @@ class ThirdPartyNavigatorSpec extends SpecBase {
       }
 
       "navigate from declarationDate" - {
-        "to next page when true" in {
-          // TODO with TRE-594
+        "to next page when AllAvailableData" in {
+          // TODO complete with check your answers page when available
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.AllAvailableData).success.value
+          navigator.nextPage(DeclarationDatePage, NormalMode, ua) mustBe controllers.routes.DashboardController
+            .onPageLoad()
+
         }
-        "to CannotAddThirdParty when false" in {
-          // TODO with TRE-591
+        "to DataStartDateController when CustomDateRange answered" in {
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.CustomDateRange).success.value
+          navigator.nextPage(
+            DeclarationDatePage,
+            NormalMode,
+            ua
+          ) mustBe controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
+
         }
       }
 
@@ -87,6 +97,31 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
           navigator.nextPage(ThirdPartyAccessStartDatePage, NormalMode, userAnswers) mustBe
             controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from DataStartDatePage" - {
+
+        "to DataEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(DataStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(DataStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DataEndDateController.onPageLoad(NormalMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(DataStartDatePage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from DataEndDatePage" - {
+
+        "to DataEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(DataEndDatePage, Option(LocalDate.now())).success.value
+          // TODO complete with check your answers page when available
+          navigator.nextPage(DataEndDatePage, NormalMode, userAnswers) mustBe
+            controllers.routes.DashboardController.onPageLoad()
         }
       }
     }
@@ -121,6 +156,29 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
           navigator.nextPage(ThirdPartyReferencePage, CheckMode, userAnswers) mustBe
             controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from DataStartDatePage" - {
+
+        "to DataEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(DataStartDatePage, LocalDate.now()).success.value
+          navigator.nextPage(DataStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DataEndDateController.onPageLoad(CheckMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(DataStartDatePage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from DataEndDatePage" - {
+
+        "to DataEndDatePage when answered" in {
+          val userAnswers = emptyUserAnswers.set(DataEndDatePage, Option(LocalDate.now())).success.value
+          // TODO complete with check your answers page when available
         }
       }
     }

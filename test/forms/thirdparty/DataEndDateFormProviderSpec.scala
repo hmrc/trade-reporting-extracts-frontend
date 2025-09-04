@@ -17,39 +17,27 @@
 package forms.thirdparty
 
 import forms.behaviours.DateBehaviours
-import forms.thirdparty.ThirdPartyAccessStartDateFormProvider
-import play.api.data.FormError
-import play.api.i18n.{Lang, Messages}
+import forms.thirdparty.DataEndDateFormProvider
+import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import utils.DateTimeFormats
-import utils.DateTimeFormats.dateTimeFormat
 
 import java.time.{LocalDate, ZoneOffset}
 
-class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
+class DataEndDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  private val form                        = new ThirdPartyAccessStartDateFormProvider()()
 
-  val min: LocalDate = LocalDate.now
-  val max: LocalDate = LocalDate.now.plusYears(1).minusDays(1)
+  private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
+  private val form                   = new DataEndDateFormProvider()(LocalDate.now)
 
   ".value" - {
 
     val validData = datesBetween(
-      min = min,
-      max = max
+      min = LocalDate.now,
+      max = LocalDate.now.plusYears(5)
     )
 
-    behave like dateField(form, "value", validData)
+    behave like optionalDateField(form, "value")
 
-    behave like mandatoryDateField(form, "value", "thirdPartyAccessStartDate.error.required.all")
-
-    behave like dateFieldWithMin(
-      form,
-      "value",
-      min,
-      FormError("value", "thirdPartyAccessStartDate.error.min", Seq())
-    )
   }
 }

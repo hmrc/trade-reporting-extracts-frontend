@@ -25,20 +25,20 @@ import utils.DateTimeFormats.dateTimeFormat
 import java.time.LocalDate
 import javax.inject.Inject
 
-class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
+class DataEndDateFormProvider @Inject() extends Mappings {
 
   def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] =
     Form(
       "value" -> optional(
         localDate(
-          invalidKey = "thirdPartyAccessEndDate.error.invalid",
-          allRequiredKey = "thirdPartyAccessEndDate.error.required.all",
-          twoRequiredKey = "thirdPartyAccessEndDate.error.required.two",
-          requiredKey = "thirdPartyAccessEndDate.error.required"
+          invalidKey = "dataEndDate.error.invalid",
+          allRequiredKey = "dataEndDate.error.required.all",
+          twoRequiredKey = "dataEndDate.error.required.two",
+          requiredKey = "dataEndDate.error.required"
         ).verifying(
           minDate(
             startDate,
-            "thirdPartyAccessEndDate.error.min",
+            "dataEndDate.error.min",
             startDate.format(dateTimeFormat()(messages.lang))
           )
         )

@@ -488,3 +488,33 @@ declarationDate.message1 = cy: The service holds data from the past 4 years.
 declarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
 declarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
 declarationDate.change.hidden = cy: if you want to give access to all of your available {0} data
+
+dataStartDate.title = cy: When do you want to give access to your data from?
+dataStartDate.heading = cy: When do you want to give access to your data from?
+dataStartDate.message = cy: The service holds data from the past 4 years. This sets how far back the third party can view your data. It does not affect when their access begins.
+dataStartDate.hint = cy: For example, {0}.
+dataStartDate.error.required.all = cy: Enter the date you want to give access to your data from
+dataStartDate.error.required.two = cy: The date you want to give access to your data from must include a {0} and a {1}
+dataStartDate.error.required = cy: The date you want to give access to your data from must include a {0}
+dataStartDate.error.invalid = cy: The date you want to give access to your data from must be a real date and only include numbers 0 to 9
+dataStartDate.error.min = cy: The date you want to give access to your data from must be within the last 4 years
+
+dataTheyCanView.checkYourAnswersLabel = cy: Data they can view
+dataTheyCanView.fixed.answerLabel = cy: {0} to {1}
+dataTheyCanView.ongoing.answerLabel = cy: From {0} - ongoing
+dataTheyCanView.change.hidden = cy: data they can view
+
+dataEndDate.title = cy: When do you want to stop giving access to your data? (optional)
+dataEndDate.heading = cy: When do you want to stop giving access to your data? (optional)
+dataEndDate.message =  cy: You entered a start date of {0}. Leave this blank if you want to give ongoing access to future data.
+dataEndDate.hint = cy: For example, 27 05 2025.
+dataEndDate.error.required.all = cy: Enter the dataEndDate
+dataEndDate.error.required.two = cy: The date you want to stop giving access to your data from must include a {0} and a {1}
+dataEndDate.error.required = cy: The date you want to stop giving access to your data from must include a {0}
+dataEndDate.error.invalid = cy: The date you want to stop giving access to your data must be a real date and only include numbers 0 to 9
+dataEndDate.error.min = cy: The date you want to stop giving access to your data from must be on or after {0}
+
+dataTheyCanView.checkYourAnswersLabel = cy: Data they can view
+dataTheyCanView.fixed.answerLabel = cy: {0} to {1}
+dataTheyCanView.ongoing.answerLabel = cy: From {0} - ongoing
+dataTheyCanView.change.hidden = cy: data they can view
