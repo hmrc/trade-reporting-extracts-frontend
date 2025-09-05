@@ -21,8 +21,7 @@ import forms.thirdparty.ConfirmEoriFormProvider
 import models.{CompanyInformation, ConsentStatus, Mode}
 import models.thirdparty.{AddThirdPartySection, ConfirmEori}
 import navigation.Navigator
-import pages.ConfirmEoriPage
-import pages.thirdparty.EoriNumberPage
+import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

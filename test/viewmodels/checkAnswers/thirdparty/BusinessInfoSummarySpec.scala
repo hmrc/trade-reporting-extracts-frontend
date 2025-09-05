@@ -16,36 +16,30 @@
 
 package viewmodels.checkAnswers.thirdparty
 
+import base.SpecBase
 import models.{CheckMode, UserAnswers}
-import pages.thirdparty.ConfirmEoriPage
+import org.scalatest.matchers.should.Matchers.shouldBe
+import pages.thirdparty.EoriNumberPage
 import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object ConfirmEoriSummary {
+class BusinessInfoSummarySpec extends SpecBase {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ConfirmEoriPage).map { answer =>
+  implicit private val messages: Messages = stubMessages()
 
-      val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"confirmEori.$answer"))
-        )
-      )
+  "BusinessInfoSummary.row" - {
 
-      SummaryListRowViewModel(
-        key = "confirmEori.checkYourAnswersLabel",
-        value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("confirmEori.change.hidden"))
+    "when answered, return the summary row" in {
+
+      BusinessInfoSummary.row("business") shouldBe Some(
+        SummaryListRowViewModel(
+          key = "BusinessInfo.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlFormat.escape("business").toString)
         )
       )
     }
+  }
 }

@@ -16,36 +16,19 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import models.{CheckMode, UserAnswers}
-import pages.thirdparty.ConfirmEoriPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist.*
+import viewmodels.govuk.all.{SummaryListRowViewModel, ValueViewModel}
 import viewmodels.implicits.*
 
-object ConfirmEoriSummary {
+object BusinessInfoSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ConfirmEoriPage).map { answer =>
-
-      val value = ValueViewModel(
-        HtmlContent(
-          HtmlFormat.escape(messages(s"confirmEori.$answer"))
-        )
-      )
-
+  def row(businessInfo: String)(implicit messages: Messages): Option[SummaryListRow] =
+    Some(
       SummaryListRowViewModel(
-        key = "confirmEori.checkYourAnswersLabel",
-        value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(messages("confirmEori.change.hidden"))
-        )
+        key = "BusinessInfo.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(businessInfo).toString)
       )
-    }
+    )
 }

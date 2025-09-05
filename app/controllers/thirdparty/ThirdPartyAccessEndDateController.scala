@@ -19,8 +19,9 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.Mode
+import models.thirdparty.AddThirdPartySection
 import utils.json.OptionalLocalDateReads.*
-import navigation.Navigator
+import navigation.{Navigator, ThirdPartyNavigator}
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,10 +39,11 @@ import scala.concurrent.{ExecutionContext, Future}
 class ThirdPartyAccessEndDateController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  thirdPartyNavigator: ThirdPartyNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  addThirdPartySection: AddThirdPartySection,
   formProvider: ThirdPartyAccessEndDateFormProvider,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAccessEndDateView
@@ -78,8 +80,10 @@ class ThirdPartyAccessEndDateController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessEndDatePage, value))
+              redirectUrl     = thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers).url
+              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
+            } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
         )
   }
 
