@@ -28,21 +28,21 @@ import views.html.thirdparty.ThirdPartyAddedConfirmationView
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
-class ThirdPartyAddedConfirmationController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       frontendAppConfig: FrontendAppConfig,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ThirdPartyAddedConfirmationView,
-                                       clock: Clock
-                                     ) extends FrontendBaseController with I18nSupport {
+class ThirdPartyAddedConfirmationController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  frontendAppConfig: FrontendAppConfig,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyAddedConfirmationView,
+  clock: Clock
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
-      val addedEori = request.userAnswers.get(EoriNumberPage).get
-      Ok(view(addedEori, getDate, frontendAppConfig.exitSurveyUrl))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val addedEori = request.userAnswers.get(EoriNumberPage).get
+    Ok(view(addedEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 
   private def getDate(implicit messages: Messages): String =

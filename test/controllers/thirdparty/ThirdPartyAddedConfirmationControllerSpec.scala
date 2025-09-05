@@ -30,7 +30,7 @@ import java.time.{Clock, Instant, ZoneId}
 class ThirdPartyAddedConfirmationControllerSpec extends SpecBase {
 
   val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneId.systemDefault())
+  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
 
   "ThirdPartyAddedConfirmation Controller" - {
 
@@ -39,13 +39,15 @@ class ThirdPartyAddedConfirmationControllerSpec extends SpecBase {
       val userAnswers = emptyUserAnswers.set(EoriNumberPage, "GB123456789000").success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-        bind[Clock].toInstance(fixedClock)
-      ).build()
+          bind[Clock].toInstance(fixedClock)
+        )
+        .build()
 
       running(application) {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
+        val request   =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
