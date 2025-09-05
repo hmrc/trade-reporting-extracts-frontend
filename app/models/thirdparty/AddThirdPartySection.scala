@@ -23,8 +23,7 @@ import play.api.mvc.Call
 class AddThirdPartySection {
 
   val initialPage: Call                    = controllers.thirdparty.routes.AddThirdPartyController.onPageLoad()
-  // TODO CHANGE checkYourAnswersPage WHEN CYA CREATED
-//  val checkYourAnswersPage: Call = ???
+  val checkYourAnswersPage: Call           = controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
   val sectionNavigation: SectionNavigation = SectionNavigation("addThirdPartySection")
 
   def navigateTo(answers: UserAnswers): String                               =

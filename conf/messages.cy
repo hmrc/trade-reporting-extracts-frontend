@@ -488,6 +488,9 @@ declarationDate.message1 = cy: The service holds data from the past 4 years.
 declarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
 declarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
 declarationDate.change.hidden = cy: if you want to give access to all of your available {0} data
+declarationDate.import = cy: import
+declarationDate.export = cy: export
+declarationDate.importExport = cy: import and export
 
 dataStartDate.title = cy: When do you want to give access to your data from?
 dataStartDate.heading = cy: When do you want to give access to your data from?
@@ -518,6 +521,10 @@ dataTheyCanView.checkYourAnswersLabel = cy: Data they can view
 dataTheyCanView.fixed.answerLabel = cy: {0} to {1}
 dataTheyCanView.ongoing.answerLabel = cy: From {0} - ongoing
 dataTheyCanView.change.hidden = cy: data they can view
+
+addThirdPartyCheckYourAnswers.title = cy: Check your answers before adding a new third party
+addThirdPartyCheckYourAnswers.heading = cy: Check your answers before adding a new third party
+addThirdPartyCheckYourAnswers.button = cy: Add third party
 
 thirdPartyAddedConfirmation.title = cy: Third party successfully added
 thirdPartyAddedConfirmation.heading = cy: Third party successfully added
