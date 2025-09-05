@@ -518,3 +518,16 @@ dataTheyCanView.checkYourAnswersLabel = cy: Data they can view
 dataTheyCanView.fixed.answerLabel = cy: {0} to {1}
 dataTheyCanView.ongoing.answerLabel = cy: From {0} - ongoing
 dataTheyCanView.change.hidden = cy: data they can view
+
+thirdPartyAddedConfirmation.title = cy: Third party successfully added
+thirdPartyAddedConfirmation.heading = cy: Third party successfully added
+thirdPartyAddedConfirmation.message1 = cy: Added on {0}.
+thirdPartyAddedConfirmation.message2 = cy: To keep a record, you can
+thirdPartyAddedConfirmation.print.link = cy: print this page
+thirdPartyAddedConfirmation.message3 = cy: An email will be sent to the registered address linked to EORI number {0} to confirm that third-party access has been given to your account.
+thirdPartyAddedConfirmation.heading2 = cy: What happens next
+thirdPartyAddedConfirmation.message4 = cy: You can view or remove this third-party access at any time in
+thirdPartyAddedConfirmation.link1 = cy: manage third parties that can access your data
+thirdPartyAddedConfirmation.link2 = cy: Go to homepage
+thirdPartyAddedConfirmation.feedbackLink = cy: What did you think of this service?
+thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)

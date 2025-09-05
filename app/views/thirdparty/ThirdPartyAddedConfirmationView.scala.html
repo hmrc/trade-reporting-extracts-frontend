@@ -1,0 +1,56 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.helper.CSPNonce
+
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukPanel: GovukPanel
+)
+
+@(eori: String, date: String, surveyUrl: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("thirdPartyAddedConfirmation.title")), showBackLink = false) {
+
+     @govukPanel(Panel(
+     title = messages("thirdPartyAddedConfirmation.heading")
+     ))
+
+     <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message1", date)</p>
+
+    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message2")
+        <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("thirdPartyAddedConfirmation.print.link")</a>.
+    </p>
+
+    <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
+
+    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message3", eori)</p>
+
+    <h2 class="govuk-heading-l">@messages("thirdPartyAddedConfirmation.heading2")</h2>
+
+    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message4")
+        <a class="govuk-link"  href="">@messages("thirdPartyAddedConfirmation.link1")</a>.
+    </p>
+
+    <p class="govuk-body">
+        <a class="govuk-link"  href="@controllers.routes.DashboardController.onPageLoad().url">@messages("thirdPartyAddedConfirmation.link2")</a>
+    </p>
+
+    <p class="govuk-body"><a href="@surveyUrl" class="govuk-link">@messages("thirdPartyAddedConfirmation.feedbackLink")</a> @messages("thirdPartyAddedConfirmation.feedbackDuration")</p>
+
+}
