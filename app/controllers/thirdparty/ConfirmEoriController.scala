@@ -18,9 +18,9 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import forms.thirdparty.ConfirmEoriFormProvider
-import models.{CompanyInformation, ConsentStatus, Mode}
 import models.thirdparty.{AddThirdPartySection, ConfirmEori}
-import navigation.Navigator
+import models.{CompanyInformation, ConsentStatus, Mode}
+import navigation.ThirdPartyNavigator
 import pages.ConfirmEoriPage
 import pages.thirdparty.EoriNumberPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ConfirmEoriController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
+  navigator: ThirdPartyNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -73,33 +73,34 @@ class ConfirmEoriController @Inject() (
     implicit request =>
       request.userAnswers.get(EoriNumberPage) match {
         case Some(eoriNumber) =>
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors =>
-                tradeReportingExtractsService.getCompanyInformation(eoriNumber).map { businessInfo =>
-                  BadRequest(view(formWithErrors, mode, eoriNumber, resolveDisplayName(businessInfo)))
-                },
-              {
-                case ConfirmEori.No =>
-                  for {
-                    updatedAnswers <- Future.fromTry(
-                                        request.userAnswers
-                                          .remove(EoriNumberPage)
-                                          .flatMap(_.remove(ConfirmEoriPage))
-                                      )
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(routes.EoriNumberController.onPageLoad(mode))
-
-                case confirmValue =>
+          tradeReportingExtractsService.getCompanyInformation(eoriNumber).flatMap { companyInfo =>
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors =>
+                  Future.successful(
+                    BadRequest(view(formWithErrors, mode, eoriNumber, resolveDisplayName(companyInfo)))
+                  ),
+                confirmValue =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmEoriPage, confirmValue))
-                    redirectUrl     = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers).url
-                    answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers))
-              }
-            )
+                    result         <-
+                      companyInfo.consent match {
+                        case ConsentStatus.Denied =>
+                          sessionRepository
+                            .set(updatedAnswers)
+                            .map(_ =>
+                              Redirect(controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(mode))
+                            )
+
+                        case _ =>
+                          val redirectUrl    = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers).url
+                          val answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                          sessionRepository.set(answersWithNav).map(_ => Redirect(redirectUrl))
+                      }
+                  } yield result
+              )
+          }
 
         case None =>
           Future.successful(Redirect(routes.EoriNumberController.onPageLoad(mode)))

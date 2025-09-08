@@ -16,12 +16,24 @@
 
 package pages.thirdparty
 
-import pages.QuestionPage
+import models.UserAnswers
+import pages.{ConfirmEoriPage, QuestionPage}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object EoriNumberPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "eoriNumber"
+
+  override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] =
+    value
+      .map { _ =>
+        userAnswers
+          .remove(EoriNumberPage)
+          .flatMap(_.remove(ConfirmEoriPage))
+      }
+      .getOrElse(super.cleanup(value, userAnswers))
 }

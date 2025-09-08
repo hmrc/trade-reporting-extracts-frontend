@@ -17,10 +17,11 @@
 package navigation
 
 import com.google.inject.Inject
+import controllers.thirdparty.routes
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.Page
-import pages.thirdparty._
-import models.thirdparty.DeclarationDate
+import pages.{ConfirmEoriPage, Page}
+import pages.thirdparty.*
+import models.thirdparty.{ConfirmEori, DeclarationDate}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
@@ -32,6 +33,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
     case EoriNumberPage                 =>
       navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
+    case ConfirmEoriPage                => confirmEoriPageRoutes(NormalMode)
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(NormalMode)
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
     case DeclarationDatePage            => declarationDateRoutes(NormalMode)
@@ -43,9 +45,10 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(CheckMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
+      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode))
     case EoriNumberPage                 =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
+    case ConfirmEoriPage                => confirmEoriPageRoutes(CheckMode)
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
     case DeclarationDatePage            => declarationDateRoutes(CheckMode)
@@ -55,6 +58,21 @@ class ThirdPartyNavigator @Inject() extends Navigator {
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
+
+  private def confirmEoriPageRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ConfirmEoriPage) match {
+      case Some(ConfirmEori.No)  =>
+        mode match {
+          case NormalMode => routes.EoriNumberController.onPageLoad(mode)
+          case CheckMode  => routes.EoriNumberController.onPageLoad(mode)
+        }
+      case Some(ConfirmEori.Yes) =>
+        mode match {
+          case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode)
+          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
+        }
+      case None                  => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def thirdPartyReferenceRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ThirdPartyReferencePage) match {
