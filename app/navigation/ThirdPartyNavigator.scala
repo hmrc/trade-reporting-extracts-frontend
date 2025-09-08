@@ -57,6 +57,27 @@ class ThirdPartyNavigator @Inject() extends Navigator {
 
   }
 
+
+  override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = {
+    case ConfirmEoriPage => answers => skipFlag => test(NormalMode, skipFlag)(answers)
+  }
+
+  override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call = {
+    case ConfirmEoriPage => answers => skipFlag => test(CheckMode, skipFlag)(answers)
+  }
+  
+  private def test(mode: Mode, skipFlag: Boolean)(answers: UserAnswers): Call =
+    answers.get(ConfirmEoriPage) match {
+        case Some(ConfirmEori.Yes) if skipFlag =>
+          //TODO SKIP REFERENCE PAGE
+        case Some(ConfirmEori.Yes) if !skipFlag =>
+          //TODO GO TO REFERENCE PAGE
+        case Some(ConfirmEori.No)          =>
+          controllers.thirdparty.routes.EoriNumberController.onPageLoad(mode)
+        case None                          => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+      }
+    }
+
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
 
   private def confirmEoriPageRoutes(mode: Mode)(answers: UserAnswers): Call =
