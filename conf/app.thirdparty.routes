@@ -53,3 +53,5 @@ GET        /data-end-date                  controllers.thirdparty.DataEndDateCon
 POST       /data-end-date                  controllers.thirdparty.DataEndDateController.onSubmit(mode: Mode = NormalMode)
 GET        /change-data-end-date                        controllers.thirdparty.DataEndDateController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-data-end-date                        controllers.thirdparty.DataEndDateController.onSubmit(mode: Mode = CheckMode)
+
+GET        /third-party-added-confirmation                       controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
