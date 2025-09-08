@@ -27,8 +27,10 @@ class FakeNavigator(desiredRoute: Call) extends Navigator {
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     desiredRoute
 
-  override val normalRoutes: Page => UserAnswers => Call = _ => _ => desiredRoute
-  override val checkRoutes: Page => UserAnswers => Call  = _ => _ => desiredRoute
+  override val normalRoutes: Page => UserAnswers => Call                    = _ => _ => desiredRoute
+  override val checkRoutes: Page => UserAnswers => Call                     = _ => _ => desiredRoute
+  override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ => _ => _ => desiredRoute
+  override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call  = _ => _ => _ => desiredRoute
 }
 
 class FakeNavigation() extends Navigation()

@@ -86,8 +86,8 @@ class EoriNumberController @Inject() (
                       updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
                       redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
                       answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                      _              <- sessionRepository.set(updatedAnswers)
-                    } yield Redirect(navigator.nextPage(EoriNumberPage, mode, updatedAnswers))
+                      _              <- sessionRepository.set(answersWithNav)
+                    } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
                   }
                 }
               }

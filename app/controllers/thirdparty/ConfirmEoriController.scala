@@ -21,8 +21,7 @@ import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.{AddThirdPartySection, ConfirmEori}
 import models.{CompanyInformation, ConsentStatus, Mode}
 import navigation.ThirdPartyNavigator
-import pages.ConfirmEoriPage
-import pages.thirdparty.EoriNumberPage
+import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -69,8 +68,8 @@ class ConfirmEoriController @Inject() (
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
       request.userAnswers.get(EoriNumberPage) match {
         case Some(eoriNumber) =>
           tradeReportingExtractsService.getCompanyInformation(eoriNumber).flatMap { companyInfo =>
@@ -81,31 +80,30 @@ class ConfirmEoriController @Inject() (
                   Future.successful(
                     BadRequest(view(formWithErrors, mode, eoriNumber, resolveDisplayName(companyInfo)))
                   ),
-                confirmValue =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(ConfirmEoriPage, confirmValue))
-                    result         <-
-                      companyInfo.consent match {
-                        case ConsentStatus.Denied =>
-                          sessionRepository
-                            .set(updatedAnswers)
-                            .map(_ =>
-                              Redirect(controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(mode))
-                            )
+                confirmValue => {
+                  val updatedAnswersTry = request.userAnswers.set(ConfirmEoriPage, confirmValue)
+                  updatedAnswersTry.fold(
+                    error => Future.failed(error),
+                    updatedAnswers => {
+                      val skipFlag    = companyInfo.consent == ConsentStatus.Granted
+                      val redirectUrl = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers, skipFlag).url
 
-                        case _ =>
-                          val redirectUrl    = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers).url
-                          val answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                          sessionRepository.set(answersWithNav).map(_ => Redirect(redirectUrl))
+                      if (skipFlag) {
+                        Future.successful(Redirect(redirectUrl))
+                      } else {
+                        val answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                        sessionRepository.set(answersWithNav).map(_ => Redirect(redirectUrl))
                       }
-                  } yield result
+                    }
+                  )
+                }
               )
           }
 
         case None =>
           Future.successful(Redirect(routes.EoriNumberController.onPageLoad(mode)))
       }
-  }
+    }
 
   private def resolveDisplayName(companyInfo: CompanyInformation)(implicit messages: Messages): String =
     companyInfo.consent match {

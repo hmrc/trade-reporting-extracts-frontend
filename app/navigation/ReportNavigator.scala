@@ -21,6 +21,7 @@ import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
+import pages.thirdparty.ConfirmEoriPage
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -180,5 +181,11 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   ): UserAnswers => Call = { _ =>
     if (appConfig.notificationsEnabled) ifNotificationsEnabled else ifNotificationsDisabled
   }
+
+  override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ =>
+    answers => skipFlag => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+
+  override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ =>
+    answers => skipFlag => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
 
 }

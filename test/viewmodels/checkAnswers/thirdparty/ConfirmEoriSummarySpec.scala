@@ -19,7 +19,7 @@ package viewmodels.checkAnswers.thirdparty
 import base.SpecBase
 import models.thirdparty.ConfirmEori
 import models.{CheckMode, UserAnswers}
-import pages.ConfirmEoriPage
+import pages.thirdparty.ConfirmEoriPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow

@@ -35,15 +35,15 @@ trait Navigator {
     case CheckMode  =>
       checkRoutes(page)(userAnswers)
   }
-  
+
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, flag: Boolean): Call = mode match {
     case NormalMode =>
       normalRoutesWithFlag(page)(userAnswers)(flag)
     case CheckMode  =>
       checkRoutesWithFlag(page)(userAnswers)(flag)
   }
-  
-  def journeyRecovery(continueUrl: Option[RedirectUrl] = None): Result              = Redirect(
+
+  def journeyRecovery(continueUrl: Option[RedirectUrl] = None): Result = Redirect(
     controllers.problem.routes.JourneyRecoveryController.onPageLoad(continueUrl)
   )
 }

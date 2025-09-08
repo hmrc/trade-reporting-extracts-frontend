@@ -17,7 +17,7 @@
 package pages.thirdparty
 
 import models.UserAnswers
-import pages.{ConfirmEoriPage, QuestionPage}
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -28,12 +28,4 @@ case object EoriNumberPage extends QuestionPage[String] {
 
   override def toString: String = "eoriNumber"
 
-  override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(EoriNumberPage)
-          .flatMap(_.remove(ConfirmEoriPage))
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
 }
