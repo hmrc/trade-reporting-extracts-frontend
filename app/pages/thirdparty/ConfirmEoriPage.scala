@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package pages.thirdparty
 
 import models.thirdparty.ConfirmEori
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object ConfirmEoriPage extends QuestionPage[ConfirmEori] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "confirmEori"
 }

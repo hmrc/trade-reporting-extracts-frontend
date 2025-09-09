@@ -17,10 +17,11 @@
 package navigation
 
 import com.google.inject.Inject
+import controllers.thirdparty.routes
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
-import pages.thirdparty._
-import models.thirdparty.DeclarationDate
+import pages.thirdparty.*
+import models.thirdparty.{ConfirmEori, DeclarationDate}
 import play.api.mvc.Call
 
 class ThirdPartyNavigator @Inject() extends Navigator {
@@ -43,7 +44,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(CheckMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
+      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode))
     case EoriNumberPage                 =>
       navigateTo(controllers.routes.DashboardController.onPageLoad())
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
@@ -53,6 +54,32 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad())
 
   }
+
+  override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = { case ConfirmEoriPage =>
+    answers => skipFlag => confirmEoriPageRoutes(NormalMode, skipFlag)(answers)
+  }
+
+  override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call = { case ConfirmEoriPage =>
+    answers => skipFlag => confirmEoriPageRoutes(CheckMode, skipFlag)(answers)
+  }
+
+  private def confirmEoriPageRoutes(mode: Mode, skipFlag: Boolean)(answers: UserAnswers): Call =
+    answers.get(ConfirmEoriPage) match {
+      case Some(ConfirmEori.Yes) if skipFlag =>
+        controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(mode)
+
+      case Some(ConfirmEori.Yes) if !skipFlag =>
+        controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(mode)
+
+      case Some(ConfirmEori.No) =>
+        controllers.thirdparty.routes.EoriNumberController.onPageLoad(mode)
+
+      case Some(_) =>
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+
+      case None =>
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
 

@@ -26,6 +26,8 @@ trait Navigator {
 
   val normalRoutes: Page => UserAnswers => Call
   val checkRoutes: Page => UserAnswers => Call
+  val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call
+  val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call
 
   def nextPage(page: Page, mode: Mode = NormalMode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>
@@ -33,7 +35,15 @@ trait Navigator {
     case CheckMode  =>
       checkRoutes(page)(userAnswers)
   }
-  def journeyRecovery(continueUrl: Option[RedirectUrl] = None): Result              = Redirect(
+
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, flag: Boolean): Call = mode match {
+    case NormalMode =>
+      normalRoutesWithFlag(page)(userAnswers)(flag)
+    case CheckMode  =>
+      checkRoutesWithFlag(page)(userAnswers)(flag)
+  }
+
+  def journeyRecovery(continueUrl: Option[RedirectUrl] = None): Result = Redirect(
     controllers.problem.routes.JourneyRecoveryController.onPageLoad(continueUrl)
   )
 }
