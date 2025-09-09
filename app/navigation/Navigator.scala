@@ -29,7 +29,7 @@ trait Navigator {
   val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call
   val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
+  def nextPage(page: Page, mode: Mode = NormalMode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>
       normalRoutes(page)(userAnswers)
     case CheckMode  =>
