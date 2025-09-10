@@ -19,8 +19,10 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
+import models.thirdparty.AddThirdPartySection
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.{ThirdPartyService, TradeReportingExtractsService}
 import utils.DateTimeFormats.dateTimeFormat
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
@@ -36,6 +38,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
   thirdPartyService: ThirdPartyService,
   requireData: DataRequiredAction,
   frontendAppConfig: FrontendAppConfig,
+  sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
@@ -49,6 +52,8 @@ class ThirdPartyAddedConfirmationController @Inject() (
       thirdPartyAddedConfirmation <- tradeReportingExtractsService.createThirdPartyAddRequest(
                                        thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
                                      )
+      updatedAnswers               = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+      _                           <- sessionRepository.set(updatedAnswers)
     } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 
