@@ -201,6 +201,15 @@ class ThirdPartyNavigatorSpec extends SpecBase {
         }
       }
 
+      "navigate from Datatypes page" - {
+
+        "to cya page when answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(DataTypesPage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
+      }
+
       "navigate from DataStartDatePage" - {
 
         "to DataEndDatePage when answered" in {

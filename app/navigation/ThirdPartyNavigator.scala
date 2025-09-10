@@ -52,7 +52,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
     case ThirdPartyAccessEndDatePage    => accessEndDateRoutes(CheckMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode))
+      navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
     case DeclarationDatePage            => declarationDateRoutes(CheckMode)
     case DataStartDatePage              => dataStartDateRoutes(CheckMode)
     case DataEndDatePage                =>
