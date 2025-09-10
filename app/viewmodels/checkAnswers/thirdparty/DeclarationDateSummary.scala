@@ -17,8 +17,9 @@
 package viewmodels.checkAnswers.thirdparty
 
 import controllers.routes
+import models.thirdparty.DataTypes
 import models.{CheckMode, UserAnswers}
-import pages.thirdparty.DeclarationDatePage
+import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -28,7 +29,10 @@ import viewmodels.implicits.*
 
 object DeclarationDateSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+
+    val dataTypes = getDataTypesString(answers.get(DataTypesPage))
+
     answers.get(DeclarationDatePage).map { answer =>
 
       val value = ValueViewModel(
@@ -38,7 +42,7 @@ object DeclarationDateSummary {
       )
 
       SummaryListRowViewModel(
-        key = "declarationDate.checkYourAnswersLabel",
+        key = messages("declarationDate.checkYourAnswersLabel", dataTypes),
         value = value,
         actions = Seq(
           ActionItemViewModel(
@@ -48,5 +52,14 @@ object DeclarationDateSummary {
             .withVisuallyHiddenText(messages("declarationDate.change.hidden"))
         )
       )
+    }
+  }
+
+  def getDataTypesString(dataTypesAnswer: Option[Set[DataTypes]])(implicit messages: Messages): String =
+    dataTypesAnswer match {
+      case Some(set) if set == Set(DataTypes.Import)                   => messages("declarationDate.import")
+      case Some(set) if set == Set(DataTypes.Export)                   => messages("declarationDate.export")
+      case Some(set) if set == Set(DataTypes.Import, DataTypes.Export) => messages("declarationDate.importExport")
+      case _                                                           => ""
     }
 }

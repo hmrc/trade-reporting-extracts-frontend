@@ -16,13 +16,26 @@
 
 package pages.thirdparty
 
+import models.UserAnswers
 import models.thirdparty.DeclarationDate
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object DeclarationDatePage extends QuestionPage[DeclarationDate] {
 
   override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "declarationDate"
+
+  override def cleanup(value: Option[DeclarationDate], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(DeclarationDate.CustomDateRange)  =>
+        super.cleanup(value, userAnswers)
+      case Some(DeclarationDate.AllAvailableData) =>
+        userAnswers.remove(DataStartDatePage).flatMap(_.remove(DataEndDatePage))
+      case None                                   =>
+        super.cleanup(value, userAnswers)
+    }
 }
