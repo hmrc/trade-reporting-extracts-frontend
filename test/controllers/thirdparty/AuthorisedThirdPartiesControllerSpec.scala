@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers.thirdparty
 
 import base.SpecBase
@@ -32,7 +48,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
@@ -49,7 +65,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET when authorised third parties exist" in {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val thirdParty = AuthorisedThirdPartiesViewModel(
+      val thirdParty                        = AuthorisedThirdPartiesViewModel(
         eori = "GB123456789000",
         businessInfo = Some("Business Name"),
         referenceName = Some("Reference Name")
@@ -66,7 +82,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
@@ -77,16 +93,18 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         ).toString
 
         val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include("Manage third parties that can access your data")
-        document.text() must include("GB123456789000")
-        document.text() must include("Business Name")
-        document.text() must include("Reference Name")
+        document.getElementsByClass("govuk-heading-xl").text() must include(
+          "Manage third parties that can access your data"
+        )
+        document.text()                                        must include("GB123456789000")
+        document.text()                                        must include("Business Name")
+        document.text()                                        must include("Reference Name")
       }
     }
 
     "must return OK and the correct view for a GET when authorised third parties exist but show correctly when businessInfo and refName don't exist" in {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val thirdParty = AuthorisedThirdPartiesViewModel(
+      val thirdParty                        = AuthorisedThirdPartiesViewModel(
         eori = "GB123456789000",
         businessInfo = None,
         referenceName = None
@@ -103,7 +121,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
@@ -114,10 +132,14 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         ).toString
 
         val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include("Manage third parties that can access your data")
-        document.text() must include("GB123456789000")
-        document.text() must include("This business has not agreed to share their data. Contact them directly for more information.")
-        document.text() must include("Not applicable")
+        document.getElementsByClass("govuk-heading-xl").text() must include(
+          "Manage third parties that can access your data"
+        )
+        document.text()                                        must include("GB123456789000")
+        document.text()                                        must include(
+          "This business has not agreed to share their data. Contact them directly for more information."
+        )
+        document.text()                                        must include("Not applicable")
       }
     }
   }

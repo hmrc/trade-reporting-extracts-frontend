@@ -28,7 +28,7 @@ import views.html.thirdparty.AuthorisedThirdPartiesView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class AuthorisedThirdPartiesController @Inject()(
+class AuthorisedThirdPartiesController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
@@ -40,7 +40,7 @@ class AuthorisedThirdPartiesController @Inject()(
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
-      authorisedThirdParties      <- tradeReportingExtractsService.getAuthorisedThirdParties(request.eori)
+      authorisedThirdParties <- tradeReportingExtractsService.getAuthorisedThirdParties(request.eori)
     } yield Ok(view(authorisedThirdParties))
   }
 }
