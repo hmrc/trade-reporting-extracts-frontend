@@ -35,7 +35,7 @@ case class AuthorisedUser(
   reportDataEnd: Option[Instant],
   accessType: Set[AccessType],
   referenceName: Option[String]
-                         )
+)
 
 object MongoInstantFormat:
   private val instantReads: Reads[Instant]    = Reads { js =>

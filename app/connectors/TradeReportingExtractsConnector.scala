@@ -259,8 +259,8 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       }
 
   def createThirdPartyAddRequest(
-                                  thirdPartyRequest: ThirdPartyRequest
-                                )(implicit hc: HeaderCarrier): Future[ThirdPartyAddedConfirmation] =
+    thirdPartyRequest: ThirdPartyRequest
+  )(implicit hc: HeaderCarrier): Future[ThirdPartyAddedConfirmation] =
     httpClient
       .post(url"${frontendAppConfig.tradeReportingExtractsApi}/add-third-party-request")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
@@ -273,7 +273,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             Json.parse(response.body).validate[ThirdPartyAddedConfirmation] match {
               case JsSuccess(thirdPartyAddedConfirmation, _) =>
                 Future.successful(thirdPartyAddedConfirmation)
-              case JsError(errors) =>
+              case JsError(errors)                           =>
                 logger.error(s"Failed to parse 'thirdPartyAdded confirmations' from response JSON: $errors")
                 Future.failed(
                   UpstreamErrorResponse(
@@ -282,7 +282,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                   )
                 )
             }
-          case _ =>
+          case _  =>
             logger.error(
               s"Unexpected response from call to /trade-reporting-extracts/create-third-party-add-request with status : ${response.status}"
             )

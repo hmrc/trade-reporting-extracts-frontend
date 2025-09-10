@@ -18,8 +18,7 @@ package models.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
 
-case class ThirdPartyAddedConfirmation(
-                                        thirdPartyEori: String)
+case class ThirdPartyAddedConfirmation(thirdPartyEori: String)
 
 object ThirdPartyAddedConfirmation:
   implicit val format: OFormat[ThirdPartyAddedConfirmation] = Json.format[ThirdPartyAddedConfirmation]

@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{Format, Json, Reads, Writes, JsPath}
+import play.api.libs.json.{Format, JsPath, Json, Reads, Writes}
 
 import java.time.Instant
 import scala.reflect.ClassTag
@@ -44,4 +44,4 @@ implicit val authorisedUserReads: Reads[AuthorisedUser] = (
     (JsPath \ "reportDataEnd").readNullable[Instant](mongoInstantReads) and
     (JsPath \ "accessType").read[Set[AccessType]] and
     (JsPath \ "referenceName").readNullable[String]
-  )(AuthorisedUser.apply _)
+)(AuthorisedUser.apply _)

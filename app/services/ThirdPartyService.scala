@@ -25,37 +25,39 @@ import play.api.libs.json.Reads
 import java.time.format.DateTimeFormatter
 import java.time.{Clock, Instant, LocalDate}
 
-implicit val localDateReads: Reads[LocalDate] = Reads.localDateReads(DateTimeFormatter.ISO_LOCAL_DATE)
+implicit val localDateReads: Reads[LocalDate]               = Reads.localDateReads(DateTimeFormatter.ISO_LOCAL_DATE)
 implicit val optionLocalDateReads: Reads[Option[LocalDate]] = Reads.optionWithNull[LocalDate]
 
 class ThirdPartyService @Inject() (clock: Clock = Clock.systemUTC()) {
   def buildThirdPartyAddRequest(userAnswers: UserAnswers, eori: String): ThirdPartyRequest = {
-    val reportAccessDates = getReportAccessDates(userAnswers)
+    val reportAccessDates                = getReportAccessDates(userAnswers)
     val (reportDateStart, reportDateEnd) = reportAccessDates
-    val toInstant: LocalDate => Instant = d => d.atStartOfDay(clock.getZone).toInstant
+    val toInstant: LocalDate => Instant  = d => d.atStartOfDay(clock.getZone).toInstant
 
     ThirdPartyRequest(
       userEORI = eori,
       thirdPartyEORI = userAnswers.get(EoriNumberPage).getOrElse(""),
-      accessStart = userAnswers.get(ThirdPartyAccessStartDatePage).map(_.atStartOfDay(clock.getZone).toInstant).getOrElse(clock.instant()),
-      accessEnd =  userAnswers.get(ThirdPartyAccessEndDatePage).flatten.map(toInstant),
+      accessStart = userAnswers
+        .get(ThirdPartyAccessStartDatePage)
+        .map(_.atStartOfDay(clock.getZone).toInstant)
+        .getOrElse(clock.instant()),
+      accessEnd = userAnswers.get(ThirdPartyAccessEndDatePage).flatten.map(toInstant),
       reportDateStart = reportDateStart,
-      reportDateEnd =  reportDateEnd,
+      reportDateEnd = reportDateEnd,
       accessType = userAnswers.get(DataTypesPage).fold(Set.empty[String])(_.map(_.toString.toUpperCase())),
       referenceName = Some(userAnswers.get(ThirdPartyReferencePage).getOrElse(""))
     )
   }
 
-  private def getReportAccessDates(userAnswers: UserAnswers): (Option[Instant], Option[Instant]) = {
+  private def getReportAccessDates(userAnswers: UserAnswers): (Option[Instant], Option[Instant]) =
     userAnswers.get(DeclarationDatePage) match {
       case Some(DeclarationDate.AllAvailableData) =>
         (None, None)
-      case Some(DeclarationDate.CustomDateRange) =>
+      case Some(DeclarationDate.CustomDateRange)  =>
         (
           userAnswers.get(DataStartDatePage).map(_.atStartOfDay(clock.getZone).toInstant),
           userAnswers.get(DataStartDatePage).map(date => date.atStartOfDay(clock.getZone).toInstant)
         )
-      case None => (None, None)
+      case None                                   => (None, None)
     }
-  }
 }

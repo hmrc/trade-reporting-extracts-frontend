@@ -33,22 +33,22 @@ class ThirdPartyAddedConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
-  thirdPartyService : ThirdPartyService,
+  thirdPartyService: ThirdPartyService,
   requireData: DataRequiredAction,
   frontendAppConfig: FrontendAppConfig,
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
   clock: Clock
-) (implicit ec: ExecutionContext)
-  extends BaseController
+)(implicit ec: ExecutionContext)
+    extends BaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     for {
       thirdPartyAddedConfirmation <- tradeReportingExtractsService.createThirdPartyAddRequest(
-        thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
-      )
+                                       thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
+                                     )
     } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 

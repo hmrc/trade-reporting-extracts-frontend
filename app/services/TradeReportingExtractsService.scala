@@ -96,7 +96,8 @@ class TradeReportingExtractsService @Inject() (
     connector.auditReportDownload(auditData)
   }
 
-  def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit hc: HeaderCarrier
+  def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+    hc: HeaderCarrier
   ): Future[ThirdPartyAddedConfirmation] =
     connector.createThirdPartyAddRequest(thirdPartyRequest)
-  }
+}
