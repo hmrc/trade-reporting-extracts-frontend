@@ -37,7 +37,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
       val answer      = "thirdPartyRef"
       val userAnswers = UserAnswers("id").set(ThirdPartyReferencePage, answer).success.value
 
-      val result = ThirdPartyReferenceSummary.row(userAnswers)
+      val result = ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)
 
       result mustBe Some(
         SummaryListRow(
@@ -61,7 +61,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
   "must return None when no answer is present" in {
     val userAnswers = UserAnswers("id")
 
-    val result = ThirdPartyReferenceSummary.row(userAnswers)
+    val result = ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)
 
     result mustBe None
   }

@@ -16,6 +16,7 @@
 
 package viewmodels.checkAnswers.thirdparty
 
+import models.thirdparty.DataTypes
 import models.{CheckMode, UserAnswers}
 import pages.thirdparty.DataTypesPage
 import play.api.i18n.Messages
@@ -27,7 +28,7 @@ import viewmodels.implicits.*
 
 object DataTypesSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DataTypesPage).map { answers =>
 
       val value = ValueViewModel(
@@ -52,4 +53,29 @@ object DataTypesSummary {
         )
       )
     }
+
+  def detailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] = {
+
+    val dataTypeObjects: Set[DataTypes] = dataTypes.collect {
+      case "imports" => DataTypes.Import
+      case "exports" => DataTypes.Export
+    }
+    
+    val value = ValueViewModel(
+      HtmlContent(
+        dataTypeObjects
+          .map { answer =>
+            HtmlFormat.escape(messages(s"dataTypes.$answer")).toString
+          }
+          .mkString(",<br>")
+      )
+    )
+
+    Some(
+      SummaryListRowViewModel(
+        key = "thirdPartyDetails.dataTypes.label",
+        value = value
+      )
+    )
+  }
 }

@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, ThirdPartyDetails, UserAnswers}
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
-import utils.json.OptionalLocalDateReads._
+import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 
 object DataTheyCanViewSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
     answers.get(DataStartDatePage).map { answer =>
 
       implicit val lang: Lang = messages.lang
@@ -61,4 +61,33 @@ object DataTheyCanViewSummary {
         )
       )
     }
+  }
+
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
+
+    implicit val lang: Lang = messages.lang
+
+    val value = (thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate) match {
+      case (Some(startDate), Some(endDate)) =>
+        ValueViewModel(
+          messages(
+            "dataTheyCanView.fixed.answerLabel",
+            startDate.format(dateTimeFormat()),
+            endDate.format(dateTimeFormat())
+          )
+        )
+      case (Some(startDate), None) =>
+        ValueViewModel(
+          messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+        )
+      case _ =>
+        ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
+    }
+
+    Some(SummaryListRowViewModel(
+      key = "dataTheyCanView.checkYourAnswersLabel",
+      value = value,
+    ))
+
+  }
 }

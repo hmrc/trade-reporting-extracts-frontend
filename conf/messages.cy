@@ -11,6 +11,7 @@ site.start = cy: Start now
 site.startAgain = cy: Start again
 site.signIn = cy: Sign in
 site.govuk = cy: GOV.UK
+site.notApplicable = cy: Not applicable
 
 date.day = cy: Day
 date.month = cy: Month
@@ -531,3 +532,12 @@ thirdPartyAddedConfirmation.link1 = cy: manage third parties that can access you
 thirdPartyAddedConfirmation.link2 = cy: Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = cy: What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)
+
+BusinessInfo.checkYourAnswersLabel = cy: Business information
+
+thirdPartyDetails.title = cy: Third-party details
+thirdPartyDetails.heading = cy: Third-party details
+thirdPartyDetails.eoriNumber.label = cy: EORI number
+thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
+thirdPartyDetails.dataRange.label = cy: Data they can view
+thirdPartyDetails.dataRange.allData = cy: All available data

@@ -47,7 +47,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(DataEndDatePage, Some(endDate))
         .get
 
-      DataTheyCanViewSummary.row(userAnswers) shouldBe Some(
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -73,7 +73,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(DataStartDatePage, startDate)
         .get
 
-      DataTheyCanViewSummary.row(userAnswers) shouldBe Some(
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -91,7 +91,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
 
     "when start date is not answered, return None" in {
       val userAnswers = UserAnswers("id")
-      DataTheyCanViewSummary.row(userAnswers) shouldBe None
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe None
     }
   }
 }

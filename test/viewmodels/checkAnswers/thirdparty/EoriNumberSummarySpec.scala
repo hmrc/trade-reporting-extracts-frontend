@@ -37,7 +37,7 @@ class EoriNumberSummarySpec extends SpecBase {
         .set(EoriNumberPage, "GB123456789000")
         .get
 
-      EoriNumberSummary.row(userAnswers) shouldBe Some(
+      EoriNumberSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "eoriNumber.checkYourAnswersLabel",
           value = ValueViewModel(HtmlFormat.escape("GB123456789000").toString),
@@ -53,7 +53,7 @@ class EoriNumberSummarySpec extends SpecBase {
 
     "when answer unavailable, return empty" in {
       val userAnswers = UserAnswers("id")
-      EoriNumberSummary.row(userAnswers) shouldBe None
+      EoriNumberSummary.checkYourAnswersRow(userAnswers) shouldBe None
     }
 
   }

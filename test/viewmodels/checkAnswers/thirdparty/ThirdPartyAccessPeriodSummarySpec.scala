@@ -47,7 +47,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         .set(ThirdPartyAccessEndDatePage, Some(endDate))
         .get
 
-      ThirdPartyAccessPeriodSummary.row(userAnswers) shouldBe Some(
+      ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -73,7 +73,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         .set(ThirdPartyAccessStartDatePage, startDate)
         .get
 
-      ThirdPartyAccessPeriodSummary.row(userAnswers) shouldBe Some(
+      ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -91,7 +91,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
 
     "when start date is not answered, return None" in {
       val userAnswers = UserAnswers("id")
-      ThirdPartyAccessPeriodSummary.row(userAnswers) shouldBe None
+      ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers) shouldBe None
     }
   }
 }

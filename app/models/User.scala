@@ -28,13 +28,14 @@ case class User(
 )
 
 case class AuthorisedUser(
-  eori: String,
-  accessStart: Instant,
-  accessEnd: Instant,
-  reportDataStart: Instant,
-  reportDataEnd: Instant,
-  accessType: AccessType
-)
+                           eori: String,
+                           accessStart: Instant,
+                           accessEnd: Option[Instant],
+                           reportDataStart: Option[Instant],
+                           reportDataEnd: Option[Instant],
+                           accessType: Set[AccessType],
+                           referenceName: Option[String] = None
+                         )
 
 object MongoInstantFormat:
   private val instantReads: Reads[Instant]    = Reads { js =>

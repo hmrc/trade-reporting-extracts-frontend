@@ -37,7 +37,7 @@ class DataTypesSummarySpec extends SpecBase {
         .success
         .value
 
-      val result = DataTypesSummary.row(userAnswers)
+      val result = DataTypesSummary.checkYourAnswersRow(userAnswers)
 
       result mustBe defined
       result.get.key.content.asHtml.body   must include("dataTypes.checkYourAnswersLabel")
@@ -47,7 +47,7 @@ class DataTypesSummarySpec extends SpecBase {
     "must return None when DataTypesPage is not defined" in {
       val userAnswers = UserAnswers("id")
 
-      val result = DataTypesSummary.row(userAnswers)
+      val result = DataTypesSummary.checkYourAnswersRow(userAnswers)
 
       result mustBe None
     }

@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, ThirdPartyDetails, UserAnswers}
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
-import utils.json.OptionalLocalDateReads._
+import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 
 object ThirdPartyAccessPeriodSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
     answers.get(ThirdPartyAccessStartDatePage).map { answer =>
 
       implicit val lang: Lang = messages.lang
@@ -61,4 +61,32 @@ object ThirdPartyAccessPeriodSummary {
         )
       )
     }
+  }
+  
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
+    
+    implicit val lang: Lang = messages.lang
+
+    val value = thirdPartyDetails.accessEndDate match {
+      case Some(endDate) =>
+        ValueViewModel(
+          messages(
+            "thirdPartyAccessPeriod.fixed.answerLabel",
+            thirdPartyDetails.accessStartDate.format(dateTimeFormat()),
+            endDate.format(dateTimeFormat())
+          )
+        )
+      case _             =>
+        ValueViewModel(
+          messages("thirdPartyAccessPeriod.ongoing.answerLabel", thirdPartyDetails.accessStartDate.format(dateTimeFormat()))
+        )
+    }
+
+    Some(
+      SummaryListRowViewModel(
+        key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
+        value = value
+      )
+    )
+  }
 }

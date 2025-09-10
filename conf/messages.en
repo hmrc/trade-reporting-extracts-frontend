@@ -11,6 +11,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.notApplicable = Not applicable
 
 date.day = Day
 date.month = Month
@@ -531,3 +532,12 @@ thirdPartyAddedConfirmation.link1 = manage third parties that can access your da
 thirdPartyAddedConfirmation.link2 = Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
+
+BusinessInfo.checkYourAnswersLabel = Business information
+
+thirdPartyDetails.title = Third-party details
+thirdPartyDetails.heading = Third-party details
+thirdPartyDetails.eoriNumber.label = EORI number
+thirdPartyDetails.dataTypes.label = Types of data they have access to
+thirdPartyDetails.dataRange.label = Data they can view
+thirdPartyDetails.dataRange.allData = All available data
