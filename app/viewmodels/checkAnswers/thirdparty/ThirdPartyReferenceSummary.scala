@@ -27,35 +27,32 @@ import viewmodels.implicits.*
 
 object ThirdPartyReferenceSummary {
 
-  def checkYourAnswersRow(
-           answers: UserAnswers)
-         (implicit messages: Messages): Option[SummaryListRow] = {
-      answers.get(ThirdPartyReferencePage).map { answer =>
-        SummaryListRowViewModel(
-          key = "thirdPartyReference.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlFormat.escape(answer).toString),
-          actions = Seq(
-            ActionItemViewModel(
-              "site.change",
-              controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(CheckMode).url
-            )
-              .withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(ThirdPartyReferencePage).map { answer =>
+      SummaryListRowViewModel(
+        key = "thirdPartyReference.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(CheckMode).url
           )
-        )
-      }
-    }
-
-    def detailsRow(reference: Option[String])(implicit messages: Messages): Option[SummaryListRow] = {
-      val value = reference match {
-        case Some(value) => ValueViewModel(HtmlFormat.escape(reference.get).toString)
-        case None => ValueViewModel("site.notApplicable")
-      }
-      Some(
-        SummaryListRowViewModel(
-          key = "thirdPartyReference.checkYourAnswersLabel",
-          value = value
+            .withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
         )
       )
     }
+
+  def detailsRow(reference: Option[String])(implicit messages: Messages): Option[SummaryListRow] = {
+    val value = reference match {
+      case Some(value) => ValueViewModel(HtmlFormat.escape(reference.get).toString)
+      case None        => ValueViewModel("site.notApplicable")
+    }
+    Some(
+      SummaryListRowViewModel(
+        key = "thirdPartyReference.checkYourAnswersLabel",
+        value = value
+      )
+    )
+  }
 
 }

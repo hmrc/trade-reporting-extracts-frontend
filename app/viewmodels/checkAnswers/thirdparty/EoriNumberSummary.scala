@@ -44,8 +44,8 @@ object EoriNumberSummary {
   def detailsRow(eori: String)(implicit messages: Messages): Option[SummaryListRow] =
     Some(
       SummaryListRowViewModel(
-      key = "thirdPartyDetails.eoriNumber.label",
-      value = ValueViewModel(HtmlFormat.escape(eori).toString)
+        key = "thirdPartyDetails.eoriNumber.label",
+        value = ValueViewModel(HtmlFormat.escape(eori).toString)
       )
     )
 }

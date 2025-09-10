@@ -39,11 +39,11 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
   implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   "TradeReportingExtractsService" - {
-    val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+    val ec: ExecutionContext       = scala.concurrent.ExecutionContext.Implicits.global
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockConnector = mock[TradeReportingExtractsConnector]
-    val mockMessages = mock[Messages]
+    val mockMessages  = mock[Messages]
 
     when(mockMessages("accountsYouHaveAuthorityOverImport.defaultValue")).thenReturn("Default EORI")
     val service = new TradeReportingExtractsService()(ec, mockConnector)
@@ -155,8 +155,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           name = "Test Company",
           consent = Granted
         )
-        val eori = "GB123456789000"
-        val userDetails = UserDetails(
+        val eori               = "GB123456789000"
+        val userDetails        = UserDetails(
           eori = eori,
           additionalEmails = Seq.empty,
           authorisedUsers = Seq.empty,
@@ -164,12 +164,12 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now())
         )
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
-        val result = service.getUserDetails(eori).futureValue
+        val result             = service.getUserDetails(eori).futureValue
         result mustBe userDetails
       }
 
       "should fail when connector throws an exception" in {
-        val eori = "GB123456789000"
+        val eori   = "GB123456789000"
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.failed(new RuntimeException("Connector error")))
         val thrown = intercept[RuntimeException] {
           service.getUserDetails(eori).futureValue
@@ -181,9 +181,9 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     "auditReportDownload" - {
 
       val reportReference = "some-reference"
-      val fileName = "report.csv"
-      val fileUrl = "http://localhost/report.csv"
-      val auditRequest = AuditDownloadRequest(reportReference, fileName, fileUrl)
+      val fileName        = "report.csv"
+      val fileUrl         = "http://localhost/report.csv"
+      val auditRequest    = AuditDownloadRequest(reportReference, fileName, fileUrl)
 
       "must call the connector and return true when the connector returns true" in {
         when(mockConnector.auditReportDownload(auditRequest)(hc)).thenReturn(Future.successful(true))
@@ -244,12 +244,13 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         Some(LocalDate.of(2025, 12, 31))
       )
 
-      val eori = "123"
+      val eori           = "123"
       val thirdPartyEori = "456"
 
       "should return third party details when connector returns them" in {
 
-        when(mockConnector.getThirdPartyDetails(any(), any())(any())).thenReturn(Future.successful(validThirdPartyDetails))
+        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(Future.successful(validThirdPartyDetails))
         val result = service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
         result mustBe validThirdPartyDetails
       }

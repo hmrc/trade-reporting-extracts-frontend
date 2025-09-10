@@ -217,7 +217,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
-  def getUserDetails(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] = {
+  def getUserDetails(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/get-user-detail")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
@@ -230,9 +230,10 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         logger.error(s"Failed to fetch getUserDetails: ${ex.getMessage}", ex)
         throw ex
       }
-  }
-  
-  def getThirdPartyDetails(eori: String, thirdPartyEori: String)(implicit hc: HeaderCarrier): Future[ThirdPartyDetails] = {
+
+  def getThirdPartyDetails(eori: String, thirdPartyEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/third-party-details")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
@@ -244,7 +245,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             Json.parse(response.body).validate[ThirdPartyDetails] match {
               case JsSuccess(thirdPartyDetails, _) =>
                 Future.successful(thirdPartyDetails)
-              case JsError(errors)                   =>
+              case JsError(errors)                 =>
                 logger.error(s"Failed to parse 'third-party-details' from response JSON: $errors")
                 Future.failed(
                   UpstreamErrorResponse(
@@ -253,7 +254,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                   )
                 )
             }
-          case _ => {
+          case _  =>
             logger.error(s"Failed to fetch third party details: ${response.status} - ${response.body}")
             Future.failed(
               UpstreamErrorResponse(
@@ -261,10 +262,8 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                 response.status
               )
             )
-          }
         }
       }
-  }
 
   def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
@@ -280,8 +279,8 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             false
         }
       }
-      
-  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String]                         =
+
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-request-limit-number")
       .execute[String]

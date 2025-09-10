@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 
 object ThirdPartyAccessPeriodSummary {
 
-  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(ThirdPartyAccessStartDatePage).map { answer =>
 
       implicit val lang: Lang = messages.lang
@@ -61,10 +61,9 @@ object ThirdPartyAccessPeriodSummary {
         )
       )
     }
-  }
-  
+
   def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
-    
+
     implicit val lang: Lang = messages.lang
 
     val value = thirdPartyDetails.accessEndDate match {
@@ -78,7 +77,10 @@ object ThirdPartyAccessPeriodSummary {
         )
       case _             =>
         ValueViewModel(
-          messages("thirdPartyAccessPeriod.ongoing.answerLabel", thirdPartyDetails.accessStartDate.format(dateTimeFormat()))
+          messages(
+            "thirdPartyAccessPeriod.ongoing.answerLabel",
+            thirdPartyDetails.accessStartDate.format(dateTimeFormat())
+          )
         )
     }
 

@@ -30,56 +30,57 @@ import views.html.thirdparty.ThirdPartyDetailsView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ThirdPartyDetailsController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getOrCreate: DataRetrievalOrCreateAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ThirdPartyDetailsView,
-                                       tradeReportingExtractsService: TradeReportingExtractsService
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class ThirdPartyDetailsController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getOrCreate: DataRetrievalOrCreateAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyDetailsView,
+  tradeReportingExtractsService: TradeReportingExtractsService
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
     implicit request =>
       for {
-        companyInfo <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
-        maybeCompanyName = resolveDisplayName(companyInfo)
+        companyInfo       <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
+        maybeCompanyName   = resolveDisplayName(companyInfo)
         thirdPartyDetails <- tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori)
-        rows = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori)
-        list = SummaryListViewModel(rows = rows.flatten)
+        rows               = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori)
+        list               = SummaryListViewModel(rows = rows.flatten)
       } yield Ok(view(list))
   }
 
-  private def rowGenerator(thirdPartyDetails: ThirdPartyDetails,
-                           maybeBusinessInfo: Option[String],
-                           thirdPartyEori: String)(implicit messages: Messages): Seq[Option[SummaryListRow]] = {
-
+  private def rowGenerator(
+    thirdPartyDetails: ThirdPartyDetails,
+    maybeBusinessInfo: Option[String],
+    thirdPartyEori: String
+  )(implicit messages: Messages): Seq[Option[SummaryListRow]] =
     Seq(
       EoriNumberSummary.detailsRow(thirdPartyEori)
     ) ++ (
       (maybeBusinessInfo.isDefined, thirdPartyDetails.referenceName.isDefined) match {
-        case (true, true) =>
+        case (true, true)  =>
           Seq(
             BusinessInfoSummary.row(maybeBusinessInfo.get),
             ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName)
           )
         case (true, false) =>
           Seq(BusinessInfoSummary.row(maybeBusinessInfo.get))
-        case (false, _) =>
+        case (false, _)    =>
           Seq(ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName))
       }
-      )
+    )
       ++ Seq(
-      ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails),
-      DataTypesSummary.detailsRow(thirdPartyDetails.dataTypes),
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails)
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails),
+        DataTypesSummary.detailsRow(thirdPartyDetails.dataTypes),
+        DataTheyCanViewSummary.detailsRow(thirdPartyDetails)
       )
-  }
 
-  private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] = {
+  private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] =
     companyInfo.consent match {
       case ConsentStatus.Denied => None
-      case _ => Some(companyInfo.name)
+      case _                    => Some(companyInfo.name)
     }
-  }
 }

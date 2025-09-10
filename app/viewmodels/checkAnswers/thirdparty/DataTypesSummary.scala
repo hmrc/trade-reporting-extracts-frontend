@@ -60,7 +60,7 @@ object DataTypesSummary {
       case "imports" => DataTypes.Import
       case "exports" => DataTypes.Export
     }
-    
+
     val value = ValueViewModel(
       HtmlContent(
         dataTypeObjects

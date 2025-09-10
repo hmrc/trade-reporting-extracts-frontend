@@ -30,7 +30,7 @@ class EoriNumberSummarySpec extends SpecBase {
 
   implicit private val messages: Messages = stubMessages()
 
-  "EoriNumberSummary.row" - {
+  "EoriNumberSummary.checkYourAnswersRow" - {
 
     "when answered, return the summary row" in {
       val userAnswers = UserAnswers("id")
@@ -56,6 +56,19 @@ class EoriNumberSummarySpec extends SpecBase {
       EoriNumberSummary.checkYourAnswersRow(userAnswers) shouldBe None
     }
 
+  }
+
+  ".detailsRow" - {
+    "must return summary list row when given an EORI number" in {
+      val result = EoriNumberSummary.detailsRow("123")
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyDetails.eoriNumber.label",
+          value = ValueViewModel(HtmlFormat.escape("123").toString)
+        )
+      )
+    }
   }
 
 }

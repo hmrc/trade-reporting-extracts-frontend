@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, ThirdPartyDetails, UserAnswers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.shouldBe
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
@@ -35,7 +35,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
   implicit private val messages: Messages = stubMessages()
   implicit private val lang: Lang         = messages.lang
 
-  "ThirdPartyAccessPeriodSummary.row" - {
+  "ThirdPartyAccessPeriodSummary.checkYourAnswersRow" - {
 
     val startDate = LocalDate.of(2025, 6, 1)
 
@@ -92,6 +92,60 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
     "when start date is not answered, return None" in {
       val userAnswers = UserAnswers("id")
       ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers) shouldBe None
+    }
+  }
+
+  ".detailsRow" - {
+
+    "when both start and end dates are provided, return summary list row for fixed period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.of(2025, 6, 30)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = Some(endDate),
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages(
+              "thirdPartyAccessPeriod.fixed.answerLabel",
+              startDate.format(dateTimeFormat()),
+              endDate.format(dateTimeFormat())
+            )
+          )
+        )
+      )
+    }
+
+    "when only start date is provided, return summary list row for ongoing period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          )
+        )
+      )
     }
   }
 }

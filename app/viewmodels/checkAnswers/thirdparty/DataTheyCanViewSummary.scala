@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 
 object DataTheyCanViewSummary {
 
-  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DataStartDatePage).map { answer =>
 
       implicit val lang: Lang = messages.lang
@@ -61,7 +61,6 @@ object DataTheyCanViewSummary {
         )
       )
     }
-  }
 
   def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
 
@@ -76,18 +75,20 @@ object DataTheyCanViewSummary {
             endDate.format(dateTimeFormat())
           )
         )
-      case (Some(startDate), None) =>
+      case (Some(startDate), None)          =>
         ValueViewModel(
           messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
         )
-      case _ =>
+      case _                                =>
         ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
     }
 
-    Some(SummaryListRowViewModel(
-      key = "dataTheyCanView.checkYourAnswersLabel",
-      value = value,
-    ))
+    Some(
+      SummaryListRowViewModel(
+        key = "dataTheyCanView.checkYourAnswersLabel",
+        value = value
+      )
+    )
 
   }
 }

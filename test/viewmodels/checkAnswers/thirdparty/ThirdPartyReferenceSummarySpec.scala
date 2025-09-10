@@ -31,7 +31,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
 
   implicit private val messages: Messages = stubMessages()
 
-  "ThirdPartyReferenceSummarySpec.row" - {
+  "ThirdPartyReferenceSummarySpec.checkYourAnswersRow" - {
 
     "must return a SummaryListRow when an answer is present" in {
       val answer      = "thirdPartyRef"
@@ -64,5 +64,29 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
     val result = ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)
 
     result mustBe None
+  }
+
+  ".detailsRow" - {
+    "must return summary list row when given a reference" in {
+      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"))
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyReference.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlFormat.escape("ref").toString)
+        )
+      )
+    }
+
+    "must return summary list row with N/A when no reference is given" in {
+      val result = ThirdPartyReferenceSummary.detailsRow(None)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyReference.checkYourAnswersLabel",
+          value = ValueViewModel("site.notApplicable")
+        )
+      )
+    }
   }
 }
