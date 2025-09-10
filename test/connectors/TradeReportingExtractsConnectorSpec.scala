@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
 import models.ConsentStatus.Granted
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.ThirdPartyRequest
 import org.mockito.Mockito.when
@@ -31,9 +31,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import java.time.{Instant, LocalDateTime}
+import java.time._
 import scala.concurrent.Future
 
 class TradeReportingExtractsConnectorSpec
@@ -507,6 +507,79 @@ class TradeReportingExtractsConnectorSpec
           )
           val result    = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
           result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "getThirdPartyDetails" - {
+
+      val validThirdPartyDetails = ThirdPartyDetails(
+        Some("reference"),
+        LocalDate.of(2025, 1, 1),
+        Some(LocalDate.of(2025, 12, 31)),
+        Set("import"),
+        Some(LocalDate.of(2025, 1, 1)),
+        Some(LocalDate.of(2025, 12, 31))
+      )
+
+      "must return third party details when OK and valid third party details" in {
+
+        val response = Json.toJson(validThirdPartyDetails).toString()
+        val app      = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+              .willReturn(
+                aResponse().withStatus(OK).withBody(response)
+              )
+          )
+          val result = connector.getThirdPartyDetails("123", "456").futureValue
+          result mustBe validThirdPartyDetails
+        }
+      }
+
+      "must return failed future when invalid json received" in {
+
+        val invalidResponse = """{ "foo": "bar" }"""
+
+        val response = Json.toJson(validThirdPartyDetails).toString()
+        val app      = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+              .willReturn(
+                aResponse().withStatus(OK).withBody(invalidResponse)
+              )
+          )
+          val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+
+      "must return failed future when not OK received" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+              .willReturn(
+                aResponse().withStatus(500).withBody("error")
+              )
+          )
+          val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
         }
       }
     }

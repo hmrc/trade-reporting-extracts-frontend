@@ -11,6 +11,7 @@ site.start = cy: Start now
 site.startAgain = cy: Start again
 site.signIn = cy: Sign in
 site.govuk = cy: GOV.UK
+site.notApplicable = cy: Not applicable
 
 date.day = cy: Day
 date.month = cy: Month
@@ -562,3 +563,10 @@ authorisedThirdParties.referenceName = cy: Reference name
 authorisedThirdParties.action = cy: Action
 authorisedThirdParties.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
 authorisedThirdParties.referenceName.notAvailable = cy: Not applicable
+
+thirdPartyDetails.title = cy: Third-party details
+thirdPartyDetails.heading = cy: Third-party details
+thirdPartyDetails.eoriNumber.label = cy: EORI number
+thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
+thirdPartyDetails.dataRange.label = cy: Data they can view
+thirdPartyDetails.dataRange.allData = cy: All available data
