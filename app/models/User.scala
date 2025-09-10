@@ -24,16 +24,18 @@ import scala.reflect.ClassTag
 case class User(
   eori: String,
   additionalEmails: Seq[String] = Seq.empty,
-  authorisedUsers: Seq[AuthorisedUser] = Seq.empty
+  authorisedUsers: Seq[AuthorisedUser] = Seq.empty,
+  accessDate: Instant = Instant.now()
 )
 
 case class AuthorisedUser(
   eori: String,
   accessStart: Instant,
-  accessEnd: Instant,
-  reportDataStart: Instant,
-  reportDataEnd: Instant,
-  accessType: AccessType
+  accessEnd: Option[Instant],
+  reportDataStart: Option[Instant],
+  reportDataEnd: Option[Instant],
+  accessType: Set[AccessType],
+  referenceName: Option[String] = None
 )
 
 object MongoInstantFormat:

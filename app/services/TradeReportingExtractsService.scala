@@ -19,7 +19,8 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
+import models.thirdparty.AuthorisedThirdPartiesViewModel
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
@@ -94,4 +95,21 @@ class TradeReportingExtractsService @Inject() (
     val auditData = AuditDownloadRequest(reportReference, fileName, fileUrl)
     connector.auditReportDownload(auditData)
   }
+
+  def getAuthorisedThirdParties(
+    eori: String
+  )(implicit hc: HeaderCarrier): Future[Seq[AuthorisedThirdPartiesViewModel]] =
+    getUserDetails(eori).flatMap { userDetails =>
+      Future.traverse(userDetails.authorisedUsers) { authorisedUser =>
+        getCompanyInformation(authorisedUser.eori).map { companyInfo =>
+          val businessInfo = if (companyInfo.consent == ConsentStatus.Granted) Some(companyInfo.name) else None
+          AuthorisedThirdPartiesViewModel(
+            eori = authorisedUser.eori,
+            businessInfo = businessInfo,
+            referenceName = authorisedUser.referenceName
+          )
+        }
+      }
+    }
+
 }
