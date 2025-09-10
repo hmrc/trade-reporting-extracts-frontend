@@ -538,3 +538,5 @@ thirdPartyAddedConfirmation.link1 = cy: manage third parties that can access you
 thirdPartyAddedConfirmation.link2 = cy: Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = cy: What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)
+
+BusinessInfo.checkYourAnswersLabel = cy: Business information

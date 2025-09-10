@@ -538,3 +538,5 @@ thirdPartyAddedConfirmation.link1 = manage third parties that can access your da
 thirdPartyAddedConfirmation.link2 = Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
+
+BusinessInfo.checkYourAnswersLabel = Business information
