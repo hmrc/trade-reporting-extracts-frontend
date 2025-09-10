@@ -30,11 +30,12 @@ case class User(
 case class AuthorisedUser(
   eori: String,
   accessStart: Instant,
-  accessEnd: Instant,
-  reportDataStart: Instant,
-  reportDataEnd: Instant,
-  accessType: AccessType
-)
+  accessEnd: Option[Instant],
+  reportDataStart: Option[Instant],
+  reportDataEnd: Option[Instant],
+  accessType: Set[AccessType],
+  referenceName: Option[String]
+                         )
 
 object User:
   given format: Format[User] = Json.format[User]

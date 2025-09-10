@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, 
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.thirdparty.ThirdPartyRequest
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -32,7 +33,7 @@ import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.Future
 
 class TradeReportingExtractsConnectorSpec
@@ -444,6 +445,68 @@ class TradeReportingExtractsConnectorSpec
             connector.getReportRequestLimitNumber.futureValue
           }
           thrown.getMessage must include("error")
+        }
+      }
+    }
+
+    "createThirdPartyAddRequest" - {
+
+      val url = "/trade-reporting-extracts/add-third-party-request"
+
+      val thirdPartyRequest = ThirdPartyRequest(
+        userEORI = "GB1",
+        thirdPartyEORI = "GB2",
+        accessStart = Instant.parse("2024-01-01T00:00:00Z"),
+        accessEnd = None,
+        reportDateStart = None,
+        reportDateEnd = None,
+        accessType = Set("IMPORT"),
+        referenceName = None
+      )
+
+      val confirmationJson =
+        s"""{
+           |  "thirdPartyEori": "GB987654321000"
+           |}""".stripMargin
+
+      "must return confirmation when response is OK and JSON is valid" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(ok(confirmationJson))
+          )
+
+          val result = connector.createThirdPartyAddRequest(thirdPartyRequest).futureValue
+          result.thirdPartyEori mustBe "GB987654321000"
+        }
+      }
+
+      "must fail when response is OK but JSON is invalid" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(ok("""{ "unexpected": "value" }"""))
+          )
+
+          val result = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
+          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
+
+      "must fail when response status is not OK" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse().withStatus(500))
+          )
+          val result    = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
+          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
         }
       }
     }

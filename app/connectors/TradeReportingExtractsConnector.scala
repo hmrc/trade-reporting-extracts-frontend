@@ -26,6 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
+import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -255,5 +256,42 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .recover { case ex: Exception =>
         logger.error(s"Failed to fetch report request limit number: ${ex.getMessage}", ex)
         throw ex
+      }
+
+  def createThirdPartyAddRequest(
+                                  thirdPartyRequest: ThirdPartyRequest
+                                )(implicit hc: HeaderCarrier): Future[ThirdPartyAddedConfirmation] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/add-third-party-request")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.toJson(thirdPartyRequest))
+      .execute[HttpResponse]
+      .logFailureReason("Trade reporting extracts connector on createThirdParyAddRequest")
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            Json.parse(response.body).validate[ThirdPartyAddedConfirmation] match {
+              case JsSuccess(thirdPartyAddedConfirmation, _) =>
+                Future.successful(thirdPartyAddedConfirmation)
+              case JsError(errors) =>
+                logger.error(s"Failed to parse 'thirdPartyAdded confirmations' from response JSON: $errors")
+                Future.failed(
+                  UpstreamErrorResponse(
+                    "Unexpected response from /trade-reporting-extracts/create-third-party-add-request",
+                    response.status
+                  )
+                )
+            }
+          case _ =>
+            logger.error(
+              s"Unexpected response from call to /trade-reporting-extracts/create-third-party-add-request with status : ${response.status}"
+            )
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/create-third-party-add-request",
+                response.status
+              )
+            )
+        }
       }
 }

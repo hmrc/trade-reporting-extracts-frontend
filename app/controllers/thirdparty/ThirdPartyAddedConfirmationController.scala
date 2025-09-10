@@ -17,32 +17,39 @@
 package controllers.thirdparty
 
 import config.FrontendAppConfig
+import controllers.BaseController
 import controllers.actions.*
-import pages.thirdparty.EoriNumberPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
+import services.{ThirdPartyService, TradeReportingExtractsService}
+import utils.DateTimeFormats.dateTimeFormat
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class ThirdPartyAddedConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
+  thirdPartyService : ThirdPartyService,
   requireData: DataRequiredAction,
   frontendAppConfig: FrontendAppConfig,
+  tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
   clock: Clock
-) extends FrontendBaseController
+) (implicit ec: ExecutionContext)
+  extends BaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val addedEori = request.userAnswers.get(EoriNumberPage).get
-    Ok(view(addedEori, getDate, frontendAppConfig.exitSurveyUrl))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    for {
+      thirdPartyAddedConfirmation <- tradeReportingExtractsService.createThirdPartyAddRequest(
+        thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
+      )
+    } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 
   private def getDate(implicit messages: Messages): String =
