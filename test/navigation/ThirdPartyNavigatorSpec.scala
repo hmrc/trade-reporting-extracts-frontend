@@ -18,8 +18,8 @@ package navigation
 
 import base.SpecBase
 import models.{CheckMode, NormalMode}
-import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
-import models.thirdparty.{DataTypes, DeclarationDate}
+import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
+import models.thirdparty.{ConfirmEori, DataTypes, DeclarationDate}
 
 import java.time.LocalDate
 
@@ -180,6 +180,36 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers.set(DataEndDatePage, Option(LocalDate.now())).success.value
           // TODO complete with check your answers page when available
         }
+      }
+    }
+
+    "ThirdPartyNavigator.nextPage with skipFlag" - {
+
+      "redirect to ThirdPartyAccessStartDateController when ConfirmEori is Yes and skipFlag is true" in {
+        val userAnswers = emptyUserAnswers.set(ConfirmEoriPage, ConfirmEori.Yes).success.value
+        val result      = navigator.nextPage(ConfirmEoriPage, NormalMode, userAnswers, true)
+
+        result.url mustBe controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode).url
+      }
+
+      "redirect to ThirdPartyReferenceController when ConfirmEori is Yes and skipFlag is false" in {
+        val userAnswers = emptyUserAnswers.set(ConfirmEoriPage, ConfirmEori.Yes).success.value
+        val result      = navigator.nextPage(ConfirmEoriPage, NormalMode, userAnswers, false)
+
+        result.url mustBe controllers.thirdparty.routes.ThirdPartyReferenceController.onPageLoad(NormalMode).url
+      }
+
+      "redirect to EoriNumberController when ConfirmEori is No" in {
+        val userAnswers = emptyUserAnswers.set(ConfirmEoriPage, ConfirmEori.No).success.value
+        val result      = navigator.nextPage(ConfirmEoriPage, NormalMode, userAnswers, false)
+
+        result.url mustBe controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode).url
+      }
+
+      "redirect to JourneyRecoveryController when ConfirmEori is missing" in {
+        val result = navigator.nextPage(ConfirmEoriPage, NormalMode, emptyUserAnswers, false)
+
+        result.url mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

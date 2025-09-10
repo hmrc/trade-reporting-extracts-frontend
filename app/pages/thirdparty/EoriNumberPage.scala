@@ -16,12 +16,16 @@
 
 package pages.thirdparty
 
+import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object EoriNumberPage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ "addThirdParty" \ toString
 
   override def toString: String = "eoriNumber"
+
 }

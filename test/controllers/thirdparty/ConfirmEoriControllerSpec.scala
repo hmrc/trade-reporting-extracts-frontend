@@ -25,8 +25,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.EoriNumberPage
-import pages.ConfirmEoriPage
+import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -39,7 +38,8 @@ import scala.concurrent.Future
 
 class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/foo")
+  def onwardRoute: Call                = Call("GET", "/request-customs-declaration-data/reference-name")
+  def onwardRouteSkipRefNamePage: Call = Call("GET", "/request-customs-declaration-data/access-start-date")
 
   lazy val confirmEoriRoute: String =
     controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode).url
@@ -50,8 +50,9 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
   val mockSessionRepository: SessionRepository                         = mock[SessionRepository]
 
-  val eoriNumber                      = "GB123456789000"
-  val companyInfo: CompanyInformation = CompanyInformation("Test Company", ConsentStatus.Denied)
+  val eoriNumber                                 = "GB123456789000"
+  val companyInfo: CompanyInformation            = CompanyInformation("Test Company", ConsentStatus.Denied)
+  val companyInfoWithConsent: CompanyInformation = CompanyInformation("Test Company", ConsentStatus.Granted)
 
   "ConfirmEori Controller" - {
 
@@ -146,6 +147,35 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to ThirdPartyAccessStartDate page when No consent in company info" in {
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfoWithConsent))
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(EoriNumberPage, eoriNumber)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, confirmEoriRoute)
+          .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteSkipRefNamePage.url
       }
     }
 
