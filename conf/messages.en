@@ -545,3 +545,26 @@ thirdPartyDetails.eoriNumber.label = EORI number
 thirdPartyDetails.dataTypes.label = Types of data they have access to
 thirdPartyDetails.dataRange.label = Data they can view
 thirdPartyDetails.dataRange.allData = All available data
+
+
+authorisedThirdParties.title = Manage third parties that can access your data
+authorisedThirdParties.heading = Manage third parties that can access your data
+authorisedThirdParties.message1 = You have given these third parties permission to request reports and download your data.
+authorisedThirdParties.message2 = To change any access details, you’ll need to remove them first and then
+authorisedThirdParties.link1 = add them again
+authorisedThirdParties.view = View
+authorisedThirdParties.view.hidden = View {0} details
+authorisedThirdParties.remove = Remove
+authorisedThirdParties.remove.hidden = Remove {0} as a third party
+authorisedThirdParties.noThirdParties.title = You have not added any third parties yet
+authorisedThirdParties.noThirdParties.heading = You have not added any third parties yet
+authorisedThirdParties.noThirdParties.message1 = If you are an importer or exporter, you can
+authorisedThirdParties.noThirdParties.link1 = add a third party
+authorisedThirdParties.noThirdParties.message2 = to your account.
+authorisedThirdParties.noThirdParties.link2 = Go to homepage
+authorisedThirdParties.eori = EORI number
+authorisedThirdParties.businessInfo = Business information
+authorisedThirdParties.referenceName = Reference name
+authorisedThirdParties.action = Action
+authorisedThirdParties.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
+authorisedThirdParties.referenceName.notAvailable = Not applicable

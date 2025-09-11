@@ -59,3 +59,5 @@ POST       /change-data-end-date                        controllers.thirdparty.D
 GET        /check-your-answers-third-party                       controllers.thirdparty.AddThirdPartyCheckYourAnswersController.onPageLoad()
 
 GET        /third-party-added-confirmation                       controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
+
+GET        /manage-third-parties                             controllers.thirdparty.AuthorisedThirdPartiesController.onPageLoad()

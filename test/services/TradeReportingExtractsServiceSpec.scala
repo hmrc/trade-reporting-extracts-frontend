@@ -18,10 +18,13 @@ package services
 
 import base.SpecBase
 import connectors.TradeReportingExtractsConnector
+import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
 import models.report.ReportRequestUserAnswersModel
+import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, UserDetails}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.thirdparty.AuthorisedThirdPartiesViewModel
 import models.thirdparty.ThirdPartyRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -34,6 +37,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import java.time.{Instant, LocalDateTime}
 import java.time.{LocalDate, LocalDateTime}
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -301,6 +305,146 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
         }
         thrown.getMessage must include("error")
+      }
+    }
+
+    "getAuthorisedThirdParties" - {
+      "return third parties with business info when consent is granted" in {
+        val eori           = "EORITEST1"
+        val authorisedUser = AuthorisedUser(
+          "EORITAUTHEST1",
+          Instant.now,
+          Some(Instant.now),
+          Some(Instant.now),
+          Some(Instant.now),
+          Set(IMPORTS),
+          referenceName = Some("aaaaa")
+        )
+        val userDetails    = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq(authorisedUser),
+          companyInformation = CompanyInformation("Company", ConsentStatus.Granted),
+          notificationEmail = null
+        )
+        val companyInfo    = CompanyInformation("ThirdParty Ltd", ConsentStatus.Granted)
+
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
+        when(mockConnector.getCompanyInformation("EORITAUTHEST1")).thenReturn(Future.successful(companyInfo))
+
+        val result = service.getAuthorisedThirdParties(eori).futureValue
+
+        result mustBe Seq(
+          AuthorisedThirdPartiesViewModel(
+            eori = "EORITAUTHEST1",
+            businessInfo = Some("ThirdParty Ltd"),
+            referenceName = Some("aaaaa")
+          )
+        )
+      }
+
+      "return third parties with no business info when consent is not granted & no ref when ref is none" in {
+        val mockConnector = mock[TradeReportingExtractsConnector]
+        val service       = new TradeReportingExtractsService()(ec, mockConnector)
+
+        val eori           = "EORI123"
+        val authorisedUser = AuthorisedUser(
+          "EORITAUTHEST2",
+          Instant.now,
+          Some(Instant.now),
+          Some(Instant.now),
+          Some(Instant.now),
+          Set(IMPORTS),
+          None
+        )
+        val userDetails    = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq(authorisedUser),
+          companyInformation = CompanyInformation("Company", ConsentStatus.Granted),
+          notificationEmail = null
+        )
+        val companyInfo    = CompanyInformation("NoConsent Ltd", ConsentStatus.Denied)
+
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
+        when(mockConnector.getCompanyInformation("EORITAUTHEST2")).thenReturn(Future.successful(companyInfo))
+
+        val result = service.getAuthorisedThirdParties(eori).futureValue
+
+        result mustBe Seq(
+          AuthorisedThirdPartiesViewModel(
+            eori = "EORITAUTHEST2",
+            businessInfo = None,
+            referenceName = None
+          )
+        )
+      }
+
+      "return empty sequence when there are no authorised users" in {
+        val mockConnector = mock[TradeReportingExtractsConnector]
+        val service       = new TradeReportingExtractsService()(ec, mockConnector)
+
+        val eori        = "EORI123"
+        val userDetails = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq.empty,
+          companyInformation = CompanyInformation("Company", ConsentStatus.Granted),
+          notificationEmail = null
+        )
+
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
+
+        val result = service.getAuthorisedThirdParties(eori).futureValue
+
+        result mustBe Seq.empty
+      }
+
+      "fail the future if getUserDetails fails" in {
+        val mockConnector = mock[TradeReportingExtractsConnector]
+        val service       = new TradeReportingExtractsService()(ec, mockConnector)
+
+        val eori = "EORI123"
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAuthorisedThirdParties(eori).futureValue
+        }
+
+        thrown.getMessage must include("error")
+      }
+
+      "fail the future if getCompanyInformation fails for any user" in {
+        val mockConnector = mock[TradeReportingExtractsConnector]
+        val service       = new TradeReportingExtractsService()(ec, mockConnector)
+
+        val eori           = "EORI123"
+        val authorisedUser = AuthorisedUser(
+          "EORITAUTHEST3",
+          Instant.now,
+          Some(Instant.now),
+          Some(Instant.now),
+          Some(Instant.now),
+          Set(IMPORTS),
+          referenceName = Some("aaaaa")
+        )
+        val userDetails    = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq(authorisedUser),
+          companyInformation = CompanyInformation("Company", ConsentStatus.Granted),
+          notificationEmail = null
+        )
+
+        when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
+        when(mockConnector.getCompanyInformation("EORITAUTHEST3"))
+          .thenReturn(Future.failed(new RuntimeException("company error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAuthorisedThirdParties(eori).futureValue
+        }
+
+        thrown.getMessage must include("company error")
       }
     }
   }
