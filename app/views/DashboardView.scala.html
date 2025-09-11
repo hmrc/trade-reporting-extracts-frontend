@@ -52,7 +52,7 @@
                 subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
                 links = Seq(
                     (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url, None),
-                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "#", None),
+                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), "controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url", None),
                 )
             )
             @Card(
