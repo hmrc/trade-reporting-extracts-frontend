@@ -11,6 +11,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.notApplicable = Not applicable
 
 date.day = Day
 date.month = Month
@@ -488,9 +489,6 @@ declarationDate.message1 = The service holds data from the past 4 years.
 declarationDate.checkYourAnswersLabel = Do you want to give access to all of your available {0} data?
 declarationDate.error.required = Select yes if you want to give access to all of your {0} data
 declarationDate.change.hidden = if you want to give access to all of your available {0} data
-declarationDate.import = import
-declarationDate.export = export
-declarationDate.importExport = import and export
 
 dataStartDate.title = When do you want to give access to your data from?
 dataStartDate.heading = When do you want to give access to your data from?
@@ -540,3 +538,10 @@ thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
 
 BusinessInfo.checkYourAnswersLabel = Business information
+
+thirdPartyDetails.title = Third-party details
+thirdPartyDetails.heading = Third-party details
+thirdPartyDetails.eoriNumber.label = EORI number
+thirdPartyDetails.dataTypes.label = Types of data they have access to
+thirdPartyDetails.dataRange.label = Data they can view
+thirdPartyDetails.dataRange.allData = All available data

@@ -19,8 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
@@ -86,6 +85,11 @@ class TradeReportingExtractsService @Inject() (
     hc: HeaderCarrier
   ): Future[UserDetails] =
     connector.getUserDetails(eori)
+
+  def getThirdPartyDetails(eori: String, thirdPartyEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
+    connector.getThirdPartyDetails(eori, thirdPartyEori)
 
   def auditReportDownload(
     reportReference: String,

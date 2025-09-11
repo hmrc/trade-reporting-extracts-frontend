@@ -11,6 +11,7 @@ site.start = cy: Start now
 site.startAgain = cy: Start again
 site.signIn = cy: Sign in
 site.govuk = cy: GOV.UK
+site.notApplicable = cy: Not applicable
 
 date.day = cy: Day
 date.month = cy: Month
@@ -488,9 +489,6 @@ declarationDate.message1 = cy: The service holds data from the past 4 years.
 declarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
 declarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
 declarationDate.change.hidden = cy: if you want to give access to all of your available {0} data
-declarationDate.import = cy: import
-declarationDate.export = cy: export
-declarationDate.importExport = cy: import and export
 
 dataStartDate.title = cy: When do you want to give access to your data from?
 dataStartDate.heading = cy: When do you want to give access to your data from?
@@ -540,3 +538,10 @@ thirdPartyAddedConfirmation.feedbackLink = cy: What did you think of this servic
 thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)
 
 BusinessInfo.checkYourAnswersLabel = cy: Business information
+
+thirdPartyDetails.title = cy: Third-party details
+thirdPartyDetails.heading = cy: Third-party details
+thirdPartyDetails.eoriNumber.label = cy: EORI number
+thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
+thirdPartyDetails.dataRange.label = cy: Data they can view
+thirdPartyDetails.dataRange.allData = cy: All available data

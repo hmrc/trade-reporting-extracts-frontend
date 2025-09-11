@@ -26,7 +26,6 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -232,6 +231,40 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         throw ex
       }
 
+  def getThirdPartyDetails(eori: String, thirdPartyEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/third-party-details")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "thirdPartyEori" -> thirdPartyEori))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            Json.parse(response.body).validate[ThirdPartyDetails] match {
+              case JsSuccess(thirdPartyDetails, _) =>
+                Future.successful(thirdPartyDetails)
+              case JsError(errors)                 =>
+                logger.error(s"Failed to parse 'third-party-details' from response JSON: $errors")
+                Future.failed(
+                  UpstreamErrorResponse(
+                    "Unexpected response from /trade-reporting-extracts/third-party-details",
+                    response.status
+                  )
+                )
+            }
+          case _  =>
+            logger.error(s"Failed to fetch third party details: ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/third-party-details",
+                response.status
+              )
+            )
+        }
+      }
+
   def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/downloaded-audit")
@@ -246,7 +279,8 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             false
         }
       }
-  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String]                         =
+
+  def getReportRequestLimitNumber(implicit hc: HeaderCarrier): Future[String] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/report-request-limit-number")
       .execute[String]
