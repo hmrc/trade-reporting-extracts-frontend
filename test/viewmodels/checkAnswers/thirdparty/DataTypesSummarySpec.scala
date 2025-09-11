@@ -17,18 +17,20 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
-import models.UserAnswers
+import models.{ThirdPartyDetails, UserAnswers}
 import models.thirdparty.DataTypes
 import pages.thirdparty.DataTypesPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
+import java.time.LocalDate
+
 class DataTypesSummarySpec extends SpecBase {
 
   implicit private val messages: Messages = stubMessages()
 
-  "DataTypesSummary" - {
+  "DataTypesSummary row" - {
 
     "must return a SummaryListRow when DataTypesPage has values" in {
       val answerSet   = Set(DataTypes.values.head) // or any subset of DataTypes
@@ -37,7 +39,7 @@ class DataTypesSummarySpec extends SpecBase {
         .success
         .value
 
-      val result = DataTypesSummary.row(userAnswers)
+      val result = DataTypesSummary.checkYourAnswersRow(userAnswers)
 
       result mustBe defined
       result.get.key.content.asHtml.body   must include("dataTypes.checkYourAnswersLabel")
@@ -47,9 +49,28 @@ class DataTypesSummarySpec extends SpecBase {
     "must return None when DataTypesPage is not defined" in {
       val userAnswers = UserAnswers("id")
 
-      val result = DataTypesSummary.row(userAnswers)
+      val result = DataTypesSummary.checkYourAnswersRow(userAnswers)
 
       result mustBe None
+    }
+  }
+
+  ".detailsRow" - {
+    "must return summary list row when given single data type" in {
+
+      val result = DataTypesSummary.detailsRow(Set("imports")).get
+
+      result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
+      result.value.content.asHtml.body must include(messages("dataTypes.import"))
+    }
+
+    "must return summary list row when given multiple data types" in {
+
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports")).get
+
+      result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
+      result.value.content.asHtml.body must include(messages("dataTypes.import"))
+      result.value.content.asHtml.body must include(messages("dataTypes.export"))
     }
   }
 }

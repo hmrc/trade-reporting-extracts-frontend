@@ -20,8 +20,7 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.ConsentStatus.Granted
 import models.report.ReportRequestUserAnswersModel
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
-import models.{CompanyInformation, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -32,7 +31,7 @@ import play.api.i18n.Messages
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -229,6 +228,39 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val thrown = intercept[RuntimeException] {
           service.getReportRequestLimitNumber.futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "getThirdPartyDetails" - {
+
+      val validThirdPartyDetails = ThirdPartyDetails(
+        Some("reference"),
+        LocalDate.of(2025, 1, 1),
+        Some(LocalDate.of(2025, 12, 31)),
+        Set("import"),
+        Some(LocalDate.of(2025, 1, 1)),
+        Some(LocalDate.of(2025, 12, 31))
+      )
+
+      val eori           = "123"
+      val thirdPartyEori = "456"
+
+      "should return third party details when connector returns them" in {
+
+        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(Future.successful(validThirdPartyDetails))
+        val result = service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
+        result mustBe validThirdPartyDetails
+      }
+
+      "should fail the future if the connector fails" in {
+
+        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+        val thrown = intercept[RuntimeException] {
+          service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
         }
         thrown.getMessage must include("error")
       }

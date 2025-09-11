@@ -26,7 +26,7 @@ import viewmodels.implicits.*
 
 object EoriNumberSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EoriNumberPage).map { answer =>
       SummaryListRowViewModel(
         key = "eoriNumber.checkYourAnswersLabel",
@@ -40,4 +40,12 @@ object EoriNumberSummary {
         )
       )
     }
+
+  def detailsRow(eori: String)(implicit messages: Messages): Option[SummaryListRow] =
+    Some(
+      SummaryListRowViewModel(
+        key = "thirdPartyDetails.eoriNumber.label",
+        value = ValueViewModel(HtmlFormat.escape(eori).toString)
+      )
+    )
 }

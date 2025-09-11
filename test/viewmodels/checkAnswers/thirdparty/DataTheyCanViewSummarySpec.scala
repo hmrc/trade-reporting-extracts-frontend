@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, ThirdPartyDetails, UserAnswers}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.shouldBe
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
@@ -35,7 +35,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
   implicit private val messages: Messages = stubMessages()
   implicit private val lang: Lang         = messages.lang
 
-  "DataTheyCanViewSummary.row" - {
+  "DataTheyCanViewSummary.checkYourAnswersRow" - {
 
     val startDate = LocalDate.of(2025, 6, 1)
 
@@ -47,7 +47,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(DataEndDatePage, Some(endDate))
         .get
 
-      DataTheyCanViewSummary.row(userAnswers) shouldBe Some(
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -73,7 +73,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(DataStartDatePage, startDate)
         .get
 
-      DataTheyCanViewSummary.row(userAnswers) shouldBe Some(
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -91,7 +91,57 @@ class DataTheyCanViewSummarySpec extends SpecBase {
 
     "when start date is not answered, return None" in {
       val userAnswers = UserAnswers("id")
-      DataTheyCanViewSummary.row(userAnswers) shouldBe None
+      DataTheyCanViewSummary.checkYourAnswersRow(userAnswers) shouldBe None
+    }
+  }
+
+  ".detailsRow" - {
+
+    "when only start date available, return the summary row for ongoing period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          )
+        )
+      )
+    }
+
+    "when both start and end dates available, return the summary row for fixed period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.of(2025, 6, 30)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = Some(endDate),
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages(
+              "dataTheyCanView.fixed.answerLabel",
+              startDate.format(dateTimeFormat()),
+              endDate.format(dateTimeFormat())
+            )
+          )
+        )
+      )
     }
   }
 }
