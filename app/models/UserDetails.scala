@@ -16,8 +16,10 @@
 
 package models
 
-import play.api.libs.json.{Format, Json, Reads, Writes}
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{Format, JsPath, Json, Reads, Writes}
 
+import java.time.Instant
 import scala.reflect.ClassTag
 
 case class UserDetails(
@@ -30,3 +32,16 @@ case class UserDetails(
 
 object UserDetails:
   given format: Format[UserDetails] = Json.format[UserDetails]
+
+val mongoInstantReads: Reads[Instant] =
+  (JsPath \ "$date" \ "$numberLong").read[String].map(ms => Instant.ofEpochMilli(ms.toLong))
+
+implicit val authorisedUserReads: Reads[AuthorisedUser] = (
+  (JsPath \ "eori").read[String] and
+    (JsPath \ "accessStart").read[Instant](mongoInstantReads) and
+    (JsPath \ "accessEnd").readNullable[Instant](mongoInstantReads) and
+    (JsPath \ "reportDataStart").readNullable[Instant](mongoInstantReads) and
+    (JsPath \ "reportDataEnd").readNullable[Instant](mongoInstantReads) and
+    (JsPath \ "accessType").read[Set[AccessType]] and
+    (JsPath \ "referenceName").readNullable[String]
+)(AuthorisedUser.apply _)

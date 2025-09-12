@@ -19,6 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
+import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
@@ -94,4 +95,9 @@ class TradeReportingExtractsService @Inject() (
     val auditData = AuditDownloadRequest(reportReference, fileName, fileUrl)
     connector.auditReportDownload(auditData)
   }
+
+  def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyAddedConfirmation] =
+    connector.createThirdPartyAddRequest(thirdPartyRequest)
 }

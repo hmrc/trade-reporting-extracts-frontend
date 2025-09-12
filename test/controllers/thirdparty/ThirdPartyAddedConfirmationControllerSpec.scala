@@ -19,43 +19,62 @@ package controllers.thirdparty
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.thirdparty.EoriNumberPage
 import play.api.test.FakeRequest
 import play.api.inject.bind
-import play.api.test.Helpers.*
+import play.api.test.Helpers.{running, *}
+import services.{ThirdPartyService, TradeReportingExtractsService}
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.{Clock, Instant, ZoneId}
+import scala.concurrent.Future
 
 class ThirdPartyAddedConfirmationControllerSpec extends SpecBase {
 
-  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
+  val fixedInstant: Instant                                            = Instant.parse("2025-05-05T00:00:00Z")
+  val fixedClock: Clock                                                = Clock.fixed(fixedInstant, ZoneId.systemDefault())
+  val mockThirdPartyService: ThirdPartyService                         = mock[ThirdPartyService]
+  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
 
   "ThirdPartyAddedConfirmation Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val userAnswers = emptyUserAnswers.set(EoriNumberPage, "GB123456789000").success.value
+      when(mockThirdPartyService.buildThirdPartyAddRequest(any(), any())).thenReturn(
+        ThirdPartyRequest(
+          userEORI = "GB987654321098",
+          thirdPartyEORI = "GB123456123456",
+          accessStart = Instant.parse("2025-09-09T00:00:00Z"),
+          accessEnd = Some(Instant.parse("2025-09-09T10:59:38.334682780Z")),
+          reportDateStart = Some(Instant.parse("2025-09-10T00:00:00Z")),
+          reportDateEnd = Some(Instant.parse("2025-09-09T10:59:38.334716742Z")),
+          accessType = Set("IMPORT", "EXPORT"),
+          referenceName = Some("TestReport")
+        )
+      )
+      when(mockTradeReportingExtractsService.createThirdPartyAddRequest(any())(any()))
+        .thenReturn(Future.successful(ThirdPartyAddedConfirmation(thirdPartyEori = "GB123456123456")))
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[Clock].toInstance(fixedClock)
+          bind[Clock].toInstance(fixedClock),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[ThirdPartyService].toInstance(mockThirdPartyService)
         )
         .build()
-
       running(application) {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
         val request   =
           FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
-
+        val result    = route(application, request).value
+        val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          "GB123456789000",
+          "GB123456123456",
           "5 May 2025",
           surveyUrl
         )(request, messages(application)).toString

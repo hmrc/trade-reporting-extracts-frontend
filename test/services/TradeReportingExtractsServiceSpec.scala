@@ -23,6 +23,7 @@ import models.report.ReportRequestUserAnswersModel
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.thirdparty.ThirdPartyRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -32,7 +33,7 @@ import play.api.i18n.Messages
 import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -229,6 +230,42 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val thrown = intercept[RuntimeException] {
           service.getReportRequestLimitNumber.futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "createThirdPartyAddRequest" - {
+
+      val thirdPartyRequest = ThirdPartyRequest(
+        userEORI = "GB1",
+        thirdPartyEORI = "GB2",
+        accessStart = Instant.parse("2024-01-01T00:00:00Z"),
+        accessEnd = None,
+        reportDateStart = None,
+        reportDateEnd = None,
+        accessType = Set("IMPORT"),
+        referenceName = None
+      )
+
+      val confirmation = models.thirdparty.ThirdPartyAddedConfirmation(
+        thirdPartyEori = "GB987654321000"
+      )
+
+      "should return confirmation when connector succeeds" in {
+        when(mockConnector.createThirdPartyAddRequest(thirdPartyRequest))
+          .thenReturn(Future.successful(confirmation))
+
+        val result = service.createThirdPartyAddRequest(thirdPartyRequest).futureValue
+        result mustBe confirmation
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.createThirdPartyAddRequest(thirdPartyRequest))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.createThirdPartyAddRequest(thirdPartyRequest).futureValue
         }
         thrown.getMessage must include("error")
       }
