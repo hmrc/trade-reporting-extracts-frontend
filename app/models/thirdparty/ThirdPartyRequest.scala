@@ -28,7 +28,7 @@ case class ThirdPartyRequest(
   reportDateStart: Option[Instant],
   reportDateEnd: Option[Instant],
   accessType: Set[String],
-  referenceName: Option[String]
+  referenceName: Option[String] = None
 )
 
 object ThirdPartyRequest:
