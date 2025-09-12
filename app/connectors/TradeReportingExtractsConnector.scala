@@ -28,6 +28,7 @@ import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
+import org.apache.pekko.Done
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -339,5 +340,25 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .recover { ex =>
         logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
         throw ex
+      }
+
+  def selfRemoveThirdPartyAccess(traderEori: String, thirdPartyEori: String)(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient
+      .delete(url"${frontendAppConfig.tradeReportingExtractsApi}/third-party-access-self-removal")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("traderEori" -> traderEori, "thirdPartyEori" -> thirdPartyEori))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK => Future.successful(Done)
+          case _  =>
+            logger.error(s"Failed to self-remove third party access: ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/third-party-access-self-removals",
+                response.status
+              )
+            )
+        }
       }
 }

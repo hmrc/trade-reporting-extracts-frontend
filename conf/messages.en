@@ -583,3 +583,19 @@ accountsAuthorityOver.view = View
 accountsAuthorityOver.view.hidden = View {0} details
 accountsAuthorityOver.remove = Remove
 accountsAuthorityOver.remove.hidden = Remove {0} as a third party
+
+maybeThirdPartyAccessSelfRemoval.title = Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.heading = Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.message = If you remove your access, you’ll need to ask this business to add you again if you want access to their data in the future.
+maybeThirdPartyAccessSelfRemoval.error.required = Select yes if you want to remove your third-party access
+
+thirdPartyAccessSelfRemoved.title = Your third-party access has been removed
+thirdPartyAccessSelfRemoved.heading = Your third-party access has been removed
+thirdPartyAccessSelfRemoved.message1 = Removed on {0} at {1}.
+thirdPartyAccessSelfRemoved.message2 = To keep a record, you can
+thirdPartyAccessSelfRemoved.print.link = print this page
+thirdPartyAccessSelfRemoved.heading2 = What happens next
+thirdPartyAccessSelfRemoved.message3 = You no longer have access to {0} customs declaration data.
+thirdPartyAccessSelfRemoved.message4 = You can
+thirdPartyAccessSelfRemoved.link1 = view businesses that you do have third party access to
+thirdPartyAccessSelfRemoved.link2 = Go to homepage
