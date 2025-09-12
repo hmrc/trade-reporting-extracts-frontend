@@ -19,6 +19,7 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.{AddThirdPartySection, ConfirmEori}
+import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
 import models.{CompanyInformation, ConsentStatus, Mode}
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}

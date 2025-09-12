@@ -23,36 +23,40 @@ import pages.Page
 import pages.thirdparty.*
 import models.thirdparty.{ConfirmEori, DeclarationDate}
 import play.api.mvc.Call
+import utils.json.OptionalLocalDateReads.*
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(NormalMode)
-    case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
     case EoriNumberPage                 =>
       navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(NormalMode)
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
+    case ThirdPartyAccessEndDatePage    => accessEndDateRoutes(NormalMode)
+    case DataTypesPage                  =>
+      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
     case DeclarationDatePage            => declarationDateRoutes(NormalMode)
     case DataStartDatePage              => dataStartDateRoutes(NormalMode)
-    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad()) // TODO CheckYourAnswers
+    case DataEndDatePage                =>
+      navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
     case ThirdPartyDataOwnerConsentPage =>
       dataOwnerConsentRoutes(CheckMode)
-    case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode))
     case EoriNumberPage                 =>
-      navigateTo(controllers.routes.DashboardController.onPageLoad())
+      navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(CheckMode))
     case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(CheckMode)
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
+    case ThirdPartyAccessEndDatePage    => accessEndDateRoutes(CheckMode)
+    case DataTypesPage                  =>
+      navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
     case DeclarationDatePage            => declarationDateRoutes(CheckMode)
     case DataStartDatePage              => dataStartDateRoutes(CheckMode)
-    case DataEndDatePage                => navigateTo(controllers.routes.DashboardController.onPageLoad())
-
+    case DataEndDatePage                =>
+      navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
   }
 
   override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = { case ConfirmEoriPage =>
@@ -88,25 +92,17 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       case Some(_) =>
         mode match {
           case NormalMode => controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode)
-          // CHANGE FOR CHECKMODE
-          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
+          case CheckMode  => controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
         }
       case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  // TODO CHECKMODE AND ONWARDS NAVIGATION
   private def dataOwnerConsentRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ThirdPartyDataOwnerConsentPage) match {
       case Some(true)  =>
-        mode match {
-          case NormalMode => controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode)
-          case CheckMode  => controllers.routes.DashboardController.onPageLoad()
-        }
+        controllers.thirdparty.routes.EoriNumberController.onPageLoad(mode)
       case Some(false) =>
-        mode match {
-          case NormalMode => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
-          case CheckMode  => controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
-        }
+        controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -120,6 +116,12 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       case None    => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
+  private def accessEndDateRoutes(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case NormalMode => controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
+      case CheckMode  => controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+    }
+
   private def declarationDateRoutes(mode: Mode)(answers: UserAnswers): Call =
     mode match {
       case NormalMode =>
@@ -127,14 +129,21 @@ class ThirdPartyNavigator @Inject() extends Navigator {
           .get(DeclarationDatePage)
           .map {
             case DeclarationDate.AllAvailableData =>
-              controllers.routes.DashboardController.onPageLoad() // TODO with TRE-594
+              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
             case DeclarationDate.CustomDateRange  =>
               controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
           }
           .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
-
-      case CheckMode =>
-        controllers.routes.DashboardController.onPageLoad()
+      case CheckMode  =>
+        answers
+          .get(DeclarationDatePage)
+          .map {
+            case DeclarationDate.AllAvailableData =>
+              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+            case DeclarationDate.CustomDateRange  =>
+              controllers.thirdparty.routes.DataStartDateController.onPageLoad(CheckMode)
+          }
+          .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
     }
 
   private def dataStartDateRoutes(mode: Mode)(answers: UserAnswers): Call =

@@ -22,7 +22,7 @@ import models.Mode
 import models.thirdparty.{AddThirdPartySection, DataTypes}
 import navigation.{Navigator, ThirdPartyNavigator}
 import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -78,11 +78,11 @@ class DeclarationDateController @Inject() (
         )
   }
 
-  def getDataTypesString(dataTypesAnswer: Option[Set[DataTypes]]): String =
+  def getDataTypesString(dataTypesAnswer: Option[Set[DataTypes]])(implicit messages: Messages): String =
     dataTypesAnswer match {
-      case Some(set) if set == Set(DataTypes.Import)                   => "import"
-      case Some(set) if set == Set(DataTypes.Export)                   => "export"
-      case Some(set) if set == Set(DataTypes.Import, DataTypes.Export) => "import and export"
+      case Some(set) if set == Set(DataTypes.Import)                   => messages("declarationDate.import")
+      case Some(set) if set == Set(DataTypes.Export)                   => messages("declarationDate.export")
+      case Some(set) if set == Set(DataTypes.Import, DataTypes.Export) => messages("declarationDate.importExport")
       case _                                                           => ""
     }
 }
