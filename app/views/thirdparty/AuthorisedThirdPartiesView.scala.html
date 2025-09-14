@@ -86,7 +86,7 @@ showBackLink = false) {
           TableRow(content = Text(tp.referenceName.getOrElse(messages("authorisedThirdParties.referenceName.notAvailable")))),
           TableRow(content = HtmlContent(
           s"""<span style="white-space: nowrap;">
-                <a href="/third-party-details-${tp.eori}">
+                <a href="/request-customs-declaration-data/third-party-details-${tp.eori}">
                   ${messages("authorisedThirdParties.view")}
                   <span class="govuk-visually-hidden">${messages("authorisedThirdParties.view.hidden", tp.eori)}</span>
                 </a> |

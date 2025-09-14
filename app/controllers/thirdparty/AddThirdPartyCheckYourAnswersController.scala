@@ -61,16 +61,16 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
   ): Seq[Option[SummaryListRow]] =
     Seq(
       ThirdPartyDataOwnerConsentSummary.row(answers),
-      EoriNumberSummary.row(answers),
+      EoriNumberSummary.checkYourAnswersRow(answers),
       if (maybeBusinessInfo.isDefined) {
         BusinessInfoSummary.row(maybeBusinessInfo.get)
       } else {
-        ThirdPartyReferenceSummary.row(answers)
+        ThirdPartyReferenceSummary.checkYourAnswersRow(answers)
       },
-      ThirdPartyAccessPeriodSummary.row(answers),
-      DataTypesSummary.row(answers),
+      ThirdPartyAccessPeriodSummary.checkYourAnswersRow(answers),
+      DataTypesSummary.checkYourAnswersRow(answers),
       DeclarationDateSummary.row(answers),
-      DataTheyCanViewSummary.row(answers)
+      DataTheyCanViewSummary.checkYourAnswersRow(answers)
     )
 
   private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] =

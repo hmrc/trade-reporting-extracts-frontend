@@ -64,7 +64,7 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.row(userAnswers)(messages(application)).get,
+            EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)).get,
             BusinessInfoSummary.row("businessInfo")(messages(application)).get
           )
         )
@@ -103,8 +103,8 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.row(userAnswers)(messages(application)).get,
-            ThirdPartyReferenceSummary.row(userAnswers)(messages(application)).get
+            EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)).get,
+            ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)(messages(application)).get
           )
         )
 
