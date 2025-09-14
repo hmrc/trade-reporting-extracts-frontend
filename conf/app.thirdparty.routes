@@ -2,6 +2,8 @@ GET         /add-a-third-party                          controllers.thirdparty.A
 
 GET         /third-party-details-:thirdPartyEori        controllers.thirdparty.ThirdPartyDetailsController.onPageLoad(thirdPartyEori: String)
 
+GET        /business-details-:businessEori               controllers.thirdparty.BusinessDetailsController.onPageLoad(businessEori: String)
+
 GET         /importer-or-exporter                       controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = NormalMode)
 POST        /importer-or-exporter                       controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = NormalMode)
 GET         /change-importer-or-exporter                controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = CheckMode)

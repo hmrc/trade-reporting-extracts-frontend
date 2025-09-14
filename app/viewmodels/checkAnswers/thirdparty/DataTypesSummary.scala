@@ -54,7 +54,10 @@ object DataTypesSummary {
       )
     }
 
-  def detailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] = {
+  private def buildRow(
+    dataTypes: Set[String],
+    keyMessage: String
+  )(implicit messages: Messages): Option[SummaryListRow] = {
 
     val dataTypeObjects: Set[DataTypes] = dataTypes.collect {
       case "imports" => DataTypes.Import
@@ -64,18 +67,22 @@ object DataTypesSummary {
     val value = ValueViewModel(
       HtmlContent(
         dataTypeObjects
-          .map { answer =>
-            HtmlFormat.escape(messages(s"dataTypes.$answer")).toString
-          }
+          .map(answer => HtmlFormat.escape(messages(s"dataTypes.$answer")).toString)
           .mkString(",<br>")
       )
     )
 
     Some(
       SummaryListRowViewModel(
-        key = "thirdPartyDetails.dataTypes.label",
+        key = keyMessage,
         value = value
       )
     )
   }
+
+  def detailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
+    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label")
+
+  def businessDetailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
+    buildRow(dataTypes, "businessDetails.dataTypes.label")
 }

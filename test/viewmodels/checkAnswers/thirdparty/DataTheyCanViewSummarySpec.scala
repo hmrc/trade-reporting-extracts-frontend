@@ -144,4 +144,54 @@ class DataTheyCanViewSummarySpec extends SpecBase {
       )
     }
   }
+
+  ".businessDetailsRow" - {
+
+    "when only start date available, return the summary row for ongoing period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      DataTheyCanViewSummary.businessDetailsRow(thirdPartyDetails) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "businessDetails.dataRange.label",
+          value = ValueViewModel(
+            messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          )
+        )
+      )
+    }
+
+    "when both start and end dates available, return the summary row for fixed period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.of(2025, 6, 30)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = Some(endDate),
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      DataTheyCanViewSummary.businessDetailsRow(thirdPartyDetails) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "businessDetails.dataRange.label",
+          value = ValueViewModel(
+            messages(
+              "dataTheyCanView.fixed.answerLabel",
+              startDate.format(dateTimeFormat()),
+              endDate.format(dateTimeFormat())
+            )
+          )
+        )
+      )
+    }
+  }
 }

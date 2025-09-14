@@ -267,6 +267,40 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
+  def getAuthorisedBusinessDetails(eori: String, businessEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/authorised-business-details")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "businessEori" -> businessEori))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            Json.parse(response.body).validate[ThirdPartyDetails] match {
+              case JsSuccess(thirdPartyDetails, _) =>
+                Future.successful(thirdPartyDetails)
+              case JsError(errors)                 =>
+                logger.error(s"Failed to parse 'third-party-details' from response JSON: $errors")
+                Future.failed(
+                  UpstreamErrorResponse(
+                    "Unexpected response from /trade-reporting-extracts/authorised-business-details",
+                    response.status
+                  )
+                )
+            }
+          case _  =>
+            logger.error(s"Failed to authorised business details: ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/authorised-business-details",
+                response.status
+              )
+            )
+        }
+      }
+
   def auditReportDownload(request: AuditDownloadRequest)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/downloaded-audit")
