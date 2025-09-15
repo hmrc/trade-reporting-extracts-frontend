@@ -45,7 +45,7 @@ class ThirdPartyService @Inject() (clock: Clock = Clock.systemUTC()) {
       reportDateStart = reportDateStart,
       reportDateEnd = reportDateEnd,
       accessType = userAnswers.get(DataTypesPage).fold(Set.empty[String])(_.map(_.toString.toUpperCase())),
-      referenceName = Some(userAnswers.get(ThirdPartyReferencePage).getOrElse(""))
+      referenceName = userAnswers.get(ThirdPartyReferencePage)
     )
   }
 

@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package models.thirdparty
+package pages.thirdparty
 
-import play.api.libs.json.{Json, OFormat, Reads}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import java.time.Instant
+case object RemoveThirdPartyPage extends QuestionPage[Boolean] {
 
-case class ThirdPartyRequest(
-  userEORI: String,
-  thirdPartyEORI: String,
-  accessStart: Instant,
-  accessEnd: Option[Instant],
-  reportDateStart: Option[Instant],
-  reportDateEnd: Option[Instant],
-  accessType: Set[String],
-  referenceName: Option[String] = None
-)
+  override def path: JsPath = JsPath \ toString
 
-object ThirdPartyRequest:
-  implicit val format: OFormat[ThirdPartyRequest] = Json.format[ThirdPartyRequest]
+  override def toString: String = "removeThirdParty"
+}

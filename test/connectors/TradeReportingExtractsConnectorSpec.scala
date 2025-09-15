@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, 
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.thirdparty.ThirdPartyRequest
+import org.apache.pekko.Done
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -32,7 +34,7 @@ import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
 class TradeReportingExtractsConnectorSpec
@@ -579,6 +581,44 @@ class TradeReportingExtractsConnectorSpec
           )
           val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
           result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "removeThirdParty" - {
+      val url            = "/trade-reporting-extracts/remove-third-party"
+      val eori           = "GB123"
+      val thirdPartyEori = "GB456"
+
+      "must return Done when response is NO_CONTENT" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
+              .willReturn(aResponse().withStatus(NO_CONTENT))
+          )
+          val result    = connector.removeThirdParty(eori, thirdPartyEori).futureValue
+          result mustBe Done
+        }
+      }
+
+      "must fail with UpstreamErrorResponse when response is not NO_CONTENT" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
+              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("error"))
+          )
+          val thrown    = intercept[UpstreamErrorResponse] {
+            connector.removeThirdParty(eori, thirdPartyEori).futureValue
+          }
+          thrown.getMessage must include("Unexpected response from /trade-reporting-extracts/remove-third-party")
         }
       }
     }

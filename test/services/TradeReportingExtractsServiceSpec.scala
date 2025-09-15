@@ -20,24 +20,20 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
-import models.report.ReportRequestUserAnswersModel
-import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, UserDetails}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
+import models.{AuditDownloadRequest,ThirdPartyDetails, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import models.thirdparty.ThirdPartyRequest
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
-import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import java.time.{Instant, LocalDateTime, LocalDate}
 
-import java.time.{Instant, LocalDateTime}
-import java.time.{LocalDate, LocalDateTime}
-import java.time.{Instant, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -445,6 +441,34 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         }
 
         thrown.getMessage must include("company error")
+      }
+    }
+
+    "removeThirdParty" - {
+      "should return Done when connector succeeds" in {
+        val eori           = "EORI123"
+        val thirdPartyEori = "EORI456"
+
+        when(mockConnector.removeThirdParty(any(), any())(any()))
+          .thenReturn(Future.successful(Done))
+
+        val result = service.removeThirdParty(eori, thirdPartyEori).futureValue
+
+        result mustBe Done
+        verify(mockConnector).removeThirdParty(any(), any())(any())
+      }
+
+      "should fail when connector fails" in {
+        val eori           = "EORI123"
+        val thirdPartyEori = "EORI456"
+
+        when(mockConnector.removeThirdParty(any, any)(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.removeThirdParty(eori, thirdPartyEori).futureValue
+        }
+        thrown.getMessage must include("error")
       }
     }
   }

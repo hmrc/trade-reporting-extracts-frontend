@@ -61,3 +61,8 @@ GET        /check-your-answers-third-party                       controllers.thi
 GET        /third-party-added-confirmation                       controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
 
 GET        /manage-third-parties                             controllers.thirdparty.AuthorisedThirdPartiesController.onPageLoad()
+
+GET        /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onPageLoad(thirdPartyEori: String)
+POST       /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onSubmit(thirdPartyEori: String)
+
+GET        /third-party-removed-confirmation/:thirdPartyEori         controllers.thirdparty.RemoveThirdPartyConfirmationController.onPageLoad(thirdPartyEori: String)

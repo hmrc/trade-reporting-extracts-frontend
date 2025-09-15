@@ -568,3 +568,21 @@ authorisedThirdParties.referenceName = Reference name
 authorisedThirdParties.action = Action
 authorisedThirdParties.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
 authorisedThirdParties.referenceName.notAvailable = Not applicable
+
+removeThirdParty.title = Are you sure you want to remove this third party?
+removeThirdParty.heading = Are you sure you want to remove this third party?
+removeThirdParty.error.required = Select yes if you want to remove this third party
+removeThirdParty.message = If you remove their access, they’ll no longer be able to request and download your CDS reports.
+removeThirdParty.change.hidden = Are you sure you want to remove this third party?
+
+removeThirdPartyConfirmation.title = Third-party removed
+removeThirdPartyConfirmation.heading = Third-party removed
+removeThirdPartyConfirmation.message1 = Removed on {0} at {1}.
+removeThirdPartyConfirmation.message2 = To keep a record, you can
+removeThirdPartyConfirmation.print.link = print this page
+removeThirdPartyConfirmation.heading2 = What happens next
+removeThirdPartyConfirmation.message3 = {0} can no longer access your customs declaration data.
+removeThirdPartyConfirmation.message4 = An email will be sent to {0}, linked to EORI number {1}, to confirm that their third-party access has been removed.
+removeThirdPartyConfirmation.message5 = You can
+removeThirdPartyConfirmation.link1 = view third parties that do have access to your data.
+removeThirdPartyConfirmation.link2 = Go to homepage

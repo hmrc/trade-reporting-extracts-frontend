@@ -26,7 +26,9 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, UserDetails}
+import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
+import org.apache.pekko.Done
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
@@ -323,6 +325,26 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             Future.failed(
               UpstreamErrorResponse(
                 "Unexpected response from /trade-reporting-extracts/create-third-party-add-request",
+                response.status
+              )
+            )
+        }
+      }
+
+  def removeThirdParty(eori: String, thirdPartyEori: String)(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient
+      .delete(url"${frontendAppConfig.tradeReportingExtractsApi}/remove-third-party")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "thirdPartyEori" -> thirdPartyEori))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case NO_CONTENT => Future.successful(Done)
+          case _ =>
+            logger.error(s"Failed to remove third party: ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/remove-third-party",
                 response.status
               )
             )

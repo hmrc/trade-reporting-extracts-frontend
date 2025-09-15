@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package models.thirdparty
+package forms.thirdparty
 
-import play.api.libs.json.{Json, OFormat, Reads}
+import javax.inject.Inject
 
-import java.time.Instant
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case class ThirdPartyRequest(
-  userEORI: String,
-  thirdPartyEORI: String,
-  accessStart: Instant,
-  accessEnd: Option[Instant],
-  reportDateStart: Option[Instant],
-  reportDateEnd: Option[Instant],
-  accessType: Set[String],
-  referenceName: Option[String] = None
-)
+class RemoveThirdPartyFormProvider @Inject() extends Mappings {
 
-object ThirdPartyRequest:
-  implicit val format: OFormat[ThirdPartyRequest] = Json.format[ThirdPartyRequest]
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("removeThirdParty.error.required")
+    )
+}
