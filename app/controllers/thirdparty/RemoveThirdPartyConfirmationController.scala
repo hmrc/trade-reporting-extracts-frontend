@@ -28,26 +28,27 @@ import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class RemoveThirdPartyConfirmationController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       tradeReportingExtractsService: TradeReportingExtractsService,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       clock: Clock,
-                                       view: RemoveThirdPartyConfirmationView
-                                     ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class RemoveThirdPartyConfirmationController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  val controllerComponents: MessagesControllerComponents,
+  clock: Clock,
+  view: RemoveThirdPartyConfirmationView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val (date, time)                        = getDateAndTime
+      val (date, time) = getDateAndTime
       for {
-        notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-        _                                <- tradeReportingExtractsService.removeThirdParty(request.eori, thirdPartyEori)
+        notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
+        _                 <- tradeReportingExtractsService.removeThirdParty(request.eori, thirdPartyEori)
       } yield Ok(view(date, time, thirdPartyEori, notificationEmail.address))
   }
-
 
   private def getDateAndTime(implicit messages: Messages): (String, String) =
     (

@@ -340,7 +340,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .flatMap { response =>
         response.status match {
           case NO_CONTENT => Future.successful(Done)
-          case _ =>
+          case _          =>
             logger.error(s"Failed to remove third party: ${response.status} - ${response.body}")
             Future.failed(
               UpstreamErrorResponse(

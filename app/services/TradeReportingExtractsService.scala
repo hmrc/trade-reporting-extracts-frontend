@@ -19,7 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails, ConsentStatus}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.thirdparty.{AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import play.api.Logging
@@ -124,7 +124,7 @@ class TradeReportingExtractsService @Inject() (
     }
 
   def removeThirdParty(eori: String, thirdPartyEori: String)(implicit
-                                                                             hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[Done] =
     connector.removeThirdParty(eori, thirdPartyEori)
 }

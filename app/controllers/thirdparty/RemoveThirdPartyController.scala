@@ -30,34 +30,37 @@ import views.html.thirdparty.RemoveThirdPartyView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RemoveThirdPartyController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         identify: IdentifierAction,
-                                         getOrCreate: DataRetrievalOrCreateAction,
-                                         sessionRepository: SessionRepository,
-                                         formProvider: RemoveThirdPartyFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: RemoveThirdPartyView
-                                 )(implicit ec: ExecutionContext)
-  extends BaseController {
+class RemoveThirdPartyController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getOrCreate: DataRetrievalOrCreateAction,
+  sessionRepository: SessionRepository,
+  formProvider: RemoveThirdPartyFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: RemoveThirdPartyView
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
-  val form : Form[Boolean] = formProvider()
+  val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(thirdPartyEori: String): Action[AnyContent] =  (identify andThen getOrCreate).async  { implicit request =>
-    Future.successful(Ok(view(form, thirdPartyEori)))
+  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
+    implicit request =>
+      Future.successful(Ok(view(form, thirdPartyEori)))
   }
 
-  def onSubmit(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
-    implicit request =>
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, thirdPartyEori))),
+  def onSubmit(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, thirdPartyEori))),
         value =>
           if (value) {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(RemoveThirdPartyPage, value))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad(thirdPartyEori))
+            } yield Redirect(
+              controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad(thirdPartyEori)
+            )
           } else {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.remove(RemoveThirdPartyPage))
