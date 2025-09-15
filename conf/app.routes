@@ -1,25 +1,25 @@
 # microservice specific routes
 
-->          /hmrc-frontend                               hmrcfrontend.Routes
-->          /                                            app.report.Routes
-->          /                                            app.thirdparty.Routes
-->          /                                            app.problem.Routes
-GET         /                                            controllers.IndexController.onPageLoad()
+->         /hmrc-frontend                  hmrcfrontend.Routes
+->         /                               app.report.Routes
+->         /                               app.thirdparty.Routes
+->         /                               app.problem.Routes
+GET        /                               controllers.IndexController.onPageLoad()
 
-GET         /assets/*file                                controllers.Assets.versioned(path="/public", file: Asset)
+GET        /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /language/:lang                              controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET        /language/:lang                 controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /refresh-session                             controllers.KeepAliveController.keepAlive()
+GET        /refresh-session                controllers.KeepAliveController.keepAlive()
 
-GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
-GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
+GET        /account/sign-out-survey        controllers.auth.AuthController.signOut()
+GET        /account/sign-out               controllers.auth.AuthController.signOutNoSurvey()
+GET        /account/signed-out             controllers.auth.SignedOutController.onPageLoad()
 
-GET        /dashboard                                    controllers.DashboardController.onPageLoad()
+GET        /dashboard                      controllers.DashboardController.onPageLoad()
 
-GET        /contact-details                               controllers.ContactDetailsController.onPageLoad()
+GET        /contact-details                controllers.ContactDetailsController.onPageLoad()
 
-GET        /available-to-download                        controllers.AvailableReportsController.onPageLoad()
+GET        /available-to-download          controllers.AvailableReportsController.onPageLoad()
 
-GET        /file-download                                controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)
+GET        /file-download                  controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)

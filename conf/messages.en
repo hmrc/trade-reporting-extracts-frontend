@@ -570,3 +570,17 @@ thirdPartyDetails.eoriNumber.label = EORI number
 thirdPartyDetails.dataTypes.label = Types of data they have access to
 thirdPartyDetails.dataRange.label = Data they can view
 thirdPartyDetails.dataRange.allData = All available data
+
+accountsAuthorityOver.title = Businesses you have third-party access to
+accountsAuthorityOver.heading = Businesses you have third-party access to
+accountsAuthorityOver.noBusinesses.title = You do not have third-party access to any businesses
+accountsAuthorityOver.noBusinesses.heading = You do not have third-party access to any businesses
+accountsAuthorityOver.noBusinesses.message = If an importer or exporter gives you access to their customs declaration data, the business details will be shown in your account.
+accountsAuthorityOver.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
+accountsAuthorityOver.eori = EORI number
+accountsAuthorityOver.businessInfo = Business information
+accountsAuthorityOver.action = Action
+accountsAuthorityOver.view = View
+accountsAuthorityOver.view.hidden = View {0} details
+accountsAuthorityOver.remove = Remove
+accountsAuthorityOver.remove.hidden = Remove {0} as a third party

@@ -26,7 +26,7 @@ import javax.inject.Singleton
 import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.thirdparty.{ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -328,5 +328,16 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
               )
             )
         }
+      }
+
+  def getAccountsAuthorityOver(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("thirdPartyEori" -> eori))
+      .execute[Seq[AccountAuthorityOverViewModel]]
+      .recover { ex =>
+        logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
+        throw ex
       }
 }
