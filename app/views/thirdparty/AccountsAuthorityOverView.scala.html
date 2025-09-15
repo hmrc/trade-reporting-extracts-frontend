@@ -69,7 +69,7 @@
             TableRow(content = Text(tp.businessInfo.getOrElse(messages("accountsAuthorityOver.businessInfo.notAvailable")))),
             TableRow(content = HtmlContent(
                 s"""<span style="white-space: nowrap;">
-                <a href="#">
+                <a href="/request-customs-declaration-data/business-details-${tp.eori}">
                   ${messages("accountsAuthorityOver.view")}
                   <span class="govuk-visually-hidden">${messages("accountsAuthorityOver.view.hidden", tp.eori)}</span>
                 </a> |

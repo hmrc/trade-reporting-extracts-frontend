@@ -23,7 +23,8 @@
 
 @layout(pageTitle = titleNoForm(messages("businessDetails.title")), showBackLink = false,
     breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("dashboard.thirdPartyAccess.authorisedAccounts")), href = Some(s"#")),
+        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.heading")),
+                        href = Some(s"/request-customs-declaration-data/accounts-authority-over")),
         BreadcrumbsItem(content = Text(messages("businessDetails.title")), href = Some(s"#"))
     )){
 
