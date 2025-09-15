@@ -21,6 +21,7 @@ import forms.thirdparty.RemoveThirdPartyFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -31,10 +32,11 @@ import scala.concurrent.Future
 
 class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new RemoveThirdPartyFormProvider()
-  val form = formProvider()
+  val formProvider        = new RemoveThirdPartyFormProvider()
+  val form: Form[Boolean] = formProvider()
 
-  lazy val removeThirdPartyRoute = controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad("Eori").url
+  lazy val removeThirdPartyRoute: String =
+    controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad("Eori").url
 
   "RemoveThirdParty Controller" - {
 

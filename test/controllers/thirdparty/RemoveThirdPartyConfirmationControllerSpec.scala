@@ -43,12 +43,11 @@ class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-
       val fixedInstant: Instant = Instant.parse("2025-05-20T00:00:00Z")
-      val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneId.systemDefault())
-      val userAnswers       = UserAnswers("id").set(RemoveThirdPartyPage, true).success.value
-      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
+      val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
+      val userAnswers           = UserAnswers("id").set(RemoveThirdPartyPage, true).success.value
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val notificationEmail     = NotificationEmail("notify@example.com", LocalDateTime.now())
 
       when(mockTradeReportingExtractsService.removeThirdParty(any(), any())(any()))
         .thenReturn(Future.successful(Done))
@@ -65,7 +64,8 @@ class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad("Eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad("Eori").url)
 
         val result = route(application, request).value
 

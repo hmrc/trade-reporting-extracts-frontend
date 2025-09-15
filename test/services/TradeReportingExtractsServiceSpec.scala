@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
-import models.{AuditDownloadRequest,ThirdPartyDetails, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, UserDetails}
+import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import models.thirdparty.ThirdPartyRequest
@@ -32,7 +32,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import java.time.{Instant, LocalDateTime, LocalDate}
+import java.time.{Instant, LocalDate, LocalDateTime}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,7 +56,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val result = service.getEoriList()(mockMessages).futureValue
 
-        result(0).text `mustBe` "Default EORI"
+        result.head.text `mustBe` "Default EORI"
         result(1).text `mustBe` "EORI 1234"
         result(2).text `mustBe` "EORI 5678"
       }

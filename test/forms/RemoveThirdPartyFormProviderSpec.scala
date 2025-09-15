@@ -23,7 +23,7 @@ import play.api.data.FormError
 class RemoveThirdPartyFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "removeThirdParty.error.required"
-  val invalidKey = "error.boolean"
+  val invalidKey  = "error.boolean"
 
   val form = new RemoveThirdPartyFormProvider()()
 
