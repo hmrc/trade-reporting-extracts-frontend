@@ -19,7 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.thirdparty.{AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
 import play.api.Logging
 import play.api.i18n.Messages
@@ -116,6 +116,11 @@ class TradeReportingExtractsService @Inject() (
         }
       }
     }
+
+  def getAccountsAuthorityOver(
+    eori: String
+  )(implicit messages: Messages, hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+    connector.getAccountsAuthorityOver(eori)
 
   def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
     hc: HeaderCarrier

@@ -60,7 +60,7 @@
                 heading = Messages("dashboard.viewDataAccess.heading"),
                 subHeading = Some(Messages("dashboard.viewDataAccess.subHeading")),
                 links = Seq(
-                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), "#", None),
+                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url, None),
                 )
             )
         }
