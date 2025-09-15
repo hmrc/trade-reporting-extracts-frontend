@@ -119,7 +119,7 @@ class TradeReportingExtractsService @Inject() (
 
   def getAccountsAuthorityOver(
     eori: String
-  )(implicit messages: Messages, hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+  )(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
     connector.getAccountsAuthorityOver(eori)
 
   def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit

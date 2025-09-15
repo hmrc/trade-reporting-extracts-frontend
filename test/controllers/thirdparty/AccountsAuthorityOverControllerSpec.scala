@@ -18,17 +18,34 @@ package controllers.thirdparty
 
 import base.SpecBase
 import models.thirdparty.AccountAuthorityOverViewModel
+import org.jsoup.Jsoup
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
+import services.TradeReportingExtractsService
 import views.html.thirdparty.AccountsAuthorityOverView
 
-class AccountsAuthorityOverControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
 
   "AccountsAuthorityOver Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      when(mockTradeReportingExtractsService.getAccountsAuthorityOver(any())(any()))
+        .thenReturn(Future.successful(Seq.empty[AccountAuthorityOverViewModel]))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.AccountsAuthorityOverController.onPageLoad().url)
