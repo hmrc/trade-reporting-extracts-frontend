@@ -267,13 +267,13 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
-  def getAuthorisedBusinessDetails(eori: String, businessEori: String)(implicit
+  def getAuthorisedBusinessDetails(thirdPartyEori: String, traderEori: String)(implicit
     hc: HeaderCarrier
   ): Future[ThirdPartyDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/authorised-business-details")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
-      .withBody(Json.obj("eori" -> eori, "businessEori" -> businessEori))
+      .withBody(Json.obj("thirdPartyEori" -> thirdPartyEori, "traderEori" -> traderEori))
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {

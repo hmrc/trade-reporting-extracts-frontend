@@ -42,12 +42,12 @@ class BusinessDetailsController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(businessEori: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+  def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
     for {
-      companyInfo       <- tradeReportingExtractsService.getCompanyInformation(businessEori)
+      companyInfo       <- tradeReportingExtractsService.getCompanyInformation(traderEori)
       maybeCompanyName   = resolveDisplayName(companyInfo)
-      thirdPartyDetails <- tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, businessEori)
-      rows               = rowGenerator(thirdPartyDetails, maybeCompanyName, businessEori)
+      thirdPartyDetails <- tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, traderEori)
+      rows               = rowGenerator(thirdPartyDetails, maybeCompanyName, traderEori)
       list               = SummaryListViewModel(rows = rows.flatten)
     } yield Ok(view(list))
   }
@@ -55,10 +55,10 @@ class BusinessDetailsController @Inject() (
   private def rowGenerator(
     thirdPartyDetails: ThirdPartyDetails,
     businessInfo: String,
-    thirdPartyEori: String
+    traderEori: String
   )(implicit messages: Messages): Seq[Option[SummaryListRow]] =
     Seq(
-      EoriNumberSummary.detailsRow(thirdPartyEori),
+      EoriNumberSummary.detailsRow(traderEori),
       BusinessInfoSummary.row(businessInfo),
       ThirdPartyAccessPeriodSummary.businessDetailsRow(thirdPartyDetails),
       DataTypesSummary.businessDetailsRow(thirdPartyDetails.dataTypes),
