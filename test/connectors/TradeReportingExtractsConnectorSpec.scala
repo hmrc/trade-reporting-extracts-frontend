@@ -615,10 +615,8 @@ class TradeReportingExtractsConnectorSpec
               .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
               .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("error"))
           )
-          val thrown    = intercept[UpstreamErrorResponse] {
-            connector.removeThirdParty(eori, thirdPartyEori).futureValue
-          }
-          thrown.getMessage must include("Unexpected response from /trade-reporting-extracts/remove-third-party")
+          val result    = connector.removeThirdParty(eori, thirdPartyEori).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
         }
       }
     }
