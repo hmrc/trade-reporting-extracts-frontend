@@ -124,12 +124,12 @@ class TradeReportingExtractsService @Inject() (
     }
 
   def getAccountsAuthorityOver(
-                                eori: String
-                              )(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+    eori: String
+  )(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
     connector.getAccountsAuthorityOver(eori)
-  
+
   def removeThirdParty(eori: String, thirdPartyEori: String)(implicit
-                                                             hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[Done] =
     connector.removeThirdParty(eori, thirdPartyEori)
 }
