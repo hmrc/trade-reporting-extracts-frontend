@@ -25,7 +25,7 @@
         govukTabs: GovukTabs,
         govukTable: GovukTable,
         govukTag: GovukTag,
-)   
+)
 
 @(accountsAuthorityOver: Seq[AccountAuthorityOverViewModel])(implicit request: Request[_], messages: Messages)
 
@@ -37,7 +37,12 @@
         showBackLink = false) {
         <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.noBusinesses.heading")</h1>
         <p class="govuk-body">
-            @messages("accountsAuthorityOver.noBusinesses.message")
+        @messages("accountsAuthorityOver.noBusinesses.message")
+        </p>
+        <p class="govuk-body">
+            <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">
+            @messages("requestedReports.home.link")
+            </a>
         </p>
     }
 } else {
