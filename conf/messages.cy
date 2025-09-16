@@ -201,7 +201,6 @@ reportName.singleReport.heading = cy: What name will you use to identify this re
 reportName.checkYourAnswersLabel = cy: Report name
 reportName.pluralReport.checkYourAnswersLabel = cy: Name for this set of reports
 reportName.hint = cy: This name is only used to help you manage your reports
-reportName.message = cy: You cannot change this later.
 reportName.error.required = cy: Enter the name you will use to identify this report
 reportName.error.required.plural = cy: Enter the name you will use to identify this set of reports
 reportName.error.length = cy: The name you will use to identify this report must be 70 characters or fewer

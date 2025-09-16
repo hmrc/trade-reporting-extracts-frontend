@@ -201,7 +201,6 @@ reportName.singleReport.heading = What name will you use to identify this report
 reportName.checkYourAnswersLabel = Report name
 reportName.pluralReport.checkYourAnswersLabel = Name for this set of reports
 reportName.hint = This name is only used to help you manage your reports.
-reportName.message = You cannot change this later.
 reportName.error.required = Enter the name you will use to identify this report
 reportName.error.required.plural = Enter the name you will use to identify this set of reports
 reportName.error.length = The name you will use to identify this report must be 70 characters or fewer
