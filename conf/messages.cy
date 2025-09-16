@@ -584,3 +584,21 @@ accountsAuthorityOver.view = cy: View
 accountsAuthorityOver.view.hidden = cy: View {0} details
 accountsAuthorityOver.remove = cy: Remove
 accountsAuthorityOver.remove.hidden = cy: Remove {0} as a third party
+
+removeThirdParty.title = cy: Are you sure you want to remove this third party?
+removeThirdParty.heading = cy: Are you sure you want to remove this third party?
+removeThirdParty.error.required = cy: Select yes if you want to remove this third party
+removeThirdParty.message = cy: If you remove their access, they’ll no longer be able to request and download your CDS reports.
+removeThirdParty.change.hidden = cy: Are you sure you want to remove this third party?
+
+removeThirdPartyConfirmation.title = cy: Third-party removed
+removeThirdPartyConfirmation.heading = cy: Third-party removed
+removeThirdPartyConfirmation.message1 = cy: Removed on {0} at {1}.
+removeThirdPartyConfirmation.message2 = cy: To keep a record, you can
+removeThirdPartyConfirmation.print.link = cy: print this page
+removeThirdPartyConfirmation.heading2 = cy: What happens next
+removeThirdPartyConfirmation.message3 = cy: {0} can no longer access your customs declaration data.
+removeThirdPartyConfirmation.message4 = cy: An email will be sent to {0}, linked to EORI number {1}, to confirm that their third-party access has been removed.
+removeThirdPartyConfirmation.message5 = cy: You can
+removeThirdPartyConfirmation.link1 = cy: view third parties that do have access to your data.
+removeThirdPartyConfirmation.link2 = cy: Go to homepage

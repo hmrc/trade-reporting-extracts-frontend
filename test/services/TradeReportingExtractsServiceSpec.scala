@@ -20,20 +20,20 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
-import models.report.ReportRequestUserAnswersModel
-import models._
+import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.{AuthorisedThirdPartiesViewModel, ThirdPartyRequest}
+import models.thirdparty.AuthorisedThirdPartiesViewModel
+import models.thirdparty.ThirdPartyRequest
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
-import play.api.mvc.{Result, Results}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import java.time.{Instant, LocalDate, LocalDateTime}
 
-import java.time._
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -56,7 +56,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val result = service.getEoriList()(mockMessages).futureValue
 
-        result(0).text `mustBe` "Default EORI"
+        result.head.text `mustBe` "Default EORI"
         result(1).text `mustBe` "EORI 1234"
         result(2).text `mustBe` "EORI 5678"
       }
@@ -271,6 +271,39 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
     }
 
+    "getThirdPartyDetails" - {
+
+      val validThirdPartyDetails = ThirdPartyDetails(
+        Some("reference"),
+        LocalDate.of(2025, 1, 1),
+        Some(LocalDate.of(2025, 12, 31)),
+        Set("import"),
+        Some(LocalDate.of(2025, 1, 1)),
+        Some(LocalDate.of(2025, 12, 31))
+      )
+
+      val eori           = "123"
+      val thirdPartyEori = "456"
+
+      "should return third party details when connector returns them" in {
+
+        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(Future.successful(validThirdPartyDetails))
+        val result = service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
+        result mustBe validThirdPartyDetails
+      }
+
+      "should fail the future if the connector fails" in {
+
+        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+        val thrown = intercept[RuntimeException] {
+          service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
     "getAuthorisedThirdParties" - {
       "return third parties with business info when consent is granted" in {
         val eori           = "EORITEST1"
@@ -411,34 +444,29 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
     }
 
-    "getThirdPartyDetails" - {
+    "removeThirdParty" - {
+      "should return Done when connector succeeds" in {
+        val eori           = "EORI123"
+        val thirdPartyEori = "EORI456"
 
-      val validThirdPartyDetails = ThirdPartyDetails(
-        Some("reference"),
-        LocalDate.of(2025, 1, 1),
-        Some(LocalDate.of(2025, 12, 31)),
-        Set("import"),
-        Some(LocalDate.of(2025, 1, 1)),
-        Some(LocalDate.of(2025, 12, 31))
-      )
+        when(mockConnector.removeThirdParty(any(), any())(any()))
+          .thenReturn(Future.successful(Done))
 
-      val eori           = "123"
-      val thirdPartyEori = "456"
+        val result = service.removeThirdParty(eori, thirdPartyEori).futureValue
 
-      "should return third party details when connector returns them" in {
-
-        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
-          .thenReturn(Future.successful(validThirdPartyDetails))
-        val result = service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
-        result mustBe validThirdPartyDetails
+        result mustBe Done
+        verify(mockConnector).removeThirdParty(any(), any())(any())
       }
 
-      "should fail the future if the connector fails" in {
+      "should fail when connector fails" in {
+        val eori           = "EORI123"
+        val thirdPartyEori = "EORI456"
 
-        when(mockConnector.getThirdPartyDetails(any(), any())(any()))
+        when(mockConnector.removeThirdParty(any, any)(any()))
           .thenReturn(Future.failed(new RuntimeException("error")))
+
         val thrown = intercept[RuntimeException] {
-          service.getThirdPartyDetails(eori, thirdPartyEori).futureValue
+          service.removeThirdParty(eori, thirdPartyEori).futureValue
         }
         thrown.getMessage must include("error")
       }
