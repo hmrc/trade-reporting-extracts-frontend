@@ -33,6 +33,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "userReport1",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
+      Instant.parse("2000-01-01T00:00:00Z"),
+      Instant.parse("2000-01-01T00:00:00Z"),
       IN_PROGRESS
     ),
     RequestedUserReportViewModel(
@@ -40,6 +42,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       "userReport2",
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
+      Instant.parse("2000-01-01T00:00:00Z"),
+      Instant.parse("2000-01-01T00:00:00Z"),
       IN_PROGRESS
     )
   )
@@ -51,6 +55,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
       "Example Ltd",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      Instant.parse("2000-01-01T00:00:00Z"),
       IN_PROGRESS
     ),
     RequestedThirdPartyReportViewModel(
@@ -59,6 +65,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
       Instant.parse("2000-01-01T00:00:00Z"),
       ReportTypeName.IMPORTS_ITEM_REPORT,
       "Example Ltd",
+      Instant.parse("2000-01-01T00:00:00Z"),
+      Instant.parse("2000-01-01T00:00:00Z"),
       IN_PROGRESS
     )
   )
@@ -74,6 +82,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "reportName": "userReport1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    },
           |    {
@@ -81,6 +91,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "reportName": "userReport2",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ],
@@ -91,6 +103,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
           |      "companyName": "Example Ltd",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    },
           |    {
@@ -99,6 +113,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
           |      "companyName": "Example Ltd",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]
@@ -118,6 +134,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "reportName": "userReport1",
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]
@@ -138,6 +156,8 @@ class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
           |      "requestedDate": "2000-01-01T00:00:00Z",
           |      "reportType": "IMPORTS_ITEM_REPORT",
           |      "companyName": "Example Ltd",
+          |      "reportStartDate": "2000-01-01T00:00:00Z",
+          |      "reportEndDate": "2000-01-01T00:00:00Z",
           |      "reportStatus": "IN_PROGRESS"
           |    }
           |  ]

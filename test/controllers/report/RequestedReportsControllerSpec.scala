@@ -17,7 +17,7 @@
 package controllers.report
 
 import base.SpecBase
-import models.ReportStatus.IN_PROGRESS
+import models.ReportStatus.{COMPLETE, ERROR, IN_PROGRESS, NO_DATA_AVAILABLE}
 import models.ReportTypeName
 import models.report.*
 import org.jsoup.Jsoup
@@ -78,6 +78,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
         requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
         reportStatus = IN_PROGRESS
       )
 
@@ -87,6 +89,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         companyName = "businessName",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
         requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
         reportStatus = IN_PROGRESS
       )
 
@@ -142,6 +146,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
                   reportStatus = IN_PROGRESS
                 )
               )
@@ -174,6 +180,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   referenceNumber = "referenceNumber",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
                   reportStatus = IN_PROGRESS
                 )
               )
@@ -210,6 +218,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
                   reportStatus = IN_PROGRESS
                 )
               )
@@ -243,6 +253,8 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
                   companyName = "businessName",
                   reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
                   requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                  reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
                   reportStatus = IN_PROGRESS
                 )
               )
@@ -259,6 +271,141 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must display correct status tag and NO redirect for COMPLETE" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val userReport                        = RequestedUserReportViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
+        reportStatus = COMPLETE
+      )
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
+        .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+          .build()
+
+      running(application) {
+        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+        val result   = route(application, request).value
+        val document = Jsoup.parse(contentAsString(result))
+
+        val statusCell = document.select("span.govuk-tag--green").first()
+        statusCell.text() mustBe messages(application)("requestedReports.status.complete")
+        statusCell.select("a").isEmpty mustBe true
+      }
+    }
+
+    "must display NO status tag and correct redirect for ERROR" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val userReport                        = RequestedUserReportViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
+        reportStatus = ERROR
+      )
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
+        .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+          .build()
+
+      running(application) {
+        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+        val result   = route(application, request).value
+        val document = Jsoup.parse(contentAsString(result))
+
+        val statusCell = document.select("td").get(4)
+        val link       = statusCell.select("a")
+        link.attr("href") must include(
+          controllers.problem.routes.ReportFailedController.onPageLoad("reportName", "referenceNumber").url
+        )
+        link.text() mustBe messages(application)("requestedReports.status.error")
+        statusCell.select("span.govuk-tag").isEmpty mustBe true
+      }
+    }
+
+    "must display correct status tag and NO redirect for IN_PROGRESS" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val userReport                        = RequestedUserReportViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
+        reportStatus = IN_PROGRESS
+      )
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
+        .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+          .build()
+
+      running(application) {
+        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+        val result   = route(application, request).value
+        val document = Jsoup.parse(contentAsString(result))
+
+        val statusCell = document.select("span.govuk-tag--blue").first()
+        statusCell.text() mustBe messages(application)("requestedReports.status.inProgress")
+        statusCell.select("a").isEmpty mustBe true
+      }
+    }
+
+    "must display NO status tag and correct redirect for NO_DATA_AVAILABLE" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val userReport                        = RequestedUserReportViewModel(
+        reportName = "reportName",
+        referenceNumber = "referenceNumber",
+        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+        reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
+        reportStatus = NO_DATA_AVAILABLE
+      )
+      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
+        .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+          .build()
+
+      running(application) {
+        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+        val result   = route(application, request).value
+        val document = Jsoup.parse(contentAsString(result))
+
+        val statusCell = document.select("td").get(4)
+        val link       = statusCell.select("a")
+        link.attr("href") must include(
+          controllers.problem.routes.NoDataFoundController
+            .onPageLoad(
+              "reportName",
+              "referenceNumber",
+              "1 Jan 2024",
+              "1 Feb 2024"
+            )
+            .url
+        )
+        link.text() mustBe messages(application)("requestedReports.status.noDataAvailable")
+        statusCell.select("span.govuk-tag").isEmpty mustBe true
       }
     }
   }
