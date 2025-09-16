@@ -604,3 +604,17 @@ thirdPartyAccessSelfRemoved.message3 = cy: You no longer have access to {0} cust
 thirdPartyAccessSelfRemoved.message4 = cy: You can
 thirdPartyAccessSelfRemoved.link1 = cy: view businesses that you do have third party access to
 thirdPartyAccessSelfRemoved.link2 = cy: Go to homepage
+
+noDataFound.title = cy: No data found for {0} {1}
+noDataFound.heading = cy: No data found for {0} {1}
+noDataFound.message1 = cy: You selected the date range {0} to {1}.
+noDataFound.message2 = cy: There is no data for this report. This could be because there were no imports or exports during this time.
+noDataFound.message3 = cy: You can
+noDataFound.linkText = cy: request a new report
+noDataFound.message4 = cy: using a different date range.
+
+reportFailed.title = cy: There was a problem with {0} {1}
+reportFailed.heading = cy: There was a problem with {0} {1}
+reportFailed.message1 = cy: We could not produce this report.
+reportFailed.message2 = cy: You can
+reportFailed.linkText = cy: request a new report
