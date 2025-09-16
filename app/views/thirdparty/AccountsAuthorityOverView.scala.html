@@ -1,0 +1,82 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.report._
+@import utils.ReportHelpers
+@import models.ReportStatus
+@import models.thirdparty.AccountAuthorityOverViewModel
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukTabs: GovukTabs,
+        govukTable: GovukTable,
+        govukTag: GovukTag,
+)   
+
+@(accountsAuthorityOver: Seq[AccountAuthorityOverViewModel])(implicit request: Request[_], messages: Messages)
+
+@mainContent = {
+@if(accountsAuthorityOver.isEmpty) {
+    @layout(pageTitle = messages("accountsAuthorityOver.noBusinesses.title"), isFullWidth = true, breadcrumbContribution = Seq(
+        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.noBusinesses.title")), href = Some(s"#"))
+    ),
+        showBackLink = false) {
+        <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.noBusinesses.heading")</h1>
+        <p class="govuk-body">
+            @messages("accountsAuthorityOver.noBusinesses.message")
+        </p>
+    }
+} else {
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.title")), isFullWidth = true, breadcrumbContribution = Seq(
+        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.title")), href = Some(s"#"))
+    ),
+        showBackLink = false) {
+        <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.heading")</h1>
+        @accountsAuthorityOverContent
+    }
+}
+}
+
+@accountsAuthorityOverContent = {
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(content = Text(messages("accountsAuthorityOver.eori"))),
+        HeadCell(content = Text(messages("accountsAuthorityOver.businessInfo"))),
+        HeadCell(content = Text(messages("accountsAuthorityOver.action")))
+    )),
+    rows = accountsAuthorityOver.map { tp =>
+        Seq(
+            TableRow(content = Text(tp.eori)),
+            TableRow(content = Text(tp.businessInfo.getOrElse(messages("accountsAuthorityOver.businessInfo.notAvailable")))),
+            TableRow(content = HtmlContent(
+                s"""<span style="white-space: nowrap;">
+                <a href="#">
+                  ${messages("accountsAuthorityOver.view")}
+                  <span class="govuk-visually-hidden">${messages("accountsAuthorityOver.view.hidden", tp.eori)}</span>
+                </a> |
+                <a href="#">
+                  ${messages("accountsAuthorityOver.remove")}
+                  <span class="govuk-visually-hidden">${messages("accountsAuthorityOver.remove.hidden", tp.eori)}</span>
+                </a>
+              </span>"""
+            ))
+        )
+    }
+))
+}
+
+@mainContent

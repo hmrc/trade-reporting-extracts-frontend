@@ -542,13 +542,6 @@ thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)
 
 BusinessInfo.checkYourAnswersLabel = cy: Business information
 
-thirdPartyDetails.title = cy: Third-party details
-thirdPartyDetails.heading = cy: Third-party details
-thirdPartyDetails.eoriNumber.label = cy: EORI number
-thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
-thirdPartyDetails.dataRange.label = cy: Data they can view
-thirdPartyDetails.dataRange.allData = cy: All available data
-
 authorisedThirdParties.title = cy: Manage third parties that can access your data
 authorisedThirdParties.heading = cy: Manage third parties that can access your data
 authorisedThirdParties.message1 = cy: You have given these third parties permission to request reports and download your data.
@@ -571,6 +564,26 @@ authorisedThirdParties.action = cy: Action
 authorisedThirdParties.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
 authorisedThirdParties.referenceName.notAvailable = cy: Not applicable
 
+thirdPartyDetails.title = cy: Third-party details
+thirdPartyDetails.heading = cy: Third-party details
+thirdPartyDetails.eoriNumber.label = cy: EORI number
+thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
+thirdPartyDetails.dataRange.label = cy: Data they can view
+thirdPartyDetails.dataRange.allData = cy: All available data
+
+accountsAuthorityOver.title = cy: Businesses you have third-party access to
+accountsAuthorityOver.heading = cy: Businesses you have third-party access to
+accountsAuthorityOver.noBusinesses.title = cy: You do not have third-party access to any businesses
+accountsAuthorityOver.noBusinesses.heading = cy: You do not have third-party access to any businesses
+accountsAuthorityOver.noBusinesses.message = cy: If an importer or exporter gives you access to their customs declaration data, the business details will be shown in your account.
+accountsAuthorityOver.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
+accountsAuthorityOver.eori = cy: EORI number
+accountsAuthorityOver.businessInfo = cy: Business information
+accountsAuthorityOver.action = cy: Action
+accountsAuthorityOver.view = cy: View
+accountsAuthorityOver.view.hidden = cy: View {0} details
+accountsAuthorityOver.remove = cy: Remove
+accountsAuthorityOver.remove.hidden = cy: Remove {0} as a third party
 
 removeThirdParty.title = cy: Are you sure you want to remove this third party?
 removeThirdParty.heading = cy: Are you sure you want to remove this third party?
