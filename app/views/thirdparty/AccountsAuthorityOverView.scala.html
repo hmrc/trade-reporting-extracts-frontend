@@ -31,7 +31,7 @@
 
 @mainContent = {
 @if(accountsAuthorityOver.isEmpty) {
-    @layout(pageTitle = messages("accountsAuthorityOver.noBusinesses.title"), isFullWidth = true, breadcrumbContribution = Seq(
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = true, breadcrumbContribution = Seq(
         BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.noBusinesses.title")), href = Some(s"#"))
     ),
         showBackLink = false) {
