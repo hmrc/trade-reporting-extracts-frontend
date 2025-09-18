@@ -122,13 +122,15 @@ contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
 contactDetails.email = Email address
 
-unauthorisedCdsEnrolment.title = There is a problem
-unauthorisedCdsEnrolment.heading = There is a problem
-unauthorisedCdsEnrolment.p1 = The details signed in are not subscribed to the Customs Declaration Service (CDS).
-unauthorisedCdsEnrolment.cdsLink = You must be subscribed to CDS before you can use Get customs declaration data for imports and exports (opens in new tab).
-unauthorisedCdsEnrolment.p2.part1 = If you are subscribed to CDS,
-unauthorisedCdsEnrolment.p2.linkText = sign out
-unauthorisedCdsEnrolment.p2.part2 = and sign in with the correct details.
+unauthorisedCdsEnrolment.title = Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.heading = Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.p1 = To use this service, you must have an active CDS subscription.
+unauthorisedCdsEnrolment.p2 = You may need to:
+unauthorisedCdsEnrolment.bullet1.link = subscribe to CDS (opens in new tab)
+unauthorisedCdsEnrolment.bullet1 = if you have not already
+unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed - your access may still be updating
+unauthorisedCdsEnrolment.bullet3.link = sign out
+unauthorisedCdsEnrolment.bullet3 = and sign in with the correct details if you have more than one account
 
 reportGuidance.title = Request a CDS report
 reportGuidance.heading = Request a CDS report

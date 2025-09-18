@@ -27,21 +27,21 @@
     showBackLink = false
 ) {
 
-<h1 class="govuk-heading-l">@messages("unauthorisedCdsEnrolment.heading")</h1>
+<h1 class="govuk-heading-xl">@messages("unauthorisedCdsEnrolment.heading")</h1>
 
 <p class="govuk-body">@messages("unauthorisedCdsEnrolment.p1")</p>
 
-<p class="govuk-body">
-    <a href="@cdsSubscribeUrl" rel="noreferrer noopener" target="_blank" class=govuk-link>
-        @messages("unauthorisedCdsEnrolment.cdsLink")
-    </a>
-</p>
+<p class="govuk-body">@messages("unauthorisedCdsEnrolment.p2")</p>
 
-<p class="govuk-body">
-    @messages("unauthorisedCdsEnrolment.p2.part1")
+<ul class="govuk-list govuk-list--bullet">
+    <li>
+        <a href="@cdsSubscribeUrl" rel="noreferrer noopener" target="_blank" class=govuk-link>
+            @messages("unauthorisedCdsEnrolment.bullet1.link")
+        </a>@messages("unauthorisedCdsEnrolment.bullet1")</li>
+    <li>@messages("unauthorisedCdsEnrolment.bullet2")</li>
+    <li>
     <a href="@routes.AuthController.signOut().url" class="govuk-link">
-        @messages("unauthorisedCdsEnrolment.p2.linkText")
-    </a>
-    @messages("unauthorisedCdsEnrolment.p2.part2")
-</p>
+        @messages("unauthorisedCdsEnrolment.bullet3.link")
+    </a>@messages("unauthorisedCdsEnrolment.bullet3")</li>
+</ul>
 }
