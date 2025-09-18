@@ -17,7 +17,6 @@
 package controllers.actions
 
 import base.SpecBase
-import models.{AlreadyAddedThirdPartyEori, AlreadyAddedThirdPartyFlag}
 import models.requests.DataRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
@@ -32,7 +31,7 @@ class PreventBackNavigationAfterAddThirdPartyActionSpec extends SpecBase with Sc
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   class TestablePreventBackNavigationAfterAddThirdPartyActionImpl(implicit ec: ExecutionContext)
-      extends PreventBackNavigationAfterAddThirdPartyActionImpl {
+    extends PreventBackNavigationAfterAddThirdPartyActionImpl {
     def publicRefine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = refine(request)
   }
 

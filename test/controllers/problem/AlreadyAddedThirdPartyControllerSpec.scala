@@ -21,6 +21,7 @@ import play.api.test.Helpers.*
 import play.api.test.*
 import views.html.problem.AlreadyAddedThirdPartyView
 
+
 class AlreadyAddedThirdPartyControllerSpec extends SpecBase {
 
   "AlreadySubmitted Controller" - {
@@ -30,18 +31,18 @@ class AlreadyAddedThirdPartyControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val eori    = "GB123456789000"
-        val request = FakeRequest(GET, controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad(eori).url)
+        val request = FakeRequest(GET, controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad().url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AlreadyAddedThirdPartyView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(eori)(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
   }
 }
+
 
 // You will need to provide suitable FakeIdentifierAction and FakeDataRetrievalOrCreateAction for your test setup.

@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.{AlreadyAddedThirdPartyEori, AlreadyAddedThirdPartyFlag}
+import models.AlreadyAddedThirdPartyFlag
 import models.requests.DataRequest
 import play.api.mvc.{ActionRefiner, Result}
 import play.api.mvc.Results.Redirect
@@ -29,16 +29,8 @@ class PreventBackNavigationAfterAddThirdPartyActionImpl @Inject() (implicit val 
 
   override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
     val previouslySubmitted = request.userAnswers.get(AlreadyAddedThirdPartyFlag()).getOrElse(false)
-    val previouslyAddedEORI = request.userAnswers.get(AlreadyAddedThirdPartyEori())
-
     if (previouslySubmitted) {
-      Future.successful(
-        Left(
-          Redirect(
-            controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad(previouslyAddedEORI.getOrElse(""))
-          )
-        )
-      )
+      Future.successful(Left(Redirect(controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad())))
     } else {
       Future.successful(
         Right(DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers))
