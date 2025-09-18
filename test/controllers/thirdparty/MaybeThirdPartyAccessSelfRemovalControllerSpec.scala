@@ -110,7 +110,9 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.DashboardController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.thirdparty.routes.AccountsAuthorityOverController
+          .onPageLoad()
+          .url
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe None
       }

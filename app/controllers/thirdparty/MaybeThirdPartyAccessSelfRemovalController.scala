@@ -63,7 +63,7 @@ class MaybeThirdPartyAccessSelfRemovalController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.routes.DashboardController.onPageLoad().url)
+            } yield Redirect(controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url)
           }
       )
   }
