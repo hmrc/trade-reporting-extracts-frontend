@@ -26,7 +26,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, DataTheyCanViewSummary, DataTypesSummary, DeclarationDateSummary, EoriNumberSummary, ThirdPartyAccessPeriodSummary, ThirdPartyDataOwnerConsentSummary, ThirdPartyReferenceSummary}
+import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, ThirdPartyAccessPeriodSummary, ThirdPartyDataOwnerConsentSummary, ThirdPartyReferenceSummary}
+import viewmodels.checkAnswers.thirdparty.{DataTheyCanViewSummary, DataTypesSummary, DeclarationDateSummary, EoriNumberSummary}
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.AddThirdPartyCheckYourAnswersView
 
@@ -36,6 +37,7 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
+  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: AddThirdPartyCheckYourAnswersView,
@@ -44,7 +46,10 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify
+    andThen getData
+    andThen requireData
+    andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
 
     val userAnsewrs = request.userAnswers
 

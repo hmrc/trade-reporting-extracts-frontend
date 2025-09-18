@@ -19,6 +19,7 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
+import models.AlreadyAddedThirdPartyFlag
 import models.thirdparty.AddThirdPartySection
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -29,7 +30,7 @@ import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ThirdPartyAddedConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
@@ -42,18 +43,23 @@ class ThirdPartyAddedConfirmationController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
+  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   clock: Clock
 )(implicit ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify
+    andThen getData
+    andThen requireData
+    andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
     for {
       thirdPartyAddedConfirmation <- tradeReportingExtractsService.createThirdPartyAddRequest(
                                        thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
                                      )
       updatedAnswers               = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
-      _                           <- sessionRepository.set(updatedAnswers)
+      updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
+      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
     } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 

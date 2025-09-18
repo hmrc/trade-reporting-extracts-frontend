@@ -31,6 +31,9 @@ class Module extends AbstractModule {
     bind(classOf[PreventBackNavigationAfterSubmissionAction])
       .to(classOf[PreventBackNavigationAfterSubmissionImpl])
       .asEagerSingleton()
+    bind(classOf[PreventBackNavigationAfterAddThirdPartyAction])
+      .to(classOf[PreventBackNavigationAfterAddThirdPartyActionImpl])
+      .asEagerSingleton()
     bind(classOf[MissingDependentAnswersAction]).to(classOf[MissingDependentAnswersImpl]).asEagerSingleton()
     bind(classOf[BelowReportRequestLimitAction]).to(classOf[BelowReportRequestLimitActionImpl]).asEagerSingleton()
     // For session based storage instead of cred based, change to SessionIdentifierAction
