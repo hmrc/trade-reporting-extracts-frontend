@@ -21,6 +21,7 @@ import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
+import org.apache.pekko.Done
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
@@ -91,6 +92,11 @@ class TradeReportingExtractsService @Inject() (
     hc: HeaderCarrier
   ): Future[ThirdPartyDetails] =
     connector.getThirdPartyDetails(eori, thirdPartyEori)
+
+  def selfRemoveThirdPartyAccess(traderEori: String, thirdPartyEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Done] =
+    connector.selfRemoveThirdPartyAccess(traderEori, thirdPartyEori)
 
   def auditReportDownload(
     reportReference: String,
