@@ -73,4 +73,23 @@ class DataTypesSummarySpec extends SpecBase {
       result.value.content.asHtml.body must include(messages("dataTypes.export"))
     }
   }
+
+  ".businessDetailsRow" - {
+    "must return summary list row when given single data type" in {
+
+      val result = DataTypesSummary.businessDetailsRow(Set("imports")).get
+
+      result.key.content.asHtml.body   must include("businessDetails.dataTypes.label")
+      result.value.content.asHtml.body must include(messages("dataTypes.import"))
+    }
+
+    "must return summary list row when given multiple data types" in {
+
+      val result = DataTypesSummary.businessDetailsRow(Set("imports", "exports")).get
+
+      result.key.content.asHtml.body   must include("businessDetails.dataTypes.label")
+      result.value.content.asHtml.body must include(messages("dataTypes.import"))
+      result.value.content.asHtml.body must include(messages("dataTypes.export"))
+    }
+  }
 }

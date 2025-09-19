@@ -93,6 +93,11 @@ class TradeReportingExtractsService @Inject() (
   ): Future[ThirdPartyDetails] =
     connector.getThirdPartyDetails(eori, thirdPartyEori)
 
+  def getAuthorisedBusinessDetails(thirdPartyEori: String, traderEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
+    connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori)
+
   def selfRemoveThirdPartyAccess(traderEori: String, thirdPartyEori: String)(implicit
     hc: HeaderCarrier
   ): Future[Done] =

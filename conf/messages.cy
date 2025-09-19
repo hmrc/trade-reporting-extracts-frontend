@@ -468,6 +468,7 @@ thirdPartyAccessPeriod.checkYourAnswersLabel = cy: Third-party access period
 thirdPartyAccessPeriod.fixed.answerLabel = cy: {0} to {1}
 thirdPartyAccessPeriod.ongoing.answerLabel = cy: From {0} - ongoing
 thirdPartyAccessPeriod.change.hidden = cy: third-party access period
+thirdPartyAccessPeriod.businessDetailsLabel = cy: Your access period
 
 thirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
 thirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
@@ -569,6 +570,11 @@ thirdPartyDetails.eoriNumber.label = cy: EORI number
 thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
 thirdPartyDetails.dataRange.label = cy: Data they can view
 thirdPartyDetails.dataRange.allData = cy: All available data
+
+businessDetails.title = cy: Business details
+businessDetails.heading = cy: Business details
+businessDetails.dataTypes.label = cy: Types of data you have access to
+businessDetails.dataRange.label = cy: Data you can view
 
 accountsAuthorityOver.title = cy: Businesses you have third-party access to
 accountsAuthorityOver.heading = cy: Businesses you have third-party access to
