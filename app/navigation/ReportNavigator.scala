@@ -38,7 +38,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case ChooseEoriPage                         => chooseEoriRoutes(NormalMode)
     case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(NormalMode)
     case EoriRolePage                           => eoriRoleRoutes(NormalMode)
-    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
+    case ReportTypeImportPage                   => reportTypeImportRoutes(NormalMode)
     case ReportDateRangePage                    => reportDateRangeRoutes(NormalMode)
     case CustomRequestStartDatePage             =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
@@ -70,7 +70,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
     case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
     case EoriRolePage                           => eoriRoleRoutes(CheckMode)
-    case ReportTypeImportPage                   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case ReportTypeImportPage                   => reportTypeImportRoutes(CheckMode)
     case ReportDateRangePage                    => reportDateRangeRoutes(CheckMode)
     case CustomRequestStartDatePage             =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(CheckMode))
@@ -102,6 +102,21 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   private def isAddNewEmail(answers: UserAnswers): Boolean =
     answers.get(EmailSelectionPage).exists(_.contains(EmailSelection.AddNewEmailValue))
+
+  private def reportTypeImportRoutes(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case NormalMode =>
+        answers.get(ChooseEoriPage) match {
+          case Some(ChooseEori.Myeori)          => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          case Some(ChooseEori.Myauthority)     =>
+            controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+          case _ if appConfig.thirdPartyEnabled => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+          case _                                => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+        }
+
+      case CheckMode =>
+        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+    }
 
   private def reportDateRangeRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ReportDateRangePage) match {
@@ -145,7 +160,16 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
           .get(DecisionPage)
           .map {
             case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-            case Decision.Export => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+            case Decision.Export =>
+              answers.get(ChooseEoriPage) match {
+                case Some(ChooseEori.Myeori)          =>
+                  controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+                case Some(ChooseEori.Myauthority)     =>
+                  controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+                case _ if appConfig.thirdPartyEnabled =>
+                  controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+                case _                                => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+              }
           }
           .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 
