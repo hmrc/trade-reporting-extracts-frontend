@@ -44,9 +44,6 @@ signedOut.title = cy: For your security, we signed you out
 signedOut.heading = cy: For your security, we signed you out
 signedOut.guidance = cy: We did not save your answers.
 
-unauthorised.title = cy: You can’t access this service with this account
-unauthorised.heading = cy: You can’t access this service with this account
-
 guidancePage.title = cy: Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.heading = cy: Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.intro = cy: Use this service to get import and export reports based on your data in the Customs Declaration Service (CDS).
