@@ -18,14 +18,14 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.report.{Decision, ReportTypeImport}
+import models.report.{ChooseEori, Decision, ReportTypeImport}
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, DecisionPage, ReportTypeImportPage}
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.inject
@@ -164,6 +164,9 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(DecisionPage, Decision.Export)
+        .success
+        .value
+        .set(ChooseEoriPage, ChooseEori.Myeori)
         .success
         .value
 
