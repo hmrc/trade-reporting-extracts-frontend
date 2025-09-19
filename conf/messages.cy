@@ -44,9 +44,6 @@ signedOut.title = cy: For your security, we signed you out
 signedOut.heading = cy: For your security, we signed you out
 signedOut.guidance = cy: We did not save your answers.
 
-unauthorised.title = cy: You can’t access this service with this account
-unauthorised.heading = cy: You can’t access this service with this account
-
 guidancePage.title = cy: Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.heading = cy: Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.intro = cy: Use this service to get import and export reports based on your data in the Customs Declaration Service (CDS).
@@ -122,13 +119,15 @@ contactDetails.name = cy: Name
 contactDetails.eoriNumber = cy: EORI number
 contactDetails.email = cy: Email address
 
-unauthorisedCdsEnrolment.title = cy: There is a problem
-unauthorisedCdsEnrolment.heading = cy: There is a problem
-unauthorisedCdsEnrolment.p1 = cy: The details signed in are not subscribed to the Customs Declaration Service (CDS).
-unauthorisedCdsEnrolment.cdsLink = cy: You must be subscribed to CDS before you can use Get customs declaration data for imports and exports (opens in new tab).
-unauthorisedCdsEnrolment.p2.part1 = cy: If you are subscribed to CDS,
-unauthorisedCdsEnrolment.p2.linkText = cy: sign out
-unauthorisedCdsEnrolment.p2.part2 = cy: and sign in with the correct details.
+unauthorisedCdsEnrolment.title = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.heading = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.p1 = cy: To use this service, you must have an active CDS subscription.
+unauthorisedCdsEnrolment.p2 = cy: You may need to:
+unauthorisedCdsEnrolment.bullet1.link = cy: subscribe to CDS (opens in new tab)
+unauthorisedCdsEnrolment.bullet1 = cy: if you have not already
+unauthorisedCdsEnrolment.bullet2 = cy: wait up to 5 days if you have just subscribed - your access may still be updating
+unauthorisedCdsEnrolment.bullet3.link = cy: sign out
+unauthorisedCdsEnrolment.bullet3 = cy: and sign in with the correct details if you have more than one account
 
 reportGuidance.title = cy: Request a CDS report
 reportGuidance.heading = cy: Request a CDS report
