@@ -19,6 +19,16 @@ package utils
 import models.ReportStatus.NO_DATA_AVAILABLE
 import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
+import play.api.mvc.{Call, Result}
+import play.api.mvc.Results.Redirect
+
+import java.time.Instant
+
+case class ReportStatusDisplayData(
+  key: String,
+  cssClass: String,
+  maybeRedirect: Option[String]
+)
 
 object ReportHelpers {
   def isMoreThanOneReport(userAnswers: UserAnswers): Boolean =
@@ -44,22 +54,32 @@ object ReportHelpers {
       }
       .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
 
-  def formatReportStatusKey(status: ReportStatus): String = status match {
-    case ReportStatus.COMPLETE          => "requestedReports.status.complete"
-    case ReportStatus.ERROR             => "requestedReports.status.error"
-    case ReportStatus.IN_PROGRESS       => "requestedReports.status.inProgress"
-    case ReportStatus.NO_DATA_AVAILABLE => "requestedReports.status.noDataAvailable"
+  def reportStatusDisplayData(
+    status: ReportStatus,
+    reportName: String,
+    reportRef: String,
+    reportStartDate: String,
+    reportEndDate: String
+  ): ReportStatusDisplayData = status match {
+    case ReportStatus.COMPLETE          =>
+      ReportStatusDisplayData("requestedReports.status.complete", "govuk-tag--green", None)
+    case ReportStatus.ERROR             =>
+      ReportStatusDisplayData(
+        "requestedReports.status.error",
+        "govuk-tag--red",
+        Some(controllers.problem.routes.ReportFailedController.onPageLoad(reportName, reportRef).url)
+      )
+    case ReportStatus.IN_PROGRESS       =>
+      ReportStatusDisplayData("requestedReports.status.inProgress", "govuk-tag--blue", None)
+    case ReportStatus.NO_DATA_AVAILABLE =>
+      ReportStatusDisplayData(
+        "requestedReports.status.noDataAvailable",
+        "govuk-tag--red",
+        Some(
+          controllers.problem.routes.NoDataFoundController
+            .onPageLoad(reportName, reportRef, reportStartDate, reportEndDate)
+            .url
+        )
+      )
   }
-
-  def reportStatusDisplayData(status: ReportStatus): (String, String) = {
-    val key      = formatReportStatusKey(status)
-    val cssClass = status match {
-      case ReportStatus.COMPLETE    => "govuk-tag--green"
-      case ReportStatus.ERROR       => "govuk-tag--red"
-      case ReportStatus.IN_PROGRESS => "govuk-tag--blue"
-      case NO_DATA_AVAILABLE        => "govuk-tag--red"
-    }
-    (key, cssClass)
-  }
-
 }

@@ -604,3 +604,17 @@ thirdPartyAccessSelfRemoved.message3 = You no longer have access to {0} customs 
 thirdPartyAccessSelfRemoved.message4 = You can
 thirdPartyAccessSelfRemoved.link1 = view businesses that you do have third party access to
 thirdPartyAccessSelfRemoved.link2 = Go to homepage
+
+noDataFound.title = No data found for {0} {1}
+noDataFound.heading = No data found for {0} {1}
+noDataFound.message1 = You selected the date range {0} to {1}.
+noDataFound.message2 = There is no data for this report. This could be because there were no imports or exports during this time.
+noDataFound.message3 = You can
+noDataFound.linkText = request a new report
+noDataFound.message4 = using a different date range.
+
+reportFailed.title = There was a problem with {0} {1}
+reportFailed.heading = There was a problem with {0} {1}
+reportFailed.message1 = We could not produce this report.
+reportFailed.message2 = You can
+reportFailed.linkText = request a new report
