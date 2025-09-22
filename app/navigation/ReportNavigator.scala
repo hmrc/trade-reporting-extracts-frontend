@@ -30,12 +30,8 @@ import javax.inject.{Inject, Singleton}
 class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           =>
-      navigateBasedOnThirdPartyFlag(
-        controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode),
-        controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
-      )
     case ChooseEoriPage                         => chooseEoriRoutes(NormalMode)
+    case DecisionPage                           => decisionPageRoutes(NormalMode)
     case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(NormalMode)
     case EoriRolePage                           => eoriRoleRoutes(NormalMode)
     case ReportTypeImportPage                   => reportTypeImportRoutes(NormalMode)
@@ -65,9 +61,8 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
-    case DecisionPage                           =>
-      navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(CheckMode))
-    case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
+    case ChooseEoriPage                         => chooseEoriRoutes(NormalMode)
+    case DecisionPage                           => decisionPageRoutes(CheckMode)
     case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
     case EoriRolePage                           => eoriRoleRoutes(CheckMode)
     case ReportTypeImportPage                   => reportTypeImportRoutes(CheckMode)
@@ -92,6 +87,30 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   }
 
   private def navigateTo(call: => Call): UserAnswers => Call = _ => call
+
+  private def decisionPageRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(ChooseEoriPage) match {
+      case Some(ChooseEori.Myeori)      => handleMyEori(mode)
+      case Some(ChooseEori.Myauthority) => handleMyAuthority(mode, answers)
+      case None                         => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def handleMyEori(mode: Mode): Call = mode match {
+    case NormalMode => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
+    case CheckMode  => controllers.report.routes.EoriRoleController.onPageLoad(CheckMode)
+  }
+
+  private def handleMyAuthority(mode: Mode, answers: UserAnswers): Call =
+    answers.get(DecisionPage) match {
+      case Some(Decision.Import) => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+      case Some(Decision.Export) => handleExportDecision(mode)
+      case None                  => controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode)
+    }
+
+  private def handleExportDecision(mode: Mode): Call = mode match {
+    case NormalMode => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+    case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+  }
 
   private def conditionalNavigate(condition: UserAnswers => Boolean, successCall: => Call): UserAnswers => Call =
     answers =>
@@ -138,14 +157,8 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   private def chooseEoriRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori) =>
-        mode match {
-          case NormalMode =>
-            controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
-          case CheckMode  =>
-            controllers.report.routes.CheckYourAnswersController.onPageLoad()
-        }
-
+      case Some(ChooseEori.Myeori)      =>
+        controllers.report.routes.DecisionController.onPageLoad(NormalMode)
       case Some(ChooseEori.Myauthority) =>
         controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode)
 
@@ -156,22 +169,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def accountsYouHaveAuthorityOverImportRoutes(mode: Mode)(answers: UserAnswers): Call =
     mode match {
       case NormalMode =>
-        answers
-          .get(DecisionPage)
-          .map {
-            case Decision.Import => controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
-            case Decision.Export =>
-              answers.get(ChooseEoriPage) match {
-                case Some(ChooseEori.Myeori)          =>
-                  controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-                case Some(ChooseEori.Myauthority)     =>
-                  controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
-                case _ if appConfig.thirdPartyEnabled =>
-                  controllers.problem.routes.JourneyRecoveryController.onPageLoad()
-                case _                                => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-              }
-          }
-          .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+        controllers.report.routes.DecisionController.onPageLoad(NormalMode)
 
       case CheckMode =>
         controllers.report.routes.CheckYourAnswersController.onPageLoad()

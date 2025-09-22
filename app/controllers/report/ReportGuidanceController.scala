@@ -16,6 +16,7 @@
 
 package controllers.report
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRetrievalOrCreateAction, IdentifierAction}
 import models.report.ReportRequestSection
@@ -34,6 +35,7 @@ class ReportGuidanceController @Inject() (
   view: ReportGuidanceView,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
+  appConfig: FrontendAppConfig,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -43,6 +45,12 @@ class ReportGuidanceController @Inject() (
     val JourneyRecoveryUrl   = controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     val checkYourAnswersUrl  = controllers.report.routes.CheckYourAnswersController.onPageLoad().url
     val alreadySubmittedFlag = request.userAnswers.get(AlreadySubmittedFlag()).getOrElse(false)
+    val redirectUrl          =
+      if (appConfig.thirdPartyEnabled) {
+        controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
+      } else {
+        controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
+      }
     request.userAnswers.get(ReportRequestSection().sectionNavigation).getOrElse(initialPage.url) match {
       case url if url == JourneyRecoveryUrl || (url == checkYourAnswersUrl && alreadySubmittedFlag) =>
         for {
@@ -50,13 +58,13 @@ class ReportGuidanceController @Inject() (
           answers                  <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
           updatedAnswers            = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(answers)
           _                        <- sessionRepository.set(updatedAnswers)
-        } yield Ok(view(NormalMode, reportRequestNumberLimit))
+        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl))
       case initialPage.url                                                                          =>
         for {
           reportRequestNumberLimit <- tradeReportingExtractsService.getReportRequestLimitNumber
           updatedAnswers           <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
           _                        <- sessionRepository.set(updatedAnswers)
-        } yield Ok(view(NormalMode, reportRequestNumberLimit))
+        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl))
       case _                                                                                        =>
         Future.successful(Redirect(ReportRequestSection().navigateTo(request.userAnswers)))
     }

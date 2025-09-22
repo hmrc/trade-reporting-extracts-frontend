@@ -19,7 +19,7 @@
     govukButton: GovukButton
 )
 
-@(mode: Mode, reportRequestNumberLimit: String)(implicit request: Request[_], messages: Messages)
+@(mode: Mode, reportRequestNumberLimit: String, nextPageUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("reportGuidance.title")),
@@ -55,7 +55,7 @@
     </div>
     <div class="govuk-button-group">
         @govukButton(
-            ButtonViewModel(messages("site.continue")).asLink(controllers.report.routes.DecisionController.onPageLoad(mode).url)
+            ButtonViewModel(messages("site.continue")).asLink(nextPageUrl)
         )
     </div>
 }

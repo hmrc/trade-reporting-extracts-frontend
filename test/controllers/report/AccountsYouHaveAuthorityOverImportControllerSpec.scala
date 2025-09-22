@@ -43,8 +43,7 @@ import scala.concurrent.Future
 class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with MockitoSugar {
   private implicit val messages: Messages = stubMessages()
 
-  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
-  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-range")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/data-download")
 
   val formProvider       = new AccountsYouHaveAuthorityOverImportFormProvider()
   val form: Form[String] = formProvider()
@@ -132,7 +131,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRouteImport)),
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
@@ -146,7 +145,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
         val result = route(application, request).value
 
         status(result) `mustEqual` SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteImport.url
+        redirectLocation(result).value mustEqual onwardRoute.url
 
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(ReportTypeImportPage) mustBe None
@@ -173,7 +172,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRouteExport)),
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
@@ -187,7 +186,7 @@ class AccountsYouHaveAuthorityOverImportControllerSpec extends SpecBase with Moc
         val result = route(application, request).value
 
         status(result) `mustEqual` SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteExport.url
+        redirectLocation(result).value mustEqual onwardRoute.url
 
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))

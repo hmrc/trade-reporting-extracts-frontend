@@ -37,15 +37,57 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
     "in Normal mode" - {
 
-      "navigate from DecisionPage" in {
-        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
-        navigator.nextPage(DecisionPage, NormalMode, ua) mustBe routes.ChooseEoriController.onPageLoad(NormalMode)
+      "navigate from DecisionPage" - {
+        "when ChooseEori is Myeori" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myeori)
+            .success
+            .value
+          navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
+            controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
+        }
+
+        "when ChooseEori is Myauthority and Decision is Import" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
+            controllers.report.routes.ReportTypeImportController.onPageLoad(NormalMode)
+        }
+
+        "when ChooseEori is Myauthority and Decision is Export" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Export)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
+            controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+        }
+
+        "when ChooseEoriPage is missing" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+
+          navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
       "navigate from ChooseEoriPage" - {
         "to EoriRolePage when Myeori" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
-          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.EoriRoleController.onPageLoad(NormalMode)
+          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
 
         "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
@@ -56,64 +98,22 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
       }
 
       "navigate from AccountsYouHaveAuthorityOverImportPage" - {
-        "to ReportTypeImportPage when Import" in {
+        "to DecisionPage when Import" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
           navigator.nextPage(
             AccountsYouHaveAuthorityOverImportPage,
             NormalMode,
             ua
-          ) mustBe routes.ReportTypeImportController.onPageLoad(NormalMode)
+          ) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
 
-        "when export " - {
-          "to report date range controller when own eori" in {
-            val ua = emptyUserAnswers
-              .set(DecisionPage, Decision.Export)
-              .success
-              .value
-              .set(ChooseEoriPage, ChooseEori.Myeori)
-              .success
-              .value
-            navigator.nextPage(
-              AccountsYouHaveAuthorityOverImportPage,
-              NormalMode,
-              ua
-            ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
-          }
-
-          "to report date range controller when third party eori" in {
-            val ua = emptyUserAnswers
-              .set(DecisionPage, Decision.Export)
-              .success
-              .value
-              .set(ChooseEoriPage, ChooseEori.Myauthority)
-              .success
-              .value
-            navigator.nextPage(
-              AccountsYouHaveAuthorityOverImportPage,
-              NormalMode,
-              ua
-            ) mustBe routes.CustomRequestStartDateController.onPageLoad(NormalMode)
-          }
-
-          "to journey recovery when choose eori page not answered with third party flag enabled" in {
-            val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
-            navigator.nextPage(
-              AccountsYouHaveAuthorityOverImportPage,
-              NormalMode,
-              ua
-            ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
-          }
-
-          "to report date range controller when choose eori page not answered with third party flag disabled" in {
-            when(mockAppConfig.thirdPartyEnabled).thenReturn(false)
-            val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
-            navigator.nextPage(
-              AccountsYouHaveAuthorityOverImportPage,
-              NormalMode,
-              ua
-            ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
-          }
+        "to DecisionPage when Export" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(
+            AccountsYouHaveAuthorityOverImportPage,
+            NormalMode,
+            ua
+          ) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
       }
 
@@ -241,21 +241,63 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
     "in Check mode" - {
 
-      "navigate from DecisionPage to EoriRolePage" in {
-        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
-        navigator.nextPage(DecisionPage, CheckMode, ua) mustBe routes.EoriRoleController.onPageLoad(CheckMode)
+      "navigate from DecisionPage" - {
+        "when ChooseEori is Myeori" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myeori)
+            .success
+            .value
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            controllers.report.routes.EoriRoleController.onPageLoad(CheckMode)
+        }
+
+        "when ChooseEori is Myauthority and Decision is Import" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode)
+        }
+
+        "when ChooseEori is Myauthority and Decision is Export" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Export)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when ChooseEoriPage is missing" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
       "navigate from ChooseEoriPage" - {
         "to EoriRolePage when Myeori" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
-          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
 
         "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
           navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.AccountsYouHaveAuthorityOverImportController
-            .onPageLoad(CheckMode)
+            .onPageLoad(NormalMode)
         }
       }
 
