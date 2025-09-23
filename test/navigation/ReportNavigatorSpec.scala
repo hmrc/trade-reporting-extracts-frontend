@@ -65,13 +65,55 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           ) mustBe routes.ReportTypeImportController.onPageLoad(NormalMode)
         }
 
-        "to ReportDateRangePage when Export" in {
-          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
-          navigator.nextPage(
-            AccountsYouHaveAuthorityOverImportPage,
-            NormalMode,
-            ua
-          ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
+        "when export " - {
+          "to report date range controller when own eori" in {
+            val ua = emptyUserAnswers
+              .set(DecisionPage, Decision.Export)
+              .success
+              .value
+              .set(ChooseEoriPage, ChooseEori.Myeori)
+              .success
+              .value
+            navigator.nextPage(
+              AccountsYouHaveAuthorityOverImportPage,
+              NormalMode,
+              ua
+            ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
+          }
+
+          "to report date range controller when third party eori" in {
+            val ua = emptyUserAnswers
+              .set(DecisionPage, Decision.Export)
+              .success
+              .value
+              .set(ChooseEoriPage, ChooseEori.Myauthority)
+              .success
+              .value
+            navigator.nextPage(
+              AccountsYouHaveAuthorityOverImportPage,
+              NormalMode,
+              ua
+            ) mustBe routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+          }
+
+          "to journey recovery when choose eori page not answered with third party flag enabled" in {
+            val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+            navigator.nextPage(
+              AccountsYouHaveAuthorityOverImportPage,
+              NormalMode,
+              ua
+            ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+          }
+
+          "to report date range controller when choose eori page not answered with third party flag disabled" in {
+            when(mockAppConfig.thirdPartyEnabled).thenReturn(false)
+            val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+            navigator.nextPage(
+              AccountsYouHaveAuthorityOverImportPage,
+              NormalMode,
+              ua
+            ) mustBe routes.ReportDateRangeController.onPageLoad(NormalMode)
+          }
         }
       }
 
@@ -91,9 +133,33 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "navigate from ReportTypeImportPage to ReportDateRangePage" in {
-        navigator.nextPage(ReportTypeImportPage, NormalMode, emptyUserAnswers) mustBe routes.ReportDateRangeController
-          .onPageLoad(NormalMode)
+      "navigate from ReportTypeImportPage" - {
+        "when a third party journey to request start date" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
+          navigator.nextPage(ReportTypeImportPage, NormalMode, ua) mustBe routes.CustomRequestStartDateController
+            .onPageLoad(NormalMode)
+        }
+
+        "when not a third party journey to report date range" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
+          navigator.nextPage(ReportTypeImportPage, NormalMode, ua) mustBe routes.ReportDateRangeController
+            .onPageLoad(NormalMode)
+        }
+
+        "when choose eori not answered and third party flag enabled to journey recovery" in {
+          when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+          navigator.nextPage(
+            ReportTypeImportPage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+
+        "when choose eori not answered and third party flag disabled to report date range" in {
+          when(mockAppConfig.thirdPartyEnabled).thenReturn(false)
+          navigator.nextPage(ReportTypeImportPage, NormalMode, emptyUserAnswers) mustBe routes.ReportDateRangeController
+            .onPageLoad(NormalMode)
+        }
       }
 
       "navigate from ReportDateRangePage" - {
