@@ -44,9 +44,6 @@ signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
 
-unauthorised.title = You can’t access this service with this account
-unauthorised.heading = You can’t access this service with this account
-
 guidancePage.title = Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.heading = Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.intro = Use this service to get import and export reports based on your data in the Customs Declaration Service (CDS).
@@ -122,13 +119,15 @@ contactDetails.name = Name
 contactDetails.eoriNumber = EORI number
 contactDetails.email = Email address
 
-unauthorisedCdsEnrolment.title = There is a problem
-unauthorisedCdsEnrolment.heading = There is a problem
-unauthorisedCdsEnrolment.p1 = The details signed in are not subscribed to the Customs Declaration Service (CDS).
-unauthorisedCdsEnrolment.cdsLink = You must be subscribed to CDS before you can use Get customs declaration data for imports and exports (opens in new tab).
-unauthorisedCdsEnrolment.p2.part1 = If you are subscribed to CDS,
-unauthorisedCdsEnrolment.p2.linkText = sign out
-unauthorisedCdsEnrolment.p2.part2 = and sign in with the correct details.
+unauthorisedCdsEnrolment.title = Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.heading = Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.p1 = To use this service, you must have an active CDS subscription.
+unauthorisedCdsEnrolment.p2 = You may need to:
+unauthorisedCdsEnrolment.bullet1.link = subscribe to CDS (opens in new tab)
+unauthorisedCdsEnrolment.bullet1 = if you have not already
+unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed - your access may still be updating
+unauthorisedCdsEnrolment.bullet3.link = sign out
+unauthorisedCdsEnrolment.bullet3 = and sign in with the correct details if you have more than one account
 
 reportGuidance.title = Request a CDS report
 reportGuidance.heading = Request a CDS report
@@ -201,7 +200,6 @@ reportName.singleReport.heading = What name will you use to identify this report
 reportName.checkYourAnswersLabel = Report name
 reportName.pluralReport.checkYourAnswersLabel = Name for this set of reports
 reportName.hint = This name is only used to help you manage your reports.
-reportName.message = You cannot change this later.
 reportName.error.required = Enter the name you will use to identify this report
 reportName.error.required.plural = Enter the name you will use to identify this set of reports
 reportName.error.length = The name you will use to identify this report must be 70 characters or fewer
@@ -571,6 +569,11 @@ thirdPartyDetails.dataTypes.label = Types of data they have access to
 thirdPartyDetails.dataRange.label = Data they can view
 thirdPartyDetails.dataRange.allData = All available data
 
+businessDetails.title = Business details
+businessDetails.heading = Business details
+businessDetails.dataTypes.label = Types of data you have access to
+businessDetails.dataRange.label = Data you can view
+
 accountsAuthorityOver.title = Businesses you have third-party access to
 accountsAuthorityOver.heading = Businesses you have third-party access to
 accountsAuthorityOver.noBusinesses.title = You do not have third-party access to any businesses
@@ -584,6 +587,22 @@ accountsAuthorityOver.view = View
 accountsAuthorityOver.view.hidden = View {0} details
 accountsAuthorityOver.remove = Remove
 accountsAuthorityOver.remove.hidden = Remove {0} as a third party
+
+maybeThirdPartyAccessSelfRemoval.title = Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.heading = Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.message = If you remove your access, you’ll need to ask this business to add you again if you want access to their data in the future.
+maybeThirdPartyAccessSelfRemoval.error.required = Select yes if you want to remove your third-party access
+
+thirdPartyAccessSelfRemoved.title = Your third-party access has been removed
+thirdPartyAccessSelfRemoved.heading = Your third-party access has been removed
+thirdPartyAccessSelfRemoved.message1 = Removed on {0} at {1}.
+thirdPartyAccessSelfRemoved.message2 = To keep a record, you can
+thirdPartyAccessSelfRemoved.print.link = print this page
+thirdPartyAccessSelfRemoved.heading2 = What happens next
+thirdPartyAccessSelfRemoved.message3 = You no longer have access to {0} customs declaration data.
+thirdPartyAccessSelfRemoved.message4 = You can
+thirdPartyAccessSelfRemoved.link1 = view businesses that you do have third party access to
+thirdPartyAccessSelfRemoved.link2 = Go to homepage
 
 removeThirdParty.title = Are you sure you want to remove this third party?
 removeThirdParty.heading = Are you sure you want to remove this third party?

@@ -148,4 +148,58 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
       )
     }
   }
+
+  ".businessDetailsRow" - {
+
+    "when both start and end dates are provided, return summary list row for fixed period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.of(2025, 6, 30)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = Some(endDate),
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.businessDetailsRow(thirdPartyDetails)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.businessDetailsLabel",
+          value = ValueViewModel(
+            messages(
+              "thirdPartyAccessPeriod.fixed.answerLabel",
+              startDate.format(dateTimeFormat()),
+              endDate.format(dateTimeFormat())
+            )
+          )
+        )
+      )
+    }
+
+    "when only start date is provided, return summary list row for ongoing period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.businessDetailsRow(thirdPartyDetails)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.businessDetailsLabel",
+          value = ValueViewModel(
+            messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          )
+        )
+      )
+    }
+  }
 }

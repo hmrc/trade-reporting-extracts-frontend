@@ -122,13 +122,15 @@ contactDetails.name = cy: Name
 contactDetails.eoriNumber = cy: EORI number
 contactDetails.email = cy: Email address
 
-unauthorisedCdsEnrolment.title = cy: There is a problem
-unauthorisedCdsEnrolment.heading = cy: There is a problem
-unauthorisedCdsEnrolment.p1 = cy: The details signed in are not subscribed to the Customs Declaration Service (CDS).
-unauthorisedCdsEnrolment.cdsLink = cy: You must be subscribed to CDS before you can use Get customs declaration data for imports and exports (opens in new tab).
-unauthorisedCdsEnrolment.p2.part1 = cy: If you are subscribed to CDS,
-unauthorisedCdsEnrolment.p2.linkText = cy: sign out
-unauthorisedCdsEnrolment.p2.part2 = cy: and sign in with the correct details.
+unauthorisedCdsEnrolment.title = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.heading = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
+unauthorisedCdsEnrolment.p1 = cy: To use this service, you must have an active CDS subscription.
+unauthorisedCdsEnrolment.p2 = cy: You may need to:
+unauthorisedCdsEnrolment.bullet1.link = cy: subscribe to CDS (opens in new tab)
+unauthorisedCdsEnrolment.bullet1 = cy: if you have not already
+unauthorisedCdsEnrolment.bullet2 = cy: wait up to 5 days if you have just subscribed - your access may still be updating
+unauthorisedCdsEnrolment.bullet3.link = cy: sign out
+unauthorisedCdsEnrolment.bullet3 = cy: and sign in with the correct details if you have more than one account
 
 reportGuidance.title = cy: Request a CDS report
 reportGuidance.heading = cy: Request a CDS report
@@ -201,7 +203,6 @@ reportName.singleReport.heading = cy: What name will you use to identify this re
 reportName.checkYourAnswersLabel = cy: Report name
 reportName.pluralReport.checkYourAnswersLabel = cy: Name for this set of reports
 reportName.hint = cy: This name is only used to help you manage your reports
-reportName.message = cy: You cannot change this later.
 reportName.error.required = cy: Enter the name you will use to identify this report
 reportName.error.required.plural = cy: Enter the name you will use to identify this set of reports
 reportName.error.length = cy: The name you will use to identify this report must be 70 characters or fewer
@@ -469,6 +470,7 @@ thirdPartyAccessPeriod.checkYourAnswersLabel = cy: Third-party access period
 thirdPartyAccessPeriod.fixed.answerLabel = cy: {0} to {1}
 thirdPartyAccessPeriod.ongoing.answerLabel = cy: From {0} - ongoing
 thirdPartyAccessPeriod.change.hidden = cy: third-party access period
+thirdPartyAccessPeriod.businessDetailsLabel = cy: Your access period
 
 thirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
 thirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
@@ -571,6 +573,11 @@ thirdPartyDetails.dataTypes.label = cy: Types of data they have access to
 thirdPartyDetails.dataRange.label = cy: Data they can view
 thirdPartyDetails.dataRange.allData = cy: All available data
 
+businessDetails.title = cy: Business details
+businessDetails.heading = cy: Business details
+businessDetails.dataTypes.label = cy: Types of data you have access to
+businessDetails.dataRange.label = cy: Data you can view
+
 accountsAuthorityOver.title = cy: Businesses you have third-party access to
 accountsAuthorityOver.heading = cy: Businesses you have third-party access to
 accountsAuthorityOver.noBusinesses.title = cy: You do not have third-party access to any businesses
@@ -584,6 +591,22 @@ accountsAuthorityOver.view = cy: View
 accountsAuthorityOver.view.hidden = cy: View {0} details
 accountsAuthorityOver.remove = cy: Remove
 accountsAuthorityOver.remove.hidden = cy: Remove {0} as a third party
+
+maybeThirdPartyAccessSelfRemoval.title = cy: Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.heading = cy: Are you sure you want to remove your third-party access?
+maybeThirdPartyAccessSelfRemoval.message = cy: If you remove your access, you’ll need to ask this business to add you again if you want access to their data in the future.
+maybeThirdPartyAccessSelfRemoval.error.required = cy: Select yes if you want to remove your third-party access
+
+thirdPartyAccessSelfRemoved.title = cy: Your third-party access has been removed
+thirdPartyAccessSelfRemoved.heading = cy: Your third-party access has been removed
+thirdPartyAccessSelfRemoved.message1 = cy: Removed on {0} at {1}.
+thirdPartyAccessSelfRemoved.message2 = cy: To keep a record, you can
+thirdPartyAccessSelfRemoved.print.link = cy: print this page
+thirdPartyAccessSelfRemoved.heading2 = cy: What happens next
+thirdPartyAccessSelfRemoved.message3 = cy: You no longer have access to {0} customs declaration data.
+thirdPartyAccessSelfRemoved.message4 = cy: You can
+thirdPartyAccessSelfRemoved.link1 = cy: view businesses that you do have third party access to
+thirdPartyAccessSelfRemoved.link2 = cy: Go to homepage
 
 removeThirdParty.title = cy: Are you sure you want to remove this third party?
 removeThirdParty.heading = cy: Are you sure you want to remove this third party?

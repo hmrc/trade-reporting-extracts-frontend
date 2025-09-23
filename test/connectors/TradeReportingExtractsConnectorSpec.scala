@@ -34,6 +34,7 @@ import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import java.time.*
 import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
@@ -580,6 +581,44 @@ class TradeReportingExtractsConnectorSpec
               )
           )
           val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "selfRemoveThirdPartyAccess" - {
+      "Return Done when OK received" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
+              .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
+              .willReturn(
+                aResponse().withStatus(OK)
+              )
+          )
+          val result = connector.selfRemoveThirdPartyAccess("123", "456").futureValue
+          result mustBe Done
+        }
+      }
+
+      "Return upstream error response when anything else received" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
+              .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
+              .willReturn(
+                aResponse().withStatus(500).withBody("error")
+              )
+          )
+          val result = connector.selfRemoveThirdPartyAccess("123", "456").failed.futureValue
           result mustBe an[UpstreamErrorResponse]
         }
       }

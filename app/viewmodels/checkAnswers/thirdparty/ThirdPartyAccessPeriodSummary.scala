@@ -25,6 +25,8 @@ import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
+import java.time.LocalDate
+
 object ThirdPartyAccessPeriodSummary {
 
   def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
@@ -62,16 +64,38 @@ object ThirdPartyAccessPeriodSummary {
       )
     }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
+    Some(
+      buildRow(
+        thirdPartyDetails.accessStartDate,
+        thirdPartyDetails.accessEndDate,
+        "thirdPartyAccessPeriod.checkYourAnswersLabel"
+      )
+    )
+
+  def businessDetailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
+    Some(
+      buildRow(
+        thirdPartyDetails.accessStartDate,
+        thirdPartyDetails.accessEndDate,
+        "thirdPartyAccessPeriod.businessDetailsLabel"
+      )
+    )
+
+  private def buildRow(
+    startDate: LocalDate,
+    maybeEndDate: Option[LocalDate],
+    keyMessage: String
+  )(implicit messages: Messages): SummaryListRow = {
 
     implicit val lang: Lang = messages.lang
 
-    val value = thirdPartyDetails.accessEndDate match {
+    val value = maybeEndDate match {
       case Some(endDate) =>
         ValueViewModel(
           messages(
             "thirdPartyAccessPeriod.fixed.answerLabel",
-            thirdPartyDetails.accessStartDate.format(dateTimeFormat()),
+            startDate.format(dateTimeFormat()),
             endDate.format(dateTimeFormat())
           )
         )
@@ -79,16 +103,14 @@ object ThirdPartyAccessPeriodSummary {
         ValueViewModel(
           messages(
             "thirdPartyAccessPeriod.ongoing.answerLabel",
-            thirdPartyDetails.accessStartDate.format(dateTimeFormat())
+            startDate.format(dateTimeFormat())
           )
         )
     }
 
-    Some(
-      SummaryListRowViewModel(
-        key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
-        value = value
-      )
+    SummaryListRowViewModel(
+      key = keyMessage,
+      value = value
     )
   }
 }
