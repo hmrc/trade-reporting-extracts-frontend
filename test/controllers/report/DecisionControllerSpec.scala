@@ -22,18 +22,19 @@ import controllers.actions.BelowReportRequestLimitAction
 import controllers.problem.routes
 import controllers.problem.routes.TooManySubmissionsController
 import forms.report.DecisionFormProvider
-import models.report.{ChooseEori, Decision}
+import models.report.{ChooseEori, Decision, ReportTypeImport}
 import models.requests.DataRequest
 import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator, ReportNavigator}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, DecisionPage}
+import pages.report.{ChooseEoriPage, DecisionPage, ReportTypeImportPage}
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.{Call, Result}
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -180,20 +181,18 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to DateRangePage when thirdParty and Decision is Export" in {
+    "must redirect to DateRangePage and set a user answer export to ReportTypeImportPage when thirdParty and Decision is Export" in {
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
+      val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
 
       val ua = emptyUserAnswers
-        .set(DecisionPage, Decision.Export)
-        .success
-        .value
         .set(ChooseEoriPage, ChooseEori.Myauthority)
         .success
         .value
-
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
 
       val application = applicationBuilder(userAnswers = Some(ua))
         .overrides(
@@ -212,6 +211,10 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRouteThirdPartyExport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DecisionPage) mustBe Some(Decision.Export)
+        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
       }
     }
 
