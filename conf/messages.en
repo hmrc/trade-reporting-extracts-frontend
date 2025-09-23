@@ -467,7 +467,6 @@ thirdPartyAccessPeriod.checkYourAnswersLabel = Third-party access period
 thirdPartyAccessPeriod.fixed.answerLabel = {0} to {1}
 thirdPartyAccessPeriod.ongoing.answerLabel = From {0} - ongoing
 thirdPartyAccessPeriod.change.hidden = third-party access period
-thirdPartyAccessPeriod.businessDetailsLabel = Your access period
 
 thirdPartyAccessEndDate.title = When do you want this access to end? (optional)
 thirdPartyAccessEndDate.heading = When do you want this access to end? (optional)
@@ -604,3 +603,21 @@ thirdPartyAccessSelfRemoved.message3 = You no longer have access to {0} customs 
 thirdPartyAccessSelfRemoved.message4 = You can
 thirdPartyAccessSelfRemoved.link1 = view businesses that you do have third party access to
 thirdPartyAccessSelfRemoved.link2 = Go to homepage
+
+removeThirdParty.title = Are you sure you want to remove this third party?
+removeThirdParty.heading = Are you sure you want to remove this third party?
+removeThirdParty.error.required = Select yes if you want to remove this third party
+removeThirdParty.message = If you remove their access, they’ll no longer be able to request and download your CDS reports.
+removeThirdParty.change.hidden = Are you sure you want to remove this third party?
+
+removeThirdPartyConfirmation.title = Third-party removed
+removeThirdPartyConfirmation.heading = Third-party removed
+removeThirdPartyConfirmation.message1 = Removed on {0} at {1}.
+removeThirdPartyConfirmation.message2 = To keep a record, you can
+removeThirdPartyConfirmation.print.link = print this page
+removeThirdPartyConfirmation.heading2 = What happens next
+removeThirdPartyConfirmation.message3 = {0} can no longer access your customs declaration data.
+removeThirdPartyConfirmation.message4 = An email will be sent to {0}, linked to EORI number {1}, to confirm that their third-party access has been removed.
+removeThirdPartyConfirmation.message5 = You can
+removeThirdPartyConfirmation.link1 = view third parties that do have access to your data.
+removeThirdPartyConfirmation.link2 = Go to homepage

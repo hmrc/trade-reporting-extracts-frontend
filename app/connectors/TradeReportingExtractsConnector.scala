@@ -395,4 +395,24 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             )
         }
       }
+
+  def removeThirdParty(eori: String, thirdPartyEori: String)(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient
+      .delete(url"${frontendAppConfig.tradeReportingExtractsApi}/remove-third-party")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "thirdPartyEori" -> thirdPartyEori))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case NO_CONTENT => Future.successful(Done)
+          case _          =>
+            logger.error(s"Failed to remove third party: ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/remove-third-party",
+                response.status
+              )
+            )
+        }
+      }
 }

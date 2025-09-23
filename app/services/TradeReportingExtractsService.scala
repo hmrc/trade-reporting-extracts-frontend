@@ -19,8 +19,9 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
+import org.apache.pekko.Done
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import play.api.Logging
 import play.api.i18n.Messages
@@ -112,6 +113,11 @@ class TradeReportingExtractsService @Inject() (
     connector.auditReportDownload(auditData)
   }
 
+  def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyAddedConfirmation] =
+    connector.createThirdPartyAddRequest(thirdPartyRequest)
+
   def getAuthorisedThirdParties(
     eori: String
   )(implicit hc: HeaderCarrier): Future[Seq[AuthorisedThirdPartiesViewModel]] =
@@ -133,8 +139,8 @@ class TradeReportingExtractsService @Inject() (
   )(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
     connector.getAccountsAuthorityOver(eori)
 
-  def createThirdPartyAddRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+  def removeThirdParty(eori: String, thirdPartyEori: String)(implicit
     hc: HeaderCarrier
-  ): Future[ThirdPartyAddedConfirmation] =
-    connector.createThirdPartyAddRequest(thirdPartyRequest)
+  ): Future[Done] =
+    connector.removeThirdParty(eori, thirdPartyEori)
 }

@@ -63,6 +63,7 @@ GET         /check-your-answers-third-party             controllers.thirdparty.A
 GET         /third-party-added-confirmation             controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
 
 GET         /manage-third-parties                       controllers.thirdparty.AuthorisedThirdPartiesController.onPageLoad()
+
 GET         /businesses-you-have-access-to              controllers.thirdparty.AccountsAuthorityOverController.onPageLoad()
 
 GET        /remove-my-access-:traderEori                controllers.thirdparty.MaybeThirdPartyAccessSelfRemovalController.onPageLoad(traderEori: String)
@@ -70,3 +71,8 @@ POST       /remove-my-access-:traderEori                controllers.thirdparty.M
 
 GET        /:traderEori-access-removed-confirmation     controllers.thirdparty.ThirdPartyAccessSelfRemovedController.onPageLoad(traderEori: String)
 
+
+GET        /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onPageLoad(thirdPartyEori: String)
+POST       /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onSubmit(thirdPartyEori: String)
+
+GET        /third-party-removed-confirmation/:thirdPartyEori         controllers.thirdparty.RemoveThirdPartyConfirmationController.onPageLoad(thirdPartyEori: String)
