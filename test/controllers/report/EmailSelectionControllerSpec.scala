@@ -84,6 +84,24 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to the next page when no additional emails present" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+      when(mockTradeReportingExtractsService.setupUser(any())(any()))
+        .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = Seq.empty)))
+
+      running(application) {
+        val request = FakeRequest(GET, emailSelectionRoute)
+        val result  = route(application, request).value
+
+        val view = application.injector.instanceOf[EmailSelectionView]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = UserAnswers(userAnswersId)
         .set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue))
