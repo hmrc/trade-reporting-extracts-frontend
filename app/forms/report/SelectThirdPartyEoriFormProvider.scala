@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package pages.report
+package forms.report
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import models.SelectThirdPartyEori
+import play.api.data.Form
 
-case object AccountsYouHaveAuthorityOverImportPage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ "report" \ toString
+class SelectThirdPartyEoriFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "accountsYouHaveAuthorityOverImport"
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("selectThirdPartyEori.error.required")
+    )
 }

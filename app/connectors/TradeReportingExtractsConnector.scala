@@ -376,6 +376,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         throw ex
       }
 
+  def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori-date-filtered")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("thirdPartyEori" -> eori))
+      .execute[Seq[AccountAuthorityOverViewModel]]
+      .recover { ex =>
+        logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
+        throw ex
+      }
+
   def selfRemoveThirdPartyAccess(traderEori: String, thirdPartyEori: String)(implicit hc: HeaderCarrier): Future[Done] =
     httpClient
       .delete(url"${frontendAppConfig.tradeReportingExtractsApi}/third-party-access-self-removal")

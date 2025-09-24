@@ -16,29 +16,36 @@
 
 package viewmodels.checkAnswers.report
 
-import controllers.report.routes
-
+import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.report.AccountsYouHaveAuthorityOverImportPage
+import pages.report.SelectThirdPartyEoriPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object AccountsYouHaveAuthorityOverImportSummary {
+object SelectThirdPartyEoriSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(AccountsYouHaveAuthorityOverImportPage).map { answer =>
+    answers.get(SelectThirdPartyEoriPage).map { answer =>
+
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"selectThirdPartyEori.$answer"))
+        )
+      )
+
       SummaryListRowViewModel(
-        key = "accountsYouHaveAuthorityOverImport.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(answer).toString),
+        key = "selectThirdPartyEori.checkYourAnswersLabel",
+        value = value,
         actions = Seq(
           ActionItemViewModel(
             "site.change",
-            routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(CheckMode).url
+            controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("accountsYouHaveAuthorityOverImport.change.hidden"))
+            .withVisuallyHiddenText(messages("selectThirdPartyEori.change.hidden"))
         )
       )
     }

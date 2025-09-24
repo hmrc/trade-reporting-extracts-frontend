@@ -23,6 +23,11 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
+  implicit lazy val arbitrarySelectThirdPartyEori: Arbitrary[SelectThirdPartyEori] =
+    Arbitrary {
+      Gen.oneOf(SelectThirdPartyEori.values.toSeq)
+    }
+
   implicit lazy val arbitraryConfirmEori: Arbitrary[ConfirmEori] =
     Arbitrary {
       Gen.oneOf(ConfirmEori.values)
