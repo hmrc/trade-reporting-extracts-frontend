@@ -111,6 +111,8 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
         .build()
+      when(mockTradeReportingExtractsService.setupUser(any())(any()))
+        .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = dynamicEmails)))
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)
