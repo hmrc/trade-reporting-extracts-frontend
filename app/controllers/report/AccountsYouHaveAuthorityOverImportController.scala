@@ -62,7 +62,7 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
         Ok(view(preparedForm, mode, eoriList))
       }
   }
-
+//
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 

@@ -621,3 +621,11 @@ removeThirdPartyConfirmation.message4 = An email will be sent to {0}, linked to 
 removeThirdPartyConfirmation.message5 = You can
 removeThirdPartyConfirmation.link1 = view third parties that do have access to your data.
 removeThirdPartyConfirmation.link2 = Go to homepage
+
+selectThirdPartyEori.title = selectThirdPartyEori
+selectThirdPartyEori.heading = selectThirdPartyEori
+selectThirdPartyEori.option1 = Option 1
+selectThirdPartyEori.option2 = Option 2
+selectThirdPartyEori.checkYourAnswersLabel = selectThirdPartyEori
+selectThirdPartyEori.error.required = Select selectThirdPartyEori
+selectThirdPartyEori.change.hidden = SelectThirdPartyEori

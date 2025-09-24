@@ -23,3 +23,7 @@ GET        /contact-details                controllers.ContactDetailsController.
 GET        /available-to-download          controllers.AvailableReportsController.onPageLoad()
 
 GET        /file-download                  controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)
+GET        /selectThirdPartyEori                        controllers.SelectThirdPartyEoriController.onPageLoad(mode: Mode = NormalMode)
+POST       /selectThirdPartyEori                        controllers.SelectThirdPartyEoriController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSelectThirdPartyEori                  controllers.SelectThirdPartyEoriController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSelectThirdPartyEori                  controllers.SelectThirdPartyEoriController.onSubmit(mode: Mode = CheckMode)
