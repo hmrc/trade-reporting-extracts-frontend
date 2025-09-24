@@ -29,11 +29,20 @@ case class RequestedUserReportViewModel(
   reportName: String,
   requestedDate: Instant,
   reportType: ReportTypeName,
+  reportStartDate: Instant,
+  reportEndDate: Instant,
   reportStatus: ReportStatus
 ) {
   def formattedRequestedDate: String =
     RequestedUserReportViewModel.dateFormatter.format(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
-  def formattedReportType: String    = ReportHelpers.getReportType(reportType)
+
+  def formattedReportStartDate: String =
+    RequestedUserReportViewModel.dateFormatter.format(reportStartDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
+  def formattedReportEndDate: String =
+    RequestedUserReportViewModel.dateFormatter.format(reportEndDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
+  def formattedReportType: String = ReportHelpers.getReportType(reportType)
 }
 
 object RequestedUserReportViewModel {

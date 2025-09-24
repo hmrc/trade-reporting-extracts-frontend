@@ -42,17 +42,22 @@
         HeadCell(content = Text(messages("requestedReports.table.status")))
       )),
       rows = reports.map { data =>
-        Seq(
-          TableRow(content = Text(messages(data.reportName))),
-          TableRow(content = Text(messages(data.referenceNumber))),
-          TableRow(content = Text(messages(data.formattedReportType))),
-          TableRow(content = Text(messages(data.formattedRequestedDate))),
-          TableRow(content = HtmlContent(govukTag(Tag(
-            content = Text(messages(ReportHelpers.reportStatusDisplayData(data.reportStatus)._1)),
-            classes = ReportHelpers.reportStatusDisplayData(data.reportStatus)._2
-          ))))
-        )
-      },
+      val displayData = ReportHelpers.reportStatusDisplayData(data.reportStatus, data.reportName, data.referenceNumber, data.formattedReportStartDate.toString, data.formattedReportEndDate.toString)
+      Seq(
+        TableRow(content = Text(messages(data.reportName))),
+        TableRow(content = Text(messages(data.referenceNumber))),
+        TableRow(content = Text(messages(data.formattedReportType))),
+        TableRow(content = Text(messages(data.formattedRequestedDate))),
+        TableRow(content = HtmlContent {
+          displayData.maybeRedirect match {
+            case Some(redirect) =>
+              s"""<a href="$redirect" class="govuk-link govuk-link--no-visited-state">${messages(displayData.key)}</a>"""
+            case None =>
+              s"""<span class="govuk-tag ${displayData.cssClass}">${messages(displayData.key)}</span>"""
+          }
+        })
+      )
+    },
       caption = Some(messages("requestedReports.myReports")),
       captionClasses = "govuk-table__caption--l"
     ))
@@ -70,16 +75,21 @@
       HeadCell(content = Text(messages("requestedReports.table.status")))
     )),
     rows = requestedReports.availableThirdPartyReports.getOrElse(Seq.empty).map { data =>
+      val displayData = ReportHelpers.reportStatusDisplayData(data.reportStatus, data.reportName, data.referenceNumber, data.formattedReportStartDate.toString, data.formattedReportEndDate.toString)
       Seq(
         TableRow(content = Text(messages(data.reportName))),
         TableRow(content = Text(messages(data.referenceNumber))),
         TableRow(content = Text(messages(data.companyName))),
         TableRow(content = Text(messages(data.formattedReportType))),
         TableRow(content = Text(messages(data.formattedRequestedDate))),
-        TableRow(content = HtmlContent(govukTag(Tag(
-          content = Text(messages(ReportHelpers.reportStatusDisplayData(data.reportStatus)._1)),
-          classes = ReportHelpers.reportStatusDisplayData(data.reportStatus)._2
-        ))))
+        TableRow(content = HtmlContent {
+          displayData.maybeRedirect match {
+            case Some(redirect) =>
+              s"""<a href="$redirect" class="govuk-link govuk-link--no-visited-state">${messages(displayData.key)}</a>"""
+            case None =>
+              s"""<span class="govuk-tag ${displayData.cssClass}">${messages(displayData.key)}</span>"""
+          }
+        })
       )
     },
     caption = Some(messages("requestedReports.thirdPartyReports")),

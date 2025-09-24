@@ -122,4 +122,68 @@ class ReportHelpersSpec extends SpecBase with Matchers {
 
   }
 
+  ".reportStatusDisplayData" - {
+
+    val reportName = "testReport"
+    val reportRef  = "ref123"
+    val startDate  = "2024-01-01"
+    val endDate    = "2024-02-01"
+
+    "must return correct data for COMPLETE" in {
+      val result = ReportHelpers.reportStatusDisplayData(
+        models.ReportStatus.COMPLETE,
+        reportName,
+        reportRef,
+        startDate,
+        endDate
+      )
+      result.key mustBe "requestedReports.status.complete"
+      result.cssClass mustBe "govuk-tag--green"
+      result.maybeRedirect mustBe None
+    }
+
+    "must return correct data for ERROR" in {
+      val result = ReportHelpers.reportStatusDisplayData(
+        models.ReportStatus.ERROR,
+        reportName,
+        reportRef,
+        startDate,
+        endDate
+      )
+      result.key mustBe "requestedReports.status.error"
+      result.cssClass mustBe "govuk-tag--red"
+      result.maybeRedirect.value must include(
+        controllers.problem.routes.ReportFailedController.onPageLoad(reportName, reportRef).url
+      )
+    }
+
+    "must return correct data for IN_PROGRESS" in {
+      val result = ReportHelpers.reportStatusDisplayData(
+        models.ReportStatus.IN_PROGRESS,
+        reportName,
+        reportRef,
+        startDate,
+        endDate
+      )
+      result.key mustBe "requestedReports.status.inProgress"
+      result.cssClass mustBe "govuk-tag--blue"
+      result.maybeRedirect mustBe None
+    }
+
+    "must return correct data for NO_DATA_AVAILABLE" in {
+      val result = ReportHelpers.reportStatusDisplayData(
+        models.ReportStatus.NO_DATA_AVAILABLE,
+        reportName,
+        reportRef,
+        startDate,
+        endDate
+      )
+      result.key mustBe "requestedReports.status.noDataAvailable"
+      result.cssClass mustBe "govuk-tag--red"
+      result.maybeRedirect.value must include(
+        controllers.problem.routes.NoDataFoundController.onPageLoad(reportName, reportRef, startDate, endDate).url
+      )
+    }
+  }
+
 }
