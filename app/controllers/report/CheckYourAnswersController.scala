@@ -54,8 +54,8 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
       request.userAnswers.get(pages.report.ReportTypeImportPage).getOrElse(Set.empty)
 
     val rows: Seq[Option[SummaryListRow]] = Seq(
-      DecisionSummary.row(request.userAnswers),
       if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+      DecisionSummary.row(request.userAnswers),
       EoriRoleSummary.row(request.userAnswers),
       if (reportTypeImports.contains(ReportTypeImport.ExportItem)) {
         None

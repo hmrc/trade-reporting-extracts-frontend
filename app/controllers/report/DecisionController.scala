@@ -20,9 +20,9 @@ import controllers.BaseController
 import controllers.actions.{BelowReportRequestLimitAction, DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.DecisionFormProvider
 import models.{Mode, UserAnswers}
-import models.report.{ChooseEori, Decision, ReportRequestSection}
+import models.report.{ChooseEori, Decision, ReportRequestSection, ReportTypeImport}
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, DecisionPage}
+import pages.report.{ChooseEoriPage, DecisionPage, ReportTypeImportPage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -65,14 +65,20 @@ class DecisionController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value => {
             val updatedAnswersTry: Try[UserAnswers] = for {
-              withDecision  <- request.userAnswers.set(DecisionPage, value)
-              enriched      <- if (!appConfig.thirdPartyEnabled) {
-                                 withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
-                               } else {
-                                 Success(withDecision)
-                               }
-              redirectUrl    = navigator.nextPage(DecisionPage, mode, enriched).url
-              answersWithNav = reportRequestSection.saveNavigation(enriched, redirectUrl)
+              withDecision   <- request.userAnswers.set(DecisionPage, value)
+              withThirdParty <- if (!appConfig.thirdPartyEnabled) {
+                                  withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
+                                } else {
+                                  Success(withDecision)
+                                }
+              withExportType <- value match {
+                                  case Decision.Export =>
+                                    withThirdParty.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
+                                  case _               =>
+                                    scala.util.Success(withThirdParty)
+                                }
+              redirectUrl     = navigator.nextPage(DecisionPage, mode, withExportType).url
+              answersWithNav  = reportRequestSection.saveNavigation(withExportType, redirectUrl)
             } yield answersWithNav
 
             sessionRepository.set(updatedAnswersTry.get).map { _ =>

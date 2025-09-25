@@ -18,11 +18,11 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.EoriRoleFormProvider
-import models.report.{Decision, ReportRequestSection, ReportTypeImport}
-import models.{EoriRole, Mode}
 import models.report.Decision.Import
+import models.report.{Decision, ReportRequestSection}
+import models.{EoriRole, Mode}
 import navigation.ReportNavigator
-import pages.report.{DecisionPage, EoriRolePage, ReportTypeImportPage}
+import pages.report.{DecisionPage, EoriRolePage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -71,13 +71,7 @@ class EoriRoleController @Inject() (
           value =>
             for {
               updatedAnswers <- Future.fromTry(
-                                  if (isImporter) {
-                                    request.userAnswers.set(EoriRolePage, value)
-                                  } else {
-                                    request.userAnswers
-                                      .set(EoriRolePage, value)
-                                      .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
-                                  }
+                                  request.userAnswers.set(EoriRolePage, value)
                                 )
               redirectUrl     = navigator.nextPage(EoriRolePage, mode, updatedAnswers).url
               answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)

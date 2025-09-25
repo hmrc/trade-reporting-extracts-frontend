@@ -39,9 +39,11 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
   def appBuilder(
     userAnswers: Option[UserAnswers] = None,
-    mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+    mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService],
+    thirdPartyEnabled: Boolean = false
   ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
+      .configure("features.third-party" -> thirdPartyEnabled)
       .overrides(
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
@@ -49,11 +51,11 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
   "ReportGuidanceController" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and correct view for initial page load when thirdPartyEnabled = false" in {
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
 
-      val application = appBuilder(userAnswers = Some(emptyUserAnswers), mockService).build()
+      val application = appBuilder(Some(emptyUserAnswers), mockService).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
@@ -61,7 +63,34 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val view    = application.injector.instanceOf[ReportGuidanceView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          NormalMode,
+          "25",
+          routes.DecisionController.onPageLoad(NormalMode).url
+        )(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and correct view for initial page load when thirdPartyEnabled = true" in {
+      val mockService = mock[TradeReportingExtractsService]
+      when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+
+      val application = appBuilder(Some(emptyUserAnswers), mockService, thirdPartyEnabled = true).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[ReportGuidanceView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          NormalMode,
+          "25",
+          routes.ChooseEoriController.onPageLoad(NormalMode).url
+        )(request, messages(application)).toString
       }
     }
 
@@ -96,7 +125,10 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(NormalMode, "25", routes.DecisionController.onPageLoad(NormalMode).url)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -131,7 +163,10 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode, "25")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(NormalMode, "25", routes.DecisionController.onPageLoad(NormalMode).url)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

@@ -22,28 +22,31 @@ import controllers.actions.BelowReportRequestLimitAction
 import controllers.problem.routes
 import controllers.problem.routes.TooManySubmissionsController
 import forms.report.DecisionFormProvider
-import models.report.Decision
+import models.report.{ChooseEori, Decision, ReportTypeImport}
 import models.requests.DataRequest
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.DecisionPage
+import pages.report.{ChooseEoriPage, DecisionPage, ReportTypeImportPage}
+import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.{Call, Result}
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.DecisionView
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
-  val mockPassLimitAction = new BelowReportRequestLimitAction with MockitoSugar {
+  val mockPassLimitAction: BelowReportRequestLimitAction & MockitoSugar = new BelowReportRequestLimitAction
+    with MockitoSugar {
     override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
       Future.successful(
         Right(
@@ -51,15 +54,17 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    override protected def executionContext = global
+    override protected def executionContext: ExecutionContext = global
   }
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/which-eori")
+  def onwardRoute                 = Call("GET", "/request-customs-declaration-data/your-role")
+  def onwardRouteThirdPartyImport = Call("GET", "/request-customs-declaration-data/import-report-type")
+  def onwardRouteThirdPartyExport = Call("GET", "/request-customs-declaration-data/date-range")
 
-  lazy val decisionRoute = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
+  lazy val decisionRoute: String = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
 
-  val formProvider = new DecisionFormProvider()
-  val form         = formProvider()
+  val formProvider         = new DecisionFormProvider()
+  val form: Form[Decision] = formProvider()
 
   "Decision Controller" - {
 
@@ -112,9 +117,16 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
+      val ua                               = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .success
+        .value
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
       val application                      =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(ua))
           .overrides(
             bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
@@ -132,6 +144,77 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to ReportTypeImportPage when ChooseEori is Myauthority and Decision is Import" in {
+
+      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+      val mockSessionRepository            = mock[SessionRepository]
+      val ua                               = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val application                      =
+        applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyImport)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[FrontendAppConfig].toInstance(mockAppConfig)
+          )
+          .build()
+      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+      running(application) {
+        val request =
+          FakeRequest(POST, decisionRoute)
+            .withFormUrlEncodedBody(("value", Decision.values.head.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteThirdPartyImport.url
+      }
+    }
+
+    "must redirect to DateRangePage and set a user answer export to ReportTypeImportPage when thirdParty and Decision is Export" in {
+      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+      val mockSessionRepository            = mock[SessionRepository]
+      val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+
+      val ua = emptyUserAnswers
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
+          bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyExport)),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, decisionRoute)
+          .withFormUrlEncodedBody("value" -> Decision.Export.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteThirdPartyExport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DecisionPage) mustBe Some(Decision.Export)
+        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
       }
     }
 

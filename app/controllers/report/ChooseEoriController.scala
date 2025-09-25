@@ -16,13 +16,15 @@
 
 package controllers.report
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.ChooseEoriFormProvider
-import models.Mode
+import models.{CheckMode, Mode, UserAnswers}
 import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.ChooseEoriPage
+import pages.QuestionPage
+import pages.report._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -30,6 +32,7 @@ import views.html.report.ChooseEoriView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class ChooseEoriController @Inject() (
   override val messagesApi: MessagesApi,
@@ -41,21 +44,57 @@ class ChooseEoriController @Inject() (
   formProvider: ChooseEoriFormProvider,
   reportRequestSection: ReportRequestSection,
   view: ChooseEoriView,
-  val controllerComponents: MessagesControllerComponents
+  val controllerComponents: MessagesControllerComponents,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  private val form                               = formProvider()
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val preparedForm = request.userAnswers.get(ChooseEoriPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-    Ok(view(preparedForm, mode, request.eori))
-  }
+  private val form = formProvider()
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      val preparedForm = request.userAnswers.get(ChooseEoriPage).fold(form)(form.fill)
+
+      val cleanedAnswersFuture: Future[UserAnswers] = (mode, appConfig.thirdPartyEnabled) match {
+        case (CheckMode, true) =>
+          val pagesToRemove: Seq[QuestionPage[_]] = Seq(
+            DecisionPage,
+            AccountsYouHaveAuthorityOverImportPage,
+            EoriRolePage,
+            ReportTypeImportPage,
+            ReportDateRangePage,
+            CustomRequestStartDatePage,
+            CustomRequestEndDatePage,
+            ReportNamePage,
+            MaybeAdditionalEmailPage,
+            EmailSelectionPage,
+            NewEmailNotificationPage
+          )
+
+          val cleanedTry: Try[UserAnswers] = pagesToRemove.foldLeft(Try(request.userAnswers)) { (acc, page) =>
+            acc.flatMap(_.remove(page))
+          }
+
+          cleanedTry match {
+            case Success(cleanedAnswers) =>
+              sessionRepository.set(cleanedAnswers).map(_ => cleanedAnswers)
+
+            case Failure(ex) =>
+              logger.error("Failed to clean user answers on ChooseEoriPage load in CheckMode", ex)
+              Future.successful(request.userAnswers)
+          }
+
+        case _ =>
+          Future.successful(request.userAnswers)
+      }
+
+      cleanedAnswersFuture.map { _ =>
+        Ok(view(preparedForm, mode, request.eori))
+      }
+    }
+
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
@@ -68,5 +107,5 @@ class ChooseEoriController @Inject() (
               _              <- sessionRepository.set(answersWithNav)
             } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
         )
-  }
+    }
 }
