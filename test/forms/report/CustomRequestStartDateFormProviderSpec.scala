@@ -26,7 +26,7 @@ import java.time.{LocalDate, ZoneOffset}
 class CustomRequestStartDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  private val form                        = new CustomRequestStartDateFormProvider()()
+  private val form                        = new CustomRequestStartDateFormProvider()(false, None, None)
 
   val min: LocalDate = LocalDate.now(ZoneOffset.UTC).minusYears(4)
   val max: LocalDate = LocalDate.now(ZoneOffset.UTC)
@@ -49,12 +49,88 @@ class CustomRequestStartDateFormProviderSpec extends DateBehaviours {
       FormError("value", "customRequestStartDate.error.max", Seq())
     )
 
-    behave like dateFieldWithMin(
-      form,
-      "value",
-      min,
-      FormError("value", "customRequestStartDate.error.min", Seq())
-    )
+    "minimum date" - {
+      "when not a third party request" - {
+        behave like dateFieldWithMin(
+          form,
+          "value",
+          min,
+          FormError("value", "customRequestStartDate.error.min", Seq())
+        )
+      }
 
+      "when third party start date is after date four years ago, refuse dates longer than 4 years ago" - {
+        val form = new CustomRequestStartDateFormProvider()(true, Some(LocalDate.of(2019, 1, 1)), None)
+        behave like dateFieldWithMin(
+          form,
+          "value",
+          min,
+          FormError("value", "customRequestStartDate.error.min", Seq())
+        )
+      }
+
+      "when third party data range start date is after 4 years ago, refuse dates before data start date" - {
+        val form = new CustomRequestStartDateFormProvider()(true, Some(LocalDate.now()), None)
+        behave like dateFieldWithMin(
+          form,
+          "value",
+          min,
+          FormError("value", "customRequestStartDate.thirdPartyDataRange.error", Seq())
+        )
+      }
+    }
+
+    "maximum date" - {
+      "when not a third party request" - {
+        behave like dateFieldWithMax(
+          form,
+          "value",
+          max,
+          FormError("value", "customRequestStartDate.error.max", Seq())
+        )
+      }
+
+      "when third party has both data range start date and end date" - {
+        "if end date is within t-2" - {
+          val form = new CustomRequestStartDateFormProvider()(true, Some(LocalDate.now()), Some(LocalDate.now()))
+          behave like dateFieldWithMax(
+            form,
+            "value",
+            max,
+            FormError("value", "customRequestStartDate.error.max", Seq())
+          )
+        }
+
+        "if end date is not within t-2" - {
+          val form = new CustomRequestStartDateFormProvider()(true, Some(min), Some(LocalDate.now().minusDays(10)))
+          behave like dateFieldWithMax(
+            form,
+            "value",
+            max,
+            FormError("value", "customRequestStartDate.thirdPartyDataRange.error", Seq())
+          )
+        }
+      }
+
+      "when third party has on going data range with fixed data start date" - {
+        val form = new CustomRequestStartDateFormProvider()(true, Some(min), None)
+        behave like dateFieldWithMax(
+          form,
+          "value",
+          max,
+          FormError("value", "customRequestStartDate.error.max", Seq())
+        )
+      }
+
+      "when third party has complete data access" - {
+        val form = new CustomRequestStartDateFormProvider()(true, None, None)
+        behave like dateFieldWithMax(
+          form,
+          "value",
+          max,
+          FormError("value", "customRequestStartDate.error.max", Seq())
+        )
+      }
+    }
   }
 }

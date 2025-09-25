@@ -19,18 +19,19 @@ package controllers.report
 import base.SpecBase
 import forms.report.CustomRequestEndDateFormProvider
 import models.report.ReportTypeImport
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.report.CustomRequestEndDateView
 
 import java.time.format.DateTimeFormatter
@@ -40,6 +41,17 @@ import scala.concurrent.Future
 class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
   private implicit val messages: Messages = stubMessages()
+
+  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+  lazy val thirdPartyDetails = ThirdPartyDetails(
+    None,
+    LocalDate.of(2025, 1, 1),
+    None,
+    Set("imports"),
+    None,
+    None
+  )
 
   private val formProvider                      = new CustomRequestEndDateFormProvider()
   private val mostRecentPossibleStartDate       = LocalDate.now(ZoneOffset.UTC).minusDays(3)
@@ -51,7 +63,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
   private val startDateString                   = startDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
   private val startDatePlus30DaysString         = startDate.plusDays(30).format(DateTimeFormatter.ofPattern("d MM yyyy"))
 
-  private def form = formProvider(mostRecentPossibleStartDate)
+  private def form = formProvider(mostRecentPossibleStartDate, false, None)
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -83,11 +95,158 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus30DaysString, false)(
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          startDateString,
+          startDatePlus30DaysString,
+          false,
+          false,
+          None
+        )(
           getRequest(),
           messages(application)
         ).toString
       }
+    }
+
+    "must return OK and correct view when third party with complete data access" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          startDateString,
+          "31 01 2025",
+          false,
+          true,
+          Some(
+            "You entered a report start date of 1 January 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+          )
+        )(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+
+    }
+
+    "must return OK and correct view when third party with fixed start and ongoing data range" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails.copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)))))
+
+      val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          startDateString,
+          "31 01 2025",
+          false,
+          true,
+          Some(
+            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+          )
+        )(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and correct view when third party with fixed start and end data range " in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(
+          Future.successful(
+            thirdPartyDetails
+              .copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)), dataEndDate = Some(LocalDate.of(2025, 2, 1)))
+          )
+        )
+
+      val form = formProvider(LocalDate.of(2025, 1, 1), true, Some(LocalDate.of(2025, 2, 1)))
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          startDateString,
+          "31 01 2025",
+          false,
+          true,
+          Some(
+            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 to 1 February 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+          )
+        )(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+
     }
 
     "must return correct view when more than one report type selected " in {
@@ -110,7 +269,15 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, startDateString, startDatePlus30DaysString, true)(
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          startDateString,
+          startDatePlus30DaysString,
+          true,
+          false,
+          None
+        )(
           getRequest(),
           messages(application)
         ).toString
@@ -142,7 +309,9 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           possibleStartDateString,
           mostRecentPossibleStartDateString,
-          false
+          false,
+          false,
+          None
         )(
           getRequest(),
           messages(application)
@@ -173,7 +342,9 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           startDateString,
           startDatePlus30DaysString,
-          false
+          false,
+          false,
+          None
         )(
           getRequest(),
           messages(application)
@@ -238,7 +409,56 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           startDateString,
           startDatePlus30DaysString,
-          false
+          false,
+          false,
+          None
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted for a third party" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails.copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)))))
+
+      val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      val request =
+        FakeRequest(POST, customRequestEndDateRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
+
+      running(application) {
+        val boundForm = form.bind(Map("value" -> "invalid value"))
+
+        val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          startDateString,
+          "31 01 2025",
+          false,
+          true,
+          Some(
+            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+          )
         )(request, messages(application)).toString
       }
     }

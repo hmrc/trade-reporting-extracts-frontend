@@ -24,12 +24,18 @@
 
 @(form: Form[_],
 mode: Mode, startDateString: String,
-startDatePlus31DaysString: String,
-isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
+hintTextString: String,
+isMoreThanOneReport: Boolean,
+maybeThirdPartyRequest: Boolean,
+thirdPartyString: Option[String])(implicit request: Request[_], messages: Messages)
 
 @content = {
-    <p class="govuk-body">@messages("customRequestEndDate.message1", startDateString)</p>
-    <p class="govuk-hint">@messages("customRequestEndDate.hint", startDatePlus31DaysString)</p>
+    @if(maybeThirdPartyRequest) {
+        <p class="govuk-body">@thirdPartyString </p>
+    } else {
+        <p class="govuk-body">@messages("customRequestEndDate.message1", startDateString)</p>
+    }
+    <p class="govuk-hint">@messages("customRequestEndDate.hint", hintTextString)</p>
 }
 
 @layout(pageTitle = title(form,

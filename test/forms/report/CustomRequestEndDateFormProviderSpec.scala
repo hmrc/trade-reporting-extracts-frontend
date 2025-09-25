@@ -34,7 +34,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
   private val currentDateMinusDay: LocalDate = currentDate.minusDays(1)
   private val beforeStartDate: LocalDate     = startDate.minusDays(1)
   private val illegalReportLengthDate        = startDate.plusDays(32)
-  private val form                           = new CustomRequestEndDateFormProvider()(startDate)
+  private val form                           = new CustomRequestEndDateFormProvider()(startDate, false, None)
 
   ".value" - {
 
@@ -109,6 +109,77 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
         "customRequestEndDate.error.beforeStartDate",
         List(startDate.format(dateTimeFormat()(messages.lang)))
       )
+    }
+
+    "for third party request, not bind dates after thirdPartyDataEndDate if it is before currentDate.minusDays(3)" in {
+      val thirdPartyDataEndDate  = currentDate.minusDays(10)
+      val form                   = new CustomRequestEndDateFormProvider()(startDate, true, Some(thirdPartyDataEndDate))
+      val afterThirdPartyEndDate = thirdPartyDataEndDate.plusDays(1)
+
+      val result = form.bind(
+        Map(
+          "value.day"   -> afterThirdPartyEndDate.getDayOfMonth.toString,
+          "value.month" -> afterThirdPartyEndDate.getMonthValue.toString,
+          "value.year"  -> afterThirdPartyEndDate.getYear.toString
+        )
+      )
+
+      result.errors must contain only FormError(
+        "value",
+        "customRequestEndDate.thirdParty.error",
+        List(thirdPartyDataEndDate.format(dateTimeFormat()(messages.lang)))
+      )
+    }
+
+    "for third party request, not bind dates after currentDate.minusDays(3) if thirdPartyDataEndDate is after currentDate.minusDays(3)" in {
+      val thirdPartyDataEndDate = currentDate.minusDays(1)
+      val form                  = new CustomRequestEndDateFormProvider()(startDate, true, Some(thirdPartyDataEndDate))
+      val afterAllowedDate      = currentDate
+
+      val result = form.bind(
+        Map(
+          "value.day"   -> afterAllowedDate.getDayOfMonth.toString,
+          "value.month" -> afterAllowedDate.getMonthValue.toString,
+          "value.year"  -> afterAllowedDate.getYear.toString
+        )
+      )
+
+      result.errors must contain only FormError(
+        "value",
+        "customRequestEndDate.error.afterToday",
+        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
+      )
+    }
+
+    "for third party request, allow dates up to thirdPartyDataEndDate if it is before currentDate.minusDays(3)" in {
+      val thirdPartyDataEndDate = currentDate.minusDays(10)
+      val form                  = new CustomRequestEndDateFormProvider()(currentDate.minusDays(11), true, Some(thirdPartyDataEndDate))
+
+      val result = form.bind(
+        Map(
+          "value.day"   -> thirdPartyDataEndDate.getDayOfMonth.toString,
+          "value.month" -> thirdPartyDataEndDate.getMonthValue.toString,
+          "value.year"  -> thirdPartyDataEndDate.getYear.toString
+        )
+      )
+
+      result.errors mustBe empty
+    }
+
+    "for third party request, allow dates up to currentDate.minusDays(3) if thirdPartyDataEndDate is after currentDate.minusDays(3)" in {
+      val thirdPartyDataEndDate = currentDate.minusDays(1)
+      val allowedDate           = currentDate.minusDays(3)
+      val form                  = new CustomRequestEndDateFormProvider()(currentDate.minusDays(10), true, Some(thirdPartyDataEndDate))
+
+      val result = form.bind(
+        Map(
+          "value.day"   -> allowedDate.getDayOfMonth.toString,
+          "value.month" -> allowedDate.getMonthValue.toString,
+          "value.year"  -> allowedDate.getYear.toString
+        )
+      )
+
+      result.errors mustBe empty
     }
 
   }
