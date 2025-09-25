@@ -17,7 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
-import models.AlreadyAddedThirdPartyFlag
+import models.{AlreadyAddedThirdPartyEori, AlreadyAddedThirdPartyFlag}
 import models.requests.DataRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
@@ -32,7 +32,7 @@ class PreventBackNavigationAfterAddThirdPartyActionSpec extends SpecBase with Sc
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   class TestablePreventBackNavigationAfterAddThirdPartyActionImpl(implicit ec: ExecutionContext)
-    extends PreventBackNavigationAfterAddThirdPartyActionImpl {
+      extends PreventBackNavigationAfterAddThirdPartyActionImpl {
     def publicRefine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = refine(request)
   }
 
@@ -42,17 +42,19 @@ class PreventBackNavigationAfterAddThirdPartyActionSpec extends SpecBase with Sc
   "PreventBackNavigationAfterAddThirdPartyActionImpl" - {
     "should redirect if AlreadyAddedThirdPartyFlag is true" in {
       val userAnswers = emptyUserAnswers.set(AlreadyAddedThirdPartyFlag(), true).get
+
       val dataRequest = DataRequest(request, "userId", "eori", AffinityGroup.Individual, userAnswers)
 
       whenReady(action.publicRefine(dataRequest)) {
         case Left(result) =>
-          result.header.headers("Location") should include("/already-added-third-party")
+          result.header.headers("Location") should include("/third-party-already-added")
         case Right(_)     => fail("Should redirect")
       }
     }
 
     "should allow navigation if AlreadyAddedThirdPartyFlag is false" in {
       val userAnswers = emptyUserAnswers.set(AlreadyAddedThirdPartyFlag(), false).get
+
       val dataRequest = DataRequest(request, "userId", "eori", AffinityGroup.Individual, userAnswers)
 
       whenReady(action.publicRefine(dataRequest)) {
