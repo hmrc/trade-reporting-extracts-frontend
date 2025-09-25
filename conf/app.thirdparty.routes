@@ -2,6 +2,8 @@ GET         /add-a-third-party                          controllers.thirdparty.A
 
 GET         /third-party-details-:thirdPartyEori        controllers.thirdparty.ThirdPartyDetailsController.onPageLoad(thirdPartyEori: String)
 
+GET        /business-details-:traderEori               controllers.thirdparty.BusinessDetailsController.onPageLoad(traderEori: String)
+
 GET         /importer-or-exporter                       controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = NormalMode)
 POST        /importer-or-exporter                       controllers.thirdparty.ThirdPartyDataOwnerConsentController.onSubmit(mode: Mode = NormalMode)
 GET         /change-importer-or-exporter                controllers.thirdparty.ThirdPartyDataOwnerConsentController.onPageLoad(mode: Mode = CheckMode)
@@ -61,7 +63,14 @@ GET         /check-your-answers-third-party             controllers.thirdparty.A
 GET         /third-party-added-confirmation             controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
 
 GET         /manage-third-parties                       controllers.thirdparty.AuthorisedThirdPartiesController.onPageLoad()
-GET         /accounts-authority-over                    controllers.thirdparty.AccountsAuthorityOverController.onPageLoad()
+
+GET         /businesses-you-have-access-to              controllers.thirdparty.AccountsAuthorityOverController.onPageLoad()
+
+GET        /remove-my-access-:traderEori                controllers.thirdparty.MaybeThirdPartyAccessSelfRemovalController.onPageLoad(traderEori: String)
+POST       /remove-my-access-:traderEori                controllers.thirdparty.MaybeThirdPartyAccessSelfRemovalController.onSubmit(traderEori: String)
+
+GET        /:traderEori-access-removed-confirmation     controllers.thirdparty.ThirdPartyAccessSelfRemovedController.onPageLoad(traderEori: String)
+
 
 GET        /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onPageLoad(thirdPartyEori: String)
 POST       /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onSubmit(thirdPartyEori: String)

@@ -20,6 +20,7 @@ import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
+import org.apache.pekko.Done
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import play.api.Logging
@@ -92,6 +93,16 @@ class TradeReportingExtractsService @Inject() (
     hc: HeaderCarrier
   ): Future[ThirdPartyDetails] =
     connector.getThirdPartyDetails(eori, thirdPartyEori)
+
+  def getAuthorisedBusinessDetails(thirdPartyEori: String, traderEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyDetails] =
+    connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori)
+
+  def selfRemoveThirdPartyAccess(traderEori: String, thirdPartyEori: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Done] =
+    connector.selfRemoveThirdPartyAccess(traderEori, thirdPartyEori)
 
   def auditReportDownload(
     reportReference: String,

@@ -25,6 +25,8 @@ import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
+import java.time.LocalDate
+
 object DataTheyCanViewSummary {
 
   def checkYourAnswersRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
@@ -62,11 +64,15 @@ object DataTheyCanViewSummary {
       )
     }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] = {
+  private def buildRow(
+    startDateOpt: Option[LocalDate],
+    endDateOpt: Option[LocalDate],
+    keyMessage: String
+  )(implicit messages: Messages): Option[SummaryListRow] = {
 
     implicit val lang: Lang = messages.lang
 
-    val value = (thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate) match {
+    val value = (startDateOpt, endDateOpt) match {
       case (Some(startDate), Some(endDate)) =>
         ValueViewModel(
           messages(
@@ -85,10 +91,15 @@ object DataTheyCanViewSummary {
 
     Some(
       SummaryListRowViewModel(
-        key = "dataTheyCanView.checkYourAnswersLabel",
+        key = keyMessage,
         value = value
       )
     )
-
   }
+
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
+    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "dataTheyCanView.checkYourAnswersLabel")
+
+  def businessDetailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
+    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "businessDetails.dataRange.label")
 }

@@ -14,39 +14,33 @@
  * limitations under the License.
  *@
 
-@import viewmodels.InputWidth._
-@import viewmodels.LabelSize
-
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
-    govukInput: GovukInput,
+    govukRadios: GovukRadios,
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], traderEori: String)(implicit request: Request[_], messages: Messages)
 
 @content = {
-<p class="govuk-hint">@messages("reportName.hint")</p>
+<p class="govuk-body">@messages("maybeThirdPartyAccessSelfRemoval.message")</p>
 }
 
-@layout(pageTitle = title(form, if(isMoreThanOneReport) messages("reportName.pluralReport.title")
-            else messages("reportName.singleReport.title"))) {
+@layout(pageTitle = title(form, messages("maybeThirdPartyAccessSelfRemoval.title"))) {
 
-    @formHelper(action = controllers.report.routes.ReportNameController.onSubmit(mode)) {
+    @formHelper(action = controllers.thirdparty.routes.MaybeThirdPartyAccessSelfRemovalController.onSubmit(traderEori), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @govukInput(
-            InputViewModel(
+        @govukRadios(
+            RadiosViewModel.yesNo(
                 field = form("value"),
-                label = LabelViewModel(if(isMoreThanOneReport) messages("reportName.pluralReport.heading")
-                            else messages("reportName.singleReport.heading")).asPageHeading()
-            )
-            .withWidth(TwoThirds).withHint(HintViewModel(HtmlContent(content)))
+                legend = LegendViewModel(messages("maybeThirdPartyAccessSelfRemoval.heading")).asPageHeading()
+            ).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(

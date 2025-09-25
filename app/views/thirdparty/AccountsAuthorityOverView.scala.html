@@ -25,19 +25,24 @@
         govukTabs: GovukTabs,
         govukTable: GovukTable,
         govukTag: GovukTag,
-)   
+)
 
 @(accountsAuthorityOver: Seq[AccountAuthorityOverViewModel])(implicit request: Request[_], messages: Messages)
 
 @mainContent = {
 @if(accountsAuthorityOver.isEmpty) {
-    @layout(pageTitle = messages("accountsAuthorityOver.noBusinesses.title"), isFullWidth = true, breadcrumbContribution = Seq(
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = true, breadcrumbContribution = Seq(
         BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.noBusinesses.title")), href = Some(s"#"))
     ),
         showBackLink = false) {
         <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.noBusinesses.heading")</h1>
         <p class="govuk-body">
-            @messages("accountsAuthorityOver.noBusinesses.message")
+        @messages("accountsAuthorityOver.noBusinesses.message")
+        </p>
+        <p class="govuk-body">
+            <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">
+            @messages("requestedReports.home.link")
+            </a>
         </p>
     }
 } else {
@@ -64,11 +69,11 @@
             TableRow(content = Text(tp.businessInfo.getOrElse(messages("accountsAuthorityOver.businessInfo.notAvailable")))),
             TableRow(content = HtmlContent(
                 s"""<span style="white-space: nowrap;">
-                <a href="#">
+                <a href="/request-customs-declaration-data/business-details-${tp.eori}">
                   ${messages("accountsAuthorityOver.view")}
                   <span class="govuk-visually-hidden">${messages("accountsAuthorityOver.view.hidden", tp.eori)}</span>
                 </a> |
-                <a href="#">
+                <a href="/request-customs-declaration-data/remove-my-access-${tp.eori}">
                   ${messages("accountsAuthorityOver.remove")}
                   <span class="govuk-visually-hidden">${messages("accountsAuthorityOver.remove.hidden", tp.eori)}</span>
                 </a>

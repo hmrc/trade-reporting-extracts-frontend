@@ -1,5 +1,5 @@
 GET         /problem/there-is-a-problem                                                                     controllers.problem.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
-GET         /problem/unauthorised                                                                                   controllers.problem.UnauthorisedController.onPageLoad()
+GET         /no-cds-subscription                                                                                   controllers.problem.UnauthorisedController.onPageLoad()
 GET        /problem/tooManySubmissions                       controllers.problem.TooManySubmissionsController.onPageLoad()
 
 GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
@@ -8,3 +8,7 @@ GET        /already-added-third-party                       controllers.problem.
 
 GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()
 GET        /no-permission                             controllers.problem.NoPermissionController.onPageLoad()
+
+GET        /no-data-found/:reportName/:reportRef/:reportStartDate/:reportEndDate                       controllers.problem.NoDataFoundController.onPageLoad(reportName: String, reportRef: String, reportStartDate: String, reportEndDate: String)
+
+GET        /report-failed/:reportName/:reportRef                       controllers.problem.ReportFailedController.onPageLoad(reportName: String, reportRef: String)

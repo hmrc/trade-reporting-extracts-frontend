@@ -20,7 +20,7 @@ import controllers.BaseController
 import controllers.actions.*
 import forms.report.EmailSelectionFormProvider
 import models.Mode
-import models.report.ReportRequestSection
+import models.report.{EmailSelection, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
 import play.api.i18n.MessagesApi
@@ -49,16 +49,23 @@ class EmailSelectionController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
+      tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
         val dynamicEmails = userDetails.additionalEmails
-        val form          = formProvider(dynamicEmails)
-
-        val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
-
-        Ok(view(preparedForm, mode, dynamicEmails))
+        if dynamicEmails.nonEmpty then
+          val form         = formProvider(dynamicEmails)
+          val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Future.successful(Ok(view(preparedForm, mode, dynamicEmails)))
+        else
+          for {
+            updatedAnswers <-
+              Future.fromTry(request.userAnswers.set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue)))
+            redirectUrl     = navigator.nextPage(EmailSelectionPage, mode, updatedAnswers).url
+            answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+            _              <- sessionRepository.set(answersWithNav)
+          } yield Redirect(navigator.nextPage(EmailSelectionPage, mode, answersWithNav))
       }
     }
 

@@ -157,6 +157,49 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
 
     }
 
+    "if report date range page not answered and third party enabled, get dates from custom request start and end date page" in {
+      val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      val reportRequestDataService = new ReportRequestDataService(fixedClock, appConfig)
+
+      when(appConfig.thirdPartyEnabled).thenReturn(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+        .get
+        .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+
+      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+      result.eori mustBe "eori"
+      result.dataType mustBe "import"
+      result.whichEori mustBe Some("eori")
+      result.eoriRole mustBe Set("importer")
+      result.reportType mustBe Set("importItem")
+      result.reportStartDate mustBe "2022-01-01"
+      result.reportEndDate mustBe "2022-02-01"
+      result.reportName mustBe "MyReport"
+      result.additionalEmail mustBe Some(Set("example@email.com"))
+    }
+
     "should get all additional emails" in {
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)

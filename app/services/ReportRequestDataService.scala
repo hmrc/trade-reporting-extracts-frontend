@@ -81,6 +81,11 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
       case Some(ReportDateRange.LastFullCalendarMonth) =>
         val startEndDate = DateTimeFormats.lastFullCalendarMonth(currentDate)
         (startEndDate._1.toString, startEndDate._2.toString)
+      case _ if appConfig.thirdPartyEnabled            =>
+        (
+          userAnswers.get(CustomRequestStartDatePage).get.toString,
+          userAnswers.get(CustomRequestEndDatePage).get.toString
+        )
       case _                                           => ("", "")
     }
   }
