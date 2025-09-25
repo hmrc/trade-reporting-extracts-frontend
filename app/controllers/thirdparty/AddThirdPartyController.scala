@@ -35,27 +35,28 @@ class AddThirdPartyController @Inject() (
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   view: AddThirdPartyView
-) (implicit ec: ExecutionContext) extends BaseController {
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
-    val initialPage          = AddThirdPartySection().initialPage
-    val JourneyRecoveryUrl   = controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-    val checkYourAnswersUrl  = controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url
+    val initialPage                = AddThirdPartySection().initialPage
+    val JourneyRecoveryUrl         = controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+    val checkYourAnswersUrl        = controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url
     val alreadyAddedThirdPartyFlag = request.userAnswers.get(AlreadyAddedThirdPartyFlag()).getOrElse(false)
 
     request.userAnswers.get(AddThirdPartySection().sectionNavigation).getOrElse(initialPage.url) match {
       case url if url == JourneyRecoveryUrl || (url == checkYourAnswersUrl && alreadyAddedThirdPartyFlag) =>
         for {
-          answers <- Future.fromTry(request.userAnswers.remove(AlreadyAddedThirdPartyFlag()))
+          answers       <- Future.fromTry(request.userAnswers.remove(AlreadyAddedThirdPartyFlag()))
           updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(answers)
-          _                        <- sessionRepository.set(updatedAnswers)
+          _             <- sessionRepository.set(updatedAnswers)
         } yield Ok(view())
-      case initialPage.url                                                                          =>
+      case initialPage.url                                                                                =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.remove(AlreadyAddedThirdPartyFlag()))
-          _                        <- sessionRepository.set(updatedAnswers)
+          _              <- sessionRepository.set(updatedAnswers)
         } yield Ok(view())
-      case _                                                                                        =>
+      case _                                                                                              =>
         Future.successful(Redirect(AddThirdPartySection().navigateTo(request.userAnswers)))
     }
   }

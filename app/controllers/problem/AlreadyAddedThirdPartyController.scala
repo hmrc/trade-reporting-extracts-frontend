@@ -24,7 +24,7 @@ import views.html.problem.AlreadyAddedThirdPartyView
 
 import javax.inject.Inject
 
-class AlreadyAddedThirdPartyController @Inject()(
+class AlreadyAddedThirdPartyController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
@@ -34,7 +34,8 @@ class AlreadyAddedThirdPartyController @Inject()(
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    Ok(view())
+  def onPageLoad(alreadyAddedEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
+    implicit request =>
+      Ok(view(alreadyAddedEori))
   }
 }

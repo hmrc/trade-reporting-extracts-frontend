@@ -19,27 +19,25 @@
         govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(alreadyAddedEori: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("alreadySubmitted.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("thirdPartyAlreadyAdded.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("alreadySubmitted.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages("thirdPartyAlreadyAdded.heading")</h1>
 
-    <p class="govuk-body">@messages("alreadySubmitted.message1")</p>
+    <p class="govuk-body">@messages("thirdPartyAlreadyAdded.message1")</p>
 
-    <p class="govuk-body">@messages("alreadySubmitted.message2")</p>
-
+    <p class="govuk-body">@messages("thirdPartyAlreadyAdded.message2")</p>
 
     <ul class="govuk-list--spaced govuk-list--bullet">
         <li class="govuk-body">
-            <a href="@controllers.report.routes.RequestedReportsController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.bullet1")</a>
+            <a href="@controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(alreadyAddedEori).url" class="govuk-link">@messages("thirdPartyAlreadyAdded.bullet1")</a>
         </li>
         <li class="govuk-body">
-            <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.bullet2")</a>
+            <a href="@controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url" class="govuk-link">@messages("thirdPartyAlreadyAdded.bullet2")</a>
         </li>
     </ul>
     <p class="govuk-body">
-        <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">@messages("alreadySubmitted.message3")</a>
+        <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">@messages("thirdPartyAlreadyAdded.message3")</a>
     </p>
-
 }
