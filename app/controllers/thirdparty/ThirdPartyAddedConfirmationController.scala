@@ -43,7 +43,6 @@ class ThirdPartyAddedConfirmationController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
-  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   clock: Clock
 )(implicit ec: ExecutionContext)
     extends BaseController
