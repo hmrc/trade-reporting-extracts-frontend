@@ -36,7 +36,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
       )
     case ChooseEoriPage                         => chooseEoriRoutes(NormalMode)
-    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(NormalMode)
+    case SelectThirdPartyEoriPage => selectThirdPartyEoriPageRoutes(NormalMode)
     case EoriRolePage                           => eoriRoleRoutes(NormalMode)
     case ReportTypeImportPage                   => navigateTo(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode))
     case ReportDateRangePage                    => reportDateRangeRoutes(NormalMode)
@@ -68,7 +68,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case DecisionPage                           =>
       navigateTo(controllers.report.routes.EoriRoleController.onPageLoad(CheckMode))
     case ChooseEoriPage                         => chooseEoriRoutes(CheckMode)
-    case AccountsYouHaveAuthorityOverImportPage => accountsYouHaveAuthorityOverImportRoutes(CheckMode)
+    case SelectThirdPartyEoriPage => selectThirdPartyEoriPageRoutes(CheckMode)
     case EoriRolePage                           => eoriRoleRoutes(CheckMode)
     case ReportTypeImportPage                   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
     case ReportDateRangePage                    => reportDateRangeRoutes(CheckMode)
@@ -132,13 +132,13 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         }
 
       case Some(ChooseEori.Myauthority) =>
-        controllers.report.routes.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode)
+        controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
 
       case None =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def accountsYouHaveAuthorityOverImportRoutes(mode: Mode)(answers: UserAnswers): Call =
+  private def selectThirdPartyEoriPageRoutes(mode: Mode)(answers: UserAnswers): Call =
     mode match {
       case NormalMode =>
         answers
