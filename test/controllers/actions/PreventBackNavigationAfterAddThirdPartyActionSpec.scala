@@ -17,7 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
-import models.{AlreadyAddedThirdPartyEori, AlreadyAddedThirdPartyFlag}
+import models.AlreadyAddedThirdPartyFlag
 import models.requests.DataRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}

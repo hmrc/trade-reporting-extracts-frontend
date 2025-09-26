@@ -20,7 +20,6 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.AlreadyAddedThirdPartyFlag
-import models.AlreadyAddedThirdPartyEori
 import models.thirdparty.AddThirdPartySection
 import pages.thirdparty.EoriNumberPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -65,9 +64,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
                                           }
       updatedAnswers                    = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
-      updatedAnswersWithSubmissionEORI <-
-        Future.fromTry(updatedAnswersWithSubmissionFlag.set(AlreadyAddedThirdPartyEori(), eoriNumber))
-      _                                <- sessionRepository.set(updatedAnswersWithSubmissionEORI)
+      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
     } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 
