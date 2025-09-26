@@ -19,7 +19,7 @@ package services
 import com.google.inject.Inject
 import models.UserAnswers
 import models.thirdparty.{DataTypes, DeclarationDate, ThirdPartyRequest}
-import pages.thirdparty.{DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyReferencePage}
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyReferencePage}
 import play.api.libs.json.Reads
 
 import java.time.format.DateTimeFormatter
@@ -53,11 +53,15 @@ class ThirdPartyService @Inject() (clock: Clock = Clock.systemUTC()) {
     userAnswers.get(DeclarationDatePage) match {
       case Some(DeclarationDate.AllAvailableData) =>
         (None, None)
-      case Some(DeclarationDate.CustomDateRange)  =>
+
+      case Some(DeclarationDate.CustomDateRange) =>
         (
           userAnswers.get(DataStartDatePage).map(_.atStartOfDay(clock.getZone).toInstant),
-          userAnswers.get(DataStartDatePage).map(date => date.atStartOfDay(clock.getZone).toInstant)
+          userAnswers.get(DataEndDatePage).flatten.map(_.atStartOfDay(clock.getZone).toInstant)
         )
-      case None                                   => (None, None)
+
+      case None =>
+        (None, None)
     }
+
 }
