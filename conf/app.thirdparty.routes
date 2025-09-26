@@ -59,6 +59,7 @@ GET         /change-data-end-date                       controllers.thirdparty.D
 POST        /change-data-end-date                       controllers.thirdparty.DataEndDateController.onSubmit(mode: Mode = CheckMode)
 
 GET         /check-your-answers-third-party             controllers.thirdparty.AddThirdPartyCheckYourAnswersController.onPageLoad()
+POST        /check-your-answers-third-party             controllers.thirdparty.AddThirdPartyCheckYourAnswersController.onSubmit()
 
 GET         /third-party-added-confirmation             controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
 

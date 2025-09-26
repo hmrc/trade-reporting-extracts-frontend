@@ -17,21 +17,23 @@
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
-        govukSummaryList: GovukSummaryList
+        govukSummaryList: GovukSummaryList,
+        formHelper: FormWithCSRF
 )
 
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("addThirdPartyCheckYourAnswers.title"))) {
+    @formHelper(action = controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
+        <h1 class="govuk-heading-xl">@messages("addThirdPartyCheckYourAnswers.heading")</h1>
 
-    <h1 class="govuk-heading-xl">@messages("addThirdPartyCheckYourAnswers.heading")</h1>
+        @govukSummaryList(list)
 
-    @govukSummaryList(list)
-
-    <div class="govuk-button-group">
-       @govukButton(
-        ButtonViewModel(messages("addThirdPartyCheckYourAnswers.button")).preventingDoubleClick()
-        .asLink(controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
-       )
-    </div>
+        <div class="govuk-button-group">
+           @govukButton(
+            ButtonViewModel(messages("addThirdPartyCheckYourAnswers.button")).preventingDoubleClick()
+            .asLink(controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
+           )
+        </div>
+    }
 }

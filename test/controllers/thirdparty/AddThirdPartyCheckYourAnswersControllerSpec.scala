@@ -17,7 +17,7 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import models.{CompanyInformation, ConsentStatus}
+import models.{CompanyInformation, ConsentStatus, SectionNavigation}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -37,6 +37,7 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
   "AddThirdPartyCheckYourAnswers Controller" - {
 
     val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+    val sectionNav                        = SectionNavigation("addThirdPartySection")
 
     "must return OK and the correct view for a GET when business consent given" in {
 
@@ -110,6 +111,24 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to the next page for a POST" in {
+      val userAnswers =
+        emptyUserAnswers.set(sectionNav, "/request-customs-declaration-data/check-your-answers").success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
+          .onPageLoad()
+          .url
       }
     }
   }
