@@ -11,13 +11,13 @@ class SelectThirdPartyEoriFormProviderSpec extends OptionFieldBehaviours {
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName   = "value"
     val requiredKey = "selectThirdPartyEori.error.required"
 
     behave like optionsField[SelectThirdPartyEori](
       form,
       fieldName,
-      validValues  = SelectThirdPartyEori.values,
+      validValues = SelectThirdPartyEori.values,
       invalidError = FormError(fieldName, "error.invalid")
     )
 

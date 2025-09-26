@@ -18,15 +18,16 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.SelectThirdPartyEoriFormProvider
-import models.Mode
+import models.{Mode, SelectThirdPartyEori}
 import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import navigation.Navigator
 import pages.report.{DecisionPage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SelectThirdPartyEoriView
+import views.html.report.SelectThirdPartyEoriView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,20 +42,24 @@ class SelectThirdPartyEoriController @Inject()(
                                        formProvider: SelectThirdPartyEoriFormProvider,
                                        reportRequestSection: ReportRequestSection,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: SelectThirdPartyEoriView
+                                       tradeReportingExtractsService: TradeReportingExtractsService,
+
+view: SelectThirdPartyEoriView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(SelectThirdPartyEoriPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
-
-      Ok(view(preparedForm, mode))
+      
+      tradeReportingExtractsService.getSelectThirdPartyEori(request.eori).map { selectThirdPartyEori =>
+        Ok(view(preparedForm, mode, selectThirdPartyEori))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -62,8 +67,9 @@ class SelectThirdPartyEoriController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
-
+          tradeReportingExtractsService.getSelectThirdPartyEori(request.eori).map { selectThirdPartyEori =>
+            BadRequest(view(formWithErrors, mode, selectThirdPartyEori))
+          },
         value =>
           for {
             updatedAnswers <- Future.fromTry(

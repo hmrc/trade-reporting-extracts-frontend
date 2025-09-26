@@ -66,3 +66,7 @@ POST       /check-your-answers        controllers.report.CheckYourAnswersControl
 GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
 GET        /requested-reports                             controllers.report.RequestedReportsController.onPageLoad()
 
+GET        /selectThirdPartyEori                        controllers.report.SelectThirdPartyEoriController.onPageLoad(mode: Mode = NormalMode)
+POST       /selectThirdPartyEori                        controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSelectThirdPartyEori                  controllers.report.SelectThirdPartyEoriController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSelectThirdPartyEori                  controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = CheckMode)

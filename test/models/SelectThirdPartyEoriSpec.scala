@@ -16,10 +16,11 @@ class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheck
 
       val gen = Gen.oneOf(SelectThirdPartyEori.values.toSeq)
 
-      forAll(gen) {
-        selectThirdPartyEori =>
-
-          JsString(selectThirdPartyEori.toString).validate[SelectThirdPartyEori].asOpt.value mustEqual selectThirdPartyEori
+      forAll(gen) { selectThirdPartyEori =>
+        JsString(selectThirdPartyEori.toString)
+          .validate[SelectThirdPartyEori]
+          .asOpt
+          .value mustEqual selectThirdPartyEori
       }
     }
 
@@ -27,10 +28,8 @@ class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheck
 
       val gen = arbitrary[String] suchThat (!SelectThirdPartyEori.values.map(_.toString).contains(_))
 
-      forAll(gen) {
-        invalidValue =>
-
-          JsString(invalidValue).validate[SelectThirdPartyEori] mustEqual JsError("error.invalid")
+      forAll(gen) { invalidValue =>
+        JsString(invalidValue).validate[SelectThirdPartyEori] mustEqual JsError("error.invalid")
       }
     }
 
@@ -38,10 +37,8 @@ class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheck
 
       val gen = Gen.oneOf(SelectThirdPartyEori.values.toSeq)
 
-      forAll(gen) {
-        selectThirdPartyEori =>
-
-          Json.toJson(selectThirdPartyEori) mustEqual JsString(selectThirdPartyEori.toString)
+      forAll(gen) { selectThirdPartyEori =>
+        Json.toJson(selectThirdPartyEori) mustEqual JsString(selectThirdPartyEori.toString)
       }
     }
   }

@@ -42,7 +42,7 @@ object SelectThirdPartyEoriSummary  {
           key     = "selectThirdPartyEori.checkYourAnswersLabel",
           value   = value,
           actions = Seq(
-            ActionItemViewModel("site.change", routes.SelectThirdPartyEoriController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("selectThirdPartyEori.change.hidden"))
           )
         )

@@ -24,7 +24,7 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
   lazy val selectThirdPartyEoriRoute = routes.SelectThirdPartyEoriController.onPageLoad(NormalMode).url
 
   val formProvider = new SelectThirdPartyEoriFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   "SelectThirdPartyEori Controller" - {
 
@@ -46,7 +46,8 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(SelectThirdPartyEoriPage, SelectThirdPartyEori.values.head).success.value
+      val userAnswers =
+        UserAnswers(userAnswersId).set(SelectThirdPartyEoriPage, SelectThirdPartyEori.values.head).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -58,7 +59,10 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(SelectThirdPartyEori.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(SelectThirdPartyEori.values.head), NormalMode)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

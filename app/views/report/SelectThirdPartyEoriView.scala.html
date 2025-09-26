@@ -22,11 +22,11 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, selectThirdPartyEori: SelectThirdPartyEori)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("selectThirdPartyEori.title"))) {
 
-    @formHelper(action = routes.SelectThirdPartyEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.report.routes.SelectThirdPartyEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
@@ -36,7 +36,7 @@
             RadiosViewModel(
                 field  = form("value"),
                 legend = LegendViewModel(messages("selectThirdPartyEori.heading")).asPageHeading(),
-                items  = SelectThirdPartyEori.options
+                items  = selectThirdPartyEori.options()
             )
         )
 
