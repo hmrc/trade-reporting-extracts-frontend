@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(alreadyAddedEori: String)(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("thirdPartyAlreadyAdded.title")), showBackLink = false) {
 
@@ -31,7 +31,7 @@
 
     <ul class="govuk-list--spaced govuk-list--bullet">
         <li class="govuk-body">
-            <a href="@controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(alreadyAddedEori).url" class="govuk-link">@messages("thirdPartyAlreadyAdded.bullet1")</a>
+            <a href="@controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url" class="govuk-link">@messages("thirdPartyAlreadyAdded.bullet1")</a>
         </li>
         <li class="govuk-body">
             <a href="@controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url" class="govuk-link">@messages("thirdPartyAlreadyAdded.bullet2")</a>
