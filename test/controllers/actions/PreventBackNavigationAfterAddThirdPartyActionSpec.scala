@@ -32,7 +32,7 @@ class PreventBackNavigationAfterAddThirdPartyActionSpec extends SpecBase with Sc
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   class TestablePreventBackNavigationAfterAddThirdPartyActionImpl(implicit ec: ExecutionContext)
-    extends PreventBackNavigationAfterAddThirdPartyActionImpl {
+      extends PreventBackNavigationAfterAddThirdPartyActionImpl {
     def publicRefine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] = refine(request)
   }
 
