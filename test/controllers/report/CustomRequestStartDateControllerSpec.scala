@@ -19,18 +19,19 @@ package controllers.report
 import base.SpecBase
 import forms.report.CustomRequestStartDateFormProvider
 import models.report.ReportTypeImport
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{CustomRequestStartDatePage, ReportTypeImportPage}
+import pages.report.{AccountsYouHaveAuthorityOverImportPage, CustomRequestStartDatePage, ReportTypeImportPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.report.CustomRequestStartDateView
 
 import java.time.{LocalDate, ZoneOffset}
@@ -40,9 +41,20 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
   private implicit val messages: Messages = stubMessages()
 
+  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+
   private val formProvider = new CustomRequestStartDateFormProvider()
   private val startDate    = LocalDate.now(ZoneOffset.UTC).minusYears(1)
-  private def form         = formProvider()
+  private def form         = formProvider(false, None, None)
+
+  lazy val thirdPartyDetails = ThirdPartyDetails(
+    None,
+    LocalDate.of(2025, 1, 1),
+    None,
+    Set("imports"),
+    None,
+    None
+  )
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -74,7 +86,105 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, false)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, false, false, None)(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when third party report with complete date range" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestStartDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, false, true, None)(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when third party report with ongoing data range" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails.copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)))))
+
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestStartDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          false,
+          true,
+          Some("You have access to data from 1 January 2025 onwards.")
+        )(
+          getRequest(),
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when third party report with fixed data range" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(
+          Future.successful(
+            thirdPartyDetails
+              .copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)), dataEndDate = Some(LocalDate.of(2025, 3, 1)))
+          )
+        )
+
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        val view = application.injector.instanceOf[CustomRequestStartDateView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          false,
+          true,
+          Some("You have access to data from 1 January 2025 to 1 March 2025.")
+        )(
+          getRequest(),
+          messages(application)
+        ).toString
       }
     }
 
@@ -93,7 +203,10 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, true)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, true, false, None)(
+          getRequest(),
+          messages(application)
+        ).toString
       }
     }
 
@@ -109,7 +222,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false)(
+        contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false, false, None)(
           getRequest(),
           messages(application)
         ).toString
@@ -137,6 +250,49 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return a Bad Request and errors when invalid data is submitted in a third party scenario" in {
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(
+          Future.successful(
+            thirdPartyDetails
+              .copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)), dataEndDate = Some(LocalDate.of(2025, 3, 1)))
+          )
+        )
+
+      val application = applicationBuilder(userAnswers =
+        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      val request =
+        FakeRequest(POST, customRequestStartDateRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
+
+      running(application) {
+        val boundForm = form.bind(Map("value" -> "invalid value"))
+
+        val view = application.injector.instanceOf[CustomRequestStartDateView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          false,
+          true,
+          Some("You have access to data from 1 January 2025 to 1 March 2025.")
+        )(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
@@ -153,7 +309,10 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, false, false, None)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

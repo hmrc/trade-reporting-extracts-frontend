@@ -22,11 +22,15 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, maybeThirdPartyRequest: Boolean, rangeString: Option[String])(implicit request: Request[_], messages: Messages)
 
 @content = {
-<p class="govuk-body">@messages("customRequestStartDate.message1")</p>
-<p class="govuk-hint">@messages("customRequestStartDate.hint")</p>
+    @if(maybeThirdPartyRequest) {
+        <p class="govuk-body">@rangeString @messages("customRequestStartDate.message1.thirdParty")</p>
+    } else {
+        <p class="govuk-body">@messages("customRequestStartDate.message1")</p>
+    }
+    <p class="govuk-hint">@messages("customRequestStartDate.hint")</p>
 }
 
 @layout(pageTitle = title(form,
