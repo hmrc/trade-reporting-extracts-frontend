@@ -18,6 +18,7 @@ package forms.report
 
 import forms.mappings.Mappings
 import play.api.data.Form
+import play.api.data.validation.Constraint
 import play.api.i18n.Messages
 import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
@@ -29,8 +30,11 @@ class CustomRequestEndDateFormProvider @Inject() extends Mappings {
 
   private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
 
-  def apply(startDate: LocalDate)(implicit messages: Messages): Form[LocalDate] =
+  def apply(startDate: LocalDate, maybeThirdPartyRequest: Boolean, thirdPartyDataEndDate: Option[LocalDate])(implicit
+    messages: Messages
+  ): Form[LocalDate] = {
     val maxReportLength = startDate.plusDays(30)
+
     Form(
       "value" -> localDate(
         invalidKey = "customRequestEndDate.error.invalid",
@@ -39,11 +43,7 @@ class CustomRequestEndDateFormProvider @Inject() extends Mappings {
         requiredKey = "customRequestEndDate.error.required"
       ).verifying(
         firstError(
-          maxDate(
-            currentDate.minusDays(3),
-            "customRequestEndDate.error.afterToday",
-            currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
-          ),
+          determineMaximumDate(maybeThirdPartyRequest, thirdPartyDataEndDate, startDate)(messages),
           maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days")
         )
       ).verifying(
@@ -54,5 +54,34 @@ class CustomRequestEndDateFormProvider @Inject() extends Mappings {
         )
       )
     )
+  }
+
+  private def determineMaximumDate(
+    maybeThirdPartyRequest: Boolean,
+    thirdPartyDataEndDate: Option[LocalDate],
+    startDate: LocalDate
+  )(messages: Messages): Constraint[LocalDate] =
+    (maybeThirdPartyRequest, thirdPartyDataEndDate, startDate) match {
+      case (true, Some(_), _) =>
+        if (thirdPartyDataEndDate.get.isBefore(currentDate.minusDays(3))) {
+          maxDate(
+            thirdPartyDataEndDate.get,
+            "customRequestEndDate.thirdParty.error",
+            thirdPartyDataEndDate.get.format(dateTimeFormat()(messages.lang))
+          )
+        } else {
+          maxDate(
+            currentDate.minusDays(3),
+            "customRequestEndDate.error.afterToday",
+            currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
+          )
+        }
+      case (_, _, _)          =>
+        maxDate(
+          currentDate.minusDays(3),
+          "customRequestEndDate.error.afterToday",
+          currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
+        )
+    }
 
 }

@@ -28,7 +28,11 @@ class CustomRequestStartDateFormProvider @Inject() extends Mappings {
   private val dateFourYearsAgo: LocalDate = LocalDate.now(ZoneOffset.UTC).minusYears(4)
   private val currentDate: LocalDate      = LocalDate.now(ZoneOffset.UTC)
 
-  def apply()(implicit messages: Messages): Form[LocalDate] =
+  def apply(
+    maybeThirdPartyRequest: Boolean,
+    thirdPartyDataStartDate: Option[LocalDate],
+    thirdPartyDataEndDate: Option[LocalDate]
+  )(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
         invalidKey = "customRequestStartDate.error.invalid",
@@ -37,13 +41,42 @@ class CustomRequestStartDateFormProvider @Inject() extends Mappings {
         requiredKey = "customRequestStartDate.error.required"
       )
         .verifying(
-          maxDate(currentDate.minusDays(3), "customRequestStartDate.error.max")
-        )
-        .verifying(
-          minDate(
-            dateFourYearsAgo,
-            "customRequestStartDate.error.min"
+          firstError(
+            determineMaxDate(maybeThirdPartyRequest, thirdPartyDataStartDate, thirdPartyDataEndDate),
+            determineMinimumDate(maybeThirdPartyRequest, thirdPartyDataStartDate, thirdPartyDataEndDate)
           )
         )
     )
+
+  private def determineMinimumDate(
+    maybeThirdPartyRequest: Boolean,
+    thirdPartyDataStartDate: Option[LocalDate],
+    thirdPartyDataEndDate: Option[LocalDate]
+  ) =
+    (maybeThirdPartyRequest, thirdPartyDataStartDate, thirdPartyDataEndDate) match {
+      case (true, Some(_), _) if thirdPartyDataStartDate.get.isAfter(dateFourYearsAgo) =>
+        minDate(thirdPartyDataStartDate.get, "customRequestStartDate.thirdPartyDataRange.error")
+      case (_, _, _)                                                                   =>
+        minDate(
+          dateFourYearsAgo,
+          "customRequestStartDate.error.min"
+        )
+    }
+
+  private def determineMaxDate(
+    maybeThirdPartyRequest: Boolean,
+    thirdPartyDataStartDate: Option[LocalDate],
+    thirdPartyDataEndDate: Option[LocalDate]
+  ) =
+    (maybeThirdPartyRequest, thirdPartyDataStartDate, thirdPartyDataEndDate) match {
+      case (false, None, None)      =>
+        maxDate(currentDate.minusDays(3), "customRequestStartDate.error.max")
+      case (true, Some(_), Some(_)) =>
+        if (thirdPartyDataEndDate.get.isAfter(currentDate.minusDays(3))) {
+          maxDate(currentDate.minusDays(3), "customRequestStartDate.error.max")
+        } else {
+          maxDate(thirdPartyDataEndDate.get, "customRequestStartDate.thirdPartyDataRange.error")
+        }
+      case (_, _, _)                => maxDate(currentDate.minusDays(3), "customRequestStartDate.error.max")
+    }
 }
