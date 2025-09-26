@@ -635,3 +635,11 @@ reportFailed.heading = cy: There was a problem with {0} {1}
 reportFailed.message1 = cy: We could not produce this report.
 reportFailed.message2 = cy: You can
 reportFailed.linkText = cy: request a new report
+
+thirdPartyAlreadyAdded.title = cy: You have already added this third party
+thirdPartyAlreadyAdded.heading = cy: You have already added this third party
+thirdPartyAlreadyAdded.message1 = cy: You cannot edit this third party after adding them.
+thirdPartyAlreadyAdded.message2 = cy: You can:
+thirdPartyAlreadyAdded.bullet1 = cy: view this third party’s access details
+thirdPartyAlreadyAdded.bullet2 = cy: add another third party
+thirdPartyAlreadyAdded.message3 = cy: Go to the homepage

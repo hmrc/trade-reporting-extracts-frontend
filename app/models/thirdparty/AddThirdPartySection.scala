@@ -39,5 +39,5 @@ object AddThirdPartySection {
       .removePath(SectionNavigation("addThirdPartySection").path)
       .get
       .removePath(JsPath \ "addThirdParty")
-      .getOrElse(answers)
+      .get
 }
