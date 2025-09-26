@@ -41,6 +41,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
   frontendAppConfig: FrontendAppConfig,
   sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
+  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
   clock: Clock
