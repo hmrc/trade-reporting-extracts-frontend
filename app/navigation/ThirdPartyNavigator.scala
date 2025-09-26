@@ -28,19 +28,21 @@ import utils.json.OptionalLocalDateReads.*
 class ThirdPartyNavigator @Inject() extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
-    case ThirdPartyDataOwnerConsentPage =>
+    case ThirdPartyDataOwnerConsentPage    =>
       dataOwnerConsentRoutes(NormalMode)
-    case EoriNumberPage                 =>
+    case EoriNumberPage                    =>
       navigateTo(controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode))
-    case ThirdPartyReferencePage        => thirdPartyReferenceRoutes(NormalMode)
-    case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(NormalMode)
-    case ThirdPartyAccessEndDatePage    => accessEndDateRoutes(NormalMode)
-    case DataTypesPage                  =>
+    case ThirdPartyReferencePage           => thirdPartyReferenceRoutes(NormalMode)
+    case ThirdPartyAccessStartDatePage     => accessStartDateRoutes(NormalMode)
+    case ThirdPartyAccessEndDatePage       => accessEndDateRoutes(NormalMode)
+    case DataTypesPage                     =>
       navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
-    case DeclarationDatePage            => declarationDateRoutes(NormalMode)
-    case DataStartDatePage              => dataStartDateRoutes(NormalMode)
-    case DataEndDatePage                =>
+    case DeclarationDatePage               => declarationDateRoutes(NormalMode)
+    case DataStartDatePage                 => dataStartDateRoutes(NormalMode)
+    case DataEndDatePage                   =>
       navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
+    case AddThirdPartyCheckYourAnswersPage =>
+      navigateTo(controllers.thirdparty.routes.ThirdPartyAddedConfirmationController.onPageLoad())
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {

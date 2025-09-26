@@ -18,7 +18,8 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import models.{CompanyInformation, ConsentStatus, UserAnswers}
-import pages.thirdparty.EoriNumberPage
+import navigation.ThirdPartyNavigator
+import pages.thirdparty.{AddThirdPartyCheckYourAnswersPage, EoriNumberPage}
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -37,6 +38,7 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
+  navigator: ThirdPartyNavigator,
   preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
@@ -59,6 +61,15 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
       rows             = rowGenerator(userAnsewrs, maybeCompanyName)
       list             = SummaryListViewModel(rows = rows.flatten)
     } yield Ok(view(list))
+  }
+
+  def onSubmit(): Action[AnyContent] = (identify
+    andThen getData
+    andThen requireData
+    andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
+    Future.successful {
+      Redirect(navigator.nextPage(AddThirdPartyCheckYourAnswersPage, userAnswers = request.userAnswers))
+    }
   }
 
   private def rowGenerator(answers: UserAnswers, maybeBusinessInfo: Option[String])(implicit
