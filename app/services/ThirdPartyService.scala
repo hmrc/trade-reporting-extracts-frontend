@@ -19,7 +19,7 @@ package services
 import com.google.inject.Inject
 import models.UserAnswers
 import models.thirdparty.{DataTypes, DeclarationDate, ThirdPartyRequest}
-import pages.thirdparty.{DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyReferencePage}
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyReferencePage}
 import play.api.libs.json.Reads
 
 import java.time.format.DateTimeFormatter

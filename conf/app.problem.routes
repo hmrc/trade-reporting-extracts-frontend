@@ -3,7 +3,7 @@ GET         /no-cds-subscription                                                
 GET        /problem/tooManySubmissions                       controllers.problem.TooManySubmissionsController.onPageLoad()
 
 GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
-GET        /third-party-already-added                       controllers.problem.AlreadyAddedThirdPartyController.onPageLoad(alreadyAddedEori : String)
+GET        /third-party-already-added                       controllers.problem.AlreadyAddedThirdPartyController.onPageLoad()
 
 
 GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()
