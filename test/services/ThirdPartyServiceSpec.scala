@@ -73,19 +73,26 @@ class ThirdPartyServiceSpec extends AnyWordSpec with Matchers with MockitoSugar 
       }
 
       "set reportDateStart and reportDateEnd for CustomDateRange" in {
-        val customDate  = LocalDate.of(2023, 12, 31)
-        val userAnswers = UserAnswers("id")
+        val customDate    = LocalDate.of(2023, 12, 31)
+        val customEndDate = LocalDate.of(2025, 12, 31)
+        val userAnswers   = UserAnswers("id")
           .set(DeclarationDatePage, DeclarationDate.CustomDateRange)
           .success
           .value
           .set(DataStartDatePage, customDate)
           .success
           .value
+          .set(DataEndDatePage, Some(customEndDate))
+          .success
+          .value
 
-        val result          = service.buildThirdPartyAddRequest(userAnswers, "GB1")
-        val expectedInstant = customDate.atStartOfDay(fixedClock.getZone).toInstant
-        result.reportDateStart mustBe Some(expectedInstant)
-        result.reportDateEnd mustBe Some(expectedInstant)
+        val result = service.buildThirdPartyAddRequest(userAnswers, "GB1")
+
+        val expectedStartInstant = customDate.atStartOfDay(fixedClock.getZone).toInstant
+        val expectedEndInstant   = customEndDate.atStartOfDay(fixedClock.getZone).toInstant
+
+        result.reportDateStart mustBe Some(expectedStartInstant)
+        result.reportDateEnd mustBe Some(expectedEndInstant)
       }
 
       "use current instant for accessStart if not present" in {
