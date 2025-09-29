@@ -68,7 +68,6 @@ maybeThirdPartyReports: Boolean
     head = Some(Seq(
       HeadCell(content = Text(messages("availableReports.table.reportName"))),
       HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
-      HeadCell(content = Text(messages("availableReports.table.companyName"))),
       HeadCell(content = Text(messages("availableReports.table.reportType"))),
       HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
       HeadCell(content = Text(messages("availableReports.table.action")))
@@ -77,7 +76,6 @@ maybeThirdPartyReports: Boolean
       Seq(
         TableRow(content = Text(messages(data.reportName))),
         TableRow(content = Text(messages(data.referenceNumber))),
-        TableRow(content = Text(messages(data.companyName))),
         TableRow(content = Text(messages(data.formattedReportType.toString))),
         TableRow(content = Text(messages(data.formattedExpiryDate.toString))),
         TableRow(

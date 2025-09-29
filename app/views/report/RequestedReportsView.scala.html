@@ -69,7 +69,6 @@
     head = Some(Seq(
       HeadCell(content = Text(messages("requestedReports.table.reportName"))),
       HeadCell(content = Text(messages("requestedReports.table.referenceNumber"))),
-      HeadCell(content = Text(messages("requestedReports.table.companyName"))),
       HeadCell(content = Text(messages("requestedReports.table.reportType"))),
       HeadCell(content = Text(messages("requestedReports.table.requestedDate"))),
       HeadCell(content = Text(messages("requestedReports.table.status")))
@@ -79,7 +78,6 @@
       Seq(
         TableRow(content = Text(messages(data.reportName))),
         TableRow(content = Text(messages(data.referenceNumber))),
-        TableRow(content = Text(messages(data.companyName))),
         TableRow(content = Text(messages(data.formattedReportType))),
         TableRow(content = Text(messages(data.formattedRequestedDate))),
         TableRow(content = HtmlContent {
