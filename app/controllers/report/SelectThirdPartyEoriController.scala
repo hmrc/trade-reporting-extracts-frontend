@@ -44,8 +44,7 @@ class SelectThirdPartyEoriController @Inject() (
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
   tradeReportingExtractsService: TradeReportingExtractsService,
-  view: SelectThirdPartyEoriView,
-  problemView: NoThirdPartyAccessView
+  view: SelectThirdPartyEoriView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -62,10 +61,11 @@ class SelectThirdPartyEoriController @Inject() (
 
       tradeReportingExtractsService.getSelectThirdPartyEori(request.eori).flatMap { selectThirdPartyEori =>
         if (selectThirdPartyEori.values.isEmpty) {
-          val cleanedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
           for {
-            _ <- sessionRepository.set(cleanedAnswers)
-          } yield Ok(problemView())
+            cleanedAnswers <-
+              Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+            _              <- sessionRepository.set(cleanedAnswers)
+          } yield Redirect(controllers.problem.routes.NoThirdPartyAccessController.onPageLoad())
         } else {
           Future.successful(Ok(view(preparedForm, mode, selectThirdPartyEori)))
         }

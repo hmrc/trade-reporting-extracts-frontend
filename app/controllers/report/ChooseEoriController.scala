@@ -59,7 +59,7 @@ class ChooseEoriController @Inject() (
         case (CheckMode, true) =>
           val pagesToRemove: Seq[QuestionPage[_]] = Seq(
             DecisionPage,
-            AccountsYouHaveAuthorityOverImportPage,
+            SelectThirdPartyEoriPage,
             EoriRolePage,
             ReportTypeImportPage,
             ReportDateRangePage,
