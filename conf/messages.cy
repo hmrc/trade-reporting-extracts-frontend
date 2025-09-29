@@ -317,13 +317,6 @@ customRequestEndDate.thirdParty.to = cy: to
 customRequestEndDate.thirdParty.onwards = cy: onwards.
 customRequestEndDate.thirdParty.error = cy: The end date must be within your third-party access period.
 
-accountsYouHaveAuthorityOverImport.title = cy: Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.heading = cy: Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.defaultValue = cy: Select an EORI
-accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = cy: EORI number you want to use
-accountsYouHaveAuthorityOverImport.error.required = cy: Select an EORI number
-accountsYouHaveAuthorityOverImport.change.hidden = cy: the EORI number you want to use
-
 checkYourAnswers.title = cy: Check your answers before submitting your request
 checkYourAnswers.heading = cy: Check your answers before submitting your request
 checkYourAnswers.sendRequest = cy: Send request
@@ -655,3 +648,18 @@ thirdPartyAlreadyAdded.message2 = cy: You can:
 thirdPartyAlreadyAdded.bullet1 = cy: view this third party’s access details
 thirdPartyAlreadyAdded.bullet2 = cy: add another third party
 thirdPartyAlreadyAdded.message3 = cy: Go to the homepage
+
+selectThirdPartyEori.title = cy: Which third-party EORI number do you want to use?
+selectThirdPartyEori.heading = cy: Which third-party EORI number do you want to use?
+selectThirdPartyEori.checkYourAnswersLabel = cy: selectThirdPartyEori
+selectThirdPartyEori.message1 = cy: Some EORI numbers may not include business information if the business hasn’t given consent to share it.
+selectThirdPartyEori.error.required = cy: Select an EORI number
+selectThirdPartyEori.change.hidden = cy: the EORI number you want to use
+
+noThirdPartyAccess.heading = cy: You do not have third-party access
+noThirdPartyAccess.message1 = cy: This could be because:
+noThirdPartyAccess.bullet1 = cy: no one has given you third-party access to their data
+noThirdPartyAccess.bullet2 = cy: your third-party access has not started yet
+noThirdPartyAccess.bullet3 = cy: your third-party access has ended
+noThirdPartyAccess.message2 = cy: If someone gives you access in the future, you will be able to request reports on their behalf.
+noThirdPartyAccess.message3 = cy: Go to homepage

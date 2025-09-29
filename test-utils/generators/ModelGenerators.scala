@@ -22,7 +22,6 @@ import models.thirdparty.{ConfirmEori, DataTypes, DeclarationDate}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
-
   implicit lazy val arbitraryConfirmEori: Arbitrary[ConfirmEori] =
     Arbitrary {
       Gen.oneOf(ConfirmEori.values)

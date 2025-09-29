@@ -4,7 +4,7 @@ GET        /problem/tooManySubmissions                       controllers.problem
 
 GET        /already-submitted                       controllers.problem.AlreadySubmittedController.onPageLoad()
 GET        /third-party-already-added                       controllers.problem.AlreadyAddedThirdPartyController.onPageLoad(alreadyAddedEori : String)
-
+GET        /no-third-party-access                       controllers.problem.NoThirdPartyAccessController.onPageLoad()
 
 GET        /problem-missing-answers                  controllers.problem.MissingDependentAnswersController.onPageLoad()
 GET        /no-permission                             controllers.problem.NoPermissionController.onPageLoad()

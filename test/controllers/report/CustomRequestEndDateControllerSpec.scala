@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -120,7 +120,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
-            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .set(SelectThirdPartyEoriPage, "traderEori")
             .get
             .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
             .get
@@ -165,7 +165,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
-            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .set(SelectThirdPartyEoriPage, "traderEori")
             .get
             .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
             .get
@@ -214,7 +214,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
-            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .set(SelectThirdPartyEoriPage, "traderEori")
             .get
             .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
             .get
@@ -426,7 +426,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
-            .set(AccountsYouHaveAuthorityOverImportPage, "traderEori")
+            .set(SelectThirdPartyEoriPage, "traderEori")
             .get
             .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
             .get
