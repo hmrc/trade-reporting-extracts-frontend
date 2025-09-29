@@ -43,7 +43,7 @@ class TradeReportingExtractsService @Inject() (
 
   def getEoriList()(implicit messages: Messages): Future[Seq[SelectItem]] =
     connector.getEoriList().map { eoriStrings =>
-      SelectItem(text = messages("accountsYouHaveAuthorityOverImport.defaultValue")) +: eoriStrings.map(eori =>
+      SelectItem(text = messages("SelectThirdPartyEori.defaultValue")) +: eoriStrings.map(eori =>
         SelectItem(text = eori)
       )
     }

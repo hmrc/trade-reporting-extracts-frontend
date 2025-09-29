@@ -317,13 +317,6 @@ customRequestEndDate.thirdParty.to = to
 customRequestEndDate.thirdParty.onwards = onwards.
 customRequestEndDate.thirdParty.error = The end date must be within your third-party access period.
 
-accountsYouHaveAuthorityOverImport.title = Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.heading = Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.defaultValue = Select an EORI
-accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = EORI number you want to use
-accountsYouHaveAuthorityOverImport.error.required = Select an EORI number
-accountsYouHaveAuthorityOverImport.change.hidden = the EORI number you want to use
-
 checkYourAnswers.title = Check your answers before submitting your request
 checkYourAnswers.heading = Check your answers before submitting your request
 checkYourAnswers.sendRequest = Send request
