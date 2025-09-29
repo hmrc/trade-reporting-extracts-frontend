@@ -55,7 +55,7 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
   "SelectThirdPartyEori Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET and render radios" in {
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -79,8 +79,14 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[SelectThirdPartyEoriView]
 
-        status(result) `mustEqual` OK
-        contentAsString(result) mustEqual view(form, NormalMode, eoriList)(request, messages(application)).toString
+        val body = contentAsString(result)
+
+        body mustEqual view(form, NormalMode, eoriList)(request, messages(application)).toString
+
+        body must include("business1 testEori1")
+        body must include("business2 testEori2")
+        body must include("business3 testEori3")
+        body must not include "NonexistingBusiness"
       }
     }
 
@@ -178,7 +184,9 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getEoriList()(any[Messages])) thenReturn Future.successful(eoriList)
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(DecisionPage, Decision.Import)
@@ -216,9 +224,10 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getEoriList()(any[Messages])) thenReturn Future.successful(eoriList)
-
-      val userAnswers = UserAnswers(userAnswersId)
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+      val userAnswers                       = UserAnswers(userAnswersId)
         .set(DecisionPage, Decision.Export)
         .success
         .value

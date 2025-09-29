@@ -22,8 +22,7 @@ import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.AuthorisedThirdPartiesViewModel
-import models.thirdparty.ThirdPartyRequest
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -32,8 +31,8 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import java.time.{Instant, LocalDate, LocalDateTime}
 
+import java.time.{Instant, LocalDate, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -49,26 +48,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
     when(mockMessages("SelectThirdPartyEori.defaultValue")).thenReturn("Default EORI")
     val service = new TradeReportingExtractsService()(ec, mockConnector)
-
-    "getEoriList" - {
-      "should call connector.getEoriList and return the transformed list" in {
-        when(mockConnector.getEoriList()).thenReturn(Future.successful(Seq("EORI 1234", "EORI 5678")))
-
-        val result = service.getEoriList()(mockMessages).futureValue
-
-        result.head.text `mustBe` "Default EORI"
-        result(1).text `mustBe` "EORI 1234"
-        result(2).text `mustBe` "EORI 5678"
-      }
-
-      "should handle an empty EORI list and return only the default SelectItem" in {
-        when(mockConnector.getEoriList()).thenReturn(Future.successful(Seq()))
-
-        val result = service.getEoriList()(mockMessages).futureValue
-
-        result.head.text `mustBe` "Default EORI"
-      }
-    }
 
     "createReportRequest" - {
 
@@ -471,5 +450,70 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         thrown.getMessage must include("error")
       }
     }
+
+    "getAccountsAuthorityOver" - {
+      val eori = "GB123456789000"
+
+      "should return accounts from connector" in {
+        val accounts = Seq(
+          AccountAuthorityOverViewModel("GB111", Some("Business One")),
+          AccountAuthorityOverViewModel("GB222", None)
+        )
+
+        when(mockConnector.getAccountsAuthorityOver(eori))
+          .thenReturn(Future.successful(accounts))
+
+        val result = service.getAccountsAuthorityOver(eori).futureValue
+        result mustBe accounts
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.getAccountsAuthorityOver(eori))
+          .thenReturn(Future.failed(new RuntimeException("connector error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAccountsAuthorityOver(eori).futureValue
+        }
+        thrown.getMessage must include("connector error")
+      }
+    }
+
+    "getSelectThirdPartyEori" - {
+      val eori = "GB123456789000"
+
+      "should transform connector response into SelectThirdPartyEori" in {
+        val accounts = Seq(
+          AccountAuthorityOverViewModel("GB111", Some("Business One")),
+          AccountAuthorityOverViewModel("GB222", None)
+        )
+
+        when(mockConnector.getSelectThirdPartyEori(eori))
+          .thenReturn(Future.successful(accounts))
+
+        val result = service.getSelectThirdPartyEori(eori).futureValue
+
+        result.values mustBe Seq("GB111 Business One", "GB222")
+      }
+
+      "should return empty SelectThirdPartyEori when connector returns empty" in {
+        when(mockConnector.getSelectThirdPartyEori(eori))
+          .thenReturn(Future.successful(Seq.empty))
+
+        val result = service.getSelectThirdPartyEori(eori).futureValue
+
+        result.values mustBe Seq.empty
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.getSelectThirdPartyEori(eori))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getSelectThirdPartyEori(eori).futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
   }
 }

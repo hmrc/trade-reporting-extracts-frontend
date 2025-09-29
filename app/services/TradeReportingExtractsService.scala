@@ -41,13 +41,6 @@ class TradeReportingExtractsService @Inject() (
   def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     connector.setupUser(eori)
 
-  def getEoriList()(implicit messages: Messages): Future[Seq[SelectItem]] =
-    connector.getEoriList().map { eoriStrings =>
-      SelectItem(text = messages("SelectThirdPartyEori.defaultValue")) +: eoriStrings.map(eori =>
-        SelectItem(text = eori)
-      )
-    }
-
   def getAvailableReports(eori: String)(implicit
     hc: HeaderCarrier
   ): Future[AvailableReportsViewModel] =
