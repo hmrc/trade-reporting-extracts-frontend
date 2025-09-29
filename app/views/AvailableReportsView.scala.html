@@ -78,8 +78,8 @@ maybeThirdPartyReports: Boolean
         TableRow(content = Text(messages(data.reportName))),
         TableRow(content = Text(messages(data.referenceNumber))),
         TableRow(content = Text(messages(data.companyName))),
-        TableRow(content = Text(messages(data.reportType.toString))),
-        TableRow(content = Text(messages(data.expiryDate.toString))),
+        TableRow(content = Text(messages(data.formattedReportType.toString))),
+        TableRow(content = Text(messages(data.formattedExpiryDate.toString))),
         TableRow(
             content = HtmlContent(
                 data.action.map { action =>

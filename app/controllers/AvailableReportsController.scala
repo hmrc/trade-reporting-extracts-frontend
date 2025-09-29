@@ -39,7 +39,7 @@ class AvailableReportsController @Inject() (
     for {
       availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
       maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
-      maybeThirdPartyReports = availableReports.availableThirdPartyReports.isDefined
+      maybeThirdPartyReports = availableReports.availableThirdPartyReports.exists(_.nonEmpty)
     } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
   }
 

@@ -18,8 +18,11 @@ package models.availableReports
 
 import models.ReportTypeName
 import play.api.libs.json.{Json, OFormat}
+import utils.ReportHelpers
 
 import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 case class AvailableThirdPartyReportsViewModel(
   reportName: String,
@@ -28,8 +31,23 @@ case class AvailableThirdPartyReportsViewModel(
   reportType: ReportTypeName,
   companyName: String,
   action: Seq[AvailableReportAction]
-)
+) {
+  def formattedExpiryDate: String =
+    AvailableThirdPartyReportsViewModel.dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
+  def formattedReportType: String = AvailableThirdPartyReportsViewModel.getReportType(reportType)
+
+}
 
 object AvailableThirdPartyReportsViewModel {
-  implicit val format: OFormat[AvailableThirdPartyReportsViewModel] = Json.format[AvailableThirdPartyReportsViewModel]
+  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH)
+
+  def formatExpiryDate(expiryDate: Instant): String =
+    dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
+  def getReportType(reportType: ReportTypeName): String =
+    ReportHelpers.getReportType(reportType)
+
+  implicit val format: OFormat[AvailableThirdPartyReportsViewModel] =
+    Json.format[AvailableThirdPartyReportsViewModel]
 }
