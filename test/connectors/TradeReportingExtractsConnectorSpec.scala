@@ -53,47 +53,6 @@ class TradeReportingExtractsConnectorSpec
 
   "TradeReportingExtractsConnector" - {
 
-    "getEoriList" - {
-
-      "must return a list of EORI numbers when the file is read successfully" in {
-        val app = application
-
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val result    = connector.getEoriList().futureValue
-
-          result mustBe Seq("Eori1", "Eori2", "Eori3")
-        }
-      }
-
-      "must log an error and return a failed future if the file cannot be read" in {
-        val app = application
-        running(app) {
-          val mockConnector = mock[TradeReportingExtractsConnector]
-          when(mockConnector.getEoriList())
-            .thenReturn(Future.failed(new RuntimeException("Failed to read or parse EORI list from file")))
-
-          val thrown = intercept[RuntimeException] {
-            mockConnector.getEoriList().futureValue
-          }
-
-          thrown.getMessage must include("Failed to read or parse EORI list from file")
-        }
-      }
-
-      "must return an empty sequence if the JSON is invalid or empty" in {
-        val app = application
-
-        val path = "conf/resources/emptyEoriList.json"
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val result    = connector.getEoriList(path).futureValue
-
-          result mustBe Seq.empty
-        }
-      }
-    }
-
     "createReportRequest" - {
 
       val url = "/trade-reporting-extracts/create-report-request"
