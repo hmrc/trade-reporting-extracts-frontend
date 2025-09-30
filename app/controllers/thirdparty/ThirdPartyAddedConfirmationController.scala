@@ -20,9 +20,7 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.AlreadyAddedThirdPartyFlag
-import models.AlreadyAddedThirdPartyEori
 import models.thirdparty.AddThirdPartySection
-import pages.thirdparty.EoriNumberPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,9 +41,9 @@ class ThirdPartyAddedConfirmationController @Inject() (
   frontendAppConfig: FrontendAppConfig,
   sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
+  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView,
-  preventBackNavigationAfterAddThirdPartyAction: PreventBackNavigationAfterAddThirdPartyAction,
   clock: Clock
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -59,15 +57,9 @@ class ThirdPartyAddedConfirmationController @Inject() (
       thirdPartyAddedConfirmation      <- tradeReportingExtractsService.createThirdPartyAddRequest(
                                             thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
                                           )
-      eoriNumber                       <- request.userAnswers.get(EoriNumberPage) match {
-                                            case Some(eori) => Future.successful(eori)
-                                            case None       => Future.failed(new Exception("EORI number not found in user answers"))
-                                          }
       updatedAnswers                    = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
-      updatedAnswersWithSubmissionEORI <-
-        Future.fromTry(updatedAnswersWithSubmissionFlag.set(AlreadyAddedThirdPartyEori(), eoriNumber))
-      _                                <- sessionRepository.set(updatedAnswersWithSubmissionEORI)
+      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
     } yield Ok(view(thirdPartyAddedConfirmation.thirdPartyEori, getDate, frontendAppConfig.exitSurveyUrl))
   }
 
