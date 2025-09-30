@@ -47,6 +47,7 @@ class RemoveThirdPartyConfirmationController @Inject() (
       for {
         notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
         _                 <- tradeReportingExtractsService.removeThirdParty(request.eori, thirdPartyEori)
+
       } yield Ok(view(date, time, thirdPartyEori, notificationEmail.address))
   }
 
