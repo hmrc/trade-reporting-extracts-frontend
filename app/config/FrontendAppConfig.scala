@@ -71,4 +71,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val cdsEnrolmentIdentifier: EnrolmentConfig = configuration.get[EnrolmentConfig]("enrolment-config")
   val internalAuthToken: String               = configuration.get[String]("internal-auth.token")
 
+  val thirdPartySelfRemovalEventName: String = configuration.get[String]("auditing.third-party-self-removal-event-name")
+
 }

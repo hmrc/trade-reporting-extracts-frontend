@@ -21,7 +21,7 @@ import models.UserAnswers
 import org.apache.pekko.Done
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
@@ -30,7 +30,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import services.TradeReportingExtractsService
+import services.{AuditService, TradeReportingExtractsService}
 import utils.DateTimeFormats.formattedSystemTime
 import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
 
@@ -41,6 +41,7 @@ class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSug
 
   val mockSessionRepository: SessionRepository                         = mock[SessionRepository]
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  val mockAuditService                                                 = mock[AuditService]
 
   val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
   val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
@@ -55,13 +56,15 @@ class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSug
       when(mockTradeReportingExtractsService.selfRemoveThirdPartyAccess(any(), any())(any()))
         .thenReturn(Future.successful(Done))
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+      when(mockAuditService.auditThirdPartySelfRemoval(any())(any())) thenReturn Future.successful(())
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
             bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
             bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[Clock].toInstance(fixedClock)
+            bind[Clock].toInstance(fixedClock),
+            bind[AuditService].toInstance(mockAuditService)
           )
           .build()
 
@@ -82,6 +85,7 @@ class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSug
         ).toString
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe None
+        verify(mockAuditService, times(1)).auditThirdPartySelfRemoval(any())(any())
       }
     }
   }

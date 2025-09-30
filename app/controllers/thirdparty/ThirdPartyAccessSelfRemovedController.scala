@@ -17,11 +17,12 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import models.thirdparty.ThirdPartySelfRemovalEvent
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.TradeReportingExtractsService
+import services.{AuditService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
@@ -38,6 +39,7 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
+  auditService: AuditService,
   view: ThirdPartyAccessSelfRemovedView,
   clock: Clock
 )(implicit ec: ExecutionContext)
@@ -49,7 +51,13 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
       val (date, time) = getDateAndTime
       for {
         _              <- tradeReportingExtractsService.selfRemoveThirdPartyAccess(traderEori, request.eori)
-        // TODO CALL TO EXPLICIT AUDIT GOES HERE
+        _              <- auditService.auditThirdPartySelfRemoval(
+                            ThirdPartySelfRemovalEvent(
+                              request.userAnswers.get(MaybeThirdPartyAccessSelfRemovalPage).get,
+                              request.eori,
+                              traderEori
+                            )
+                          )
         updatedAnswers <- Future.fromTry(request.userAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
         _              <- sessionRepository.set(updatedAnswers)
       } yield Ok(
