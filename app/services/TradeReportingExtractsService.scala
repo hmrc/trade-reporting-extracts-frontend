@@ -19,7 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserDetails}
 import org.apache.pekko.Done
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
@@ -40,13 +40,6 @@ class TradeReportingExtractsService @Inject() (
 
   def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     connector.setupUser(eori)
-
-  def getEoriList()(implicit messages: Messages): Future[Seq[SelectItem]] =
-    connector.getEoriList().map { eoriStrings =>
-      SelectItem(text = messages("accountsYouHaveAuthorityOverImport.defaultValue")) +: eoriStrings.map(eori =>
-        SelectItem(text = eori)
-      )
-    }
 
   def getAvailableReports(eori: String)(implicit
     hc: HeaderCarrier
@@ -143,4 +136,15 @@ class TradeReportingExtractsService @Inject() (
     hc: HeaderCarrier
   ): Future[Done] =
     connector.removeThirdParty(eori, thirdPartyEori)
+
+  def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[SelectThirdPartyEori] =
+    connector.getSelectThirdPartyEori(eori).map { accounts =>
+      val values = accounts.map { acc =>
+        acc.businessInfo match {
+          case Some(info) => s"${acc.eori} $info"
+          case None       => acc.eori
+        }
+      }
+      SelectThirdPartyEori(values)
+    }
 }

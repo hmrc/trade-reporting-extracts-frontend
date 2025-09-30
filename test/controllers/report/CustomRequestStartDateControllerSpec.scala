@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, CustomRequestStartDatePage, ReportTypeImportPage}
+import pages.report.{CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -98,13 +98,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
-      )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
       running(application) {
         val result = route(application, getRequest()).value
@@ -124,13 +123,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails.copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)))))
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
-      )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
       running(application) {
         val result = route(application, getRequest()).value
@@ -161,13 +159,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
-      )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
       running(application) {
         val result = route(application, getRequest()).value
@@ -260,13 +257,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(AccountsYouHaveAuthorityOverImportPage, "traderEori").get)
-      )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
 
       val request =
         FakeRequest(POST, customRequestStartDateRoute)

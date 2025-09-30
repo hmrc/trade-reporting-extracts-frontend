@@ -21,7 +21,7 @@ import forms.report.CustomRequestStartDateFormProvider
 import models.{Mode, ThirdPartyDetails}
 import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestStartDatePage}
+import pages.report.{ChooseEoriPage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -56,13 +56,13 @@ class CustomRequestStartDateController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val maybeThirdPartyRequest = request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage).isDefined
+      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
 
       if (maybeThirdPartyRequest) {
         for {
           details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
                            request.eori,
-                           request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+                           request.userAnswers.get(SelectThirdPartyEoriPage).get
                          )
           form         = formProvider(maybeThirdPartyRequest, details.dataStartDate, details.dataEndDate)
           preparedForm = request.userAnswers.get(CustomRequestStartDatePage) match {
@@ -103,13 +103,13 @@ class CustomRequestStartDateController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
 
-      val maybeThirdPartyRequest = request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage).isDefined
+      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
 
       val formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])] = if (maybeThirdPartyRequest) {
         tradeReportingExtractsService
           .getAuthorisedBusinessDetails(
             request.eori,
-            request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+            request.userAnswers.get(SelectThirdPartyEoriPage).get
           )
           .map { details =>
             (formProvider(maybeThirdPartyRequest = true, details.dataStartDate, details.dataEndDate), Some(details))

@@ -90,18 +90,18 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
 
-        "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
+        "to SelectThirdPartyEoriPage when Myauthority" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
-          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.AccountsYouHaveAuthorityOverImportController
+          navigator.nextPage(ChooseEoriPage, NormalMode, ua) mustBe routes.SelectThirdPartyEoriController
             .onPageLoad(NormalMode)
         }
       }
 
-      "navigate from AccountsYouHaveAuthorityOverImportPage" - {
+      "navigate from SelectThirdPartyEoriPage" - {
         "to DecisionPage when Import" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
           navigator.nextPage(
-            AccountsYouHaveAuthorityOverImportPage,
+            SelectThirdPartyEoriPage,
             NormalMode,
             ua
           ) mustBe routes.DecisionController.onPageLoad(NormalMode)
@@ -110,7 +110,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         "to DecisionPage when Export" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
           navigator.nextPage(
-            AccountsYouHaveAuthorityOverImportPage,
+            SelectThirdPartyEoriPage,
             NormalMode,
             ua
           ) mustBe routes.DecisionController.onPageLoad(NormalMode)
@@ -294,17 +294,17 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.DecisionController.onPageLoad(NormalMode)
         }
 
-        "to AccountsYouHaveAuthorityOverImportPage when Myauthority" in {
+        "to SelectThirdPartyEoriPage when Myauthority" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
-          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.AccountsYouHaveAuthorityOverImportController
+          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.SelectThirdPartyEoriController
             .onPageLoad(NormalMode)
         }
       }
 
-      "navigate from AccountsYouHaveAuthorityOverImportPage to CheckYourAnswersPage" in {
+      "navigate from SelectThirdPartyEoriPage to CheckYourAnswersPage" in {
         val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
         navigator.nextPage(
-          AccountsYouHaveAuthorityOverImportPage,
+          SelectThirdPartyEoriPage,
           CheckMode,
           ua
         ) mustBe routes.CheckYourAnswersController.onPageLoad()

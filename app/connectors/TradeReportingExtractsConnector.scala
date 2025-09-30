@@ -58,24 +58,6 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .flatMap:
       response => Future.successful(response)
 
-  // TODO Remove with third party
-  def getEoriList(pathString: String = defaultPath): Future[Seq[String]] = {
-    val path = Paths.get(pathString)
-
-    Try {
-      val jsonString = new String(Files.readAllBytes(path), "UTF-8")
-      Json.parse(jsonString).as[Seq[String]]
-    } match {
-      case Success(eoriStrings) =>
-        Future.successful(eoriStrings)
-
-      case Failure(ex) =>
-        val errMsg = s"Failed to read or parse EORI list from file: ${ex.getMessage}"
-        logger.error(errMsg)
-        Future.failed(new RuntimeException(errMsg, ex))
-    }
-  }
-
   def getRequestedReports(eoriNumber: String)(implicit hc: HeaderCarrier): Future[RequestedReportsViewModel] = {
     val requestBody = Json.obj("eori" -> eoriNumber)
 
@@ -368,6 +350,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   def getAccountsAuthorityOver(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("thirdPartyEori" -> eori))
+      .execute[Seq[AccountAuthorityOverViewModel]]
+      .recover { ex =>
+        logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
+        throw ex
+      }
+
+  def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori-date-filtered")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
       .withBody(Json.obj("thirdPartyEori" -> eori))
       .execute[Seq[AccountAuthorityOverViewModel]]

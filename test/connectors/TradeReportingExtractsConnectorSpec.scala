@@ -18,11 +18,11 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, serverError, urlEqualTo}
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.ThirdPartyRequest
+import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -52,47 +52,6 @@ class TradeReportingExtractsConnectorSpec
       .build()
 
   "TradeReportingExtractsConnector" - {
-
-    "getEoriList" - {
-
-      "must return a list of EORI numbers when the file is read successfully" in {
-        val app = application
-
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val result    = connector.getEoriList().futureValue
-
-          result mustBe Seq("Eori1", "Eori2", "Eori3")
-        }
-      }
-
-      "must log an error and return a failed future if the file cannot be read" in {
-        val app = application
-        running(app) {
-          val mockConnector = mock[TradeReportingExtractsConnector]
-          when(mockConnector.getEoriList())
-            .thenReturn(Future.failed(new RuntimeException("Failed to read or parse EORI list from file")))
-
-          val thrown = intercept[RuntimeException] {
-            mockConnector.getEoriList().futureValue
-          }
-
-          thrown.getMessage must include("Failed to read or parse EORI list from file")
-        }
-      }
-
-      "must return an empty sequence if the JSON is invalid or empty" in {
-        val app = application
-
-        val path = "conf/resources/emptyEoriList.json"
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val result    = connector.getEoriList(path).futureValue
-
-          result mustBe Seq.empty
-        }
-      }
-    }
 
     "createReportRequest" - {
 
@@ -659,5 +618,98 @@ class TradeReportingExtractsConnectorSpec
         }
       }
     }
+
+    "getAccountsAuthorityOver" - {
+      val url  = "/trade-reporting-extracts/get-users-by-authorised-eori"
+      val eori = "GB123456789000"
+
+      val expectedResponse = Seq(
+        AccountAuthorityOverViewModel("GB111", Some("Business One")),
+        AccountAuthorityOverViewModel("GB222", None)
+      )
+
+      "must return list of AccountAuthorityOverViewModel when API call is successful" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+              .willReturn(ok(Json.toJson(expectedResponse).toString()))
+          )
+
+          val result = connector.getAccountsAuthorityOver(eori).futureValue
+          result mustBe expectedResponse
+        }
+      }
+
+      "must throw exception when API call fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+              .willReturn(serverError().withBody("error"))
+          )
+
+          val thrown = intercept[RuntimeException] {
+            connector.getAccountsAuthorityOver(eori).futureValue
+          }
+          thrown.getMessage must include("error")
+        }
+      }
+    }
+
+    "getSelectThirdPartyEori" - {
+      val url  = "/trade-reporting-extracts/get-users-by-authorised-eori-date-filtered"
+      val eori = "GB123456789000"
+
+      val expectedResponse = Seq(
+        AccountAuthorityOverViewModel("GB333", Some("Business Three")),
+        AccountAuthorityOverViewModel("GB444", Some("Business Four"))
+      )
+
+      "must return list of AccountAuthorityOverViewModel when API call is successful" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+              .willReturn(ok(Json.toJson(expectedResponse).toString()))
+          )
+
+          val result = connector.getSelectThirdPartyEori(eori).futureValue
+          result mustBe expectedResponse
+        }
+      }
+
+      "must throw exception when API call fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+              .willReturn(aResponse().withStatus(500).withBody("some error"))
+          )
+
+          val thrown = intercept[RuntimeException] {
+            connector.getSelectThirdPartyEori(eori).futureValue
+          }
+          thrown.getMessage must include("some error")
+        }
+      }
+    }
+
   }
 }

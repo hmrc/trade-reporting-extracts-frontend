@@ -317,13 +317,6 @@ customRequestEndDate.thirdParty.to = to
 customRequestEndDate.thirdParty.onwards = onwards.
 customRequestEndDate.thirdParty.error = The end date must be within your third-party access period.
 
-accountsYouHaveAuthorityOverImport.title = Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.heading = Select the EORI number you want to use
-accountsYouHaveAuthorityOverImport.defaultValue = Select an EORI
-accountsYouHaveAuthorityOverImport.checkYourAnswersLabel = EORI number you want to use
-accountsYouHaveAuthorityOverImport.error.required = Select an EORI number
-accountsYouHaveAuthorityOverImport.change.hidden = the EORI number you want to use
-
 checkYourAnswers.title = Check your answers before submitting your request
 checkYourAnswers.heading = Check your answers before submitting your request
 checkYourAnswers.sendRequest = Send request
@@ -655,3 +648,19 @@ thirdPartyAlreadyAdded.message2 = You can:
 thirdPartyAlreadyAdded.bullet1 = view this third party’s access details
 thirdPartyAlreadyAdded.bullet2 =  add another third party
 thirdPartyAlreadyAdded.message3 = Go to the homepage
+
+selectThirdPartyEori.title = Which third-party EORI number do you want to use?
+selectThirdPartyEori.heading = Which third-party EORI number do you want to use?
+selectThirdPartyEori.checkYourAnswersLabel = selectThirdPartyEori
+selectThirdPartyEori.message1 = Some EORI numbers may not include business information if the business hasn’t given consent to share it.
+selectThirdPartyEori.error.required = Select an EORI number
+selectThirdPartyEori.change.hidden = the EORI number you want to use
+
+noThirdPartyAccess.heading = You do not have third-party access
+noThirdPartyAccess.message1 = This could be because:
+noThirdPartyAccess.bullet1 = no one has given you third-party access to their data
+noThirdPartyAccess.bullet2 = your third-party access has not started yet
+noThirdPartyAccess.bullet3 = your third-party access has ended
+noThirdPartyAccess.message2 = If someone gives you access in the future, you will be able to request reports on their behalf.
+noThirdPartyAccess.message3 = Go to homepage
+

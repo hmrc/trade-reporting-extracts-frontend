@@ -24,7 +24,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
@@ -251,7 +251,7 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
         .get
         .set(ChooseEoriPage, ChooseEori.Myauthority)
         .get
-        .set(AccountsYouHaveAuthorityOverImportPage, "thirdPartyEori")
+        .set(SelectThirdPartyEoriPage, "thirdPartyEori")
         .get
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .get

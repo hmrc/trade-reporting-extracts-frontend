@@ -55,14 +55,13 @@ POST       /end-date                  controllers.report.CustomRequestEndDateCon
 GET        /change-end-date                        controllers.report.CustomRequestEndDateController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-end-date                         controllers.report.CustomRequestEndDateController.onSubmit(mode: Mode = CheckMode)
 
-GET        /select-eori                        controllers.report.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode: Mode = NormalMode)
-POST       /select-eori                        controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = NormalMode)
-GET        /change-select-eori                  controllers.report.AccountsYouHaveAuthorityOverImportController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-select-eori                  controllers.report.AccountsYouHaveAuthorityOverImportController.onSubmit(mode: Mode = CheckMode)
-
 GET        /check-your-answers        controllers.report.CheckYourAnswersController.onPageLoad()
 POST       /check-your-answers        controllers.report.CheckYourAnswersController.onSubmit()
 
 GET        /report-request-confirmation                   controllers.report.RequestConfirmationController.onPageLoad()
 GET        /requested-reports                             controllers.report.RequestedReportsController.onPageLoad()
 
+GET        /select-eori                        controllers.report.SelectThirdPartyEoriController.onPageLoad(mode: Mode = NormalMode)
+POST       /select-eori                        controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = NormalMode)
+GET        /change-select-eori                  controllers.report.SelectThirdPartyEoriController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-select-eori                  controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = CheckMode)

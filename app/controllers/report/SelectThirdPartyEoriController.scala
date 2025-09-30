@@ -17,63 +17,69 @@
 package controllers.report
 
 import controllers.actions.*
-import forms.report.AccountsYouHaveAuthorityOverImportFormProvider
-import models.Mode
+import forms.report.SelectThirdPartyEoriFormProvider
+import models.{Mode, SelectThirdPartyEori}
 import models.report.{Decision, ReportRequestSection, ReportTypeImport}
-import navigation.ReportNavigator
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, DecisionPage, ReportTypeImportPage}
+import navigation.{Navigator, ReportNavigator}
+import pages.report.{DecisionPage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.report.AccountsYouHaveAuthorityOverImportView
+import views.html.problem.NoThirdPartyAccessView
+import views.html.report.SelectThirdPartyEoriView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountsYouHaveAuthorityOverImportController @Inject() (
+class SelectThirdPartyEoriController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: ReportNavigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  formProvider: AccountsYouHaveAuthorityOverImportFormProvider,
+  formProvider: SelectThirdPartyEoriFormProvider,
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
-  view: AccountsYouHaveAuthorityOverImportView,
-  tradeReportingExtractsService: TradeReportingExtractsService
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  view: SelectThirdPartyEoriView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
+  val form = formProvider()
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val form = formProvider()
-
-      val preparedForm = request.userAnswers.get(AccountsYouHaveAuthorityOverImportPage) match {
+      val preparedForm = request.userAnswers.get(SelectThirdPartyEoriPage) match {
         case None        => form
         case Some(value) => form.fill(value)
       }
 
-      tradeReportingExtractsService.getEoriList().map { eoriList =>
-        Ok(view(preparedForm, mode, eoriList))
+      tradeReportingExtractsService.getSelectThirdPartyEori(request.eori).flatMap { selectThirdPartyEori =>
+        if (selectThirdPartyEori.values.isEmpty) {
+          for {
+            cleanedAnswers <-
+              Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+            _              <- sessionRepository.set(cleanedAnswers)
+          } yield Redirect(controllers.problem.routes.NoThirdPartyAccessController.onPageLoad())
+        } else {
+          Future.successful(Ok(view(preparedForm, mode, selectThirdPartyEori)))
+        }
       }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
-      val form = formProvider()
-
       form
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            tradeReportingExtractsService.getEoriList().map { eoriList =>
-              BadRequest(view(formWithErrors, mode, eoriList))
+            tradeReportingExtractsService.getSelectThirdPartyEori(request.eori).map { selectThirdPartyEori =>
+              BadRequest(view(formWithErrors, mode, selectThirdPartyEori))
             },
           value =>
             for {
@@ -82,18 +88,18 @@ class AccountsYouHaveAuthorityOverImportController @Inject() (
                                     .get(DecisionPage)
                                     .map {
                                       case Decision.Import =>
-                                        request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value)
+                                        request.userAnswers.set(SelectThirdPartyEoriPage, value)
                                       case Decision.Export =>
                                         request.userAnswers
-                                          .set(AccountsYouHaveAuthorityOverImportPage, value)
+                                          .set(SelectThirdPartyEoriPage, value)
                                           .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
                                     }
-                                    .getOrElse(request.userAnswers.set(AccountsYouHaveAuthorityOverImportPage, value))
+                                    .getOrElse(request.userAnswers.set(SelectThirdPartyEoriPage, value))
                                 )
-              redirectUrl     = navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, updatedAnswers).url
+              redirectUrl     = navigator.nextPage(SelectThirdPartyEoriPage, mode, updatedAnswers).url
               answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
               _              <- sessionRepository.set(answersWithNav)
-            } yield Redirect(navigator.nextPage(AccountsYouHaveAuthorityOverImportPage, mode, answersWithNav))
+            } yield Redirect(navigator.nextPage(SelectThirdPartyEoriPage, mode, answersWithNav))
         )
   }
 }

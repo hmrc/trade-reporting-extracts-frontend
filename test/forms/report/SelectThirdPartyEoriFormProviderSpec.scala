@@ -16,21 +16,24 @@
 
 package forms.report
 
-import forms.mappings.Mappings
-import play.api.data.Form
-import play.api.i18n.Messages
+import forms.behaviours.OptionFieldBehaviours
+import forms.report.SelectThirdPartyEoriFormProvider
+import models.SelectThirdPartyEori
+import play.api.data.FormError
 
-import javax.inject.Inject
-import scala.util.matching.Regex
+class SelectThirdPartyEoriFormProviderSpec extends OptionFieldBehaviours {
 
-class AccountsYouHaveAuthorityOverImportFormProvider @Inject() extends Mappings {
+  val form = new SelectThirdPartyEoriFormProvider()()
 
-  def apply()(implicit messages: Messages): Form[String] =
-    val defaultValue = messages("accountsYouHaveAuthorityOverImport.defaultValue")
-    Form(
-      "value" -> text("accountsYouHaveAuthorityOverImport.error.required")
-        .verifying(
-          regexp(s"^(?!${Regex.quote(defaultValue)}$$).+", "accountsYouHaveAuthorityOverImport.error.required")
-        )
+  ".value" - {
+
+    val fieldName   = "value"
+    val requiredKey = "selectThirdPartyEori.error.required"
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
     )
+  }
 }

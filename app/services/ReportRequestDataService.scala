@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import models.{EoriRole, UserAnswers}
 import models.report.Decision.{Export, Import}
 import models.report.{ChooseEori, EmailSelection, ReportDateRange, ReportRequestUserAnswersModel}
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import config.FrontendAppConfig
 import utils.DateTimeFormats
 
@@ -46,7 +46,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
   }
 
   private def getEoriRole(userAnswers: UserAnswers): Set[String] =
-    if (appConfig.thirdPartyEnabled && userAnswers.get(AccountsYouHaveAuthorityOverImportPage).isDefined) {
+    if (appConfig.thirdPartyEnabled && userAnswers.get(SelectThirdPartyEoriPage).isDefined) {
       userAnswers.get(DecisionPage).get match {
         case decision if decision == Export => Set(EoriRole.Exporter.toString)
         case decision if decision == Import => Set(EoriRole.Importer.toString)
@@ -94,7 +94,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC(), appCon
     if (appConfig.thirdPartyEnabled) {
       userAnswers.get(ChooseEoriPage) match {
         case Some(ChooseEori.Myeori) => eori
-        case _                       => userAnswers.get(AccountsYouHaveAuthorityOverImportPage).get
+        case _                       => userAnswers.get(SelectThirdPartyEoriPage).get
       }
     } else eori
 }

@@ -19,7 +19,7 @@ package viewmodels.checkAnswers.report
 import controllers.report.routes
 import models.report.ChooseEori
 import models.{CheckMode, UserAnswers}
-import pages.report.{AccountsYouHaveAuthorityOverImportPage, ChooseEoriPage}
+import pages.report.{ChooseEoriPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -38,7 +38,7 @@ object ChooseEoriSummary {
             HtmlContent(HtmlFormat.escape(messages(s"chooseEori.$answer", eori)))
           case ChooseEori.Myauthority =>
             answers
-              .get(AccountsYouHaveAuthorityOverImportPage)
+              .get(SelectThirdPartyEoriPage)
               .map { accounts =>
                 HtmlContent(
                   HtmlFormat.escape(accounts)
