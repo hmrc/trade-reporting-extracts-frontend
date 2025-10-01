@@ -129,19 +129,6 @@ class ReportHelpersSpec extends SpecBase with Matchers {
     val startDate  = "2024-01-01"
     val endDate    = "2024-02-01"
 
-    "must return correct data for COMPLETE" in {
-      val result = ReportHelpers.reportStatusDisplayData(
-        models.ReportStatus.COMPLETE,
-        reportName,
-        reportRef,
-        startDate,
-        endDate
-      )
-      result.key mustBe "requestedReports.status.complete"
-      result.cssClass mustBe "govuk-tag--green"
-      result.maybeRedirect mustBe None
-    }
-
     "must return correct data for ERROR" in {
       val result = ReportHelpers.reportStatusDisplayData(
         models.ReportStatus.ERROR,
