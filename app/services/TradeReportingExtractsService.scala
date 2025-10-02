@@ -141,7 +141,7 @@ class TradeReportingExtractsService @Inject() (
     connector.getSelectThirdPartyEori(eori).map { accounts =>
       val values = accounts.map { acc =>
         acc.businessInfo match {
-          case Some(info) => s"${acc.eori} $info"
+          case Some(info) => s"${acc.eori} - $info"
           case None       => acc.eori
         }
       }
