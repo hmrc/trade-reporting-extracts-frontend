@@ -25,6 +25,7 @@ import models.{AlreadyAddedThirdPartyFlag, CompanyInformation, ConsentStatus}
 import models.thirdparty.{AddThirdPartySection, ConfirmEori, DataTypes, DeclarationDate, ThirdPartyAddedEvent}
 import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{AuditService, ThirdPartyService, TradeReportingExtractsService}
@@ -65,6 +66,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
                                           )
       companyInfo                      <- tradeReportingExtractsService.getCompanyInformation(request.userAnswers.get(EoriNumberPage).get)
       maybeCompanyName                  = resolveDisplayName(companyInfo)
+      _                                 = println(Json.toJson(buildThirdPartyAddedAuditEvent(request, maybeCompanyName)))
       _                                <- auditService.auditThirdPartyAdded(buildThirdPartyAddedAuditEvent(request, maybeCompanyName))
       updatedAnswers                    = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
@@ -86,7 +88,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
     maybeCompanyName: Option[String]
   ): ThirdPartyAddedEvent = {
     val userAnswers = request.userAnswers
-    
+
     ThirdPartyAddedEvent(
       IsImporterExporterForDataToShare = userAnswers.get(ThirdPartyDataOwnerConsentPage).get,
       thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).get match {
