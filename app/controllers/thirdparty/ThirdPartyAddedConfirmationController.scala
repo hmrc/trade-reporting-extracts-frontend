@@ -86,21 +86,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
     maybeCompanyName: Option[String]
   ): ThirdPartyAddedEvent = {
     val userAnswers = request.userAnswers
-
-    println("=======================================")
-    println(userAnswers.get(ThirdPartyDataOwnerConsentPage))
-    println(userAnswers.get(ConfirmEoriPage))
-    println(userAnswers.get(DeclarationDatePage))
-    println(userAnswers.get(EoriNumberPage))
-//    println(userAnswers.get(ThirdPartyReferencePage))
-    println(userAnswers.get(ThirdPartyAccessStartDatePage))
-    println(userAnswers.get(ThirdPartyAccessEndDatePage))
-    println(userAnswers.get(DataTypesPage))
-    println(userAnswers.get(DataStartDatePage))
-    println(userAnswers.get(DataEndDatePage))
-
-    println("=======================================")
-
+    
     ThirdPartyAddedEvent(
       IsImporterExporterForDataToShare = userAnswers.get(ThirdPartyDataOwnerConsentPage).get,
       thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).get match {
