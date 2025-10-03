@@ -17,16 +17,19 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import models.thirdparty.ThirdPartyRemovalEvent
+import pages.thirdparty.RemoveThirdPartyPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TradeReportingExtractsService
+import repositories.SessionRepository
+import services.{AuditService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.RemoveThirdPartyConfirmationView
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class RemoveThirdPartyConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
@@ -34,6 +37,8 @@ class RemoveThirdPartyConfirmationController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   tradeReportingExtractsService: TradeReportingExtractsService,
+  auditService: AuditService,
+  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
   clock: Clock,
   view: RemoveThirdPartyConfirmationView
@@ -47,7 +52,15 @@ class RemoveThirdPartyConfirmationController @Inject() (
       for {
         notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
         _                 <- tradeReportingExtractsService.removeThirdParty(request.eori, thirdPartyEori)
-
+        _                 <- auditService.auditThirdPartyRemoval(
+                               ThirdPartyRemovalEvent(
+                                 request.userAnswers.get(RemoveThirdPartyPage).get,
+                                 request.eori,
+                                 thirdPartyEori
+                               )
+                             )
+        updatedAnswers    <- Future.fromTry(request.userAnswers.remove(RemoveThirdPartyPage))
+        _                 <- sessionRepository.set(updatedAnswers)
       } yield Ok(view(date, time, thirdPartyEori, notificationEmail.address))
   }
 
