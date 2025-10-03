@@ -18,7 +18,7 @@ package services
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.thirdparty.ThirdPartySelfRemovalEvent
+import models.thirdparty.{ThirdPartyAddedEvent, ThirdPartyRemovalEvent, ThirdPartySelfRemovalEvent}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
@@ -31,4 +31,9 @@ class AuditService @Inject() (auditConnector: AuditConnector, config: FrontendAp
   def auditThirdPartySelfRemoval(event: ThirdPartySelfRemovalEvent)(implicit hc: HeaderCarrier): Future[Unit] =
     Future.successful(auditConnector.sendExplicitAudit(config.thirdPartySelfRemovalEventName, event))
 
+  def auditThirdPartyRemoval(event: ThirdPartyRemovalEvent)(implicit hc: HeaderCarrier): Future[Unit] =
+    Future.successful(auditConnector.sendExplicitAudit(config.thirdPartyRemovalEventName, event))
+
+  def auditThirdPartyAdded(event: ThirdPartyAddedEvent)(implicit hc: HeaderCarrier): Future[Unit] =
+    Future.successful(auditConnector.sendExplicitAudit(config.thirdPartyAddedEventName, event))
 }

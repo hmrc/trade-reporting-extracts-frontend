@@ -72,5 +72,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val internalAuthToken: String               = configuration.get[String]("internal-auth.token")
 
   val thirdPartySelfRemovalEventName: String = configuration.get[String]("auditing.third-party-self-removal-event-name")
+  val thirdPartyRemovalEventName: String     = configuration.get[String]("auditing.third-party-removal-event-name")
+  val thirdPartyAddedEventName: String       = configuration.get[String]("auditing.third-party-added-event-name")
 
 }
