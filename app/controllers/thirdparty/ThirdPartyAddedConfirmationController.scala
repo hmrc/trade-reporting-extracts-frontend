@@ -86,6 +86,21 @@ class ThirdPartyAddedConfirmationController @Inject() (
     maybeCompanyName: Option[String]
   ): ThirdPartyAddedEvent = {
     val userAnswers = request.userAnswers
+
+    println("=======================================")
+    println(userAnswers.get(ThirdPartyDataOwnerConsentPage))
+    println(userAnswers.get(ConfirmEoriPage))
+    println(userAnswers.get(DeclarationDatePage))
+    println(userAnswers.get(EoriNumberPage))
+//    println(userAnswers.get(ThirdPartyReferencePage))
+    println(userAnswers.get(ThirdPartyAccessStartDatePage))
+    println(userAnswers.get(ThirdPartyAccessEndDatePage))
+    println(userAnswers.get(DataTypesPage))
+    println(userAnswers.get(DataStartDatePage))
+    println(userAnswers.get(DataEndDatePage))
+
+    println("=======================================")
+
     ThirdPartyAddedEvent(
       IsImporterExporterForDataToShare = userAnswers.get(ThirdPartyDataOwnerConsentPage).get,
       thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).get match {
@@ -103,8 +118,8 @@ class ThirdPartyAddedConfirmationController @Inject() (
       thirdPartyAccessStart =
         userAnswers.get(ThirdPartyAccessStartDatePage).get.atStartOfDay().toInstant(ZoneOffset.UTC).toString,
       thirdPartyAccessEnd = userAnswers.get(ThirdPartyAccessEndDatePage) match {
-        case Some(value) => value.get.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-        case None        => "indefinite"
+        case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+        case _                   => "indefinite"
       },
       dataAccessType = userAnswers.get(DataTypesPage).get match {
         case set if set.contains(DataTypes.Export) && set.contains(DataTypes.Import) => "import, export"
@@ -116,8 +131,8 @@ class ThirdPartyAddedConfirmationController @Inject() (
         case Some(startDate) => startDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
       },
       thirdPartyDataEnd = userAnswers.get(DataEndDatePage) match {
-        case None          => "all available data"
-        case Some(endDate) => endDate.get.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+        case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+        case _                   => "all available data"
       }
     )
   }
