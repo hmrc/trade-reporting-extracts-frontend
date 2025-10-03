@@ -66,7 +66,6 @@ class ThirdPartyAddedConfirmationController @Inject() (
                                           )
       companyInfo                      <- tradeReportingExtractsService.getCompanyInformation(request.userAnswers.get(EoriNumberPage).get)
       maybeCompanyName                  = resolveDisplayName(companyInfo)
-      _                                 = println(Json.toJson(buildThirdPartyAddedAuditEvent(request, maybeCompanyName)))
       _                                <- auditService.auditThirdPartyAdded(buildThirdPartyAddedAuditEvent(request, maybeCompanyName))
       updatedAnswers                    = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
