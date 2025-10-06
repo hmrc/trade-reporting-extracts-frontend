@@ -86,15 +86,10 @@ class ConfirmEoriController @Inject() (
                   updatedAnswersTry.fold(
                     error => Future.failed(error),
                     updatedAnswers => {
-                      val skipFlag    = companyInfo.consent == ConsentStatus.Granted
-                      val redirectUrl = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers, skipFlag).url
-
-                      if (skipFlag) {
-                        Future.successful(Redirect(redirectUrl))
-                      } else {
-                        val answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                        sessionRepository.set(answersWithNav).map(_ => Redirect(redirectUrl))
-                      }
+                      val skipFlag       = companyInfo.consent == ConsentStatus.Granted
+                      val redirectUrl    = navigator.nextPage(ConfirmEoriPage, mode, updatedAnswers, skipFlag).url
+                      val answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                      sessionRepository.set(answersWithNav).map(_ => Redirect(redirectUrl))
                     }
                   )
                 }
