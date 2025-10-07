@@ -79,7 +79,7 @@
       Seq(
         TableRow(content = Text(messages(data.reportName))),
         TableRow(content = Text(messages(data.referenceNumber))),
-        TableRow(content = Text(messages(data.companyName))),
+        TableRow(content = Text(if (data.companyName == "Unknown") messages("requestedReports.table.unknownCompany") else messages(data.companyName))),
         TableRow(content = Text(messages(data.formattedReportType))),
         TableRow(content = Text(messages(data.formattedRequestedDate))),
         TableRow(content = HtmlContent {

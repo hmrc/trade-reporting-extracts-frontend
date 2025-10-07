@@ -339,6 +339,8 @@ availableReports.table.reportType = Type of report
 availableReports.table.expiryDate = Expiry date
 availableReports.table.referenceNumber = Reference number
 availableReports.table.action = Action
+availableReports.table.unknownCompany = Not applicable
+
 
 requestedReports.title = Requested reports
 requestedReports.title.none = You have not requested any reports yet
@@ -355,6 +357,7 @@ requestedReports.table.companyName = Company information
 requestedReports.table.reportType = Type of report
 requestedReports.table.requestedDate = Date requested
 requestedReports.table.referenceNumber = Reference number
+requestedReports.table.unknownCompany = Not applicable
 requestedReports.table.status = Status
 requestedReports.status.complete = Completed
 requestedReports.status.error = Failed
