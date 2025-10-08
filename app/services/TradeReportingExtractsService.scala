@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
-
+import models.UserActiveStatus
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -121,7 +121,12 @@ class TradeReportingExtractsService @Inject() (
           AuthorisedThirdPartiesViewModel(
             eori = authorisedUser.eori,
             businessInfo = businessInfo,
-            referenceName = authorisedUser.referenceName
+            referenceName = authorisedUser.referenceName,
+            status = UserActiveStatus.fromInstants(
+              authorisedUser.accessStart,
+              authorisedUser.accessEnd,
+              authorisedUser.reportDataStart
+            )
           )
         }
       }
