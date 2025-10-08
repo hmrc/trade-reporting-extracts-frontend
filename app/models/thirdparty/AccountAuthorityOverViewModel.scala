@@ -22,7 +22,7 @@ import play.api.libs.json.{Json, OFormat}
 case class AccountAuthorityOverViewModel(
   eori: String,
   businessInfo: Option[String],
-  status: UserActiveStatus
+  status: Option[UserActiveStatus]
 )
 
 object AccountAuthorityOverViewModel {

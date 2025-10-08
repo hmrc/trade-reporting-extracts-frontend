@@ -16,11 +16,9 @@
 
 package models
 
-
 import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json, OFormat}
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
-
 
 sealed abstract class UserActiveStatus(val displayName: String, val cssClass: String)
 
@@ -30,23 +28,22 @@ object UserActiveStatus {
   case object Expired extends UserActiveStatus("Expired", "govuk-tag--red")
 
   def fromInstants(
-      accessStart: Instant,
-      accessEnd: Option[Instant],
-      reportDataStart: Option[Instant],
-      clock: Clock = Clock.systemUTC()
+    accessStart: Instant,
+    accessEnd: Option[Instant],
+    reportDataStart: Option[Instant],
+    clock: Clock = Clock.systemUTC()
   ): UserActiveStatus = {
-    val now = LocalDate.now(clock).atStartOfDay().toInstant(ZoneOffset.UTC)
+    val now        = LocalDate.now(clock).atStartOfDay().toInstant(ZoneOffset.UTC)
     val cutoffDate = LocalDate.now(clock).minusDays(3).atStartOfDay().toInstant(ZoneOffset.UTC)
 
-    val isAccessStarted = !accessStart.isAfter(now)
-    val isAccessOngoing = accessEnd.forall(_.isAfter(now))
+    val isAccessStarted     = !accessStart.isAfter(now)
+    val isAccessOngoing     = accessEnd.forall(_.isAfter(now))
     val isReportDataStarted = reportDataStart.forall(!_.isAfter(cutoffDate))
 
     if (isAccessStarted && isAccessOngoing && isReportDataStarted) Active
     else if (accessEnd.exists(_.isBefore(now))) Expired
     else Upcoming
   }
-
 
   implicit val userActiveStatusFormat: Format[UserActiveStatus] = new Format[UserActiveStatus] {
     override def reads(json: JsValue): JsResult[UserActiveStatus] = json match {
