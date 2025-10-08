@@ -77,6 +77,7 @@ showBackLink = false) {
         HeadCell(content = Text(messages("authorisedThirdParties.eori"))),
         HeadCell(content = Text(messages("authorisedThirdParties.businessInfo"))),
         HeadCell(content = Text(messages("authorisedThirdParties.referenceName"))),
+        HeadCell(content = Text(messages("authorisedThirdParties.status"))),
         HeadCell(content = Text(messages("authorisedThirdParties.action")))
       )),
       rows = authorisedThirdParties.map { tp =>
@@ -84,6 +85,7 @@ showBackLink = false) {
           TableRow(content = Text(tp.eori)),
           TableRow(content = Text(tp.businessInfo.getOrElse(messages("authorisedThirdParties.businessInfo.notAvailable")))),
           TableRow(content = Text(tp.referenceName.getOrElse(messages("authorisedThirdParties.referenceName.notAvailable")))),
+          TableRow(content = HtmlContent(s"""<span class="govuk-tag ${tp.status.cssClass}">${messages(tp.status.displayName)}</span>""")),
             TableRow(
                 content = HtmlContent(
                     s"""<div>

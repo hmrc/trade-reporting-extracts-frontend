@@ -567,6 +567,7 @@ authorisedThirdParties.eori = EORI number
 authorisedThirdParties.businessInfo = Business information
 authorisedThirdParties.referenceName = Reference name
 authorisedThirdParties.action = Action
+authorisedThirdParties.status = Status
 authorisedThirdParties.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
 authorisedThirdParties.referenceName.notAvailable = Not applicable
 
@@ -590,6 +591,7 @@ accountsAuthorityOver.noBusinesses.message = If an importer or exporter gives yo
 accountsAuthorityOver.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
 accountsAuthorityOver.eori = EORI number
 accountsAuthorityOver.businessInfo = Business information
+accountsAuthorityOver.status = Status
 accountsAuthorityOver.action = Action
 accountsAuthorityOver.view = View
 accountsAuthorityOver.view.hidden = View {0} details
