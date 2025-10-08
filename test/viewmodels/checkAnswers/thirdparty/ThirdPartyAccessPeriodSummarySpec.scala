@@ -167,7 +167,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
 
       result shouldBe Some(
         SummaryListRowViewModel(
-          key = "thirdPartyAccessPeriod.businessDetailsLabel",
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
           value = ValueViewModel(
             messages(
               "thirdPartyAccessPeriod.fixed.answerLabel",
@@ -194,7 +194,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
 
       result shouldBe Some(
         SummaryListRowViewModel(
-          key = "thirdPartyAccessPeriod.businessDetailsLabel",
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
           value = ValueViewModel(
             messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
           )
