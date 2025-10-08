@@ -109,7 +109,7 @@ dashboard.viewDataAccess.subHeading = Third parties such as consultancy firms ca
 dashboard.thirdPartyAccess.authorisedAccounts = Businesses you have third-party access to
 
 dashboard.support.heading = Support
-dashboard.support.fieldsInReport = What do the fields in my report mean?
+dashboard.support.fieldsInReport = What do the fields in my report mean? (opens in new tab)
 dashboard.support.reportTypes = What are the different report types?
 
 contactDetails.title = Your contact details
@@ -404,7 +404,7 @@ addThirdParty.cannotAdd.thirdParty = a third party, like a consultancy firm or a
 addThirdParty.beforeYouStart = Before you start
 addThirdParty.beforeYouStart.detail = You'll need the EORI number of the business that you want to give third-party access to. You can choose whether to give access to import data, export data, or both. After you add them, you can change or remove their access at any time.
 addThirdParty.subscription.p1 = Your third party must
-addThirdParty.subscription.cds = subscribe to CDS
+addThirdParty.subscription.cds = subscribe to CDS (opens in new tab)
 addThirdParty.subscription.p2 = before they can access the data.
 addThirdParty.continue = Continue
 
