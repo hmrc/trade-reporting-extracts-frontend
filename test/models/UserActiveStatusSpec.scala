@@ -22,21 +22,21 @@ import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.{JsString, JsError, JsSuccess}
+import play.api.libs.json.{JsError, JsString, JsSuccess}
 
 class UserActiveStatusSpec extends SpecBase {
 
   "UserActiveStatus.fromInstants" - {
 
-    val clock = Clock.fixed(Instant.parse("2025-10-09T00:00:00Z"), ZoneOffset.UTC)
-    val today = LocalDate.now(clock).atStartOfDay()
+    val clock      = Clock.fixed(Instant.parse("2025-10-09T00:00:00Z"), ZoneOffset.UTC)
+    val today      = LocalDate.now(clock).atStartOfDay()
     val cutoffDate = today.minusDays(3)
 
     "return Active when access started, ongoing and report data started" in {
-      val accessStart = today.minusDays(1).toInstant(ZoneOffset.UTC)
-      val accessEnd = Some(today.plusDays(5).toInstant(ZoneOffset.UTC))
+      val accessStart     = today.minusDays(1).toInstant(ZoneOffset.UTC)
+      val accessEnd       = Some(today.plusDays(5).toInstant(ZoneOffset.UTC))
       val reportDataStart = Some(cutoffDate.toInstant(ZoneOffset.UTC))
-      
+
       val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
 
       status mustEqual UserActiveStatus.Active
@@ -45,8 +45,8 @@ class UserActiveStatusSpec extends SpecBase {
     }
 
     "return Expired when accessEnd is before today" in {
-      val accessStart = today.minusDays(10).toInstant(ZoneOffset.UTC)
-      val accessEnd = Some(today.minusDays(1).toInstant(ZoneOffset.UTC))
+      val accessStart     = today.minusDays(10).toInstant(ZoneOffset.UTC)
+      val accessEnd       = Some(today.minusDays(1).toInstant(ZoneOffset.UTC))
       val reportDataStart = Some(cutoffDate.toInstant(ZoneOffset.UTC))
 
       val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
@@ -57,8 +57,8 @@ class UserActiveStatusSpec extends SpecBase {
     }
 
     "return Upcoming when accessStart is after today" in {
-      val accessStart = today.plusDays(2).toInstant(ZoneOffset.UTC)
-      val accessEnd = Some(today.plusDays(10).toInstant(ZoneOffset.UTC))
+      val accessStart     = today.plusDays(2).toInstant(ZoneOffset.UTC)
+      val accessEnd       = Some(today.plusDays(10).toInstant(ZoneOffset.UTC))
       val reportDataStart = None
 
       val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
@@ -69,8 +69,8 @@ class UserActiveStatusSpec extends SpecBase {
     }
 
     "return upcoming when reportDataStart is after cutoffDate" in {
-      val accessStart = today.minusDays(1).toInstant(ZoneOffset.UTC)
-      val accessEnd = Some(today.plusDays(3).toInstant(ZoneOffset.UTC))
+      val accessStart     = today.minusDays(1).toInstant(ZoneOffset.UTC)
+      val accessEnd       = Some(today.plusDays(3).toInstant(ZoneOffset.UTC))
       val reportDataStart = Some(cutoffDate.plusDays(1).toInstant(ZoneOffset.UTC))
 
       val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
