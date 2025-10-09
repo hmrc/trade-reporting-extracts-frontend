@@ -116,5 +116,5 @@
         displayHmrcBanner = showHmrcBanner,
         phaseBanner = Some(betaBanner(appConfig.feedbackUrl))
     ),
-    isWelshTranslationAvailable = true,
+    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
 ))(content)
