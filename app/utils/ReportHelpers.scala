@@ -61,8 +61,6 @@ object ReportHelpers {
     reportStartDate: String,
     reportEndDate: String
   ): ReportStatusDisplayData = status match {
-    case ReportStatus.COMPLETE          =>
-      ReportStatusDisplayData("requestedReports.status.complete", "govuk-tag--green", None)
     case ReportStatus.ERROR             =>
       ReportStatusDisplayData(
         "requestedReports.status.error",

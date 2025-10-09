@@ -17,7 +17,7 @@
 package controllers.report
 
 import base.SpecBase
-import models.ReportStatus.{COMPLETE, ERROR, IN_PROGRESS, NO_DATA_AVAILABLE}
+import models.ReportStatus.{ERROR, IN_PROGRESS, NO_DATA_AVAILABLE}
 import models.ReportTypeName
 import models.report.*
 import org.jsoup.Jsoup
@@ -271,36 +271,6 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
-      }
-    }
-
-    "must display correct status tag and NO redirect for COMPLETE" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val userReport                        = RequestedUserReportViewModel(
-        reportName = "reportName",
-        referenceNumber = "referenceNumber",
-        reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-        requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
-        reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
-        reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
-        reportStatus = COMPLETE
-      )
-      when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
-        .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-          .build()
-
-      running(application) {
-        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
-        val result   = route(application, request).value
-        val document = Jsoup.parse(contentAsString(result))
-
-        val statusCell = document.select("span.govuk-tag--green").first()
-        statusCell.text() mustBe messages(application)("requestedReports.status.complete")
-        statusCell.select("a").isEmpty mustBe true
       }
     }
 
