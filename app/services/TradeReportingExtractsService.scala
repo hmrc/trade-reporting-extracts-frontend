@@ -28,12 +28,13 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
 import models.UserActiveStatus
+
+import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TradeReportingExtractsService @Inject() (
-)(implicit
+class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())(implicit
   ec: ExecutionContext,
   connector: TradeReportingExtractsConnector
 ) extends Logging {
