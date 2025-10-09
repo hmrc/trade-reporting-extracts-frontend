@@ -78,7 +78,7 @@ object ThirdPartyAccessPeriodSummary {
       buildRow(
         thirdPartyDetails.accessStartDate,
         thirdPartyDetails.accessEndDate,
-        "thirdPartyAccessPeriod.businessDetailsLabel"
+        "thirdPartyAccessPeriod.checkYourAnswersLabel"
       )
     )
 
