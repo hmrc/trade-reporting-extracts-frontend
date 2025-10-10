@@ -339,6 +339,7 @@ availableReports.table.reportType = cy: Type of report
 availableReports.table.expiryDate = cy: Expiry date
 availableReports.table.referenceNumber = cy: Reference number
 availableReports.table.action = cy: Action
+availableReports.table.unknownCompany = cy: Not applicable
 
 requestedReports.title = cy: Requested reports
 requestedReports.title.none = cy: You have not requested any reports yet
@@ -355,6 +356,7 @@ requestedReports.table.businessInfo = cy: Business information
 requestedReports.table.reportType = cy: Type of report
 requestedReports.table.requestedDate = cy: Date requested
 requestedReports.table.referenceNumber = cy: Reference number
+requestedReports.table.unknownCompany = cy: Not applicable
 requestedReports.table.status = cy: Status
 requestedReports.status.complete = cy: Completed
 requestedReports.status.error = cy: Failed
