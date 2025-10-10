@@ -566,6 +566,7 @@ authorisedThirdParties.eori = cy: EORI number
 authorisedThirdParties.businessInfo = cy: Business information
 authorisedThirdParties.referenceName = cy: Reference name
 authorisedThirdParties.action = cy: Action
+authorisedThirdParties.status = cy: Status
 authorisedThirdParties.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
 authorisedThirdParties.referenceName.notAvailable = cy: Not applicable
 
@@ -589,6 +590,7 @@ accountsAuthorityOver.noBusinesses.message = cy: If an importer or exporter give
 accountsAuthorityOver.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
 accountsAuthorityOver.eori = cy: EORI number
 accountsAuthorityOver.businessInfo = cy: Business information
+accountsAuthorityOver.status = cy: Status
 accountsAuthorityOver.action = cy: Action
 accountsAuthorityOver.view = cy: View
 accountsAuthorityOver.view.hidden = cy: View {0} details

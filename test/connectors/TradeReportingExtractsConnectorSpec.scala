@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, serverError, urlEqualTo}
 import models.ConsentStatus.Granted
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyRequest}
 import org.apache.pekko.Done
@@ -624,8 +624,8 @@ class TradeReportingExtractsConnectorSpec
       val eori = "GB123456789000"
 
       val expectedResponse = Seq(
-        AccountAuthorityOverViewModel("GB111", Some("Business One")),
-        AccountAuthorityOverViewModel("GB222", None)
+        AccountAuthorityOverViewModel("GB111", Some("Business One"), Some(UserActiveStatus.Active)),
+        AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Upcoming))
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
@@ -670,8 +670,8 @@ class TradeReportingExtractsConnectorSpec
       val eori = "GB123456789000"
 
       val expectedResponse = Seq(
-        AccountAuthorityOverViewModel("GB333", Some("Business Three")),
-        AccountAuthorityOverViewModel("GB444", Some("Business Four"))
+        AccountAuthorityOverViewModel("GB333", Some("Business Three"), None),
+        AccountAuthorityOverViewModel("GB444", Some("Business Four"), None)
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {

@@ -16,13 +16,12 @@
 
 package models.thirdparty
 
+import models.UserActiveStatus
 import play.api.libs.json.{Json, OFormat}
 
 case class AuthorisedThirdPartiesViewModel(
   eori: String,
   businessInfo: Option[String],
-  referenceName: Option[String]
+  referenceName: Option[String],
+  status: UserActiveStatus
 )
-object AuthorisedThirdPartiesViewModel {
-  implicit val format: OFormat[AuthorisedThirdPartiesViewModel] = Json.format[AuthorisedThirdPartiesViewModel]
-}

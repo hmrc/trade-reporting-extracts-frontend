@@ -16,11 +16,13 @@
 
 package models.thirdparty
 
+import models.UserActiveStatus
 import play.api.libs.json.{Json, OFormat}
 
 case class AccountAuthorityOverViewModel(
   eori: String,
-  businessInfo: Option[String]
+  businessInfo: Option[String],
+  status: Option[UserActiveStatus]
 )
 
 object AccountAuthorityOverViewModel {
