@@ -78,12 +78,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
           businessInfo = Some("Another Business Name"),
           referenceName = Some("Another Reference Name"),
           UserActiveStatus.Upcoming
-        ),
-        AuthorisedThirdPartiesViewModel(
-          eori = "GB192837465000",
-          businessInfo = Some("Third Business Name"),
-          referenceName = Some("Third Reference Name"),
-          UserActiveStatus.Expired
         )
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
@@ -121,12 +115,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         document.text()                                       must include("Another Business Name")
         document.text()                                       must include("Another Reference Name")
         document.getElementsByClass("govuk-tag--blue").text() must include("Upcoming")
-
-        document.text()                                      must include("GB192837465000")
-        document.text()                                      must include("Third Business Name")
-        document.text()                                      must include("Third Reference Name")
-        document.getElementsByClass("govuk-tag--red").text() must include("Expired")
-
       }
     }
 

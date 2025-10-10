@@ -32,36 +32,22 @@ class UserActiveStatusSpec extends SpecBase {
     val today      = LocalDate.now(clock).atStartOfDay()
     val cutoffDate = today.minusDays(3)
 
-    "return Active when access started, ongoing and report data started" in {
+    "return Active when access started and report data started" in {
       val accessStart     = today.minusDays(1).toInstant(ZoneOffset.UTC)
-      val accessEnd       = Some(today.plusDays(5).toInstant(ZoneOffset.UTC))
       val reportDataStart = Some(cutoffDate.toInstant(ZoneOffset.UTC))
 
-      val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
+      val status = UserActiveStatus.fromInstants(accessStart, reportDataStart, clock)
 
       status mustEqual UserActiveStatus.Active
       status.cssClass mustEqual "govuk-tag--green"
       status.displayName mustEqual "Active"
     }
 
-    "return Expired when accessEnd is before today" in {
-      val accessStart     = today.minusDays(10).toInstant(ZoneOffset.UTC)
-      val accessEnd       = Some(today.minusDays(1).toInstant(ZoneOffset.UTC))
-      val reportDataStart = Some(cutoffDate.toInstant(ZoneOffset.UTC))
-
-      val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
-
-      status mustEqual UserActiveStatus.Expired
-      status.cssClass mustEqual "govuk-tag--red"
-      status.displayName mustEqual "Expired"
-    }
-
     "return Upcoming when accessStart is after today" in {
       val accessStart     = today.plusDays(2).toInstant(ZoneOffset.UTC)
-      val accessEnd       = Some(today.plusDays(10).toInstant(ZoneOffset.UTC))
       val reportDataStart = None
 
-      val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
+      val status = UserActiveStatus.fromInstants(accessStart, reportDataStart, clock)
 
       status mustEqual UserActiveStatus.Upcoming
       status.cssClass mustEqual "govuk-tag--blue"
@@ -70,10 +56,9 @@ class UserActiveStatusSpec extends SpecBase {
 
     "return upcoming when reportDataStart is after cutoffDate" in {
       val accessStart     = today.minusDays(1).toInstant(ZoneOffset.UTC)
-      val accessEnd       = Some(today.plusDays(3).toInstant(ZoneOffset.UTC))
       val reportDataStart = Some(cutoffDate.plusDays(1).toInstant(ZoneOffset.UTC))
 
-      val status = UserActiveStatus.fromInstants(accessStart, accessEnd, reportDataStart, clock)
+      val status = UserActiveStatus.fromInstants(accessStart, reportDataStart, clock)
 
       status mustEqual UserActiveStatus.Upcoming
       status.cssClass mustEqual "govuk-tag--blue"
@@ -85,13 +70,11 @@ class UserActiveStatusSpec extends SpecBase {
     "serialize to JsString" in {
       UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Active) mustEqual JsString("Active")
       UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Upcoming) mustEqual JsString("Upcoming")
-      UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Expired) mustEqual JsString("Expired")
     }
 
     "deserialize from JsString" in {
       UserActiveStatus.userActiveStatusFormat.reads(JsString("Active")) mustEqual JsSuccess(UserActiveStatus.Active)
       UserActiveStatus.userActiveStatusFormat.reads(JsString("Upcoming")) mustEqual JsSuccess(UserActiveStatus.Upcoming)
-      UserActiveStatus.userActiveStatusFormat.reads(JsString("Expired")) mustEqual JsSuccess(UserActiveStatus.Expired)
     }
 
     "fail to deserialize unknown value" in {

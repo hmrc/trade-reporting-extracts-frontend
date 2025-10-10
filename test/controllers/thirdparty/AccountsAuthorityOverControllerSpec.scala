@@ -64,8 +64,7 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
       val mockService = mock[TradeReportingExtractsService]
       val accounts    = Seq(
         AccountAuthorityOverViewModel("GB123456789000", Some("Business Name"), Some(UserActiveStatus.Active)),
-        AccountAuthorityOverViewModel("GB987654321000", Some("Another Business Name"), Some(UserActiveStatus.Upcoming)),
-        AccountAuthorityOverViewModel("GB192837465000", Some("Third Business Name"), Some(UserActiveStatus.Expired))
+        AccountAuthorityOverViewModel("GB987654321000", Some("Another Business Name"), Some(UserActiveStatus.Upcoming))
       )
       when(mockService.getAccountsAuthorityOver(any())(any()))
         .thenReturn(Future.successful(accounts))
@@ -92,10 +91,6 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
         document.text()                                       must include("GB987654321000")
         document.text()                                       must include("Another Business Name")
         document.getElementsByClass("govuk-tag--blue").text() must include("Upcoming")
-
-        document.text()                                      must include("GB192837465000")
-        document.text()                                      must include("Third Business Name")
-        document.getElementsByClass("govuk-tag--red").text() must include("Expired")
       }
     }
   }
