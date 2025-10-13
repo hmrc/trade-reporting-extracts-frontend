@@ -17,6 +17,7 @@
 @import views.html.components.Card
 @import views.html.components.CardSubHeadingWithValue
 @import views.html.components.NotificationBadge
+@import viewmodels.CardLink
 @import config.FrontendAppConfig
 
 @this(
@@ -39,10 +40,15 @@
             id = "reports-card",
             heading = Messages("dashboard.reports.heading"),
             subHeading = Some(Messages("dashboard.reports.subHeading")),
-            links = Seq(
-                (Messages("dashboard.reports.requestNewReport"), controllers.report.routes.ReportGuidanceController.onPageLoad().url, None),
-                (Messages("dashboard.reports.requestedReports"), controllers.report.routes.RequestedReportsController.onPageLoad().url, None),
-                (Messages("dashboard.reports.availableForDownload"), controllers.routes.AvailableReportsController.onPageLoad().url, None)
+            links = Seq( CardLink(
+                text = Messages("dashboard.reports.requestNewReport"),
+                href = controllers.report.routes.ReportGuidanceController.onPageLoad().url),
+                CardLink(
+                text = Messages("dashboard.reports.requestedReports"),
+                href = controllers.report.routes.RequestedReportsController.onPageLoad().url),
+                CardLink(
+                text = Messages("dashboard.reports.availableForDownload"),
+                href = controllers.routes.AvailableReportsController.onPageLoad().url)
             )
         )
         @if(appConfig.thirdPartyEnabled) {
@@ -50,17 +56,21 @@
                 id = "give-data-access-card",
                 heading = Messages("dashboard.thirdPartyAccess.heading"),
                 subHeading = Some(Messages("dashboard.thirdPartyAccess.subHeading")),
-                links = Seq(
-                    (Messages("dashboard.thirdPartyAccess.addNewThirdParty"), controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url, None),
-                    (Messages("dashboard.thirdPartyAccess.authorisedThirdParty"), controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url, None),
+                links = Seq( CardLink(
+                    text = Messages("dashboard.thirdPartyAccess.addNewThirdParty"),
+                    href = controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url),
+                    CardLink(
+                    text = Messages("dashboard.thirdPartyAccess.authorisedThirdParty"),
+                    href = controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
                 )
             )
             @Card(
                 id = "view-data-access-card",
                 heading = Messages("dashboard.viewDataAccess.heading"),
                 subHeading = Some(Messages("dashboard.viewDataAccess.subHeading")),
-                links = Seq(
-                    (Messages("dashboard.thirdPartyAccess.authorisedAccounts"), controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url, None),
+                links = Seq( CardLink(
+                    text = Messages("dashboard.thirdPartyAccess.authorisedAccounts"),
+                    href = controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url)
                 )
             )
         }
@@ -68,16 +78,19 @@
             id = "account-card",
             heading = Messages("dashboard.account.heading"),
             subHeading = Some(Messages("dashboard.account.subHeading")),
-            links = Seq(
-                (Messages("dashboard.account.yourDetails"), routes.ContactDetailsController.onPageLoad().url, None)
-                )
+            links = Seq( CardLink(
+                text = Messages("dashboard.account.yourDetails"),
+                href = routes.ContactDetailsController.onPageLoad().url)
+            )
         )
         @Card(
             id = "support-card",
             heading = Messages("dashboard.support.heading"),
-            links = Seq(
-                (Messages("dashboard.support.fieldsInReport"), "https://draft-origin.publishing.service.gov.uk/guidance/get-customs-declaration-data-for-imports-and-exports?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYmQzYjgzZi1iNjA5LTQ2ZGYtOTFhZC1jNjk1ODVkNzViOWMiLCJjb250ZW50X2lkIjoiMjkxNDI2MGQtMTQwOC00MTJiLThhNWQtZGViMDQ2OGIzYzI0IiwiaWF0IjoxNzU4MTc5NDI4LCJleHAiOjE3NjA3NzE0Mjh9.uAkxnGGze6if54DNq7RfcLKwe3jXVLJQRBzoBpjL_l8&utm_campaign=govuk_publishing&utm_medium=preview&utm_source=share#whats-in-the-reports", None),
-            )
+            links = Seq( CardLink(
+                text = Messages("dashboard.support.fieldsInReport"),
+                openInNewTab = true,
+                href = "https://draft-origin.publishing.service.gov.uk/guidance/get-customs-declaration-data-for-imports-and-exports?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYmQzYjgzZi1iNjA5LTQ2ZGYtOTFhZC1jNjk1ODVkNzViOWMiLCJjb250ZW50X2lkIjoiMjkxNDI2MGQtMTQwOC00MTJiLThhNWQtZGViMDQ2OGIzYzI0IiwiaWF0IjoxNzU4MTc5NDI4LCJleHAiOjE3NjA3NzE0Mjh9.uAkxnGGze6if54DNq7RfcLKwe3jXVLJQRBzoBpjL_l8&utm_campaign=govuk_publishing&utm_medium=preview&utm_source=share#whats-in-the-reports"
+            ))
         )
 </div>
 }
