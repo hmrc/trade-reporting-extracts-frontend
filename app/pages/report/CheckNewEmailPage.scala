@@ -22,15 +22,19 @@ import play.api.libs.json.JsPath
 
 import scala.util.Try
 
-case object NewEmailNotificationPage extends QuestionPage[String] {
+case object CheckNewEmailPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "report" \ toString
 
-  override def toString: String = "newEmailNotification"
+  override def toString: String = "checkNewEmail"
 
-  override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] =
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     value match {
-      case Some(_) => userAnswers.remove(CheckNewEmailPage)
-      case None    => super.cleanup(value, userAnswers)
+      case Some(true) =>
+        super.cleanup(value, userAnswers)
+      case Some(false) =>
+        userAnswers.remove(NewEmailNotificationPage)
+      case None =>
+        super.cleanup(value, userAnswers)
     }
 }

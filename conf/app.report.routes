@@ -65,3 +65,9 @@ GET        /select-eori                        controllers.report.SelectThirdPar
 POST       /select-eori                        controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = NormalMode)
 GET        /change-select-eori                  controllers.report.SelectThirdPartyEoriController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-select-eori                  controllers.report.SelectThirdPartyEoriController.onSubmit(mode: Mode = CheckMode)
+
+GET        /check-new-email                        controllers.report.CheckNewEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /check-new-email                        controllers.report.CheckNewEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /change-check-new-email                  controllers.report.CheckNewEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-check-new-email                  controllers.report.CheckNewEmailController.onSubmit(mode: Mode = CheckMode)
+

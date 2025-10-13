@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package pages.report
+package forms.report
 
-import models.UserAnswers
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-import scala.util.Try
+import javax.inject.Inject
 
-case object NewEmailNotificationPage extends QuestionPage[String] {
+class CheckNewEmailFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ "report" \ toString
-
-  override def toString: String = "newEmailNotification"
-
-  override def cleanup(value: Option[String], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(_) => userAnswers.remove(CheckNewEmailPage)
-      case None    => super.cleanup(value, userAnswers)
-    }
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("checkNewEmail.error.required")
+    )
 }

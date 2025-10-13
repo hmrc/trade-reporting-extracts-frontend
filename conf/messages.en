@@ -240,6 +240,12 @@ maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email fo
 maybeAdditionalEmail.error.required = Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
 
+checkNewEmail.title = Check new email address
+checkNewEmail.heading = Check new email address
+checkNewEmail.heading2 = Is this email address correct?
+checkNewEmail.error.required = Select yes if this email address is correct
+checkNewEmail.change.hidden = if this email address is correct
+
 requestConfirmation.title = Report request submitted
 requestConfirmation.heading = Report request submitted
 requestConfirmation.message.dateAndTime = Submitted on {0} at {1}.
