@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
-import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserDetails}
+import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyRequest}
 import org.apache.pekko.Done
@@ -32,7 +32,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import java.time.{Instant, LocalDate, LocalDateTime}
+import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneOffset}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with Matchers {
@@ -46,8 +46,11 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     val mockConnector = mock[TradeReportingExtractsConnector]
     val mockMessages  = mock[Messages]
 
+    val clock = Clock.fixed(Instant.parse("2025-10-09T00:00:00Z"), ZoneOffset.UTC)
+    val today = LocalDate.now(clock).atStartOfDay()
+
     when(mockMessages("SelectThirdPartyEori.defaultValue")).thenReturn("Default EORI")
-    val service = new TradeReportingExtractsService()(ec, mockConnector)
+    val service = new TradeReportingExtractsService(clock)(ec, mockConnector)
 
     "createReportRequest" - {
 
@@ -284,14 +287,21 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "getAuthorisedThirdParties" - {
+      val cutoffDate = today.minusDays(3)
+
       "return third parties with business info when consent is granted" in {
+
+        val accessStart     = today.minusDays(1).toInstant(ZoneOffset.UTC)
+        val accessEnd       = today.plusDays(5).toInstant(ZoneOffset.UTC)
+        val reportDataStart = cutoffDate.toInstant(ZoneOffset.UTC)
+
         val eori           = "EORITEST1"
         val authorisedUser = AuthorisedUser(
           "EORITAUTHEST1",
-          Instant.now,
-          Some(Instant.now),
-          Some(Instant.now),
-          Some(Instant.now),
+          accessStart,
+          Some(accessEnd),
+          Some(reportDataStart),
+          Some(accessEnd),
           Set(IMPORTS),
           referenceName = Some("aaaaa")
         )
@@ -313,22 +323,24 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           AuthorisedThirdPartiesViewModel(
             eori = "EORITAUTHEST1",
             businessInfo = Some("ThirdParty Ltd"),
-            referenceName = Some("aaaaa")
+            referenceName = Some("aaaaa"),
+            status = UserActiveStatus.Active
           )
         )
       }
 
       "return third parties with no business info when consent is not granted & no ref when ref is none" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
+        val accessStart     = today.plusDays(2).toInstant(ZoneOffset.UTC)
+        val accessEnd       = today.plusDays(10).toInstant(ZoneOffset.UTC)
+        val reportDataStart = None
 
         val eori           = "EORI123"
         val authorisedUser = AuthorisedUser(
           "EORITAUTHEST2",
-          Instant.now,
-          Some(Instant.now),
-          Some(Instant.now),
-          Some(Instant.now),
+          accessStart,
+          Some(accessEnd),
+          reportDataStart,
+          Some(accessEnd),
           Set(IMPORTS),
           None
         )
@@ -350,15 +362,13 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           AuthorisedThirdPartiesViewModel(
             eori = "EORITAUTHEST2",
             businessInfo = None,
-            referenceName = None
+            referenceName = None,
+            status = UserActiveStatus.Upcoming
           )
         )
       }
 
       "return empty sequence when there are no authorised users" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori        = "EORI123"
         val userDetails = UserDetails(
           eori = eori,
@@ -376,9 +386,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       "fail the future if getUserDetails fails" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori = "EORI123"
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.failed(new RuntimeException("error")))
 
@@ -390,9 +397,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       "fail the future if getCompanyInformation fails for any user" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori           = "EORI123"
         val authorisedUser = AuthorisedUser(
           "EORITAUTHEST3",
@@ -456,8 +460,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       "should return accounts from connector" in {
         val accounts = Seq(
-          AccountAuthorityOverViewModel("GB111", Some("Business One")),
-          AccountAuthorityOverViewModel("GB222", None)
+          AccountAuthorityOverViewModel("GB111", Some("Business One"), Some(UserActiveStatus.Active)),
+          AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Upcoming))
         )
 
         when(mockConnector.getAccountsAuthorityOver(eori))
@@ -483,8 +487,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       "should transform connector response into SelectThirdPartyEori" in {
         val accounts = Seq(
-          AccountAuthorityOverViewModel("GB111", Some("Business One")),
-          AccountAuthorityOverViewModel("GB222", None)
+          AccountAuthorityOverViewModel("GB111", Some("Business One"), None),
+          AccountAuthorityOverViewModel("GB222", None, None)
         )
 
         when(mockConnector.getSelectThirdPartyEori(eori))

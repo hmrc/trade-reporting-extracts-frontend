@@ -61,12 +61,14 @@
     head = Some(Seq(
         HeadCell(content = Text(messages("accountsAuthorityOver.eori"))),
         HeadCell(content = Text(messages("accountsAuthorityOver.businessInfo"))),
+        HeadCell(content = Text(messages("accountsAuthorityOver.status"))),
         HeadCell(content = Text(messages("accountsAuthorityOver.action")))
     )),
     rows = accountsAuthorityOver.map { tp =>
         Seq(
             TableRow(content = Text(tp.eori)),
             TableRow(content = Text(tp.businessInfo.getOrElse(messages("accountsAuthorityOver.businessInfo.notAvailable")))),
+            TableRow(content = HtmlContent(s"""<span class="govuk-tag ${tp.status.get.cssClass}">${messages(tp.status.get.displayName)}</span>""")),
             TableRow(content = HtmlContent(
                 s"""<span style="white-space: nowrap;">
                 <a href="/request-customs-declaration-data/business-details-${tp.eori}">

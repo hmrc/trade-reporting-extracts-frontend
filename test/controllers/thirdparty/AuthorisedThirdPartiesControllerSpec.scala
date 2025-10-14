@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import base.SpecBase
+import models.UserActiveStatus
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
@@ -24,7 +25,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.TradeReportingExtractsService
 import views.html.thirdparty.AuthorisedThirdPartiesView
 
@@ -65,13 +66,22 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET when authorised third parties exist" in {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val thirdParty                        = AuthorisedThirdPartiesViewModel(
-        eori = "GB123456789000",
-        businessInfo = Some("Business Name"),
-        referenceName = Some("Reference Name")
+      val thirdParty                        = Seq(
+        AuthorisedThirdPartiesViewModel(
+          eori = "GB123456789000",
+          businessInfo = Some("Business Name"),
+          referenceName = Some("Reference Name"),
+          UserActiveStatus.Active
+        ),
+        AuthorisedThirdPartiesViewModel(
+          eori = "GB987654321000",
+          businessInfo = Some("Another Business Name"),
+          referenceName = Some("Another Reference Name"),
+          UserActiveStatus.Upcoming
+        )
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
-        .thenReturn(Future.successful(Seq(thirdParty)))
+        .thenReturn(Future.successful(thirdParty))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -87,7 +97,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq(thirdParty))(
+        contentAsString(result) mustEqual view(thirdParty)(
           request,
           messages(application)
         ).toString
@@ -99,6 +109,12 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         document.text()                                        must include("GB123456789000")
         document.text()                                        must include("Business Name")
         document.text()                                        must include("Reference Name")
+        document.getElementsByClass("govuk-tag--green").text() must include("Active")
+
+        document.text()                                       must include("GB987654321000")
+        document.text()                                       must include("Another Business Name")
+        document.text()                                       must include("Another Reference Name")
+        document.getElementsByClass("govuk-tag--blue").text() must include("Upcoming")
       }
     }
 
@@ -107,7 +123,8 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       val thirdParty                        = AuthorisedThirdPartiesViewModel(
         eori = "GB123456789000",
         businessInfo = None,
-        referenceName = None
+        referenceName = None,
+        UserActiveStatus.Active
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(Seq(thirdParty)))
