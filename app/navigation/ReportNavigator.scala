@@ -56,7 +56,9 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
-    case NewEmailNotificationPage => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case NewEmailNotificationPage =>
+      navigateTo(controllers.report.routes.CheckNewEmailController.onPageLoad(NormalMode))
+    case CheckNewEmailPage        => checkNewEmailRoutes(NormalMode)
     case CheckYourAnswersPage     => navigateTo(controllers.report.routes.RequestConfirmationController.onPageLoad())
   }
 
@@ -82,7 +84,8 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(CheckMode)
       )
-    case NewEmailNotificationPage   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
+    case NewEmailNotificationPage   => navigateTo(controllers.report.routes.CheckNewEmailController.onPageLoad(CheckMode))
+    case CheckNewEmailPage          => checkNewEmailRoutes(CheckMode)
     case _                          => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -188,6 +191,13 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
       case None =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def checkNewEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(CheckNewEmailPage) match {
+      case Some(true)  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+      case Some(false) => controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(mode)
+      case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def navigateBasedOnThirdPartyFlag(

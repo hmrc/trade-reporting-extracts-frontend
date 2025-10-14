@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/request-customs-declaration-data/check-your-answers")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/check-new-email")
 
   val formProvider = new NewEmailNotificationFormProvider()
   val form         = formProvider()
