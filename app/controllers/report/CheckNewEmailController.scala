@@ -32,50 +32,50 @@ import views.html.report.CheckNewEmailView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckNewEmailController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         reportNavigator: ReportNavigator,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
-                                         formProvider: CheckNewEmailFormProvider,
-                                         reportRequestSection: ReportRequestSection,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: CheckNewEmailView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class CheckNewEmailController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  reportNavigator: ReportNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: CheckNewEmailFormProvider,
+  reportRequestSection: ReportRequestSection,
+  val controllerComponents: MessagesControllerComponents,
+  view: CheckNewEmailView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(CheckNewEmailPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(CheckNewEmailPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, mode, getLastEnteredEmail(request)))
+    Ok(view(preparedForm, mode, getLastEnteredEmail(request)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, getLastEnteredEmail(request)))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckNewEmailPage, value))
-            redirectUrl     = reportNavigator.nextPage(CheckNewEmailPage, mode, updatedAnswers).url
-            answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-            _              <- sessionRepository.set(answersWithNav)
-          } yield Redirect(reportNavigator.nextPage(CheckNewEmailPage, mode, answersWithNav))
-      )
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, getLastEnteredEmail(request)))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckNewEmailPage, value))
+              redirectUrl     = reportNavigator.nextPage(CheckNewEmailPage, mode, updatedAnswers).url
+              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _              <- sessionRepository.set(answersWithNav)
+            } yield Redirect(reportNavigator.nextPage(CheckNewEmailPage, mode, answersWithNav))
+        )
   }
 
-  private def getLastEnteredEmail(request: DataRequest[AnyContent])(implicit messages: Messages): String ={
+  private def getLastEnteredEmail(request: DataRequest[AnyContent])(implicit messages: Messages): String = {
     val emailSelectionAnswer: Option[String] = request.userAnswers.get(NewEmailNotificationPage)
     emailSelectionAnswer.getOrElse(messages("error.prefix"))
   }

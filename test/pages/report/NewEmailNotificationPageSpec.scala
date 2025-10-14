@@ -16,25 +16,22 @@
 
 package pages.report
 
+import base.SpecBase
 import models.UserAnswers
-import pages.QuestionPage
-import play.api.libs.json.JsPath
 
-import scala.util.Try
+class NewEmailNotificationPageSpec extends SpecBase {
 
-case object CheckNewEmailPage extends QuestionPage[Boolean] {
+  "NewEmailNotificationPage" - {
+    "must remove CheckNewEmailPage when answered" in {
+      val userAnswers = UserAnswers("id")
+        .set(CheckNewEmailPage, true)
+        .success
+        .value
 
-  override def path: JsPath = JsPath \ "report" \ toString
+      val result = NewEmailNotificationPage.cleanup(Some("email"), userAnswers).success.value
 
-  override def toString: String = "checkNewEmail"
-
-  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(true)  =>
-        super.cleanup(value, userAnswers)
-      case Some(false) =>
-        userAnswers.remove(NewEmailNotificationPage)
-      case None        =>
-        super.cleanup(value, userAnswers)
+      result.get(NewEmailNotificationPage) must not be defined
     }
+
+  }
 }

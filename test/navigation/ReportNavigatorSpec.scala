@@ -222,12 +222,35 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "navigate from NewEmailNotificationPage to CheckYourAnswersPage" in {
+      "navigate from NewEmailNotificationPage to check-new-email" in {
         navigator.nextPage(
           NewEmailNotificationPage,
           NormalMode,
           emptyUserAnswers
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.CheckNewEmailController.onPageLoad(NormalMode)
+      }
+
+      "navigate from CheckNewEmailPage" - {
+        "to CheckYourAnswersPage when true" in {
+          val ua = emptyUserAnswers.set(CheckNewEmailPage, true).success.value
+          navigator.nextPage(CheckNewEmailPage, NormalMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "back to MaybeAdditionalEmailPage when false" in {
+          val ua = emptyUserAnswers.set(CheckNewEmailPage, false).success.value
+          navigator.nextPage(CheckNewEmailPage, NormalMode, ua) mustBe routes.MaybeAdditionalEmailController.onPageLoad(
+            NormalMode
+          )
+        }
+
+        "to JourneyRecovery when missing" in {
+          val ua = emptyUserAnswers
+          navigator.nextPage(
+            CheckNewEmailPage,
+            NormalMode,
+            ua
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
       "navigate from CheckYourAnswersPage to RequestConfirmationPage" in {
@@ -390,12 +413,35 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "navigate from NewEmailNotificationPage to CheckYourAnswersPage" in {
+      "navigate from NewEmailNotificationPage to check-new-email" in {
         navigator.nextPage(
           NewEmailNotificationPage,
           CheckMode,
           emptyUserAnswers
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.CheckNewEmailController.onPageLoad(CheckMode)
+      }
+
+      "navigate from CheckNewEmailPage" - {
+        "to CheckYourAnswersPage when true" in {
+          val ua = emptyUserAnswers.set(CheckNewEmailPage, true).success.value
+          navigator.nextPage(CheckNewEmailPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "back to MaybeAdditionalEmailPage when false" in {
+          val ua = emptyUserAnswers.set(CheckNewEmailPage, false).success.value
+          navigator.nextPage(CheckNewEmailPage, CheckMode, ua) mustBe routes.MaybeAdditionalEmailController.onPageLoad(
+            CheckMode
+          )
+        }
+
+        "to JourneyRecovery when missing" in {
+          val ua = emptyUserAnswers
+          navigator.nextPage(
+            CheckNewEmailPage,
+            CheckMode,
+            ua
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
     }
