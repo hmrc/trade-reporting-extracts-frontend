@@ -28,13 +28,4 @@ case object CheckNewEmailPage extends QuestionPage[Boolean] {
 
   override def toString: String = "checkNewEmail"
 
-  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(true)  =>
-        super.cleanup(value, userAnswers)
-      case Some(false) =>
-        userAnswers.remove(NewEmailNotificationPage)
-      case None        =>
-        super.cleanup(value, userAnswers)
-    }
 }
