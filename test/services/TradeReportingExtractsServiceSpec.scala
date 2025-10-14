@@ -496,7 +496,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val result = service.getSelectThirdPartyEori(eori).futureValue
 
-        result.values mustBe Seq("GB111 - Business One", "GB222")
+        result.content mustBe Seq("GB111 - Business One", "GB222")
+        result.values mustBe Seq("GB111", "GB222")
       }
 
       "should return empty SelectThirdPartyEori when connector returns empty" in {
