@@ -29,9 +29,14 @@ class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheck
 
   "SelectThirdPartyEori" - {
 
-    "must deserialise valid values" in {
+    val gen = Gen.oneOf(
+      SelectThirdPartyEori(
+        Seq("TESTCOMPANY TESTEORI1", "TESTCOMPANY2 TESTEORI2"),
+        Seq("TESTEORI1", "TESTEORI2")
+      ).values.toSeq
+    )
 
-      val gen = Gen.oneOf(SelectThirdPartyEori(Seq("TESTCOMPANY TESTEORI1")).values.toSeq)
+    "must deserialise valid values" in {
 
       forAll(gen) { selectThirdPartyEori =>
         JsString(selectThirdPartyEori)
@@ -42,8 +47,6 @@ class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheck
     }
 
     "must serialise" in {
-
-      val gen = Gen.oneOf(SelectThirdPartyEori(Seq("TESTCOMPANY TESTEORI1")).values.toSeq)
 
       forAll(gen) { selectThirdPartyEori =>
         Json.toJson(selectThirdPartyEori) mustEqual JsString(selectThirdPartyEori)
