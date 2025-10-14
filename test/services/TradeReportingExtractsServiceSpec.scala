@@ -334,9 +334,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         val accessEnd       = today.plusDays(10).toInstant(ZoneOffset.UTC)
         val reportDataStart = None
 
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori           = "EORI123"
         val authorisedUser = AuthorisedUser(
           "EORITAUTHEST2",
@@ -372,9 +369,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       "return empty sequence when there are no authorised users" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori        = "EORI123"
         val userDetails = UserDetails(
           eori = eori,
@@ -392,9 +386,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       "fail the future if getUserDetails fails" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori = "EORI123"
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.failed(new RuntimeException("error")))
 
@@ -406,9 +397,6 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       "fail the future if getCompanyInformation fails for any user" in {
-        val mockConnector = mock[TradeReportingExtractsConnector]
-        val service       = new TradeReportingExtractsService()(ec, mockConnector)
-
         val eori           = "EORI123"
         val authorisedUser = AuthorisedUser(
           "EORITAUTHEST3",

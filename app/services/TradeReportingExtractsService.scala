@@ -125,7 +125,8 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
             referenceName = authorisedUser.referenceName,
             status = UserActiveStatus.fromInstants(
               authorisedUser.accessStart,
-              authorisedUser.reportDataStart
+              authorisedUser.reportDataStart,
+              clock
             )
           )
         }
