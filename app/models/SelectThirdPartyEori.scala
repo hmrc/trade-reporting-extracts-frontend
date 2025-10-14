@@ -21,14 +21,14 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-case class SelectThirdPartyEori(values: Seq[String]) {
+case class SelectThirdPartyEori(content: Seq[String], values: Seq[String]) {
 
   implicit val format: OFormat[SelectThirdPartyEori] = Json.format[SelectThirdPartyEori]
 
   def options(): Seq[RadioItem] =
     values.zipWithIndex.map { case (value, index) =>
       RadioItem(
-        content = Text(s"${value.toString}"),
+        content = Text(s"${content(index)}"),
         value = Some(value.toString),
         id = Some(s"value_$index")
       )

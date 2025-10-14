@@ -50,7 +50,8 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
   val form         = formProvider()
 
   val eoriList: SelectThirdPartyEori = SelectThirdPartyEori(
-    Seq("business1 testEori1", "business2 testEori2", "business3 testEori3")
+    Seq("business1 testEori1", "business2 testEori2", "business3 testEori3"),
+    Seq("testEori1", "testEori2", "testEori3")
   )
 
   "SelectThirdPartyEori Controller" - {
@@ -92,6 +93,7 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to NoThirdPartyAccess and remove section navigation and answers when getSelectThirdPartyEori returns empty" in {
       val emptyEoriList: SelectThirdPartyEori = SelectThirdPartyEori(
+        Seq(),
         Seq()
       )
       val sectionNav                          = SectionNavigation("reportRequestSection")
