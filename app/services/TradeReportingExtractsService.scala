@@ -145,12 +145,13 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
 
   def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[SelectThirdPartyEori] =
     connector.getSelectThirdPartyEori(eori).map { accounts =>
-      val values = accounts.map { acc =>
+      val values  = accounts.map(_.eori)
+      val content = accounts.map { acc =>
         acc.businessInfo match {
           case Some(info) => s"${acc.eori} - $info"
           case None       => acc.eori
         }
       }
-      SelectThirdPartyEori(values)
+      SelectThirdPartyEori(content, values)
     }
 }
