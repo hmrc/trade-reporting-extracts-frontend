@@ -19,15 +19,19 @@ package controllers.report
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.AlreadySubmittedFlag
+import models.{AlreadySubmittedFlag, UserAnswers}
 import models.report.{EmailSelection, ReportConfirmation, ReportRequestSection}
 import models.requests.DataRequest
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
@@ -50,39 +54,56 @@ class RequestConfirmationController @Inject() (
   view: RequestConfirmationView,
   clock: Clock
 )(implicit ec: ExecutionContext)
-    extends BaseController
+    extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify
+  def onPageLoad: Action[AnyContent]                                        = (identify
     andThen getData
     andThen requireData
     andThen preventBackNavigationAfterSubmissionAction).async { implicit request =>
+    implicit val hc: HeaderCarrier          = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     val additionalEmailList: Option[String] = fetchUpdatedData(request)
     val surveyUrl: String                   = config.exitSurveyUrl
     val isMoreThanOneReport                 = ReportHelpers.isMoreThanOneReport(request.userAnswers)
     val (date, time)                        = getDateAndTime
+    val maybeThirdPartyRequest              = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
+
     for {
       notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      reportConfirmations              <- tradeReportingExtractsService.createReportRequest(
-                                            reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                                          )
-      transformedConfirmations          = trasnformReportConfirmations(reportConfirmations)
+      detailsOpt                       <- if (maybeThirdPartyRequest) {
+                                            getDetailsAndExpiryInfo(request.eori, request.userAnswers, clock)
+                                          } else {
+                                            Future.successful(None)
+                                          }
+      reportRequest                     = reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+      reportConfirmations              <- detailsOpt match {
+                                            case Some(true) =>
+                                              Future.successful(Seq.empty[ReportConfirmation])
+                                            case _          =>
+                                              tradeReportingExtractsService
+                                                .createReportRequest(reportRequest)
+                                                .map(trasnformReportConfirmations)
+                                          }
       updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
       _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-    } yield Ok(
-      view(
-        additionalEmailList,
-        isMoreThanOneReport,
-        transformedConfirmations,
-        surveyUrl,
-        notificationEmail.address,
-        date,
-        time
-      )
-    )
+    } yield detailsOpt match {
+      case Some(true)         =>
+        Redirect(controllers.problem.routes.NoPermissionController.onPageLoad())
+      case Some(false) | None =>
+        Ok(
+          view(
+            additionalEmailList,
+            isMoreThanOneReport,
+            reportConfirmations,
+            surveyUrl,
+            notificationEmail.address,
+            date,
+            time
+          )
+        )
+    }
   }
-
   private def getDateAndTime(implicit messages: Messages): (String, String) =
     (
       LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
@@ -101,6 +122,23 @@ class RequestConfirmationController @Inject() (
         case _               => ""
       }
       rc.copy(reportType = newType)
+    }
+
+  private def getDetailsAndExpiryInfo(
+    eori: String,
+    userAnswers: UserAnswers,
+    clock: Clock
+  )(implicit request: play.api.mvc.RequestHeader): Future[Option[Boolean]] =
+    userAnswers.get(SelectThirdPartyEoriPage) match {
+      case Some(thirdPartyEori) =>
+        tradeReportingExtractsService.getAuthorisedBusinessDetails(eori, thirdPartyEori).map { details =>
+          val now                             = LocalDate.now(clock)
+          val isExpired: LocalDate => Boolean = _.isBefore(now)
+          val expired                         = details.accessEndDate.exists(isExpired)
+          Some(expired)
+        }
+      case None                 =>
+        Future.successful(None)
     }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Option[String] =
