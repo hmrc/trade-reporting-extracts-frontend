@@ -46,6 +46,7 @@
     showBackLink: Boolean = true,
     timeout: Boolean = true,
     showSignOut: Boolean = true,
+    signOutUrl: String = controllers.auth.routes.AuthController.signOut().url,
     showHmrcBanner: Boolean = false
 )(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
@@ -57,7 +58,7 @@
             countdown           = Some(appConfig.countdown),
             keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
             keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+            signOutUrl          = Some(signOutUrl),
             signOutButtonText   = Some(messages("timeout.signOut")),
             title               = Some(messages("timeout.title")),
             message             = Some(messages("timeout.message")),
@@ -110,7 +111,7 @@
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.IndexController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+        signOutUrl = if(showSignOut) Some(signOutUrl) else None
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,

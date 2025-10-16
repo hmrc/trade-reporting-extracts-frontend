@@ -24,7 +24,8 @@
 @layout(
     pageTitle = titleNoForm(messages("unauthorisedCdsEnrolment.title")),
     timeout   = false,
-    showBackLink = false
+    showBackLink = false,
+    signOutUrl = controllers.auth.routes.AuthController.signOutNoSession().url
 ) {
 
 <h1 class="govuk-heading-xl">@messages("unauthorisedCdsEnrolment.heading")</h1>
@@ -40,7 +41,7 @@
         </a>@messages("unauthorisedCdsEnrolment.bullet1")</li>
     <li>@messages("unauthorisedCdsEnrolment.bullet2")</li>
     <li>
-    <a href="@routes.AuthController.signOut().url" class="govuk-link">
+    <a href="@routes.AuthController.signOutNoSession().url" class="govuk-link">
         @messages("unauthorisedCdsEnrolment.bullet3.link")
     </a>@messages("unauthorisedCdsEnrolment.bullet3")</li>
 </ul>
