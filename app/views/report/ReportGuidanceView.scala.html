@@ -19,7 +19,7 @@
     govukButton: GovukButton
 )
 
-@(mode: Mode, reportRequestNumberLimit: String, nextPageUrl: String)(implicit request: Request[_], messages: Messages)
+@(mode: Mode, reportRequestNumberLimit: String, nextPageUrl: String, email: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("reportGuidance.title")),
@@ -34,15 +34,16 @@
     <div class="govuk-body">
 <!--        HIDDEN FOR PRIVATE BETA-->
 <!--        <p>@messages("reportGuidance.limit.message", reportRequestNumberLimit)</p>-->
+        <p class="govuk-body">@messages("reportGuidance.message", email)</p>
         <p>@messages("reportGuidance.intro")</p>
         <ul class="govuk-list govuk-list--bullet">
             <li>@messages("reportGuidance.bullet1")</li>
             <li>@messages("reportGuidance.bullet2")</li>
 <!--            HIDDEN UNTIL THIRD PARTY RELEASE-->
 <!--            <li>@messages("reportGuidance.bullet3")</li>-->
-            <li>@messages("reportGuidance.bullet4")</li>
+<!--            <li>@messages("reportGuidance.bullet4")</li>-->
+            <li>@messages("reportGuidance.bullet5")</li>
         </ul>
-        <p>@messages("reportGuidance.note")</p>
     </div>
     <h2 class="govuk-heading-m">@messages("reportGuidance.types.title")</h2>
     <div class="govuk-body">

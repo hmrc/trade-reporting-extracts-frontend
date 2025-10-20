@@ -133,12 +133,13 @@ reportGuidance.title = cy: Request a CDS report
 reportGuidance.heading = cy: Request a CDS report
 reportGuidance.instructions.title = cy: Before you start
 reportGuidance.limit.message = cy: You can request up to {0} reports each day.
+reportGuidance.message = cy: Most reports are ready within 15 minutes, but it can take up to 72 hours. We’ll email {0} once your report is ready.
 reportGuidance.intro = cy: When you request a report you can:
 reportGuidance.bullet1 = cy: only get data from the last 4 years up to 2 days before today's date
 reportGuidance.bullet2 = cy: include up to 31 days of data in one report
 reportGuidance.bullet3 = cy: choose whether you are acting as a third party
-reportGuidance.bullet4 = cy: download the report for up to 30 days after it becomes available
-reportGuidance.note = cy: Most reports are ready within 15 minutes, but it can take up to 72 hours.
+reportGuidance.bullet4 = cy: add another email address to receive the notification
+reportGuidance.bullet5 = cy: download the report for up to 30 days after it becomes available
 reportGuidance.types.title = cy: Types of reports
 reportGuidance.types.intro = cy: You can request a:
 reportGuidance.types.importItem = cy: import item report - includes commodity codes, customs values and duty amounts for each item in an import declaration
@@ -239,6 +240,9 @@ maybeAdditionalEmail.heading = cy: Do you want to add another email for notifica
 maybeAdditionalEmail.checkYourAnswersLabel = cy: Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
+maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
+maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
+
 
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address

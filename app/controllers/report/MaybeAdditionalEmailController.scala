@@ -26,7 +26,9 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReportHelpers
 import views.html.report.MaybeAdditionalEmailView
 
 import javax.inject.Inject
@@ -41,6 +43,7 @@ class MaybeAdditionalEmailController @Inject() (
   requireData: DataRequiredAction,
   formProvider: MaybeAdditionalEmailFormProvider,
   reportRequestSection: ReportRequestSection,
+  tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
   view: MaybeAdditionalEmailView
 )(implicit ec: ExecutionContext)
@@ -49,29 +52,38 @@ class MaybeAdditionalEmailController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
 
-    val preparedForm = request.userAnswers.get(MaybeAdditionalEmailPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
+      val isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
 
-    Ok(view(preparedForm, mode))
+      val preparedForm = request.userAnswers.get(MaybeAdditionalEmailPage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+
+      tradeReportingExtractsService.getNotificationEmail(request.eori).flatMap { response =>
+        Future.successful(Ok(view(preparedForm, mode, isMoreThanOneReport, response.address)))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
-              redirectUrl     = navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers).url
-              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(answersWithNav)
-            } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, answersWithNav))
-        )
+      val isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+      tradeReportingExtractsService.getNotificationEmail(request.eori).flatMap { response =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful(BadRequest(view(formWithErrors, mode, isMoreThanOneReport, response.address))),
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeAdditionalEmailPage, value))
+                redirectUrl     = navigator.nextPage(MaybeAdditionalEmailPage, mode, updatedAnswers).url
+                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _              <- sessionRepository.set(answersWithNav)
+              } yield Redirect(navigator.nextPage(MaybeAdditionalEmailPage, mode, answersWithNav))
+          )
+      }
   }
 }

@@ -58,13 +58,15 @@ class ReportGuidanceController @Inject() (
           answers                  <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
           updatedAnswers            = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(answers)
           _                        <- sessionRepository.set(updatedAnswers)
-        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl))
+          email                    <- tradeReportingExtractsService.getNotificationEmail(request.eori).map(_.address)
+        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl, email))
       case initialPage.url                                                                          =>
         for {
           reportRequestNumberLimit <- tradeReportingExtractsService.getReportRequestLimitNumber
           updatedAnswers           <- Future.fromTry(request.userAnswers.remove(AlreadySubmittedFlag()))
           _                        <- sessionRepository.set(updatedAnswers)
-        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl))
+          email                    <- tradeReportingExtractsService.getNotificationEmail(request.eori).map(_.address)
+        } yield Ok(view(NormalMode, reportRequestNumberLimit, redirectUrl, email))
       case _                                                                                        =>
         Future.successful(Redirect(ReportRequestSection().navigateTo(request.userAnswers)))
     }

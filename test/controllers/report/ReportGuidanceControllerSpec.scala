@@ -21,19 +21,20 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers.*
 import play.api.test.*
 import views.html.report.ReportGuidanceView
-import models.{AlreadySubmittedFlag, NormalMode}
+import models.{AlreadySubmittedFlag, NormalMode, NotificationEmail, UserAnswers}
 import models.report.ReportRequestSection
 import repositories.SessionRepository
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
 import play.api.inject.bind
 import controllers.actions.*
-import models.UserAnswers
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.inject.guice.GuiceApplicationBuilder
 import services.TradeReportingExtractsService
+
+import java.time.LocalDateTime
 
 class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -54,6 +55,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and correct view for initial page load when thirdPartyEnabled = false" in {
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+      when(mockService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
 
       val application = appBuilder(Some(emptyUserAnswers), mockService).build()
 
@@ -66,7 +69,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           NormalMode,
           "25",
-          routes.DecisionController.onPageLoad(NormalMode).url
+          routes.DecisionController.onPageLoad(NormalMode).url,
+          "test@email.com"
         )(
           request,
           messages(application)
@@ -77,6 +81,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and correct view for initial page load when thirdPartyEnabled = true" in {
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+      when(mockService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
 
       val application = appBuilder(Some(emptyUserAnswers), mockService, thirdPartyEnabled = true).build()
 
@@ -89,7 +95,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           NormalMode,
           "25",
-          routes.ChooseEoriController.onPageLoad(NormalMode).url
+          routes.ChooseEoriController.onPageLoad(NormalMode).url,
+          "test@email.com"
         )(request, messages(application)).toString
       }
     }
@@ -112,6 +119,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+      when(mockService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
 
       val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
@@ -125,7 +134,12 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode, "25", routes.DecisionController.onPageLoad(NormalMode).url)(
+        contentAsString(result) mustEqual view(
+          NormalMode,
+          "25",
+          routes.DecisionController.onPageLoad(NormalMode).url,
+          "test@email.com"
+        )(
           request,
           messages(application)
         ).toString
@@ -150,6 +164,8 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
+      when(mockService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
 
       val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
@@ -163,7 +179,12 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[ReportGuidanceView]
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(NormalMode, "25", routes.DecisionController.onPageLoad(NormalMode).url)(
+        contentAsString(result) mustEqual view(
+          NormalMode,
+          "25",
+          routes.DecisionController.onPageLoad(NormalMode).url,
+          "test@email.com"
+        )(
           request,
           messages(application)
         ).toString
@@ -181,7 +202,6 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val mockService = mock[TradeReportingExtractsService]
-      // No need to stub getReportRequestLimitNumber for this test
 
       val application = appBuilder(Some(userAnswers), mockService)
         .overrides(
