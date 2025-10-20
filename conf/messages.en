@@ -90,7 +90,7 @@ dashboard.heading = Get customs declaration data for imports and exports
 dashboard.reports.heading = Reports
 dashboard.reports.subHeading = Request and download your reports
 dashboard.reports.requestNewReport = Request a report
-dashboard.reports.requestedReports = Requested reports
+dashboard.reports.requestedReports = Reports in progress
 dashboard.reports.availableForDownload = Available to download
 dashboard.reports.reportHistory = Report history
 
@@ -347,16 +347,15 @@ availableReports.table.referenceNumber = Reference number
 availableReports.table.action = Action
 availableReports.table.unknownCompany = Not applicable
 
-
-requestedReports.title = Requested reports
-requestedReports.title.none = You have not requested any reports yet
-requestedReports.heading = Requested reports
-requestedReports.heading.none = You have not requested any reports yet
+requestedReports.title = Reports in progress
+requestedReports.heading = Reports in progress
 requestedReports.myReports = My reports
 requestedReports.thirdPartyReports = Third party reports
 requestedReports.message1 = You can
+requestedReports.message2 = You do not have any reports in progress. If you’ve recently requested a report, it may already be ready to download. You can:
 requestedReports.link1 = view reports that are available to download
-requestedReports.link2.none = request a report
+requestedReports.bullet1.none = view available reports
+requestedReports.bullet2.none = request a report
 requestedReports.home.link = Go to homepage
 requestedReports.table.reportName = Report name
 requestedReports.table.businessInfo = Business information
@@ -674,4 +673,3 @@ noThirdPartyAccess.bullet2 = your third-party access has not started yet
 noThirdPartyAccess.bullet3 = your third-party access has ended
 noThirdPartyAccess.message2 = If someone gives you access in the future, you will be able to request reports on their behalf.
 noThirdPartyAccess.message3 = Go to homepage
-

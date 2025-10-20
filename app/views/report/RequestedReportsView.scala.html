@@ -97,16 +97,9 @@
   ))
 }
 
-@titleContent = @{
-  if (maybeUserReports || maybeThirdPartyReports) {
-    "requestedReports.title"
-  } else {
-    "requestedReports.title.none"
-  }
-}
 
 @layout(
-  pageTitle = titleNoForm(messages(titleContent)),
+  pageTitle = titleNoForm(messages("requestedReports.title")),
   breadcrumbContribution = Seq(
     BreadcrumbsItem(content = Text(messages("requestedReports.title")), href = Some(s"#"))
   ),
@@ -124,10 +117,21 @@
    </a>.
   </p>
   } else {
-  <h1 class="govuk-heading-xl">@messages("requestedReports.heading.none")</h1>
-  <p class="govuk-body">@messages("requestedReports.message1")<a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">
-      @messages("requestedReports.link2.none")
-  </a>.</p>
+  <h1 class="govuk-heading-xl">@messages("requestedReports.heading")</h1>
+    <p class="govuk-body">@messages("requestedReports.message2")</p>
+    <ul class="govuk-list--spaced govuk-list--bullet">
+        <li class="govuk-body">
+            <a href="@controllers.routes.AvailableReportsController.onPageLoad().url" class="govuk-link">
+            @messages("requestedReports.bullet1.none")
+        </a>
+        </li>
+        <li class="govuk-body">
+            <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link">
+            @messages("requestedReports.bullet2.none")
+            </a>
+        </li>
+    </ul>
+
   <p class="govuk-body">
    <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">
     @messages("requestedReports.home.link")
