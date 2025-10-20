@@ -239,6 +239,9 @@ maybeAdditionalEmail.heading = cy: Do you want to add another email for notifica
 maybeAdditionalEmail.checkYourAnswersLabel = cy: Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = cy: Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
+maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
+maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
+
 
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address
