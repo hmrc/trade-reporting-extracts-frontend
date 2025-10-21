@@ -145,7 +145,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a report start date of 1 January 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You entered a start date of 1 January 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
           )
         )(
           getRequest(),
@@ -190,7 +190,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
           )
         )(
           getRequest(),
@@ -239,7 +239,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 to 1 February 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 to 1 February 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
           )
         )(
           getRequest(),
@@ -457,7 +457,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a report start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
           )
         )(request, messages(application)).toString
       }
