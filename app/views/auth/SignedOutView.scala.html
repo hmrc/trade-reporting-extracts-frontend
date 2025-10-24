@@ -29,13 +29,9 @@
 ) {
 
     <h1 class="govuk-heading-xl">@messages("signedOut.heading")</h1>
-
-    <p class="govuk-body">@messages("signedOut.guidance")</p>
-
-    <p class="govuk-body">
-        @govukButton(
-            ButtonViewModel(messages("site.signIn"))
-                .asLink(routes.IndexController.onPageLoad().url)
-        )
+    <p class="govuk-body">@messages("signedOut.p1")
+        <a href="@controllers.routes.DashboardController.onPageLoad().url" class="govuk-link">@messages("signedOut.p2")</a>
+        @messages("signedOut.p3")
     </p>
+
 }
