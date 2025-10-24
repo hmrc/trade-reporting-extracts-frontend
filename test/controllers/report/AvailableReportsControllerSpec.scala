@@ -17,6 +17,7 @@
 package controllers.report
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.ReportTypeName
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.jsoup.Jsoup
@@ -62,9 +63,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AvailableReportsView]
 
         val reports = AvailableReportsViewModel(None, None)
+        val config  = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, false)(
+        contentAsString(result) mustEqual view(reports, false, false, config.guidanceWhatsInTheReportUrl)(
           request,
           messages(application)
         ).toString
@@ -124,9 +126,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
+        val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, true)(
+        contentAsString(result) mustEqual view(reports, true, true, config.guidanceWhatsInTheReportUrl)(
           request,
           messages(application)
         ).toString
@@ -188,9 +191,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
         contentAsString(result).contains("My reports") mustBe true
         contentAsString(result).contains("Third party reports") mustBe false
+        val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, false)(
+        contentAsString(result) mustEqual view(reports, true, false, config.guidanceWhatsInTheReportUrl)(
           request,
           messages(application)
         ).toString
@@ -256,9 +260,10 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
         contentAsString(result).contains("My reports") mustBe false
         contentAsString(result).contains("Third party reports") mustBe true
+        val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, true)(
+        contentAsString(result) mustEqual view(reports, false, true, config.guidanceWhatsInTheReportUrl)(
           request,
           messages(application)
         ).toString
@@ -281,6 +286,7 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
         )
         val result  = route(application, request).value
+        val config  = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual SEE_OTHER
       }

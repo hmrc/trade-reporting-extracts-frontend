@@ -71,3 +71,4 @@ POST       /check-new-email                        controllers.report.CheckNewEm
 GET        /change-check-new-email                  controllers.report.CheckNewEmailController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-check-new-email                  controllers.report.CheckNewEmailController.onSubmit(mode: Mode = CheckMode)
 
+GET        /export-item-report                       controllers.report.ExportItemReportController.onPageLoad()

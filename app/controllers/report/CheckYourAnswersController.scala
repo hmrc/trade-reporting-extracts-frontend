@@ -57,9 +57,7 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
       if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
       DecisionSummary.row(request.userAnswers),
       EoriRoleSummary.row(request.userAnswers),
-      if (reportTypeImports.contains(ReportTypeImport.ExportItem)) {
-        None
-      } else { ReportTypeImportSummary.row(request.userAnswers) },
+      ReportTypeImportSummary.row(request.userAnswers),
       ReportDateRangeSummary.row(request.userAnswers),
       ReportNameSummary.row(request.userAnswers),
       MaybeAdditionalEmailSummary.row(request.userAnswers),
