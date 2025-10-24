@@ -691,3 +691,9 @@ noThirdPartyAccess.bullet2 = your third-party access has not started yet
 noThirdPartyAccess.bullet3 = your third-party access has ended
 noThirdPartyAccess.message2 = If someone gives you access in the future, you will be able to request reports on their behalf.
 noThirdPartyAccess.message3 = Go to homepage
+
+requestNotCompleted.title = Your report request cannot be submitted
+requestNotCompleted.heading = Your report request cannot be submitted
+requestNotCompleted.paragraph1 = You had third-party access to {0} when you started this request. That access has now been removed.
+requestNotCompleted.paragraph2 = To regain access, speak to the importer or exporter. They’ll need to add you again as a third party before you can request a report for this EORI number.
+requestNotCompleted.paragraph3 = Go to homepage

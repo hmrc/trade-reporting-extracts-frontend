@@ -17,9 +17,8 @@
 package controllers.report
 
 import config.FrontendAppConfig
-import controllers.BaseController
 import controllers.actions.*
-import models.{AlreadySubmittedFlag, UserAnswers}
+import models.AlreadySubmittedFlag
 import models.report.{EmailSelection, ReportConfirmation, ReportRequestSection}
 import models.requests.DataRequest
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
@@ -36,7 +35,7 @@ import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,7 +56,7 @@ class RequestConfirmationController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent]                                        = (identify
+  def onPageLoad: Action[AnyContent] = (identify
     andThen getData
     andThen requireData
     andThen preventBackNavigationAfterSubmissionAction).async { implicit request =>
@@ -66,36 +65,36 @@ class RequestConfirmationController @Inject() (
     val surveyUrl: String                   = config.exitSurveyUrl
     val isMoreThanOneReport                 = ReportHelpers.isMoreThanOneReport(request.userAnswers)
     val (date, time)                        = getDateAndTime
-    val maybeThirdPartyRequest              = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
 
-    for {
-      notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      detailsOpt                       <- if (maybeThirdPartyRequest) {
-                                            getDetailsAndExpiryInfo(request.eori, request.userAnswers, clock)
-                                          } else {
-                                            Future.successful(None)
-                                          }
-      reportRequest                     = reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-      reportConfirmations              <- detailsOpt match {
-                                            case Some(true) =>
-                                              Future.successful(Seq.empty[ReportConfirmation])
-                                            case _          =>
-                                              tradeReportingExtractsService
-                                                .createReportRequest(reportRequest)
-                                                .map(trasnformReportConfirmations)
-                                          }
-      updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
-      updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
-      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-    } yield detailsOpt match {
-      case Some(true)         =>
-        Redirect(controllers.problem.routes.NoPermissionController.onPageLoad())
-      case Some(false) | None =>
-        Ok(
+    val maybeThirdPartyEori = request.userAnswers.get(SelectThirdPartyEoriPage)
+
+    val thirdPartyCheck: Future[Boolean] = maybeThirdPartyEori match {
+      case Some(thirdPartyEori) =>
+        tradeReportingExtractsService
+          .getAuthorisedBusinessDetails(thirdPartyEori, request.eori)
+          .map(_ => true)
+          .recover { case _ => false }
+      case None                 => Future.successful(true)
+    }
+
+    thirdPartyCheck.flatMap {
+      case false =>
+        Future.successful(Redirect(controllers.report.routes.RequestNotCompletedController.onPageLoad()))
+      case true  =>
+        for {
+          notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
+          reportConfirmations              <- tradeReportingExtractsService.createReportRequest(
+                                                reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
+                                              )
+          transformedConfirmations          = trasnformReportConfirmations(reportConfirmations)
+          updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+          updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
+          _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
+        } yield Ok(
           view(
             additionalEmailList,
             isMoreThanOneReport,
-            reportConfirmations,
+            transformedConfirmations,
             surveyUrl,
             notificationEmail.address,
             date,
@@ -104,6 +103,7 @@ class RequestConfirmationController @Inject() (
         )
     }
   }
+
   private def getDateAndTime(implicit messages: Messages): (String, String) =
     (
       LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
@@ -122,23 +122,6 @@ class RequestConfirmationController @Inject() (
         case _               => ""
       }
       rc.copy(reportType = newType)
-    }
-
-  private def getDetailsAndExpiryInfo(
-    eori: String,
-    userAnswers: UserAnswers,
-    clock: Clock
-  )(implicit request: play.api.mvc.RequestHeader): Future[Option[Boolean]] =
-    userAnswers.get(SelectThirdPartyEoriPage) match {
-      case Some(thirdPartyEori) =>
-        tradeReportingExtractsService.getAuthorisedBusinessDetails(eori, thirdPartyEori).map { details =>
-          val now                             = LocalDate.now(clock)
-          val isExpired: LocalDate => Boolean = _.isBefore(now)
-          val expired                         = details.accessEndDate.exists(isExpired)
-          Some(expired)
-        }
-      case None                 =>
-        Future.successful(None)
     }
 
   private def fetchUpdatedData(request: DataRequest[AnyContent]): Option[String] =
