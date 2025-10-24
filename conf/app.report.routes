@@ -71,3 +71,5 @@ POST       /check-new-email                        controllers.report.CheckNewEm
 GET        /change-check-new-email                  controllers.report.CheckNewEmailController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-check-new-email                  controllers.report.CheckNewEmailController.onSubmit(mode: Mode = CheckMode)
 
+GET        /request-not-completed                       controllers.report.RequestNotCompletedController.onPageLoad()
+
