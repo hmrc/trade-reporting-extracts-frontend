@@ -23,10 +23,13 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @content = {
-<p class="govuk-body">@messages("reportTypeImport.message")</p>
+<p class="govuk-body">@messages("reportTypeImport.message1.start")
+    <a class="govuk-link" href="@guidanceUrl">@messages("reportTypeImport.message1.link")</a>
+    @messages("reportTypeImport.message1.end").
+</p>
 <p class="govuk-hint">@messages("reportTypeImport.hint")</p>
 }
 

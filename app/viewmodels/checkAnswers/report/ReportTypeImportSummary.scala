@@ -16,6 +16,7 @@
 
 package viewmodels.checkAnswers.report
 
+import models.report.ReportTypeImport
 import models.{CheckMode, UserAnswers}
 import pages.report.ReportTypeImportPage
 import play.api.i18n.Messages
@@ -41,22 +42,28 @@ object ReportTypeImportSummary {
         )
       )
 
+      val actions =
+        if (reportTypes.contains(ReportTypeImport.ExportItem)) {
+          Seq.empty
+        } else {
+          Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(
+              if (moreThanOneReport) messages("reportTypeImport.pluralReport.change.hidden")
+              else messages("reportTypeImport.singleReport.change.hidden")
+            )
+          )
+        }
+
       SummaryListRowViewModel(
         key = if (moreThanOneReport) { "reportTypeImport.pluralReport.checkYourAnswersLabel" }
         else {
           "reportTypeImport.singleReport.checkYourAnswersLabel"
         },
         value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            controllers.report.routes.ReportTypeImportController.onPageLoad(CheckMode).url
-          )
-            .withVisuallyHiddenText(if (moreThanOneReport) { messages("reportTypeImport.pluralReport.change.hidden") }
-            else {
-              messages("reportTypeImport.singleReport.change.hidden")
-            })
-        )
+        actions = actions
       )
     }
 }

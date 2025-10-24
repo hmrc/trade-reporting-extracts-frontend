@@ -111,7 +111,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     }
 
   private def handleExportDecision(mode: Mode): Call = mode match {
-    case NormalMode => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+    case NormalMode => controllers.report.routes.ExportItemReportController.onPageLoad()
     case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
   }
 
@@ -185,11 +185,10 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
       case Some(Decision.Export) =>
         mode match {
-          case NormalMode => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          case NormalMode => controllers.report.routes.ExportItemReportController.onPageLoad()
           case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
         }
-
-      case None =>
+      case None                  =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
