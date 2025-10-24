@@ -18,6 +18,7 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
+import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.report.ExportItemReportView
@@ -26,20 +27,25 @@ class ExportItemReportControllerSpec extends SpecBase {
 
   "ExportItemReport Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET and continue url must be ReportDateRange" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .build()
-      
+
       running(application) {
         val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ExportItemReportView]
+        val view   = application.injector.instanceOf[ExportItemReportView]
         val config = application.injector.instanceOf[FrontendAppConfig]
-        
+
+        val continueUrl = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
+
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
   }

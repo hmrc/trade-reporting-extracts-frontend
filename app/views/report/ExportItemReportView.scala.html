@@ -19,7 +19,7 @@
         govukButton: GovukButton
 )
 
-@(guidanceUrl: String)(implicit request: Request[_], messages: Messages)
+@(guidanceUrl: String, continueUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("exportItemReport.title"))) {
 
@@ -31,7 +31,7 @@
 
    <div class="govuk-button-group">
      @govukButton(
-         ButtonViewModel(messages("site.continue")).asLink(controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url)
+         ButtonViewModel(messages("site.continue")).asLink(continueUrl)
      )
    </div>
 }
