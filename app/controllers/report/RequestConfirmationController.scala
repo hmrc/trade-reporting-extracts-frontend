@@ -71,7 +71,7 @@ class RequestConfirmationController @Inject() (
     val thirdPartyCheck: Future[Boolean] = maybeThirdPartyEori match {
       case Some(thirdPartyEori) =>
         tradeReportingExtractsService
-          .getAuthorisedBusinessDetails(thirdPartyEori, request.eori)
+          .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
           .map(_ => true)
           .recover { case _ => false }
       case None                 => Future.successful(true)
