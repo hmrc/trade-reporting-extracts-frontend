@@ -90,6 +90,28 @@ class ReportTypeImportSummarySpec extends SpecBase {
       )
     }
 
+    "must return no change answer action if reportTypes contain an ExportItem" in {
+      val answers = UserAnswers("id").set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)).get
+
+      val expectedValue = ValueViewModel(
+        HtmlContent(
+          Set(ReportTypeImport.ExportItem)
+            .map(rt => HtmlFormat.escape(messages(s"reportTypeImport.$rt")).toString)
+            .mkString(",<br>")
+        )
+      )
+
+      val result = ReportTypeImportSummary.row(answers)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "reportTypeImport.singleReport.checkYourAnswersLabel",
+          value = expectedValue,
+          actions = Seq()
+        )
+      )
+    }
+
     "must return None when no answer is present" in {
       val answers = UserAnswers("id")
       val result  = ReportTypeImportSummary.row(answers)

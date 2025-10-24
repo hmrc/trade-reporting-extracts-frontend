@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,14 +33,15 @@ class DashboardController @Inject() (
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
   view: DashboardView,
-  tradeReportingExtractsService: TradeReportingExtractsService
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  config: FrontendAppConfig
 )(using ec: ExecutionContext)
     extends BaseController {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
-      Ok(view(request.eori, userDetails))
+      Ok(view(request.eori, userDetails, config.guidanceWhatsInTheReportUrl))
     }
   }
 }

@@ -27,7 +27,8 @@
 
 @(availableReports: AvailableReportsViewModel,
 maybeUserReports: Boolean,
-maybeThirdPartyReports: Boolean
+maybeThirdPartyReports: Boolean,
+guidanceUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
@@ -116,6 +117,13 @@ maybeThirdPartyReports: Boolean
    @if(maybeUserReports || maybeThirdPartyReports) {
        <h1 class="govuk-heading-xl">@messages("availableReports.heading")</h1>
        <p class="govuk-body">@messages("availableReports.message1")</p>
+        <ul class="govuk-list--spaced govuk-list--bullet">
+            <li class="govuk-body">@messages("availableReports.bullet1")</li>
+            <li class="govuk-body">
+                <a href="@guidanceUrl" class="govuk-link">@messages("availableReports.bullet2.link")</a>
+                @messages("availableReports.bullet2")
+            </li>
+        </ul>
    } else {
        <h1 class="govuk-heading-xl">@messages("availableReports.heading.none")</h1>
         <p class="govuk-body">@messages("availableReports.message1.none")</p>

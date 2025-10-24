@@ -73,7 +73,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
             .value
 
           navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
-            controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+            controllers.report.routes.ExportItemReportController.onPageLoad()
         }
 
         "when ChooseEoriPage is missing" in {
@@ -125,10 +125,9 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           )
         }
 
-        "to ReportDateRangePage when Export" in {
+        "to export-item-report when Export" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
-          navigator.nextPage(EoriRolePage, NormalMode, ua) mustBe routes.ReportDateRangeController.onPageLoad(
-            NormalMode
+          navigator.nextPage(EoriRolePage, NormalMode, ua) mustBe routes.ExportItemReportController.onPageLoad(
           )
         }
       }
