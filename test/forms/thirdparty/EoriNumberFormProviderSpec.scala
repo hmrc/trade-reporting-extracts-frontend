@@ -17,6 +17,8 @@
 package forms.thirdparty
 
 import forms.behaviours.StringFieldBehaviours
+import models.StringFieldRegex
+import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
 import utils.Constants.{eoriMaxLength, eoriMinLength}
 
@@ -40,7 +42,7 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validEoriGen
+      validGBEoriGen
     )
 
     behave like fieldWithMaxLength(
@@ -64,10 +66,17 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
     )
 
     "with invalid format" - {
+      val allowedCharGen: Gen[Char] =
+        Gen.oneOf(Gen.numChar, Gen.const('G'), Gen.const('g'), Gen.const('B'), Gen.const('b'))
+
       behave like fieldThatErrorsOnInvalidData(
         form,
         fieldName,
-        stringsOfExactLength(maxLength),
+        stringsNotMatchingRegexWithExactLengthAndCorrectChars(
+          StringFieldRegex.eoriFormatRegex,
+          maxLength,
+          allowedCharGen
+        ),
         FormError(fieldName, invalidFormatKey)
       )
     }
