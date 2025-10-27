@@ -18,27 +18,31 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.MaybeAdditionalEmailFormProvider
-import models.{NormalMode, UserAnswers}
+import models.report.ReportTypeImport
+import models.{NormalMode, NotificationEmail, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.MaybeAdditionalEmailPage
+import pages.report.{MaybeAdditionalEmailPage, ReportTypeImportPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.report.MaybeAdditionalEmailView
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/notification-email")
 
-  val formProvider = new MaybeAdditionalEmailFormProvider()
-  val form         = formProvider()
+  val formProvider                      = new MaybeAdditionalEmailFormProvider()
+  val form                              = formProvider()
+  val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
   lazy val maybeAdditionalEmailRoute =
     controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode).url
@@ -47,7 +51,21 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem))
+            .success
+            .value
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, maybeAdditionalEmailRoute)
@@ -57,15 +75,31 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[MaybeAdditionalEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, true, "test@email.com")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(MaybeAdditionalEmailPage, true).success.value
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(MaybeAdditionalEmailPage, true)
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, maybeAdditionalEmailRoute)
@@ -75,7 +109,10 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, false, "test@email.com")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -85,11 +122,15 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
+
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
           .build()
 
@@ -106,7 +147,21 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem))
+            .success
+            .value
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
 
       running(application) {
         val request =
@@ -120,7 +175,10 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, true, "test@email.com")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

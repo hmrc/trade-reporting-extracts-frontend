@@ -22,7 +22,15 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, email: String)(implicit request: Request[_], messages: Messages)
+
+@content = {
+    @if(isMoreThanOneReport) {
+        <p class="govuk-body">@messages("maybeAdditionalEmail.message1.plural", email)</p>
+    } else {
+        <p class="govuk-body">@messages("maybeAdditionalEmail.message1.single", email)</p>
+    }
+}
 
 @layout(pageTitle = title(form, messages("maybeAdditionalEmail.title")), breadcrumbContribution = Seq()) {
 
@@ -36,7 +44,7 @@
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("maybeAdditionalEmail.heading")).asPageHeading()
-            )
+            ).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(
