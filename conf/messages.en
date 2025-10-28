@@ -40,9 +40,11 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
-signedOut.title = For your security, we signed you out
-signedOut.heading = For your security, we signed you out
-signedOut.guidance = We did not save your answers.
+signedOut.title = You have signed out
+signedOut.heading = You have signed out
+signedOut.p1 = You can
+signedOut.p2 = sign in
+signedOut.p3 = again to continue.
 
 guidancePage.title = Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.heading = Get Customs Declaration Service (CDS) data on imports and exports

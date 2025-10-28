@@ -40,9 +40,11 @@ journeyRecovery.startAgain.title = cy: Sorry, there is a problem with the servic
 journeyRecovery.startAgain.heading = cy: Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = cy: [Add content to explain why the user needs to start again.]
 
-signedOut.title = cy: For your security, we signed you out
-signedOut.heading = cy: For your security, we signed you out
-signedOut.guidance = cy: We did not save your answers.
+signedOut.title = cy: You have signed out
+signedOut.heading = cy: You have signed out
+signedOut.p1 = cy: You can
+signedOut.p2 = cy: sign in
+signedOut.p3 = cy: again to continue.
 
 guidancePage.title = cy: Get Customs Declaration Service (CDS) data on imports and exports
 guidancePage.heading = cy: Get Customs Declaration Service (CDS) data on imports and exports
