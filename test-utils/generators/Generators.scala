@@ -16,6 +16,8 @@
 
 package generators
 
+import models.StringFieldRegex
+
 import java.time.{Instant, LocalDate, ZoneOffset}
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*
@@ -119,6 +121,19 @@ trait Generators extends ModelGenerators {
       .suchThat(s => !regex.pattern.matcher(s).matches)
   }
 
+  def stringsNotMatchingRegexWithExactLengthAndCorrectChars(
+    regexString: String,
+    exactLength: Int,
+    allowedCharGen: Gen[Char]
+  ): Gen[String] = {
+    val regex = new Regex(regexString)
+
+    Gen
+      .listOfN(exactLength, allowedCharGen)
+      .map(_.mkString)
+      .suchThat(s => !regex.pattern.matcher(s).matches)
+  }
+
   def stringsExceptSpecificValues(excluded: Seq[String]): Gen[String] =
     nonEmptyString suchThat (!excluded.contains(_))
 
@@ -142,6 +157,12 @@ trait Generators extends ModelGenerators {
 
   def validEoriGen: Gen[String] = for {
     prefix   <- Gen.listOfN(2, Gen.alphaChar).map(_.mkString)
+    digits   <- Gen.listOfN(12, Gen.numChar).map(_.mkString)
+    optional <- Gen.option(Gen.listOfN(3, Gen.numChar).map(_.mkString))
+  } yield prefix + digits + optional.getOrElse("")
+
+  def validGBEoriGen: Gen[String] = for {
+    prefix   <- Gen.oneOf("GB", "gb", "Gb", "gB")
     digits   <- Gen.listOfN(12, Gen.numChar).map(_.mkString)
     optional <- Gen.option(Gen.listOfN(3, Gen.numChar).map(_.mkString))
   } yield prefix + digits + optional.getOrElse("")
