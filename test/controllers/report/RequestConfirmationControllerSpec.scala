@@ -19,12 +19,13 @@ package controllers.report
 import base.SpecBase
 import config.FrontendAppConfig
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, ReportTypeImport}
-import models.{AlreadySubmittedFlag, NotificationEmail, UserAnswers}
+import models.thirdparty.AuthorisedThirdPartiesViewModel
+import models.{AlreadySubmittedFlag, NotificationEmail, SelectThirdPartyEori, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage, ReportTypeImportPage}
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Lang
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -297,6 +298,55 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
           messages(application)
         ).toString
         contentAsString(result).contains("We’ll also send the email to") mustBe false
+      }
+    }
+
+    "must redirect to RequestNotCompletedPage when SelectThirdPartyEoriPage is defined but access revoked before submission" in {
+
+      val userAnswers = UserAnswers("id")
+        .set(SelectThirdPartyEoriPage, "GB123456789000")
+        .success
+        .value
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any())).thenReturn(
+        ReportRequestUserAnswersModel(
+          eori = "eori",
+          dataType = "export",
+          whichEori = Some("eori"),
+          eoriRole = Set("declarant"),
+          reportType = Set("exportItem"),
+          reportStartDate = "2025-04-16",
+          reportEndDate = "2025-05-16",
+          reportName = "MyReport",
+          additionalEmail = Some(Set("email@email.com"))
+        )
+      )
+      val notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
+      when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
+        .thenReturn(Future.successful(Seq(ReportConfirmation("MyReport", "exportItem", "RE00000001"))))
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(notificationEmail))
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(Seq.empty[AuthorisedThirdPartiesViewModel]))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[Clock].toInstance(fixedClock)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.RequestConfirmationController.onPageLoad().url)
+        val result  = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad()
+          .url
       }
     }
   }
