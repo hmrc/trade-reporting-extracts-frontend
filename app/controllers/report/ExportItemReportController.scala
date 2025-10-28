@@ -14,34 +14,31 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.report
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import play.api.i18n.MessagesApi
+import models.NormalMode
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TradeReportingExtractsService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.DashboardView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.report.ExportItemReportView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
-class DashboardController @Inject() (
+class ExportItemReportController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: DashboardView,
-  tradeReportingExtractsService: TradeReportingExtractsService,
-  config: FrontendAppConfig
-)(using ec: ExecutionContext)
-    extends BaseController {
+  config: FrontendAppConfig,
+  view: ExportItemReportView
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
-      Ok(view(request.eori, userDetails, config.guidanceWhatsInTheReportUrl))
-    }
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val continueUrl = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
+    Ok(view(config.guidanceWhatsInTheReportUrl, continueUrl))
   }
 }

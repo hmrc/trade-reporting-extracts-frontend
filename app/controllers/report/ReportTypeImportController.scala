@@ -16,6 +16,7 @@
 
 package controllers.report
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.report.ReportTypeImportFormProvider
 import models.Mode
@@ -42,6 +43,7 @@ class ReportTypeImportController @Inject() (
   formProvider: ReportTypeImportFormProvider,
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
+  config: FrontendAppConfig,
   view: ReportTypeImportView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -56,7 +58,7 @@ class ReportTypeImportController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, config.guidanceWhatsInTheReportUrl))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -64,7 +66,8 @@ class ReportTypeImportController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(BadRequest(view(formWithErrors, mode, config.guidanceWhatsInTheReportUrl))),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportTypeImportPage, value))

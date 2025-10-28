@@ -33,8 +33,8 @@ object ReportTypeImport extends Enumerable.Implicits {
   case object ExportItem extends WithName("exportItem") with ReportTypeImport
 
   val values: Seq[ReportTypeImport] = Seq(
-    ImportHeader,
     ImportItem,
+    ImportHeader,
     ImportTaxLine,
     ExportItem
   )

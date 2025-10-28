@@ -17,6 +17,7 @@
 package controllers.report
 
 import base.SpecBase
+import config.FrontendAppConfig
 import forms.report.ReportTypeImportFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, UserAnswers}
@@ -58,9 +59,14 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[ReportTypeImportView]
 
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, config.guidanceWhatsInTheReportUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -77,9 +83,14 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ReportTypeImportView]
 
         val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ReportTypeImport.values.toSet), NormalMode)(
+        contentAsString(result) mustEqual view(
+          form.fill(ReportTypeImport.values.toSet),
+          NormalMode,
+          config.guidanceWhatsInTheReportUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -122,12 +133,16 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[ReportTypeImportView]
+        val view   = application.injector.instanceOf[ReportTypeImportView]
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, config.guidanceWhatsInTheReportUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -139,6 +154,7 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, reportTypeImportRoute)
 
         val result = route(application, request).value
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url

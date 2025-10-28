@@ -59,7 +59,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute                 = Call("GET", "/request-customs-declaration-data/your-role")
   def onwardRouteThirdPartyImport = Call("GET", "/request-customs-declaration-data/import-report-type")
-  def onwardRouteThirdPartyExport = Call("GET", "/request-customs-declaration-data/date-range")
+  def onwardRouteThirdPartyExport = Call("GET", "/request-customs-declaration-data/export-item-report")
 
   lazy val decisionRoute: String = controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
 
@@ -181,7 +181,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to DateRangePage and set a user answer export to ReportTypeImportPage when thirdParty and Decision is Export" in {
+    "must redirect to export-item-report and set a user answer export to ReportTypeImportPage when thirdParty and Decision is Export" in {
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
       val mockSessionRepository            = mock[SessionRepository]
       val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])

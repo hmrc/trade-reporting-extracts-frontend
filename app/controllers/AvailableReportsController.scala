@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -30,6 +31,7 @@ class AvailableReportsController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
+  config: FrontendAppConfig,
   view: AvailableReportsView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
@@ -40,7 +42,7 @@ class AvailableReportsController @Inject() (
       availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
       maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.exists(_.nonEmpty)
-    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports))
+    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports, config.guidanceWhatsInTheReportUrl))
   }
 
   def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {
