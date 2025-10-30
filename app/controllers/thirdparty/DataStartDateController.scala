@@ -19,8 +19,10 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.DataStartDateFormProvider
 import models.Mode
+import models.requests.DataRequest
 import navigation.ThirdPartyNavigator
-import pages.thirdparty.DataStartDatePage
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
+import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -73,12 +75,35 @@ class DataStartDateController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, currentDateFormatted))),
           value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(DataStartDatePage, value))
-              redirectUrl     = thirdPartyNavigator.nextPage(DataStartDatePage, mode, updatedAnswers).url
-              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(thirdPartyNavigator.nextPage(DataStartDatePage, mode, answersWithNav))
+            request.userAnswers.get(DataEndDatePage) match {
+              case Some(Some(endDate)) if value.isAfter(endDate) && value != endDate =>
+                handleSubmittedValue(mode, request, value, true)
+              case _                                                                 =>
+                handleSubmittedValue(mode, request, value, false)
+            }
         )
   }
+
+  private def handleSubmittedValue(
+    mode: Mode,
+    request: DataRequest[AnyContent],
+    value: LocalDate,
+    clearEndDate: Boolean
+  ) =
+    if (clearEndDate) {
+      for {
+        removeEndDateAnswers <- Future.fromTry(request.userAnswers.remove(DataEndDatePage))
+        updatedAnswers       <- Future.fromTry(removeEndDateAnswers.set(DataStartDatePage, value))
+        redirectUrl           = thirdPartyNavigator.nextPage(DataStartDatePage, mode, updatedAnswers).url
+        answersWithNav        = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+        _                    <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(thirdPartyNavigator.nextPage(DataStartDatePage, mode, answersWithNav))
+    } else {
+      for {
+        updatedAnswers <- Future.fromTry(request.userAnswers.set(DataStartDatePage, value))
+        redirectUrl     = thirdPartyNavigator.nextPage(DataStartDatePage, mode, updatedAnswers).url
+        answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(thirdPartyNavigator.nextPage(DataStartDatePage, mode, answersWithNav))
+    }
 }
