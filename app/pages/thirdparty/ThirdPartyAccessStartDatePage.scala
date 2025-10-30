@@ -29,12 +29,4 @@ case object ThirdPartyAccessStartDatePage extends QuestionPage[LocalDate] {
 
   override def toString: String = "thirdPartyAccessStartDate"
 
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(ThirdPartyAccessEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
-
 }

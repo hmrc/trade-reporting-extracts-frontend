@@ -17,15 +17,15 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import com.gargoylesoftware.htmlunit.javascript.host.intl.DateTimeFormat
-import controllers.routes
 import forms.thirdparty.DataStartDateFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.DataStartDatePage
+import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
+import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -124,6 +124,140 @@ class DataStartDateControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
       }
+    }
+
+    "must clear data end date page value when new start date is after existing end date" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
+        .success
+        .value
+        .set(DataEndDatePage, Some(LocalDate.of(2024, 12, 31)))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DataEndDatePage) mustBe None
+        capturedAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now)
+
+      }
+    }
+
+    "must not clear end date page value when new start date is before existing end date" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
+        .success
+        .value
+        .set(DataEndDatePage, Some(LocalDate.now.plusYears(1)))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DataEndDatePage) mustBe Some(Some(LocalDate.now.plusYears(1)))
+        capturedAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now)
+
+      }
+    }
+
+    "must not clear end date page value when new start is the same as existing" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
+        .success
+        .value
+        .set(DataEndDatePage, Some(LocalDate.now))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DataEndDatePage) mustBe Some(Some(LocalDate.now))
+        capturedAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now)
+
+      }
+    }
+
+    "must submit successfully when end date access page hasn't been answered yet" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DataEndDatePage) mustBe None
+        capturedAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now)
+
+      }
+
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
