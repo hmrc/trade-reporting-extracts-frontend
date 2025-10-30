@@ -39,6 +39,7 @@
                 field = form("value"),
                 label = LabelViewModel(messages("newEmailNotification.heading")).asPageHeading()
             ).withHint(HintViewModel(messages("newEmailNotification.hint")))
+             .asEmail()
         )
 
         @govukButton(
