@@ -18,20 +18,20 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.SelectThirdPartyEoriFormProvider
-import models.{Mode, SelectThirdPartyEori}
 import models.report.{Decision, ReportRequestSection, ReportTypeImport}
-import navigation.{Navigator, ReportNavigator}
+import models.{Mode, UserAnswers}
+import navigation.ReportNavigator
 import pages.report.{DecisionPage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.problem.NoThirdPartyAccessView
 import views.html.report.SelectThirdPartyEoriView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class SelectThirdPartyEoriController @Inject() (
   override val messagesApi: MessagesApi,
@@ -83,23 +83,31 @@ class SelectThirdPartyEoriController @Inject() (
             },
           value =>
             for {
-              updatedAnswers <- Future.fromTry(
-                                  request.userAnswers
-                                    .get(DecisionPage)
-                                    .map {
-                                      case Decision.Import =>
-                                        request.userAnswers.set(SelectThirdPartyEoriPage, value)
-                                      case Decision.Export =>
-                                        request.userAnswers
-                                          .set(SelectThirdPartyEoriPage, value)
-                                          .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
-                                    }
-                                    .getOrElse(request.userAnswers.set(SelectThirdPartyEoriPage, value))
-                                )
-              redirectUrl     = navigator.nextPage(SelectThirdPartyEoriPage, mode, updatedAnswers).url
-              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(answersWithNav)
+              thirdPartyDetails <- tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, value)
+              updatedAnswers    <-
+                Future.fromTry(updateAnswersBasedOnDataTypes(request.userAnswers, value, thirdPartyDetails.dataTypes))
+              redirectUrl        = navigator.nextPage(SelectThirdPartyEoriPage, mode, updatedAnswers).url
+              answersWithNav     = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+              _                 <- sessionRepository.set(answersWithNav)
             } yield Redirect(navigator.nextPage(SelectThirdPartyEoriPage, mode, answersWithNav))
         )
   }
+
+  private def updateAnswersBasedOnDataTypes(
+    userAnswers: UserAnswers,
+    value: String,
+    dataTypes: Set[String]
+  ): Try[UserAnswers] =
+    dataTypes match {
+      case s if s == Set("exports") =>
+        userAnswers
+          .set(SelectThirdPartyEoriPage, value)
+          .flatMap(_.set(DecisionPage, Decision.Export))
+          .flatMap(_.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem)))
+      case s if s == Set("imports") =>
+        userAnswers
+          .set(SelectThirdPartyEoriPage, value)
+          .flatMap(_.set(DecisionPage, Decision.Import))
+      case _                        => userAnswers.remove(DecisionPage).flatMap(_.set(SelectThirdPartyEoriPage, value))
+    }
 }
