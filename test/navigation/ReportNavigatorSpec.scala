@@ -98,17 +98,26 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
       }
 
       "navigate from SelectThirdPartyEoriPage" - {
-        "to DecisionPage when Import" in {
+        "to ReportTypeImportPage when DecisionPage is Import" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
           navigator.nextPage(
             SelectThirdPartyEoriPage,
             NormalMode,
             ua
-          ) mustBe routes.DecisionController.onPageLoad(NormalMode)
+          ) mustBe routes.ReportTypeImportController.onPageLoad(NormalMode)
         }
 
-        "to DecisionPage when Export" in {
+        "to export-item-report when DecisionPage is Export" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(
+            SelectThirdPartyEoriPage,
+            NormalMode,
+            ua
+          ) mustBe routes.ExportItemReportController.onPageLoad()
+        }
+
+        "to DecisionPage when DecisionPage is missing" in {
+          val ua = emptyUserAnswers
           navigator.nextPage(
             SelectThirdPartyEoriPage,
             NormalMode,
@@ -323,13 +332,33 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "navigate from SelectThirdPartyEoriPage to CheckYourAnswersPage" in {
-        val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
-        navigator.nextPage(
-          SelectThirdPartyEoriPage,
-          CheckMode,
-          ua
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      "navigate from SelectThirdPartyEoriPage" - {
+        "to ReportTypeImportPage when DecisionPage is Import" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
+          navigator.nextPage(
+            SelectThirdPartyEoriPage,
+            CheckMode,
+            ua
+          ) mustBe routes.ReportTypeImportController.onPageLoad(CheckMode)
+        }
+
+        "to export-item-report when DecisionPage is Export" in {
+          val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
+          navigator.nextPage(
+            SelectThirdPartyEoriPage,
+            CheckMode,
+            ua
+          ) mustBe routes.ExportItemReportController.onPageLoad()
+        }
+
+        "to DecisionPage when DecisionPage is missing" in {
+          val ua = emptyUserAnswers
+          navigator.nextPage(
+            SelectThirdPartyEoriPage,
+            CheckMode,
+            ua
+          ) mustBe routes.DecisionController.onPageLoad(CheckMode)
+        }
       }
 
       "navigate from EoriRolePage" - {

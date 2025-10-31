@@ -36,12 +36,15 @@ import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import views.html.problem.NoThirdPartyAccessView
 import views.html.report.SelectThirdPartyEoriView
+import java.time.LocalDate
 
 import scala.concurrent.Future
 
 class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/data-download")
+  def onwardRoute: Call       = Call("GET", "/request-customs-declaration-data/data-download")
+  def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
+  def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/export-item-report")
 
   lazy val selectThirdPartyEoriRoute =
     controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(NormalMode).url
@@ -53,6 +56,8 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
     Seq("business1 testEori1", "business2 testEori2", "business3 testEori3"),
     Seq("testEori1", "testEori2", "testEori3")
   )
+
+  val dummyDate = LocalDate.of(2024, 1, 1)
 
   "SelectThirdPartyEori Controller" - {
 
@@ -179,88 +184,6 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page and not set a user answer to ReportTypeImportPage when decision is import" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
-      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
-        eoriList
-      )
-
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(DecisionPage, Decision.Import)
-        .success
-        .value
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, selectThirdPartyEoriRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
-        val result = route(application, request).value
-
-        status(result) `mustEqual` SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ReportTypeImportPage) mustBe None
-      }
-    }
-
-    "must redirect to the next page and set a user answer export to ReportTypeImportPage when decision is export" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
-      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
-        eoriList
-      )
-      val userAnswers                       = UserAnswers(userAnswersId)
-        .set(DecisionPage, Decision.Export)
-        .success
-        .value
-        .set(ChooseEoriPage, ChooseEori.Myeori)
-        .success
-        .value
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, selectThirdPartyEoriRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
-        val result = route(application, request).value
-
-        status(result) `mustEqual` SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
-      }
-    }
-
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
@@ -288,6 +211,149 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) `mustEqual` SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must update answers and set decision/export when dataTypes is exports" in {
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val thirdPartyDetailsExports          = models.ThirdPartyDetails(
+        referenceName = Some("answer"),
+        accessStartDate = dummyDate,
+        accessEndDate = None,
+        dataTypes = Set("exports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any())) thenReturn Future
+        .successful(thirdPartyDetailsExports)
+
+      val userAnswers = UserAnswers(userAnswersId)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, selectThirdPartyEoriRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteExport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe Some("answer")
+        capturedAnswers.get(DecisionPage) mustBe Some(Decision.Export)
+        capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
+      }
+    }
+
+    "must update answers and set decision/import when dataTypes is imports" in {
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val thirdPartyDetailsImports          = models.ThirdPartyDetails(
+        referenceName = Some("answer"),
+        accessStartDate = dummyDate,
+        accessEndDate = None,
+        dataTypes = Set("imports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any())) thenReturn Future
+        .successful(thirdPartyDetailsImports)
+
+      val userAnswers = UserAnswers(userAnswersId)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, selectThirdPartyEoriRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteImport.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe Some("answer")
+        capturedAnswers.get(DecisionPage) mustBe Some(Decision.Import)
+        capturedAnswers.get(ReportTypeImportPage) mustBe None
+      }
+    }
+
+    "must remove decision when dataTypes is both imports and exports" in {
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val thirdPartyDetailsOther            = models.ThirdPartyDetails(
+        referenceName = Some("answer"),
+        accessStartDate = dummyDate,
+        accessEndDate = None,
+        dataTypes = Set("imports", "exports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any())) thenReturn Future
+        .successful(thirdPartyDetailsOther)
+
+      val userAnswers = UserAnswers(userAnswersId).set(DecisionPage, Decision.Import).success.value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, selectThirdPartyEoriRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe Some("answer")
+        capturedAnswers.get(DecisionPage) mustBe None
       }
     }
 

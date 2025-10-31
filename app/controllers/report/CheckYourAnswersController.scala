@@ -25,12 +25,13 @@ import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkAnswers.report.*
 import viewmodels.govuk.summarylist.*
 import views.html.report.CheckYourAnswersView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   override val messagesApi: MessagesApi,
@@ -41,31 +42,59 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   preventBackNavigationAfterSubmissionAction: PreventBackNavigationAfterSubmissionAction,
   missingDependentAnswersAction: MissingDependentAnswersAction,
   val controllerComponents: MessagesControllerComponents,
+  tradeReportingExtractsService: TradeReportingExtractsService,
   view: CheckYourAnswersView
-) extends BaseController {
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   def onPageLoad(): Action[AnyContent] = (identify
     andThen getData
     andThen requireData
     andThen preventBackNavigationAfterSubmissionAction
-    andThen missingDependentAnswersAction) { implicit request =>
+    andThen missingDependentAnswersAction).async { implicit request =>
 
     val reportTypeImports: Set[ReportTypeImport] =
       request.userAnswers.get(pages.report.ReportTypeImportPage).getOrElse(Set.empty)
 
-    val rows: Seq[Option[SummaryListRow]] = Seq(
-      if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
-      DecisionSummary.row(request.userAnswers),
-      EoriRoleSummary.row(request.userAnswers),
-      ReportTypeImportSummary.row(request.userAnswers),
-      ReportDateRangeSummary.row(request.userAnswers),
-      ReportNameSummary.row(request.userAnswers),
-      MaybeAdditionalEmailSummary.row(request.userAnswers),
-      EmailSelectionSummary.row(request.userAnswers)
-    )
+    val thirdPartyEoriOpt = request.userAnswers.get(pages.report.SelectThirdPartyEoriPage)
 
-    val list = SummaryListViewModel(rows = rows.flatten)
-    Ok(view(list))
+    thirdPartyEoriOpt match {
+      case Some(thirdPartyEori) =>
+        tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, thirdPartyEori).map {
+          thirdPartyDetails =>
+            val dataTypes           = thirdPartyDetails.dataTypes
+            val showDecisionSummary = !(dataTypes == Set("exports") || dataTypes == Set("imports"))
+
+            val rows: Seq[Option[SummaryListRow]] = Seq(
+              if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+              if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
+              EoriRoleSummary.row(request.userAnswers),
+              ReportTypeImportSummary.row(request.userAnswers),
+              ReportDateRangeSummary.row(request.userAnswers),
+              ReportNameSummary.row(request.userAnswers),
+              MaybeAdditionalEmailSummary.row(request.userAnswers),
+              EmailSelectionSummary.row(request.userAnswers)
+            )
+
+            val list = SummaryListViewModel(rows = rows.flatten)
+            Ok(view(list))
+        }
+      case None                 =>
+        Future.successful {
+          val rows: Seq[Option[SummaryListRow]] = Seq(
+            if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+            DecisionSummary.row(request.userAnswers),
+            EoriRoleSummary.row(request.userAnswers),
+            ReportTypeImportSummary.row(request.userAnswers),
+            ReportDateRangeSummary.row(request.userAnswers),
+            ReportNameSummary.row(request.userAnswers),
+            MaybeAdditionalEmailSummary.row(request.userAnswers),
+            EmailSelectionSummary.row(request.userAnswers)
+          )
+          val list                              = SummaryListViewModel(rows = rows.flatten)
+          Ok(view(list))
+        }
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify

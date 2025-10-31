@@ -21,7 +21,6 @@ import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
-import pages.thirdparty.ConfirmEoriPage
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
@@ -172,10 +171,28 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def selectThirdPartyEoriPageRoutes(mode: Mode)(answers: UserAnswers): Call =
     mode match {
       case NormalMode =>
-        controllers.report.routes.DecisionController.onPageLoad(NormalMode)
+        answers.get(DecisionPage) match {
+          case Some(Decision.Import) =>
+            controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+
+          case Some(Decision.Export) =>
+            controllers.report.routes.ExportItemReportController.onPageLoad()
+
+          case None =>
+            controllers.report.routes.DecisionController.onPageLoad(NormalMode)
+        }
 
       case CheckMode =>
-        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        answers.get(DecisionPage) match {
+          case Some(Decision.Import) =>
+            controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+
+          case Some(Decision.Export) =>
+            controllers.report.routes.ExportItemReportController.onPageLoad()
+
+          case None =>
+            controllers.report.routes.DecisionController.onPageLoad(CheckMode)
+        }
     }
 
   private def eoriRoleRoutes(mode: Mode)(answers: UserAnswers): Call =
