@@ -79,7 +79,7 @@ class EoriNumberController @Inject() (
               } else {
                 tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
                   if (companyInfo.name.isEmpty) {
-                    val formWithApiError = form.withError("value", "eoriNumber.error.notFound")
+                    val formWithApiError = form.bindFromRequest().withError("value", "eoriNumber.error.notFound")
                     Future.successful(BadRequest(view(formWithApiError, mode)))
                   } else {
                     for {
