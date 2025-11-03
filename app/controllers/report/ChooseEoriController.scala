@@ -21,10 +21,10 @@ import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.ChooseEoriFormProvider
 import models.{CheckMode, Mode, UserAnswers}
-import models.report.ReportRequestSection
+import models.report.{ChooseEori, ReportDateRange, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.QuestionPage
-import pages.report._
+import pages.report.*
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -101,7 +101,12 @@ class ChooseEoriController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, request.eori))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+              answers        <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+              updatedAnswers <- if (value == ChooseEori.Myauthority) {
+                                  Future.fromTry(
+                                    answers.set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+                                  )
+                                } else Future.successful(answers)
               redirectUrl     = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
               answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
               _              <- sessionRepository.set(answersWithNav)

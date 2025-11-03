@@ -17,9 +17,9 @@
 package viewmodels.checkAnswers.report
 
 import controllers.report.routes
-import models.report.ReportDateRange
+import models.report.{ChooseEori, ReportDateRange}
 import models.{CheckMode, UserAnswers}
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -70,7 +70,9 @@ object ReportDateRangeSummary {
         actions = Seq(
           ActionItemViewModel(
             "site.change",
-            routes.ReportDateRangeController.onPageLoad(CheckMode).url
+            if (answers.get(ChooseEoriPage).contains(ChooseEori.Myauthority))
+              routes.CustomRequestStartDateController.onPageLoad(CheckMode).url
+            else routes.ReportDateRangeController.onPageLoad(CheckMode).url
           )
             .withVisuallyHiddenText(if (moreThanOneReport) {
               messages("reportDateRange.pluralReport.change.hidden")
