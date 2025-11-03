@@ -19,10 +19,18 @@ package controllers.report
 import base.SpecBase
 import controllers.report
 import models.SectionNavigation
+import models.report.Decision
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.report.DecisionPage
+import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.report.CheckYourAnswersView
+
+import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
@@ -63,6 +71,129 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.report.routes.RequestConfirmationController
           .onPageLoad()
           .url
+      }
+    }
+
+    "must hide DecisionSummary when thirdPartyEori and dataTypes is only exports" in {
+      val sectionNav     = SectionNavigation("reportRequestSection")
+      val thirdPartyEori = "GB123456789000"
+      val userAnswers    = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Export)
+        .success
+        .value
+        .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+
+      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
+      val thirdPartyDetails                 = models.ThirdPartyDetails(
+        referenceName = Some("Test Name"),
+        accessStartDate = java.time.LocalDate.now(),
+        accessEndDate = None,
+        dataTypes = Set("exports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        val content = contentAsString(result)
+        content must not include "Type of data to download"
+        status(result) mustEqual OK
+      }
+    }
+
+    "must hide DecisionSummary when thirdPartyEori and dataTypes is only imports" in {
+      val sectionNav     = SectionNavigation("reportRequestSection")
+      val thirdPartyEori = "GB123456789000"
+      val userAnswers    = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+
+      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
+      val thirdPartyDetails                 = models.ThirdPartyDetails(
+        referenceName = Some("Test Name"),
+        accessStartDate = java.time.LocalDate.now(),
+        accessEndDate = None,
+        dataTypes = Set("imports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        val content = contentAsString(result)
+        content must not include "Type of data to download"
+        status(result) mustEqual OK
+      }
+    }
+
+    "must show DecisionSummary when thirdPartyEori and dataTypes is both imports and exports" in {
+      val sectionNav     = SectionNavigation("reportRequestSection")
+      val thirdPartyEori = "GB123456789000"
+      val userAnswers    = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Export)
+        .success
+        .value
+        .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+
+      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
+      val thirdPartyDetails                 = models.ThirdPartyDetails(
+        referenceName = Some("Test Name"),
+        accessStartDate = java.time.LocalDate.now(),
+        accessEndDate = None,
+        dataTypes = Set("imports", "exports"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        val content = contentAsString(result)
+        content must include("Type of data to download")
+        status(result) mustEqual OK
       }
     }
   }
