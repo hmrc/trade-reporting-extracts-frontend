@@ -52,65 +52,73 @@ class ChooseEoriController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData).async { implicit request =>
+    (identify andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(ChooseEoriPage).fold(form)(form.fill)
 
-      val cleanedAnswersFuture: Future[UserAnswers] = (mode, appConfig.thirdPartyEnabled) match {
-        case (CheckMode, true) =>
-          val pagesToRemove: Seq[QuestionPage[_]] = Seq(
-            DecisionPage,
-            SelectThirdPartyEoriPage,
-            EoriRolePage,
-            ReportTypeImportPage,
-            ReportDateRangePage,
-            CustomRequestStartDatePage,
-            CustomRequestEndDatePage,
-            ReportNamePage,
-            MaybeAdditionalEmailPage,
-            EmailSelectionPage,
-            NewEmailNotificationPage
-          )
-
-          val cleanedTry: Try[UserAnswers] = pagesToRemove.foldLeft(Try(request.userAnswers)) { (acc, page) =>
-            acc.flatMap(_.remove(page))
-          }
-
-          cleanedTry match {
-            case Success(cleanedAnswers) =>
-              sessionRepository.set(cleanedAnswers).map(_ => cleanedAnswers)
-
-            case Failure(ex) =>
-              logger.error("Failed to clean user answers on ChooseEoriPage load in CheckMode", ex)
-              Future.successful(request.userAnswers)
-          }
-
-        case _ =>
-          Future.successful(request.userAnswers)
-      }
-
-      cleanedAnswersFuture.map { _ =>
         Ok(view(preparedForm, mode, request.eori))
       }
-    }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
+
+      val prevAnswer = request.userAnswers.get(ChooseEoriPage)
+
+      println("===============================")
+
+      val pagesToRemove: Seq[QuestionPage[_]] = Seq(
+        DecisionPage,
+        SelectThirdPartyEoriPage,
+        EoriRolePage,
+        ReportTypeImportPage,
+        ReportDateRangePage,
+        CustomRequestStartDatePage,
+        CustomRequestEndDatePage,
+        ReportNamePage,
+        MaybeAdditionalEmailPage,
+        EmailSelectionPage,
+        NewEmailNotificationPage
+      )
+
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, request.eori))),
           value =>
-            for {
-              answers        <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
-              updatedAnswers <- if (value == ChooseEori.Myauthority) {
-                                  Future.fromTry(
-                                    answers.set(ReportDateRangePage, ReportDateRange.CustomDateRange)
-                                  )
-                                } else Future.successful(answers)
-              redirectUrl     = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
-              answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(answersWithNav)
-            } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
+            println("1" + prevAnswer.contains(Some(value)))
+            println(prevAnswer)
+            println(value)
+            println("2" + prevAnswer.contains(ChooseEori.Myeori))
+            println("===========================")
+            println(prevAnswer)
+            println(value)
+            println(prevAnswer.contains(value))
+            println(prevAnswer.contains(ChooseEori.Myeori))
+            println(prevAnswer.contains(value) && prevAnswer.contains(ChooseEori.Myeori))
+            if (prevAnswer.contains(value) && prevAnswer.contains(ChooseEori.Myeori)) {
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+                redirectUrl = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
+                answersWithNav = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _ <- sessionRepository.set(answersWithNav)
+              } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
+            } else {
+              for {
+                answers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+                _ = println("preclean")
+                cleanedAnswers <- pagesToRemove.foldLeft(Future.successful(answers)) {
+                  (acc, page) => acc.flatMap(ans => Future.fromTry(ans.remove(page)))
+                }
+                _ = println("postclean")
+                updatedAnswers <- if (value == ChooseEori.Myauthority) {
+                  Future.fromTry(
+                    cleanedAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+                  )
+                } else Future.successful(cleanedAnswers)
+                redirectUrl = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
+                answersWithNav = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _ <- sessionRepository.set(answersWithNav)
+              } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
+            }
         )
     }
 }

@@ -21,7 +21,7 @@ import forms.report.CustomRequestStartDateFormProvider
 import models.{Mode, ThirdPartyDetails}
 import models.report.ReportRequestSection
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -148,12 +148,26 @@ class CustomRequestStartDateController @Inject() (
               Future.successful(viewResult)
             },
             value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
-                redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
-                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                _              <- sessionRepository.set(answersWithNav)
-              } yield Redirect(redirectUrl)
+              (
+                request.userAnswers.get(CustomRequestStartDatePage),
+                request.userAnswers.get(CustomRequestEndDatePage)
+              ) match {
+                case (Some(startDate), Some(endDate)) if value.isBefore(startDate) || value.isAfter(endDate) =>
+                  for {
+                    removedEndDate <- Future.fromTry(request.userAnswers.remove(CustomRequestEndDatePage))
+                    updatedAnswers <- Future.fromTry(removedEndDate.set(CustomRequestStartDatePage, value))
+                    redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
+                    answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                    _              <- sessionRepository.set(answersWithNav)
+                  } yield Redirect(redirectUrl)
+                case _                                                                                       =>
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
+                    redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
+                    answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                    _              <- sessionRepository.set(answersWithNav)
+                  } yield Redirect(redirectUrl)
+              }
           )
       }
     }

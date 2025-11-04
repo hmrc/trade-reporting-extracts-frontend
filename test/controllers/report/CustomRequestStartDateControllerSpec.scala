@@ -21,10 +21,12 @@ import forms.report.CustomRequestStartDateFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
+import play.api.Application
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -58,12 +60,12 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val customRequestStartDateRoute =
+  lazy val customRequestStartDateRoute: String =
     controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
-  def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
+  def getRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, customRequestStartDateRoute)
 
   def postRequest(date: LocalDate): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -81,13 +83,13 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, false, false, None)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -106,13 +108,13 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, false, true, None)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -131,7 +133,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
@@ -143,7 +145,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           true,
           Some("You have access to data from 1 January 2025 onwards.")
         )(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -167,7 +169,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
@@ -179,7 +181,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           true,
           Some("You have access to data from 1 January 2025 to 1 March 2025.")
         )(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -195,13 +197,13 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(ua)).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, true, false, None)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -216,11 +218,11 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false, false, None)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -244,6 +246,107 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, postRequest(startDate)).value
 
         status(result) mustEqual SEE_OTHER
+      }
+    }
+
+    "Value handling and cleanup" - {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val prevStartDate         = LocalDate.now.minusMonths(2)
+      val prevEndDate           = prevStartDate.plusDays(30)
+
+      def createAppWithPrevDates: (Application, ArgumentCaptor[UserAnswers]) = {
+
+        when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+        val userAnswers = emptyUserAnswers
+          .set(CustomRequestStartDatePage, prevStartDate)
+          .success
+          .value
+          .set(CustomRequestEndDatePage, prevEndDate)
+          .success
+          .value
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(
+              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+              bind[SessionRepository].toInstance(mockSessionRepository)
+            )
+            .build()
+
+        (application, userAnswersCaptor)
+      }
+
+      "must cleanup end date when new start date before old start date" in {
+
+        val (application, userAnswersCaptor) = createAppWithPrevDates
+
+        running(application) {
+          val result = route(application, postRequest(prevStartDate.minusDays(1))).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.minusDays(1))
+          capturedAnswers.get(CustomRequestEndDatePage) mustBe None
+        }
+      }
+
+      "must not cleanup end date when new start date == old start date" in {
+
+        val (application, userAnswersCaptor) = createAppWithPrevDates
+
+        running(application) {
+          val result = route(application, postRequest(prevStartDate)).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate)
+          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
+        }
+      }
+
+      "must not cleanup end date when new start date is between old start date and end date" in {
+
+        val (application, userAnswersCaptor) = createAppWithPrevDates
+
+        running(application) {
+          val result = route(application, postRequest(prevStartDate.plusWeeks(1))).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.plusWeeks(1))
+          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
+        }
+      }
+
+      "must not cleanup end date when new start date == end date" in {
+
+        val (application, userAnswersCaptor) = createAppWithPrevDates
+
+        running(application) {
+          val result = route(application, postRequest(prevEndDate)).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate)
+          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
+        }
+      }
+
+      "must cleanup end date when new start date is after end date" in {
+
+        val (application, userAnswersCaptor) = createAppWithPrevDates
+
+        running(application) {
+          val result = route(application, postRequest(prevEndDate.plusWeeks(1))).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate.plusWeeks(1))
+          capturedAnswers.get(CustomRequestEndDatePage) mustBe None
+        }
       }
     }
 
@@ -317,7 +420,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url

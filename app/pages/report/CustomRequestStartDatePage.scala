@@ -29,12 +29,4 @@ case object CustomRequestStartDatePage extends QuestionPage[LocalDate] {
 
   override def toString: String = "customRequestStartDate"
 
-  override def cleanup(value: Option[LocalDate], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(CustomRequestEndDatePage)
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
-
 }
