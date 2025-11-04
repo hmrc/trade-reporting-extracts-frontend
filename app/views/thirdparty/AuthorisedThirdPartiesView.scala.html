@@ -88,22 +88,26 @@ showBackLink = false) {
           TableRow(content = HtmlContent(s"""<span class="govuk-tag ${tp.status.cssClass}">${messages(tp.status.displayName)}</span>""")),
             TableRow(
                 content = HtmlContent(
-                    s"""<div>
-                        |  <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link">
+                    s"""<ul class="govuk-summary-list__actions-list">
+                        |  <li class="govuk-summary-list__actions-list-item">
+                        |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
                         |    ${messages("authorisedThirdParties.view")}
                         |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.view.hidden", tp.eori)}</span>
-                        |  </a>
-                        |  |
-                        |  <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link">
+                        |   </a>
+                        |  </li>
+                        |  <li class="govuk-summary-list__actions-list-item">
+                        |   <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
                         |    ${messages("authorisedThirdParties.remove")}
                         |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.remove.hidden", tp.eori)}</span>
-                        |  </a>
-                        |</div>""".stripMargin
+                        |   </a>
+                        |  </li>
+                        |</ul>""".stripMargin
                 )
             )
         )
       }
     ))
 }
+
 
 @mainContent
