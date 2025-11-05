@@ -1,4 +1,4 @@
-service.name = cy: Get customs declaration data for imports and exports
+service.name = cy: Get customs data for import and export declarations
 
 site.back = cy: Back
 site.remove = cy: Remove
@@ -87,7 +87,7 @@ guidancePage.dataDescriptionsLinkText = cy: Customs Declaration Service data imp
 guidancePage.more = cy: More
 
 dashboard.title = cy: dashboard
-dashboard.heading = cy: Get customs declaration data for imports and exports
+dashboard.heading = cy: Get customs data for import and export declarations
 
 dashboard.reports.heading = cy: Reports
 dashboard.reports.subHeading = cy: Request and download your reports
