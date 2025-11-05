@@ -18,23 +18,19 @@ package controllers.report
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import models.AlreadySubmittedFlag
-import models.report.{EmailSelection, ReportConfirmation, ReportRequestSection}
+import models.report.{EmailSelection, ReportConfirmation, SubmissionMeta}
 import models.requests.DataRequest
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
-import repositories.SessionRepository
-import services.{ReportRequestDataService, TradeReportingExtractsService}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
-import utils.{ErrorHandlers, ReportHelpers}
+import utils.ReportHelpers
 import views.html.report.RequestConfirmationView
 
-import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,74 +39,36 @@ class RequestConfirmationController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  sessionRepository: SessionRepository,
-  tradeReportingExtractsService: TradeReportingExtractsService,
-  reportRequestDataService: ReportRequestDataService,
-  config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
-  preventBackNavigationAfterSubmissionAction: PreventBackNavigationAfterSubmissionAction,
   view: RequestConfirmationView,
-  clock: Clock
+  config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify
-    andThen getData
-    andThen requireData
-    andThen preventBackNavigationAfterSubmissionAction).async { implicit request =>
-    implicit val hc: HeaderCarrier          = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val additionalEmailList: Option[String] = fetchUpdatedData(request)
-    val (date, time)                        = getDateAndTime
-
-    val maybeThirdPartyEori = request.userAnswers.get(SelectThirdPartyEoriPage)
-
-    maybeThirdPartyEori match {
-      case Some(thirdPartyEori) =>
-        tradeReportingExtractsService
-          .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
-          .flatMap(_ => createReportAndResponse(additionalEmailList, date, time))
-          .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
-      case None                 =>
-        createReportAndResponse(additionalEmailList, date, time)
-    }
-  }
-
-  private def createReportAndResponse(
-    additionalEmailList: Option[String],
-    date: String,
-    time: String
-  )(implicit request: DataRequest[AnyContent], hc: HeaderCarrier): Future[Result] = {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    val additionalEmailList = fetchUpdatedData(request)
     val surveyUrl           = config.exitSurveyUrl
     val isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
 
-    for {
-      notificationEmail                <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      reportConfirmations              <- tradeReportingExtractsService.createReportRequest(
-                                            reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                                          )
-      transformedConfirmations          = transformReportConfirmations(reportConfirmations)
-      updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
-      updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
-      _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-    } yield Ok(
-      view(
-        additionalEmailList,
-        isMoreThanOneReport,
-        transformedConfirmations,
-        surveyUrl,
-        notificationEmail.address,
-        date,
-        time
+    val submissionMeta = request.userAnswers.submissionMeta
+      .map(_.as[SubmissionMeta])
+      .getOrElse(SubmissionMeta(Seq.empty, "", "", ""))
+
+    Future.successful(
+      Ok(
+        view(
+          additionalEmailList,
+          isMoreThanOneReport,
+          trasnformReportConfirmations(submissionMeta.reportConfirmations),
+          surveyUrl,
+          submissionMeta.notificationEmail,
+          submissionMeta.submittedDate,
+          submissionMeta.submittedTime
+        )
       )
     )
   }
-
-  private def getDateAndTime(implicit messages: Messages): (String, String) =
-    (
-      LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
-      formattedSystemTime(clock)(messages.lang)
-    )
 
   private def transformReportConfirmations(
     reportConfirmations: Seq[ReportConfirmation]
