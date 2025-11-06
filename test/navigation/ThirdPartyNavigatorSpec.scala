@@ -84,20 +84,54 @@ class ThirdPartyNavigatorSpec extends SpecBase {
 
       "navigate from ThirdPartyAccessEndPage" - {
 
-        "to DataTypesPage when answered" in {
-          val userAnswers =
-            emptyUserAnswers.set(pages.thirdparty.ThirdPartyAccessEndDatePage, Option(LocalDate.now())).success.value
-          navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, NormalMode, userAnswers) mustBe
-            controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
+        "NormalMode" - {
+          "to DataTypesPage when answered" in {
+            val userAnswers =
+              emptyUserAnswers.set(pages.thirdparty.ThirdPartyAccessEndDatePage, Option(LocalDate.now())).success.value
+            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, NormalMode, userAnswers) mustBe
+              controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
+          }
+        }
+
+        "CheckMode" - {
+          "should go to AddThirdPartyCheckYourAnswersController when DataTypesPage is answered" in {
+            val userAnswers = emptyUserAnswers
+              .set(pages.thirdparty.DataTypesPage, Set(models.thirdparty.DataTypes.Export))
+              .success
+              .value
+            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
+              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+          }
+          "should go to DataTypesController in CheckMode when DataTypesPage is not answered" in {
+            val userAnswers = emptyUserAnswers
+            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
+              controllers.thirdparty.routes.DataTypesController.onPageLoad(CheckMode)
+          }
         }
       }
 
       "navigate from DataTypesPage" - {
-        "to declarationDate page with any answer" in {
-          val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
-          navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
-            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
-
+        "NormalMode" - {
+          "to declarationDate page with any answer" in {
+            val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
+            navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
+              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
+          }
+        }
+        "CheckMode" - {
+          "should go to DeclarationDateController in CheckMode when DeclarationDatePage is answered" in {
+            val userAnswers = emptyUserAnswers
+              .set(pages.thirdparty.DeclarationDatePage, models.thirdparty.DeclarationDate.AllAvailableData)
+              .success
+              .value
+            navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
+              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
+          }
+          "should go to AddThirdPartyCheckYourAnswersController when DeclarationDatePage is not answered" in {
+            val userAnswers = emptyUserAnswers
+            navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
+              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+          }
         }
       }
 

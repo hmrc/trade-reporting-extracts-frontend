@@ -36,7 +36,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyAccessStartDatePage     => accessStartDateRoutes(NormalMode)
     case ThirdPartyAccessEndDatePage       => accessEndDateRoutes(NormalMode)
     case DataTypesPage                     =>
-      navigateTo(controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode))
+      dataTypesRoutes(NormalMode)
     case DeclarationDatePage               => declarationDateRoutes(NormalMode)
     case DataStartDatePage                 => dataStartDateRoutes(NormalMode)
     case DataEndDatePage                   =>
@@ -54,7 +54,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
     case ThirdPartyAccessStartDatePage  => accessStartDateRoutes(CheckMode)
     case ThirdPartyAccessEndDatePage    => accessEndDateRoutes(CheckMode)
     case DataTypesPage                  =>
-      navigateTo(controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad())
+      dataTypesRoutes(CheckMode)
     case DeclarationDatePage            => declarationDateRoutes(CheckMode)
     case DataStartDatePage              => dataStartDateRoutes(CheckMode)
     case DataEndDatePage                =>
@@ -121,7 +121,27 @@ class ThirdPartyNavigator @Inject() extends Navigator {
   private def accessEndDateRoutes(mode: Mode)(answers: UserAnswers): Call =
     mode match {
       case NormalMode => controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
-      case CheckMode  => controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+      case CheckMode  =>
+        answers
+          .get(DataTypesPage) match {
+          case Some(_) =>
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+          case None    =>
+            controllers.thirdparty.routes.DataTypesController.onPageLoad(CheckMode)
+        }
+    }
+
+  private def dataTypesRoutes(mode: Mode)(answers: UserAnswers): Call =
+    mode match {
+      case NormalMode => controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
+      case CheckMode  =>
+        answers
+          .get(DeclarationDatePage) match {
+          case Some(_) =>
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
+          case None    =>
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
     }
 
   private def declarationDateRoutes(mode: Mode)(answers: UserAnswers): Call =
