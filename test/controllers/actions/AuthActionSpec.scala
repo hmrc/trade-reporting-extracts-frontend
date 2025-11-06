@@ -143,6 +143,31 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
+    "User tries to login with agent affinity group" - {
+
+      "must redirect to XYZ page" in {
+
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers   = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig     = application.injector.instanceOf[FrontendAppConfig]
+          val mockConnector = mock[UserAllowListConnector]
+          val authAction    = new AuthenticatedIdentifierAction(
+            new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
+            mockConnector,
+            appConfig,
+            bodyParsers
+          )
+          val controller    = new Harness(authAction)
+          val result        = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
     "the user used an unaccepted auth provider" - {
 
       "must redirect the user to the unauthorised page" in {

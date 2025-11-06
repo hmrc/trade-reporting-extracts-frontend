@@ -98,6 +98,9 @@ class AuthenticatedIdentifierAction @Inject() (
     case _: NoActiveSession                =>
       logger.info(s"No Active Session. Redirecting to ${config.loginContinueUrl}.")
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _: UnsupportedAffinityGroup =>
+      logger.info("Authorisation failure: Unsupported Affinity Group.")
+      Redirect(controllers.problem.routes.UnsupportedAffinityGroupController.onPageLoad())
     case _: InsufficientEnrolments         =>
       logger.info(
         "Authorisation failure: No enrolments found for CDS. Redirecting to UnauthorisedCdsEnrolmentController."
