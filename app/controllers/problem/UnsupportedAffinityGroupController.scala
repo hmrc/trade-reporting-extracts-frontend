@@ -24,16 +24,17 @@ import views.html.problem.UnsupportedAffinityGroupView
 
 import javax.inject.Inject
 
-class UnsupportedAffinityGroupController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: UnsupportedAffinityGroupView
-                                     ) extends FrontendBaseController with I18nSupport {
+class UnsupportedAffinityGroupController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: UnsupportedAffinityGroupView
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-      Ok(view())
+    Ok(view())
   }
 }

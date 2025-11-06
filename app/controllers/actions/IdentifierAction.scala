@@ -49,7 +49,7 @@ class AuthenticatedIdentifierAction @Inject() (
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     val predicates =
-      Enrolment(config.cdsEnrolmentIdentifier.key) and (AffinityGroup.Organisation or AffinityGroup.Individual)
+      (AffinityGroup.Organisation or AffinityGroup.Individual) and Enrolment(config.cdsEnrolmentIdentifier.key)
 
     authorised(predicates)
       .retrieve(
@@ -98,7 +98,7 @@ class AuthenticatedIdentifierAction @Inject() (
     case _: NoActiveSession                =>
       logger.info(s"No Active Session. Redirecting to ${config.loginContinueUrl}.")
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _: UnsupportedAffinityGroup =>
+    case _: UnsupportedAffinityGroup       =>
       logger.info("Authorisation failure: Unsupported Affinity Group.")
       Redirect(controllers.problem.routes.UnsupportedAffinityGroupController.onPageLoad())
     case _: InsufficientEnrolments         =>

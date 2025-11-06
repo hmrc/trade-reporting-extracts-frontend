@@ -2,8 +2,8 @@ package controllers
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.UnsupportedAffinityGroupView
+import play.api.test.Helpers.*
+import views.html.problem.UnsupportedAffinityGroupView
 
 class UnsupportedAffinityGroupControllerSpec extends SpecBase {
 
@@ -14,7 +14,7 @@ class UnsupportedAffinityGroupControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.UnsupportedAffinityGroupController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.problem.routes.UnsupportedAffinityGroupController.onPageLoad().url)
 
         val result = route(application, request).value
 

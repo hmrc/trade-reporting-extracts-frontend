@@ -698,3 +698,6 @@ requestNotCompleted.heading = cy: Your report request cannot be submitted
 requestNotCompleted.paragraph1= cy: You had third-party access to {0} when you started this request. That access has now been removed.
 requestNotCompleted.paragraph2= cy: To regain access, speak to the importer or exporter. They’ll need to add you again as a third party before you can request a report for this EORI number.
 requestNotCompleted.paragraph3= cy: Go to homepage
+
+unsupportedAffinityGroup.title = cy: unsupportedAffinityGroup
+unsupportedAffinityGroup.heading = cy: unsupportedAffinityGroup
