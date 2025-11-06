@@ -16,21 +16,23 @@
 
 package controllers.thirdparty
 
+import controllers.BaseController
 import controllers.actions.*
-import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails}
+import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, DataTheyCanViewSummary, DataTypesSummary, EoriNumberSummary, ThirdPartyAccessPeriodSummary, ThirdPartyReferenceSummary}
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
+import utils.DateTimeFormats.computeCalculatedDateValue
 
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ThirdPartyDetailsController @Inject() (
+class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getOrCreate: DataRetrievalOrCreateAction,
@@ -38,18 +40,24 @@ class ThirdPartyDetailsController @Inject() (
   view: ThirdPartyDetailsView,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+    extends BaseController
     with I18nSupport {
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
     implicit request =>
       for {
-        companyInfo       <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
-        maybeCompanyName   = resolveDisplayName(companyInfo)
-        thirdPartyDetails <- tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori)
-        rows               = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori)
-        list               = SummaryListViewModel(rows = rows.flatten)
-      } yield Ok(view(list))
+        companyInfo        <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
+        maybeCompanyName    = resolveDisplayName(companyInfo)
+        thirdPartyDetails  <- tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori)
+        status              = UserActiveStatus.fromInstants(
+                                thirdPartyDetails.accessStartDate.atStartOfDay(clock.getZone()).toInstant,
+                                thirdPartyDetails.dataStartDate.map(_.atStartOfDay(clock.getZone()).toInstant),
+                                clock
+                              )
+        calculatedDateValue = computeCalculatedDateValue(thirdPartyDetails, status)
+        rows                = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori)
+        list                = SummaryListViewModel(rows = rows.flatten)
+      } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming))
   }
 
   private def rowGenerator(

@@ -78,12 +78,12 @@ class BusinessDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view.apply(list)(request, messages(application)).toString
+        contentAsString(result) mustEqual view.apply(list, "", true)(request, messages(application)).toString
 
         val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include("Business details")
-        document.text()                                        must include("Test Business Ltd")
-        document.text()                                        must include("GB123456789000")
+        document.getElementsByClass("govuk-heading-l").text() must include("Business details")
+        document.text()                                       must include("Test Business Ltd")
+        document.text()                                       must include("GB123456789000")
       }
     }
 

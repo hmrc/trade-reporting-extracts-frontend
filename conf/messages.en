@@ -600,11 +600,13 @@ thirdPartyDetails.eoriNumber.label = EORI number
 thirdPartyDetails.dataTypes.label = Types of data they have access to
 thirdPartyDetails.dataRange.label = Data they can view
 thirdPartyDetails.dataRange.allData = All available data
+thirdPartyDetails.activeDate = This access will be active from {0}.
 
 businessDetails.title = Business details
 businessDetails.heading = Business details
 businessDetails.dataTypes.label = Types of data you have access to
 businessDetails.dataRange.label = Data you can view
+businessDetails.activeDate = Your access will be active from {0}. You’ll be able to request and download reports for this EORI number from that date.
 
 accountsAuthorityOver.title = Businesses you have third-party access to
 accountsAuthorityOver.heading = Businesses you have third-party access to

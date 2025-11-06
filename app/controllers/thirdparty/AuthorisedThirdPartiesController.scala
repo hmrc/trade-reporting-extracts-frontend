@@ -17,12 +17,10 @@
 package controllers.thirdparty
 
 import controllers.actions.*
-import models.thirdparty.AuthorisedThirdPartiesViewModel
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.report.RequestedReportsView
 import views.html.thirdparty.AuthorisedThirdPartiesView
 
 import javax.inject.Inject
