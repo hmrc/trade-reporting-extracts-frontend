@@ -17,9 +17,9 @@
 package viewmodels.checkAnswers.report
 
 import base.SpecBase
-import models.report.{ReportDateRange, ReportTypeImport}
+import models.report.{ChooseEori, ReportDateRange, ReportTypeImport}
 import models.{CheckMode, UserAnswers}
-import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, ReportDateRangePage, ReportTypeImportPage}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat
@@ -109,7 +109,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
       )
     }
 
-    "must return a SummaryListRow for CustomDateRange" in {
+    "must return a SummaryListRow for CustomDateRange, change link must be Report Date Range when user not third party scenario " in {
       val answer    = ReportDateRange.CustomDateRange
       val startDate = LocalDate.of(2025, 1, 1)
       val endDate   = LocalDate.of(2025, 1, 2)
@@ -136,6 +136,42 @@ class ReportDateRangeSummarySpec extends SpecBase {
             ActionItemViewModel(
               "site.change",
               controllers.report.routes.ReportDateRangeController.onPageLoad(CheckMode).url
+            ).withVisuallyHiddenText(messages("reportDateRange.singleReport.change.hidden"))
+          )
+        )
+      )
+    }
+
+    "must return a SummaryListRow for CustomDateRange, change link must be Report Start when third party scenario" in {
+      val answer    = ReportDateRange.CustomDateRange
+      val startDate = LocalDate.of(2025, 1, 1)
+      val endDate   = LocalDate.of(2025, 1, 2)
+      val answers   = UserAnswers("id")
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
+        .set(ReportDateRangePage, answer)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, startDate)
+        .success
+        .value
+        .set(CustomRequestEndDatePage, endDate)
+        .success
+        .value
+
+      val expectedValue = HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))
+
+      val result = ReportDateRangeSummary.row(answers)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "reportDateRange.singleReport.checkYourAnswersLabel",
+          value = ValueViewModel(expectedValue),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.report.routes.CustomRequestStartDateController.onPageLoad(CheckMode).url
             ).withVisuallyHiddenText(messages("reportDateRange.singleReport.change.hidden"))
           )
         )

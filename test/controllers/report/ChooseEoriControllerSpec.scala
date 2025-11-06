@@ -18,13 +18,14 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.ChooseEoriFormProvider
-import models.report.ChooseEori
+import models.report.{ChooseEori, ReportDateRange}
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.ChooseEoriPage
+import pages.report.{ChooseEoriPage, ReportDateRangePage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -108,6 +109,62 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
+      }
+    }
+
+    "must populate ReportDateRange with custom date range when third party" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
+      }
+    }
+
+    "must not populate ReportDateRange when user using own EORI" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportDateRangePage) mustBe None
       }
     }
 
