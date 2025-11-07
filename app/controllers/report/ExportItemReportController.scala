@@ -41,17 +41,20 @@ class ExportItemReportController @Inject() (
   view: ExportItemReportView,
   reportRequestSection: ReportRequestSection,
   sessionRepository: SessionRepository
-)(implicit ec: ExecutionContext) extends FrontendBaseController
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
 
     val continueUrl = request.userAnswers.get(ReportDateRangePage) match {
-      case Some(_) => request.userAnswers.get(ChooseEoriPage) match {
-        case Some(Myauthority) if request.userAnswers.get(CustomRequestStartDatePage).isEmpty => controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
-        case _ => controllers.report.routes.CheckYourAnswersController.onPageLoad().url
-      }
-      case None => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
+      case Some(_) =>
+        request.userAnswers.get(ChooseEoriPage) match {
+          case Some(Myauthority) if request.userAnswers.get(CustomRequestStartDatePage).isEmpty =>
+            controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
+          case _                                                                                => controllers.report.routes.CheckYourAnswersController.onPageLoad().url
+        }
+      case None    => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
     }
 
     val answersWithNav = reportRequestSection.saveNavigation(request.userAnswers, continueUrl)

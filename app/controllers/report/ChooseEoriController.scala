@@ -55,15 +55,13 @@ class ChooseEoriController @Inject() (
     (identify andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(ChooseEoriPage).fold(form)(form.fill)
 
-        Ok(view(preparedForm, mode, request.eori))
-      }
+      Ok(view(preparedForm, mode, request.eori))
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
 
       val prevAnswer = request.userAnswers.get(ChooseEoriPage)
-
-      println("===============================")
 
       val pagesToRemove: Seq[QuestionPage[_]] = Seq(
         DecisionPage,
@@ -84,39 +82,27 @@ class ChooseEoriController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, request.eori))),
           value =>
-            println("1" + prevAnswer.contains(Some(value)))
-            println(prevAnswer)
-            println(value)
-            println("2" + prevAnswer.contains(ChooseEori.Myeori))
-            println("===========================")
-            println(prevAnswer)
-            println(value)
-            println(prevAnswer.contains(value))
-            println(prevAnswer.contains(ChooseEori.Myeori))
-            println(prevAnswer.contains(value) && prevAnswer.contains(ChooseEori.Myeori))
             if (prevAnswer.contains(value) && prevAnswer.contains(ChooseEori.Myeori)) {
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
-                redirectUrl = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
-                answersWithNav = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                _ <- sessionRepository.set(answersWithNav)
+                redirectUrl     = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
+                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _              <- sessionRepository.set(answersWithNav)
               } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
             } else {
               for {
-                answers <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
-                _ = println("preclean")
-                cleanedAnswers <- pagesToRemove.foldLeft(Future.successful(answers)) {
-                  (acc, page) => acc.flatMap(ans => Future.fromTry(ans.remove(page)))
-                }
-                _ = println("postclean")
+                answers        <- Future.fromTry(request.userAnswers.set(ChooseEoriPage, value))
+                cleanedAnswers <- pagesToRemove.foldLeft(Future.successful(answers)) { (acc, page) =>
+                                    acc.flatMap(ans => Future.fromTry(ans.remove(page)))
+                                  }
                 updatedAnswers <- if (value == ChooseEori.Myauthority) {
-                  Future.fromTry(
-                    cleanedAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange)
-                  )
-                } else Future.successful(cleanedAnswers)
-                redirectUrl = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
-                answersWithNav = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                _ <- sessionRepository.set(answersWithNav)
+                                    Future.fromTry(
+                                      cleanedAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+                                    )
+                                  } else Future.successful(cleanedAnswers)
+                redirectUrl     = navigator.nextPage(ChooseEoriPage, mode, updatedAnswers).url
+                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                _              <- sessionRepository.set(answersWithNav)
               } yield Redirect(navigator.nextPage(ChooseEoriPage, mode, answersWithNav))
             }
         )

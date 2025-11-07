@@ -104,7 +104,6 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
       case Some(Decision.Export) => controllers.report.routes.ExportItemReportController.onPageLoad()
       case None                  => controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
     }
-  
 
   private def conditionalNavigate(condition: UserAnswers => Boolean, successCall: => Call): UserAnswers => Call =
     answers =>
@@ -129,17 +128,17 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
       case CheckMode =>
         answers.get(ChooseEoriPage) match {
-          case Some(ChooseEori.Myeori)          =>
+          case Some(ChooseEori.Myeori)      =>
             answers.get(ReportDateRangePage) match {
               case Some(value) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-              case None => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+              case None        => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
             }
-          case Some(ChooseEori.Myauthority)     =>
+          case Some(ChooseEori.Myauthority) =>
             answers.get(CustomRequestStartDatePage) match {
               case Some(value) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-              case None => controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+              case None        => controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
             }
-          case _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+          case _                            => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
     }
 
@@ -163,21 +162,21 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   private def chooseEoriRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori)      =>
+      case Some(ChooseEori.Myeori) =>
         mode match {
           case NormalMode => controllers.report.routes.DecisionController.onPageLoad(NormalMode)
           case CheckMode  =>
             answers.get(DecisionPage) match {
               case Some(_) =>
                 controllers.report.routes.CheckYourAnswersController.onPageLoad()
-              case _ =>
+              case _       =>
                 controllers.report.routes.DecisionController.onPageLoad(NormalMode)
             }
         }
 
       case Some(ChooseEori.Myauthority) =>
         controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
-      case None =>
+      case None                         =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -217,7 +216,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
             answers.get(ReportTypeImportPage) match {
               case Some(_) =>
                 controllers.report.routes.CheckYourAnswersController.onPageLoad()
-              case None =>
+              case None    =>
                 controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
             }
         }
@@ -230,17 +229,18 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def checkNewEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(CheckNewEmailPage) match {
       case Some(true)  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-      case Some(false) => controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(mode)
+      case Some(false) => controllers.report.routes.NewEmailNotificationController.onPageLoad(mode)
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
   private def maybeAdditionalEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(MaybeAdditionalEmailPage) match {
-      case Some(true) => answers.get(NewEmailNotificationPage).isDefined match {
-        case true => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-        case false => controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
-      }
-      case _ => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+      case Some(true) =>
+        answers.get(NewEmailNotificationPage).isDefined match {
+          case true  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+          case false => controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
+        }
+      case _          => controllers.report.routes.CheckYourAnswersController.onPageLoad()
     }
 
   private def navigateBasedOnThirdPartyFlag(

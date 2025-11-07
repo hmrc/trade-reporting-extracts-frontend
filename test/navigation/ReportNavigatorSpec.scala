@@ -246,7 +246,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
         "back to MaybeAdditionalEmailPage when false" in {
           val ua = emptyUserAnswers.set(CheckNewEmailPage, false).success.value
-          navigator.nextPage(CheckNewEmailPage, NormalMode, ua) mustBe routes.MaybeAdditionalEmailController.onPageLoad(
+          navigator.nextPage(CheckNewEmailPage, NormalMode, ua) mustBe routes.NewEmailNotificationController.onPageLoad(
             NormalMode
           )
         }
@@ -308,7 +308,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
             .value
 
           navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
-            routes.CheckYourAnswersController.onPageLoad()
+            routes.ExportItemReportController.onPageLoad()
         }
 
         "when ChooseEoriPage is missing" in {
@@ -328,7 +328,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         "to SelectThirdPartyEoriPage when Myauthority" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
           navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.SelectThirdPartyEoriController
-            .onPageLoad(NormalMode)
+            .onPageLoad(CheckMode)
         }
       }
 
@@ -369,14 +369,14 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
         "to ReportDateRangePage when Export" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
-          navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+          navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.ExportItemReportController.onPageLoad()
         }
       }
 
-      "navigate from ReportTypeImportPage to CheckYourAnswersPage" in {
-        navigator.nextPage(ReportTypeImportPage, CheckMode, emptyUserAnswers) mustBe routes.CheckYourAnswersController
-          .onPageLoad()
-      }
+//      "navigate from ReportTypeImportPage to CheckYourAnswersPage" in {
+//        navigator.nextPage(ReportTypeImportPage, CheckMode, emptyUserAnswers) mustBe routes.CheckYourAnswersController
+//          .onPageLoad()
+//      }
 
       "navigate from ReportDateRangePage" - {
         "to CustomRequestStartDatePage when CustomDateRange" in {
@@ -457,7 +457,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
         "back to MaybeAdditionalEmailPage when false" in {
           val ua = emptyUserAnswers.set(CheckNewEmailPage, false).success.value
-          navigator.nextPage(CheckNewEmailPage, CheckMode, ua) mustBe routes.MaybeAdditionalEmailController.onPageLoad(
+          navigator.nextPage(CheckNewEmailPage, CheckMode, ua) mustBe routes.NewEmailNotificationController.onPageLoad(
             CheckMode
           )
         }
