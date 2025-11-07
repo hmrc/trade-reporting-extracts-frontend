@@ -125,12 +125,12 @@ class ThirdPartyNavigatorSpec extends SpecBase {
               .success
               .value
             navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
+              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
           }
           "should go to AddThirdPartyCheckYourAnswersController when DeclarationDatePage is not answered" in {
             val userAnswers = emptyUserAnswers
             navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
           }
         }
       }
@@ -232,15 +232,6 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers
           navigator.nextPage(ThirdPartyReferencePage, CheckMode, userAnswers) mustBe
             controllers.problem.routes.JourneyRecoveryController.onPageLoad()
-        }
-      }
-
-      "navigate from Datatypes page" - {
-
-        "to cya page when answered" in {
-          val userAnswers = emptyUserAnswers
-          navigator.nextPage(DataTypesPage, CheckMode, userAnswers) mustBe
-            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
         }
       }
 

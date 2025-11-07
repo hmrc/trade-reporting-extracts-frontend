@@ -138,9 +138,9 @@ class ThirdPartyNavigator @Inject() extends Navigator {
         answers
           .get(DeclarationDatePage) match {
           case Some(_) =>
-            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
-          case None    =>
             controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+          case None    =>
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
         }
     }
 
