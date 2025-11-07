@@ -1,4 +1,4 @@
-service.name = Get customs declaration data for imports and exports
+service.name = Get customs data for import and export declarations
 
 site.back = Back
 site.remove = Remove
@@ -87,7 +87,7 @@ guidancePage.dataDescriptionsLinkText = Customs Declaration Service data import 
 guidancePage.more = More
 
 dashboard.title = dashboard
-dashboard.heading = Get customs declaration data for imports and exports
+dashboard.heading = Get customs data for import and export declarations
 
 dashboard.reports.heading = Reports
 dashboard.reports.subHeading = Request and download your reports
