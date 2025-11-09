@@ -21,7 +21,8 @@ import forms.thirdparty.EoriNumberFormProvider
 import models.Mode
 import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
-import pages.thirdparty.{EoriNumberPage, ThirdPartyDataOwnerConsentPage}
+import pages.QuestionPage
+import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -63,8 +64,20 @@ class EoriNumberController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       val userEori = request.eori
-      val form     = formProvider(userEori)
+      val prevAnswer = request.userAnswers.get(EoriNumberPage)
 
+      val pagesToRemove: Seq[QuestionPage[_]] = Seq(
+        ConfirmEoriPage,
+        ThirdPartyReferencePage,
+        ThirdPartyAccessStartDatePage,
+        ThirdPartyAccessEndDatePage,
+        DataTypesPage,
+        DeclarationDatePage,
+        DataStartDatePage,
+        DataEndDatePage,
+      )
+
+      val form     = formProvider(userEori)
       form
         .bindFromRequest()
         .fold(
@@ -82,12 +95,24 @@ class EoriNumberController @Inject() (
                     val formWithApiError = form.bindFromRequest().withError("value", "eoriNumber.error.notFound")
                     Future.successful(BadRequest(view(formWithApiError, mode)))
                   } else {
-                    for {
-                      updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
-                      redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
-                      answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                      _              <- sessionRepository.set(answersWithNav)
-                    } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
+                    if (prevAnswer.contains(eori)) {
+                      for {
+                        updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
+                        redirectUrl = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
+                        answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                        _ <- sessionRepository.set(answersWithNav)
+                      } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
+                    } else {
+                      for {
+                        updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
+                        cleanedAnswers <- pagesToRemove.foldLeft(Future.successful(updatedAnswers)) { (acc, page) =>
+                          acc.flatMap(ans => Future.fromTry(ans.remove(page)))
+                        }
+                        redirectUrl = navigator.nextPage(EoriNumberPage, mode, cleanedAnswers).url
+                        answersWithNav = addThirdPartySection.saveNavigation(cleanedAnswers, redirectUrl)
+                        _ <- sessionRepository.set(answersWithNav)
+                      } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
+                    }
                   }
                 }
               }
