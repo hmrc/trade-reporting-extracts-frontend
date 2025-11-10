@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, MissingDependentAnswersAction, PreventBackNavigationAfterSubmissionAction}
 import models.report.ReportTypeImport
+import models.requests.DataRequest
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
@@ -65,34 +66,11 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
             val dataTypes           = thirdPartyDetails.dataTypes
             val showDecisionSummary = !(dataTypes == Set("exports") || dataTypes == Set("imports"))
 
-            val rows: Seq[Option[SummaryListRow]] = Seq(
-              if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
-              if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
-              EoriRoleSummary.row(request.userAnswers),
-              ReportTypeImportSummary.row(request.userAnswers),
-              ReportDateRangeSummary.row(request.userAnswers),
-              ReportNameSummary.row(request.userAnswers),
-              MaybeAdditionalEmailSummary.row(request.userAnswers),
-              EmailSelectionSummary.row(request.userAnswers)
-            )
-
-            val list = SummaryListViewModel(rows = rows.flatten)
-            Ok(view(list))
+            buildSummaryRows(showDecisionSummary)
         }
       case None                 =>
         Future.successful {
-          val rows: Seq[Option[SummaryListRow]] = Seq(
-            if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
-            DecisionSummary.row(request.userAnswers),
-            EoriRoleSummary.row(request.userAnswers),
-            ReportTypeImportSummary.row(request.userAnswers),
-            ReportDateRangeSummary.row(request.userAnswers),
-            ReportNameSummary.row(request.userAnswers),
-            MaybeAdditionalEmailSummary.row(request.userAnswers),
-            EmailSelectionSummary.row(request.userAnswers)
-          )
-          val list                              = SummaryListViewModel(rows = rows.flatten)
-          Ok(view(list))
+          buildSummaryRows(true)
         }
     }
   }
@@ -105,5 +83,22 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
     Future.successful {
       Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers))
     }
+  }
+
+  def buildSummaryRows(showDecisionSummary: Boolean)(implicit request: DataRequest[AnyContent]) = {
+    implicit val messages                 = messagesApi.preferred(request)
+    val rows: Seq[Option[SummaryListRow]] = Seq(
+      if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+      if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
+      EoriRoleSummary.row(request.userAnswers),
+      ReportTypeImportSummary.row(request.userAnswers),
+      ReportDateRangeSummary.row(request.userAnswers),
+      ReportNameSummary.row(request.userAnswers),
+      MaybeAdditionalEmailSummary.row(request.userAnswers),
+      EmailSelectionSummary.row(request.userAnswers)
+    )
+
+    val list = SummaryListViewModel(rows = rows.flatten)
+    Ok(view(list))
   }
 }
