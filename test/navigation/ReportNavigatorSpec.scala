@@ -19,11 +19,13 @@ package navigation
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.report.routes
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
+import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
 import models.{CheckMode, NormalMode}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.*
+
+import java.time.LocalDate
 
 class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
@@ -138,6 +140,14 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Export).success.value
           navigator.nextPage(EoriRolePage, NormalMode, ua) mustBe routes.ExportItemReportController.onPageLoad(
           )
+        }
+
+        "to journey recovery when missing" in {
+          navigator.nextPage(
+            EoriRolePage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
 
@@ -320,15 +330,34 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
       }
 
       "navigate from ChooseEoriPage" - {
-        "to EoriRolePage when Myeori" in {
+        "to decision page when Myeori and decision page not answered" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
           navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.DecisionController.onPageLoad(NormalMode)
+        }
+
+        "to cya when my eori and decision page already answered" in {
+          val ua = emptyUserAnswers
+            .set(ChooseEoriPage, ChooseEori.Myeori)
+            .success
+            .value
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+          navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
 
         "to SelectThirdPartyEoriPage when Myauthority" in {
           val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
           navigator.nextPage(ChooseEoriPage, CheckMode, ua) mustBe routes.SelectThirdPartyEoriController
             .onPageLoad(CheckMode)
+        }
+
+        "to journey recovery when missing" in {
+          navigator.nextPage(
+            ChooseEoriPage,
+            CheckMode,
+            emptyUserAnswers
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
 
@@ -362,9 +391,20 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
       }
 
       "navigate from EoriRolePage" - {
-        "to ReportTypeImportPage when Import" in {
+        "to ReportTypeImportPage when Import and report type not answered" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
           navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.ReportTypeImportController.onPageLoad(CheckMode)
+        }
+
+        "to when import and report type already answered" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+            .success
+            .value
+          navigator.nextPage(EoriRolePage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
         }
 
         "to ReportDateRangePage when Export" in {
@@ -373,11 +413,49 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
         }
       }
 
-//      "navigate from ReportTypeImportPage to CheckYourAnswersPage" in {
-//        navigator.nextPage(ReportTypeImportPage, CheckMode, emptyUserAnswers) mustBe routes.CheckYourAnswersController
-//          .onPageLoad()
-//      }
+      "navigate from ReportTypeImportPage" - {
+        "navigate to CYA when user eori and already answered report date range" in {
+          val ua = emptyUserAnswers
+            .set(ChooseEoriPage, ChooseEori.Myeori)
+            .success
+            .value
+            .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+            .success
+            .value
+          navigator.nextPage(ReportTypeImportPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
 
+        "naviagte to report date range page when user eori and not answered report date range" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myeori).success.value
+          navigator.nextPage(ReportTypeImportPage, CheckMode, ua) mustBe routes.ReportDateRangeController
+            .onPageLoad(NormalMode)
+        }
+
+        "navigate to CYA when third party and already answered request start date page" in {
+          val ua = emptyUserAnswers
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+            .set(CustomRequestStartDatePage, LocalDate.now.minusDays(10))
+            .success
+            .value
+          navigator.nextPage(ReportTypeImportPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "navigate to CYA when third party and not answered request start date page" in {
+          val ua = emptyUserAnswers.set(ChooseEoriPage, ChooseEori.Myauthority).success.value
+          navigator.nextPage(ReportTypeImportPage, CheckMode, ua) mustBe routes.CustomRequestStartDateController
+            .onPageLoad(NormalMode)
+        }
+
+        "navigate to journey recovery when choose eori not answered " in {
+          navigator.nextPage(
+            ReportTypeImportPage,
+            CheckMode,
+            emptyUserAnswers
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
       "navigate from ReportDateRangePage" - {
         "to CustomRequestStartDatePage when CustomDateRange" in {
           val ua = emptyUserAnswers.set(ReportDateRangePage, ReportDateRange.CustomDateRange).success.value
@@ -413,11 +491,23 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
       }
 
       "navigate from MaybeAdditionalEmailPage" - {
-        "to EmailSelectionPage when true" in {
+        "to EmailSelectionPage when true and new email notif page not defined" in {
           val ua = emptyUserAnswers.set(MaybeAdditionalEmailPage, true).success.value
           navigator.nextPage(MaybeAdditionalEmailPage, CheckMode, ua) mustBe routes.EmailSelectionController.onPageLoad(
             CheckMode
           )
+        }
+
+        "to CYA when true and new email notif page defined" in {
+          val ua = emptyUserAnswers
+            .set(MaybeAdditionalEmailPage, true)
+            .success
+            .value
+            .set(NewEmailNotificationPage, "email@email.com")
+            .success
+            .value
+          navigator.nextPage(MaybeAdditionalEmailPage, CheckMode, ua) mustBe routes.CheckYourAnswersController
+            .onPageLoad()
         }
 
         "to CheckYourAnswersPage when false" in {
