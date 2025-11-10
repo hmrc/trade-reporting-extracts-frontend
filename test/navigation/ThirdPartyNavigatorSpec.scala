@@ -96,24 +96,19 @@ class ThirdPartyNavigatorSpec extends SpecBase {
       }
 
       "navigate from ThirdPartyAccessEndPage" - {
-
-        "NormalMode" - {
-          "to DataTypesPage when answered" in {
-            val userAnswers =
-              emptyUserAnswers.set(pages.thirdparty.ThirdPartyAccessEndDatePage, Option(LocalDate.now())).success.value
-            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, NormalMode, userAnswers) mustBe
-              controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
-          }
+        "to DataTypesPage when answered" in {
+          val userAnswers =
+            emptyUserAnswers.set(pages.thirdparty.ThirdPartyAccessEndDatePage, Option(LocalDate.now())).success.value
+          navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
         }
       }
 
       "navigate from DataTypesPage" - {
-        "NormalMode" - {
-          "to declarationDate page with any answer" in {
-            val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
-            navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
-              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
-          }
+        "to declarationDate page with any answer" in {
+          val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
+          navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
         }
       }
 
