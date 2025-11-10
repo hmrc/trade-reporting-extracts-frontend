@@ -19,13 +19,16 @@ package controllers.thirdparty
 import base.SpecBase
 import forms.thirdparty.EoriNumberFormProvider
 import models.ConsentStatus.{Denied, Granted}
+import models.thirdparty.{ConfirmEori, DataTypes, DeclarationDate}
 import models.{CompanyInformation, NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import navigation.{FakeNavigator, FakeReportNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.EoriNumberPage
+import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
 import play.api.inject.bind
+import play.api.libs.json.Reads
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -33,6 +36,7 @@ import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import views.html.thirdparty.EoriNumberView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
@@ -42,6 +46,9 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
   val userEori = "GB123456789000"
 
   lazy val eoriNumberRoute = controllers.thirdparty.routes.EoriNumberController.onPageLoad(NormalMode).url
+
+  implicit val localDateReads: Reads[LocalDate]               = Reads.localDateReads("yyyy-MM-dd")
+  implicit val optionLocalDateReads: Reads[Option[LocalDate]] = Reads.optionWithNull[LocalDate]
 
   "EoriNumber Controller" - {
 
@@ -174,6 +181,132 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "if user changes the eori to a new value it must clear any data and redirect to next page" in {
+      val oldEori = "GB123456123491"
+      val newEori = "GB123456123499"
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val companyInfo                       = CompanyInformation(name = "Test", consent = Denied)
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
+
+      when(mockTradeReportingExtractsService.getAuthorisedEoris(any())(any()))
+        .thenReturn(Future.successful(Seq("GB123456123447")))
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(ThirdPartyDataOwnerConsentPage, true)
+        .success
+        .value
+        .set(EoriNumberPage, oldEori)
+        .success
+        .value
+        .set(ConfirmEoriPage, ConfirmEori.Yes)
+        .success
+        .value
+        .set(ThirdPartyReferencePage, "thirdPartyRef")
+        .success
+        .value
+        .set(ThirdPartyAccessStartDatePage, LocalDate.now().minusDays(10))
+        .success
+        .value
+        .set(ThirdPartyAccessEndDatePage, Some(LocalDate.now().minusDays(5)))
+        .success
+        .value
+        .set(DataTypesPage, Set(DataTypes.Import))
+        .success
+        .value
+        .set(DeclarationDatePage, DeclarationDate.CustomDateRange)
+        .success
+        .value
+        .set(DataStartDatePage, LocalDate.now().minusDays(10))
+        .success
+        .value
+        .set(DataEndDatePage, Some(LocalDate.now().minusDays(5)))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, eoriNumberRoute)
+            .withFormUrlEncodedBody(("value", newEori))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedUserAnswers = userAnswersCaptor.getValue
+        capturedUserAnswers.get(ConfirmEoriPage) mustBe None
+        capturedUserAnswers.get(ThirdPartyReferencePage) mustBe None
+        capturedUserAnswers.get(ThirdPartyAccessStartDatePage) mustBe None
+        capturedUserAnswers.get(ThirdPartyAccessEndDatePage) mustBe None
+        capturedUserAnswers.get(DataTypesPage) mustBe None
+        capturedUserAnswers.get(DeclarationDatePage) mustBe None
+        capturedUserAnswers.get(DataEndDatePage) mustBe None
+        capturedUserAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe Some(true)
+      }
+    }
+
+    "if the user does not change the eori value, must not clear any data and redirect to next page" in {
+      val sameEori = "GB123456123491"
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val companyInfo                       = CompanyInformation(name = "Test", consent = Denied)
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
+
+      when(mockTradeReportingExtractsService.getAuthorisedEoris(any())(any()))
+        .thenReturn(Future.successful(Seq("GB123456123447")))
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(EoriNumberPage, sameEori)
+        .success
+        .value
+        .set(DataStartDatePage, LocalDate.now().minusDays(10))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, eoriNumberRoute)
+            .withFormUrlEncodedBody(("value", sameEori))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedUserAnswers = userAnswersCaptor.getValue
+        capturedUserAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now().minusDays(10))
       }
     }
   }

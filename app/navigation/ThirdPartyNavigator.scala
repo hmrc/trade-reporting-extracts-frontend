@@ -127,7 +127,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
       case NormalMode =>
         answers.get(EoriNumberPage) match {
           case Some(_) =>
-            controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode)
+            controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(mode)
           case _       => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       case CheckMode  =>
@@ -137,7 +137,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
               case Some(_) =>
                 controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
               case _       =>
-                controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode)
+                controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(mode)
             }
           case _       => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
@@ -188,7 +188,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
             case DeclarationDate.AllAvailableData =>
               controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
             case DeclarationDate.CustomDateRange  =>
-              controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
+              controllers.thirdparty.routes.DataStartDateController.onPageLoad(mode)
           }
           .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
       case CheckMode  =>
@@ -202,7 +202,7 @@ class ThirdPartyNavigator @Inject() extends Navigator {
                 case Some(_) =>
                   controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
                 case _       =>
-                  controllers.thirdparty.routes.DataStartDateController.onPageLoad(NormalMode)
+                  controllers.thirdparty.routes.DataStartDateController.onPageLoad(mode)
               }
           }
           .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())

@@ -18,7 +18,7 @@ package navigation
 
 import base.SpecBase
 import models.{CheckMode, NormalMode}
-import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
+import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
 import models.thirdparty.{ConfirmEori, DataTypes, DeclarationDate}
 
 import java.time.LocalDate
@@ -42,6 +42,13 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           navigator.nextPage(ThirdPartyDataOwnerConsentPage, NormalMode, userAnswers) mustBe
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyDataOwnerConsentPage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+
       }
 
       "navigate from EoriNumberPage" - {
@@ -49,6 +56,12 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           val userAnswers = emptyUserAnswers.set(pages.thirdparty.EoriNumberPage, "GB123456789000").success.value
           navigator.nextPage(pages.thirdparty.EoriNumberPage, NormalMode, userAnswers) mustBe
             controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(NormalMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(EoriNumberPage, NormalMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
 
@@ -92,22 +105,6 @@ class ThirdPartyNavigatorSpec extends SpecBase {
               controllers.thirdparty.routes.DataTypesController.onPageLoad(NormalMode)
           }
         }
-
-        "CheckMode" - {
-          "should go to AddThirdPartyCheckYourAnswersController when DataTypesPage is answered" in {
-            val userAnswers = emptyUserAnswers
-              .set(pages.thirdparty.DataTypesPage, Set(models.thirdparty.DataTypes.Export))
-              .success
-              .value
-            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
-          }
-          "should go to DataTypesController in CheckMode when DataTypesPage is not answered" in {
-            val userAnswers = emptyUserAnswers
-            navigator.nextPage(pages.thirdparty.ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.DataTypesController.onPageLoad(CheckMode)
-          }
-        }
       }
 
       "navigate from DataTypesPage" - {
@@ -116,21 +113,6 @@ class ThirdPartyNavigatorSpec extends SpecBase {
             val userAnswers = emptyUserAnswers.set(DataTypesPage, Set(DataTypes.Export)).success.value
             navigator.nextPage(DataTypesPage, NormalMode, userAnswers) mustBe
               controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode)
-          }
-        }
-        "CheckMode" - {
-          "should go to DeclarationDateController in CheckMode when DeclarationDatePage is answered" in {
-            val userAnswers = emptyUserAnswers
-              .set(pages.thirdparty.DeclarationDatePage, models.thirdparty.DeclarationDate.AllAvailableData)
-              .success
-              .value
-            navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
-          }
-          "should go to AddThirdPartyCheckYourAnswersController when DeclarationDatePage is not answered" in {
-            val userAnswers = emptyUserAnswers
-            navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
-              controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
           }
         }
       }
@@ -190,18 +172,55 @@ class ThirdPartyNavigatorSpec extends SpecBase {
           navigator.nextPage(ThirdPartyDataOwnerConsentPage, CheckMode, userAnswers) mustBe
             controllers.thirdparty.routes.EoriNumberController.onPageLoad(CheckMode)
         }
+
+        "to CYA in check mode when true and Eori number has been answered" in {
+          val userAnswers = emptyUserAnswers
+            .set(ThirdPartyDataOwnerConsentPage, true)
+            .success
+            .value
+            .set(EoriNumberPage, "GB123456789000")
+            .success
+            .value
+          navigator.nextPage(ThirdPartyDataOwnerConsentPage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
+
         "to CannotAddThirdParty when false" in {
           val userAnswers = emptyUserAnswers.set(ThirdPartyDataOwnerConsentPage, false).success.value
           navigator.nextPage(ThirdPartyDataOwnerConsentPage, CheckMode, userAnswers) mustBe
             controllers.thirdparty.routes.CannotAddThirdPartyController.onPageLoad()
         }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyDataOwnerConsentPage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
       "navigate from EoriNumberPage" - {
-        "to confirm Eori page in Normal mode with any answer" in {
-          val userAnswers = emptyUserAnswers.set(pages.thirdparty.EoriNumberPage, "GB123456789000").success.value
+        "to CYA when ConfirmEoriPage has an answer" in {
+          val userAnswers = emptyUserAnswers
+            .set(EoriNumberPage, "GB123456789000")
+            .success
+            .value
+            .set(pages.thirdparty.ConfirmEoriPage, ConfirmEori.Yes)
+            .success
+            .value
+          navigator.nextPage(pages.thirdparty.EoriNumberPage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
+
+        "to confirm Eori page when ConfirmEoriPage DOES NOT have an answer" in {
+          val userAnswers = emptyUserAnswers.set(EoriNumberPage, "GB123456789000").success.value
           navigator.nextPage(pages.thirdparty.EoriNumberPage, CheckMode, userAnswers) mustBe
             controllers.thirdparty.routes.ConfirmEoriController.onPageLoad(CheckMode)
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(EoriNumberPage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
 
@@ -220,6 +239,22 @@ class ThirdPartyNavigatorSpec extends SpecBase {
         }
       }
 
+      "navigate from ThirdPartyAccessEndDatePage" - {
+        "should go to AddThirdPartyCheckYourAnswersController when DataTypesPage is answered" in {
+          val userAnswers = emptyUserAnswers
+            .set(DataTypesPage, Set(models.thirdparty.DataTypes.Export))
+            .success
+            .value
+          navigator.nextPage(ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
+        "should go to DataTypesController in CheckMode when DataTypesPage is not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(ThirdPartyAccessEndDatePage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DataTypesController.onPageLoad(CheckMode)
+        }
+      }
+
       "navigate from third party reference page" - {
 
         "to CYA when answered" in {
@@ -231,6 +266,66 @@ class ThirdPartyNavigatorSpec extends SpecBase {
         "to journey recovery when not answered" in {
           val userAnswers = emptyUserAnswers
           navigator.nextPage(ThirdPartyReferencePage, CheckMode, userAnswers) mustBe
+            controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+
+      "navigate from DataTypesPage" - {
+        "should go to DeclarationDateController in CheckMode when DeclarationDatePage is answered" in {
+          val userAnswers = emptyUserAnswers
+            .set(pages.thirdparty.DeclarationDatePage, models.thirdparty.DeclarationDate.AllAvailableData)
+            .success
+            .value
+          navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+        }
+        "should go to AddThirdPartyCheckYourAnswersController when DeclarationDatePage is not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(pages.thirdparty.DataTypesPage, CheckMode, userAnswers) mustBe
+            controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode)
+        }
+      }
+
+      "navigate from declarationDate" - {
+        "to Check your answers when AllAvailableData" in {
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.AllAvailableData).success.value
+          navigator.nextPage(
+            DeclarationDatePage,
+            CheckMode,
+            ua
+          ) mustBe controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController
+            .onPageLoad()
+
+        }
+        "to DataStartDateController when CustomDateRange answered" in {
+          val ua = emptyUserAnswers.set(DeclarationDatePage, DeclarationDate.CustomDateRange).success.value
+          navigator.nextPage(
+            DeclarationDatePage,
+            CheckMode,
+            ua
+          ) mustBe controllers.thirdparty.routes.DataStartDateController.onPageLoad(CheckMode)
+
+        }
+
+        "to CYA when CustomDateRange answered and data start date has already been answered" in {
+          val ua = emptyUserAnswers
+            .set(DeclarationDatePage, DeclarationDate.CustomDateRange)
+            .success
+            .value
+            .set(DataStartDatePage, LocalDate.now())
+            .success
+            .value
+          navigator.nextPage(
+            DeclarationDatePage,
+            CheckMode,
+            ua
+          ) mustBe controllers.thirdparty.routes.AddThirdPartyCheckYourAnswersController.onPageLoad()
+
+        }
+
+        "to journey recovery when not answered" in {
+          val userAnswers = emptyUserAnswers
+          navigator.nextPage(DeclarationDatePage, CheckMode, userAnswers) mustBe
             controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
