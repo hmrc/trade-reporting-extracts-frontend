@@ -19,7 +19,7 @@
         govukSummaryList: GovukSummaryList
 )
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(list: SummaryList, calculatedDateValue: String, status: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("businessDetails.title")), showBackLink = false,
     breadcrumbContribution = Seq(
@@ -27,8 +27,12 @@
                         href = Some(s"/request-customs-declaration-data/businesses-you-have-access-to")),
         BreadcrumbsItem(content = Text(messages("businessDetails.title")), href = Some(s"#"))
     )){
-
-    <h1 class="govuk-heading-xl">@messages("businessDetails.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("businessDetails.heading")</h1>
+    @if(status && calculatedDateValue != "") {
+        <p class="govuk-body" >
+            @messages("businessDetails.activeDate",calculatedDateValue)
+        </p>
+    }
 
     @govukSummaryList(list)
 }

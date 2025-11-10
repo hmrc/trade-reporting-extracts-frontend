@@ -16,12 +16,14 @@
 
 package utils
 
-import play.api.i18n.Lang
+import models.{ThirdPartyDetails, UserActiveStatus}
+import play.api.i18n.{Lang, Messages}
 
-import java.time._
+import java.time.*
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
+import java.time.temporal.{ChronoUnit, TemporalAdjusters}
 import java.util.Locale
+import java.time.temporal.ChronoUnit.DAYS
 
 object DateTimeFormats {
 
@@ -61,4 +63,59 @@ object DateTimeFormats {
       }
     (startDate, endDate)
   }
+
+  private def calculateActiveDate(accessStart: LocalDate, dataStart: LocalDate)(implicit messages: Messages): String = {
+    val daysDiff = ChronoUnit.DAYS.between(accessStart, dataStart).abs
+    val fmt      = dateTimeFormat()(messages.lang)
+    if (daysDiff < 3 || dataStart.isAfter(accessStart.plusDays(2))) {
+      dataStart.plusDays(2).format(fmt)
+    } else {
+      accessStart.format(fmt)
+    }
+  }
+
+  private def daysBetween: (LocalDate, LocalDate) => Long = (a, b) => math.abs(DAYS.between(a, b))
+
+  def computeCalculatedDateValue(
+    accessStart: LocalDate,
+    accessEnd: Option[LocalDate],
+    dataStart: Option[LocalDate],
+    dataEnd: Option[LocalDate]
+  )(implicit messages: Messages): Option[String] = {
+    val isAccessEndEmpty = accessEnd.isEmpty
+    val isDataStartEmpty = dataStart.isEmpty
+    val isDataEndEmpty   = dataEnd.isEmpty
+
+    val fmt           = dateTimeFormat()(messages.lang)
+    val activeDateOpt = dataStart.map(ds => calculateActiveDate(accessStart, ds))
+    val longAccess    = accessEnd.exists(end => daysBetween(accessStart, end) > 3)
+    val longData      = dataStart.zip(dataEnd).exists { case (start, end) => daysBetween(start, end) > 3 }
+
+    (isAccessEndEmpty, isDataStartEmpty, isDataEndEmpty) match {
+      case (false, false, false) =>
+        activeDateOpt.filter(_ => longAccess && longData)
+      case (true, false, true)   =>
+        activeDateOpt
+      case (false, true, true)   =>
+        Option.when(longAccess)(accessStart.format(fmt))
+      case (true, false, false)  =>
+        activeDateOpt.filter(_ => longData)
+      case _                     =>
+        Some(accessStart.format(fmt))
+    }
+  }
+
+  def computeCalculatedDateValue(details: ThirdPartyDetails, status: UserActiveStatus)(implicit
+    messages: Messages
+  ): Option[String] =
+    if (status == UserActiveStatus.Active) {
+      None
+    } else {
+      computeCalculatedDateValue(
+        details.accessStartDate,
+        details.accessEndDate,
+        details.dataStartDate,
+        details.dataEndDate
+      )
+    }
 }
