@@ -141,6 +141,22 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to the next page when valid data is submitted" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, eoriRoleRoute)
+            .withFormUrlEncodedBody(("value[0]", EoriRole.Importer.toString), ("value[1]", EoriRole.Declarant.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRouteImport.url
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()

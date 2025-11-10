@@ -17,7 +17,7 @@
 package navigation
 
 import config.FrontendAppConfig
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange}
+import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
@@ -62,7 +62,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
-    case ChooseEoriPage             => chooseEoriRoutes(NormalMode)
+    case ChooseEoriPage             => chooseEoriRoutes(CheckMode)
     case DecisionPage               => decisionPageRoutes(CheckMode)
     case SelectThirdPartyEoriPage   => selectThirdPartyEoriPageRoutes(CheckMode)
     case EoriRolePage               => eoriRoleRoutes(CheckMode)
@@ -73,11 +73,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
     case ReportNamePage             =>
       navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case MaybeAdditionalEmailPage   =>
-      conditionalNavigate(
-        hasAdditionalEmailRequest,
-        controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
-      )
+    case MaybeAdditionalEmailPage   => maybeAdditionalEmailRoutes(CheckMode)
     case EmailSelectionPage         =>
       conditionalNavigate(
         isAddNewEmail,
@@ -105,14 +101,9 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def handleMyAuthority(mode: Mode, answers: UserAnswers): Call =
     answers.get(DecisionPage) match {
       case Some(Decision.Import) => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
-      case Some(Decision.Export) => handleExportDecision(mode)
+      case Some(Decision.Export) => controllers.report.routes.ExportItemReportController.onPageLoad()
       case None                  => controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
     }
-
-  private def handleExportDecision(mode: Mode): Call = mode match {
-    case NormalMode => controllers.report.routes.ExportItemReportController.onPageLoad()
-    case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-  }
 
   private def conditionalNavigate(condition: UserAnswers => Boolean, successCall: => Call): UserAnswers => Call =
     answers =>
@@ -136,7 +127,19 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         }
 
       case CheckMode =>
-        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        answers.get(ChooseEoriPage) match {
+          case Some(ChooseEori.Myeori)      =>
+            answers.get(ReportDateRangePage) match {
+              case Some(value) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+              case None        => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+            }
+          case Some(ChooseEori.Myauthority) =>
+            answers.get(CustomRequestStartDatePage) match {
+              case Some(value) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+              case None        => controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
+            }
+          case _                            => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+        }
     }
 
   private def reportDateRangeRoutes(mode: Mode)(answers: UserAnswers): Call =
@@ -159,12 +162,21 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   private def chooseEoriRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori)      =>
-        controllers.report.routes.DecisionController.onPageLoad(NormalMode)
+      case Some(ChooseEori.Myeori) =>
+        mode match {
+          case NormalMode => controllers.report.routes.DecisionController.onPageLoad(NormalMode)
+          case CheckMode  =>
+            answers.get(DecisionPage) match {
+              case Some(_) =>
+                controllers.report.routes.CheckYourAnswersController.onPageLoad()
+              case _       =>
+                controllers.report.routes.DecisionController.onPageLoad(NormalMode)
+            }
+        }
+
       case Some(ChooseEori.Myauthority) =>
         controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
-
-      case None =>
+      case None                         =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
@@ -198,13 +210,18 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def eoriRoleRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(DecisionPage) match {
       case Some(Decision.Import) =>
-        controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
-
-      case Some(Decision.Export) =>
         mode match {
-          case NormalMode => controllers.report.routes.ExportItemReportController.onPageLoad()
-          case CheckMode  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+          case NormalMode => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+          case CheckMode  =>
+            answers.get(ReportTypeImportPage) match {
+              case Some(_) =>
+                controllers.report.routes.CheckYourAnswersController.onPageLoad()
+              case None    =>
+                controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+            }
         }
+      case Some(Decision.Export) =>
+        controllers.report.routes.ExportItemReportController.onPageLoad()
       case None                  =>
         controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
@@ -212,8 +229,18 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def checkNewEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(CheckNewEmailPage) match {
       case Some(true)  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-      case Some(false) => controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(mode)
+      case Some(false) => controllers.report.routes.NewEmailNotificationController.onPageLoad(mode)
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def maybeAdditionalEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
+    answers.get(MaybeAdditionalEmailPage) match {
+      case Some(true) =>
+        answers.get(NewEmailNotificationPage).isDefined match {
+          case true  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+          case false => controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
+        }
+      case _          => controllers.report.routes.CheckYourAnswersController.onPageLoad()
     }
 
   private def navigateBasedOnThirdPartyFlag(

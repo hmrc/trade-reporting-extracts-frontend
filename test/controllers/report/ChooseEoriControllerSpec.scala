@@ -18,14 +18,14 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.ChooseEoriFormProvider
-import models.report.{ChooseEori, ReportDateRange}
-import models.{NormalMode, UserAnswers}
+import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
+import models.{CheckMode, EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, ReportDateRangePage}
+import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EoriRolePage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -34,6 +34,7 @@ import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.ChooseEoriView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
@@ -165,6 +166,104 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(ReportDateRangePage) mustBe None
+      }
+    }
+
+    "if previous answer was Myeori and user selects my authority must clear any data and redirect to next page" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .success
+        .value
+        .set(SelectThirdPartyEoriPage, "eori")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Declarant))
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(CustomRequestStartDatePage, LocalDate.now().minusDays(10))
+        .success
+        .value
+        .set(CustomRequestEndDatePage, LocalDate.now().minusDays(5))
+        .success
+        .value
+        .set(ReportNamePage, "name")
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedUserAnswers = userAnswersCaptor.getValue
+        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
+        capturedUserAnswers.get(SelectThirdPartyEoriPage) mustBe None
+        capturedUserAnswers.get(DecisionPage) mustBe None
+        capturedUserAnswers.get(EoriRolePage) mustBe None
+        capturedUserAnswers.get(ReportTypeImportPage) mustBe None
+        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
+        capturedUserAnswers.get(CustomRequestEndDatePage) mustBe None
+        capturedUserAnswers.get(ReportNamePage) mustBe None
+        capturedUserAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
+      }
+    }
+
+    "if previous answer was Myeori and user selects Myeori again, must not clear any data and redirect to next page" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, LocalDate.now().minusDays(10))
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, chooseEoriRoute)
+            .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedUserAnswers = userAnswersCaptor.getValue
+        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe Some(LocalDate.now().minusDays(10))
       }
     }
 
