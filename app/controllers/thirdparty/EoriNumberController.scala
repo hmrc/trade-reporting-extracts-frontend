@@ -63,7 +63,7 @@ class EoriNumberController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val userEori = request.eori
+      val userEori   = request.eori
       val prevAnswer = request.userAnswers.get(EoriNumberPage)
 
       val pagesToRemove: Seq[QuestionPage[_]] = Seq(
@@ -74,10 +74,10 @@ class EoriNumberController @Inject() (
         DataTypesPage,
         DeclarationDatePage,
         DataStartDatePage,
-        DataEndDatePage,
+        DataEndDatePage
       )
 
-      val form     = formProvider(userEori)
+      val form = formProvider(userEori)
       form
         .bindFromRequest()
         .fold(
@@ -98,19 +98,19 @@ class EoriNumberController @Inject() (
                     if (prevAnswer.contains(eori)) {
                       for {
                         updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
-                        redirectUrl = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
-                        answersWithNav = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-                        _ <- sessionRepository.set(answersWithNav)
+                        redirectUrl     = navigator.nextPage(EoriNumberPage, mode, updatedAnswers).url
+                        answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                        _              <- sessionRepository.set(answersWithNav)
                       } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
                     } else {
                       for {
                         updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriNumberPage, eori))
                         cleanedAnswers <- pagesToRemove.foldLeft(Future.successful(updatedAnswers)) { (acc, page) =>
-                          acc.flatMap(ans => Future.fromTry(ans.remove(page)))
-                        }
-                        redirectUrl = navigator.nextPage(EoriNumberPage, mode, cleanedAnswers).url
-                        answersWithNav = addThirdPartySection.saveNavigation(cleanedAnswers, redirectUrl)
-                        _ <- sessionRepository.set(answersWithNav)
+                                            acc.flatMap(ans => Future.fromTry(ans.remove(page)))
+                                          }
+                        redirectUrl     = navigator.nextPage(EoriNumberPage, mode, cleanedAnswers).url
+                        answersWithNav  = addThirdPartySection.saveNavigation(cleanedAnswers, redirectUrl)
+                        _              <- sessionRepository.set(answersWithNav)
                       } yield Redirect(navigator.nextPage(EoriNumberPage, mode, answersWithNav))
                     }
                   }

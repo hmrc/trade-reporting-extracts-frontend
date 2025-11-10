@@ -21,12 +21,18 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("cannotAddThirdParty.title"))) {
+@layout(pageTitle = titleNoForm(messages("cannotAddThirdParty.title")), showBackLink = false) {
 
     <h1 class="govuk-heading-xl">@messages("cannotAddThirdParty.heading")</h1>
 
     <p class="govuk-body">@messages("cannotAddThirdParty.message1")</p>
     <p class="govuk-body">@messages("cannotAddThirdParty.message2")</p>
     <p class="govuk-body">@messages("cannotAddThirdParty.message3")</p>
-    <p><a href="@routes.DashboardController.onPageLoad().url " class="govuk-link">@messages("cannotAddThirdParty.link")</a></p>
-     }
+
+    <p class="govuk-body">
+        @govukButton(
+                ButtonViewModel(messages("cannotAddThirdParty.link")).asSecondaryButton()
+        .asLink(routes.DashboardController.onPageLoad().url))
+    </p>
+
+}
