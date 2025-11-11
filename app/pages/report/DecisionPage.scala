@@ -29,12 +29,4 @@ case object DecisionPage extends QuestionPage[Decision] {
 
   override def toString: String = "decision"
 
-  override def cleanup(value: Option[Decision], userAnswers: UserAnswers): Try[UserAnswers] =
-    value
-      .map { _ =>
-        userAnswers
-          .remove(EoriRolePage)
-          .flatMap(_.remove(ReportTypeImportPage))
-      }
-      .getOrElse(super.cleanup(value, userAnswers))
 }

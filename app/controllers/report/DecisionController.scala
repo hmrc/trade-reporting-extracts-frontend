@@ -22,7 +22,7 @@ import forms.report.DecisionFormProvider
 import models.{Mode, UserAnswers}
 import models.report.{ChooseEori, Decision, ReportRequestSection, ReportTypeImport}
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, DecisionPage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportTypeImportPage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -64,23 +64,32 @@ class DecisionController @Inject() (
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value => {
-            val updatedAnswersTry: Try[UserAnswers] = for {
-              withDecision   <- request.userAnswers.set(DecisionPage, value)
-              withThirdParty <- if (!appConfig.thirdPartyEnabled) {
-                                  withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
-                                } else {
-                                  Success(withDecision)
-                                }
-              withExportType <- value match {
-                                  case Decision.Export =>
-                                    withThirdParty.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
-                                  case _               =>
-                                    scala.util.Success(withThirdParty)
-                                }
-              redirectUrl     = navigator.nextPage(DecisionPage, mode, withExportType).url
-              answersWithNav  = reportRequestSection.saveNavigation(withExportType, redirectUrl)
-            } yield answersWithNav
-
+            def createAnswersTry: Try[UserAnswers] =
+              for {
+                withDecision   <- request.userAnswers.set(DecisionPage, value)
+                withThirdParty <- if (!appConfig.thirdPartyEnabled) {
+                                    withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
+                                  } else {
+                                    Success(withDecision)
+                                  }
+                withExportType <- value match {
+                                    case Decision.Export =>
+                                      withThirdParty.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
+                                    case _               =>
+                                      scala.util.Success(withThirdParty)
+                                  }
+                redirectUrl     = navigator.nextPage(DecisionPage, mode, withExportType).url
+                answersWithNav  = reportRequestSection.saveNavigation(withExportType, redirectUrl)
+              } yield answersWithNav
+            val prevAnswer                         = request.userAnswers.get(DecisionPage)
+            val updatedAnswersTry                  = if (prevAnswer.contains(value)) {
+              createAnswersTry
+            } else {
+              value match {
+                case Decision.Import => createAnswersTry.get.remove(EoriRolePage).get.remove(ReportTypeImportPage)
+                case Decision.Export => createAnswersTry.get.remove(EoriRolePage)
+              }
+            }
             sessionRepository.set(updatedAnswersTry.get).map { _ =>
               Redirect(navigator.nextPage(DecisionPage, mode, updatedAnswersTry.get))
             }
