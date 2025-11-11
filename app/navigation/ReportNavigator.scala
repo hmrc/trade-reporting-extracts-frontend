@@ -88,19 +88,27 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   private def decisionPageRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori)      => handleMyEori(mode)
+      case Some(ChooseEori.Myeori)      => handleMyEori(mode, answers)
       case Some(ChooseEori.Myauthority) => handleMyAuthority(mode, answers)
       case None                         => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def handleMyEori(mode: Mode): Call = mode match {
+  private def handleMyEori(mode: Mode, answers: UserAnswers): Call = mode match {
     case NormalMode => controllers.report.routes.EoriRoleController.onPageLoad(NormalMode)
-    case CheckMode  => controllers.report.routes.EoriRoleController.onPageLoad(CheckMode)
+    case CheckMode  =>
+      answers.get(EoriRolePage) match {
+        case Some(_) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        case None    => controllers.report.routes.EoriRoleController.onPageLoad(CheckMode)
+      }
   }
 
   private def handleMyAuthority(mode: Mode, answers: UserAnswers): Call =
     answers.get(DecisionPage) match {
-      case Some(Decision.Import) => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+      case Some(Decision.Import) =>
+        answers.get(ReportTypeImportPage) match {
+          case Some(_) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+          case None    => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+        }
       case Some(Decision.Export) => controllers.report.routes.ExportItemReportController.onPageLoad()
       case None                  => controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
     }
