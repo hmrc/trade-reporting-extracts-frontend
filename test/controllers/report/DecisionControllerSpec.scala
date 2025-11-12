@@ -30,7 +30,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, DecisionPage, ReportTypeImportPage}
+import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportTypeImportPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Results.Redirect
@@ -215,6 +215,47 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(DecisionPage) mustBe Some(Decision.Export)
         capturedAnswers.get(ReportTypeImportPage) mustBe Some(Set(ReportTypeImport.ExportItem))
+        capturedAnswers.get(EoriRolePage) mustBe None
+      }
+    }
+
+    "must cleanup correctly when change of answers from export to import" in {
+      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+      val mockSessionRepository            = mock[SessionRepository]
+      val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+
+      val ua = emptyUserAnswers
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
+        .set(DecisionPage, Decision.Export)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
+          bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyExport)),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, decisionRoute)
+          .withFormUrlEncodedBody("value" -> Decision.Import.toString)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(DecisionPage) mustBe Some(Decision.Import)
+        capturedAnswers.get(ReportTypeImportPage) mustBe None
+        capturedAnswers.get(EoriRolePage) mustBe None
       }
     }
 

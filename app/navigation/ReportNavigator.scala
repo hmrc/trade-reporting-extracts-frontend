@@ -105,9 +105,9 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def handleMyAuthority(mode: Mode, answers: UserAnswers): Call =
     answers.get(DecisionPage) match {
       case Some(Decision.Import) =>
-        answers.get(ReportTypeImportPage) match {
-          case Some(_) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-          case None    => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
+        (answers.get(ReportTypeImportPage), mode) match {
+          case (Some(_), CheckMode) => controllers.report.routes.CheckYourAnswersController.onPageLoad()
+          case (_, _)               => controllers.report.routes.ReportTypeImportController.onPageLoad(mode)
         }
       case Some(Decision.Export) => controllers.report.routes.ExportItemReportController.onPageLoad()
       case None                  => controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(mode)
