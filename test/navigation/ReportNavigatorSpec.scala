@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.report.routes
 import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
-import models.{CheckMode, NormalMode}
+import models.{CheckMode, EoriRole, NormalMode}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.*
@@ -283,7 +283,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
     "in Check mode" - {
 
       "navigate from DecisionPage" - {
-        "when ChooseEori is Myeori" in {
+        "to choose eori role when my eori and eori role not answered" in {
           val ua = emptyUserAnswers
             .set(DecisionPage, Decision.Import)
             .success
@@ -295,7 +295,38 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
             controllers.report.routes.EoriRoleController.onPageLoad(CheckMode)
         }
 
-        "when ChooseEori is Myauthority and Decision is Import" in {
+        "to cya when my eori and eori role is answered" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myeori)
+            .success
+            .value
+            .set(EoriRolePage, Set(EoriRole.Importer))
+            .success
+            .value
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "with my authority to cya when report type page answered" in {
+          val ua = emptyUserAnswers
+            .set(DecisionPage, Decision.Import)
+            .success
+            .value
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+            .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, CheckMode, ua) mustBe
+            controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "to report type page when report type unanswered" in {
           val ua = emptyUserAnswers
             .set(DecisionPage, Decision.Import)
             .success
