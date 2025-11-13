@@ -579,6 +579,7 @@ authorisedThirdParties.link1 = add them again
 authorisedThirdParties.view = View
 authorisedThirdParties.view.hidden = View {0} details
 authorisedThirdParties.remove = Remove
+authorisedThirdParties.edit = Edit
 authorisedThirdParties.remove.hidden = Remove {0} as a third party
 authorisedThirdParties.noThirdParties.title = You have not added any third parties yet
 authorisedThirdParties.noThirdParties.heading = You have not added any third parties yet

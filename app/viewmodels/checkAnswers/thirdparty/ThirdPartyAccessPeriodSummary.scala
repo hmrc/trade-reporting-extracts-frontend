@@ -64,12 +64,15 @@ object ThirdPartyAccessPeriodSummary {
       )
     }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails, isThirdPartyEnabled: Boolean)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
     Some(
       buildRow(
         thirdPartyDetails.accessStartDate,
         thirdPartyDetails.accessEndDate,
-        "thirdPartyAccessPeriod.checkYourAnswersLabel"
+        "thirdPartyAccessPeriod.checkYourAnswersLabel",
+        isThirdPartyEnabled
       )
     )
 
@@ -78,14 +81,16 @@ object ThirdPartyAccessPeriodSummary {
       buildRow(
         thirdPartyDetails.accessStartDate,
         thirdPartyDetails.accessEndDate,
-        "thirdPartyAccessPeriod.checkYourAnswersLabel"
+        "thirdPartyAccessPeriod.checkYourAnswersLabel",
+        false
       )
     )
 
   private def buildRow(
     startDate: LocalDate,
     maybeEndDate: Option[LocalDate],
-    keyMessage: String
+    keyMessage: String,
+    tpEnabledAndNotBusinessDetailsRow: Boolean
   )(implicit messages: Messages): SummaryListRow = {
 
     implicit val lang: Lang = messages.lang
@@ -108,9 +113,23 @@ object ThirdPartyAccessPeriodSummary {
         )
     }
 
-    SummaryListRowViewModel(
-      key = keyMessage,
-      value = value
-    )
+    if (tpEnabledAndNotBusinessDetailsRow) {
+      SummaryListRowViewModel(
+        key = keyMessage,
+        value = value,
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            "#"
+          )
+            .withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
+        )
+      )
+    } else {
+      SummaryListRowViewModel(
+        key = keyMessage,
+        value = value
+      )
+    }
   }
 }

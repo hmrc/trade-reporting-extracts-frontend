@@ -14,12 +14,14 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
 @import models.report._
 @import utils.ReportHelpers
 @import models.ReportStatus
 @import models.thirdparty.AuthorisedThirdPartiesViewModel
 
 @this(
+  appConfig: FrontendAppConfig,
   layout: templates.Layout,
   govukButton: GovukButton,
   govukTabs: GovukTabs,
@@ -81,33 +83,47 @@ showBackLink = false) {
         HeadCell(content = Text(messages("authorisedThirdParties.action")))
       )),
       rows = authorisedThirdParties.map { tp =>
+        val actionsHtml =
+          if appConfig.editThirdPartyEnabled then
+            s"""<ul class="govuk-summary-list__actions-list">
+               |  <li class="govuk-summary-list__actions-list-item">
+               |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
+               |    ${messages("authorisedThirdParties.edit")}
+               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.edit.hidden", tp.eori)}</span>
+               |   </a>
+               |  </li>
+               |  <li class="govuk-summary-list__actions-list-item">
+               |   <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
+               |    ${messages("authorisedThirdParties.remove")}
+               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.remove.hidden", tp.eori)}</span>
+               |   </a>
+               |  </li>
+               |</ul>""".stripMargin
+          else
+            s"""<ul class="govuk-summary-list__actions-list">
+               |  <li class="govuk-summary-list__actions-list-item">
+               |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
+               |    ${messages("authorisedThirdParties.view")}
+               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.view.hidden", tp.eori)}</span>
+               |   </a>
+               |  </li>
+               |  <li class="govuk-summary-list__actions-list-item">
+               |   <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
+               |    ${messages("authorisedThirdParties.remove")}
+               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.remove.hidden", tp.eori)}</span>
+               |   </a>
+               |  </li>
+               |</ul>""".stripMargin
+
         Seq(
           TableRow(content = Text(tp.eori)),
           TableRow(content = Text(tp.businessInfo.getOrElse(messages("authorisedThirdParties.businessInfo.notAvailable")))),
           TableRow(content = Text(tp.referenceName.getOrElse(messages("authorisedThirdParties.referenceName.notAvailable")))),
           TableRow(content = HtmlContent(s"""<span class="govuk-tag ${tp.status.cssClass}">${messages(tp.status.displayName)}</span>""")),
-            TableRow(
-                content = HtmlContent(
-                    s"""<ul class="govuk-summary-list__actions-list">
-                        |  <li class="govuk-summary-list__actions-list-item">
-                        |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
-                        |    ${messages("authorisedThirdParties.view")}
-                        |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.view.hidden", tp.eori)}</span>
-                        |   </a>
-                        |  </li>
-                        |  <li class="govuk-summary-list__actions-list-item">
-                        |   <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
-                        |    ${messages("authorisedThirdParties.remove")}
-                        |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.remove.hidden", tp.eori)}</span>
-                        |   </a>
-                        |  </li>
-                        |</ul>""".stripMargin
-                ),  classes = "govuk-table-cell-nowrap"
-            )
+          TableRow(content = HtmlContent(actionsHtml), classes = "govuk-table-cell-nowrap")
         )
       }
     ))
 }
-
 
 @mainContent
