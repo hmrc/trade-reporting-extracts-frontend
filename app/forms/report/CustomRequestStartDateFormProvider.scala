@@ -20,13 +20,13 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.i18n.Messages
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
 
-class CustomRequestStartDateFormProvider @Inject() extends Mappings {
+class CustomRequestStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private val dateFourYearsAgo: LocalDate = LocalDate.now(ZoneOffset.UTC).minusYears(4)
-  private val currentDate: LocalDate      = LocalDate.now(ZoneOffset.UTC)
+  private val dateFourYearsAgo: LocalDate = LocalDate.now(clock).minusYears(4)
+  private val currentDate: LocalDate      = LocalDate.now(clock)
 
   def apply(
     maybeThirdPartyRequest: Boolean,

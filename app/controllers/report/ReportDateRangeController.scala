@@ -35,7 +35,7 @@ import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportDateRangeController @Inject() (
+class ReportDateRangeController @Inject (clock: Clock = Clock.systemUTC())(
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   navigator: ReportNavigator,
@@ -45,8 +45,7 @@ class ReportDateRangeController @Inject() (
   formProvider: ReportDateRangeFormProvider,
   reportRequestSection: ReportRequestSection,
   val controllerComponents: MessagesControllerComponents,
-  view: ReportDateRangeView,
-  clock: Clock
+  view: ReportDateRangeView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -98,7 +97,7 @@ class ReportDateRangeController @Inject() (
   }
 
   private def lastFullCalendarMonthHintStrings(implicit messages: Messages): (String, String) = {
-    val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock))
+    val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock.getZone()))
     (startEndDate._1.format(dateTimeFormat()(messages.lang)), startEndDate._2.format(dateTimeFormat()(messages.lang)))
   }
 }

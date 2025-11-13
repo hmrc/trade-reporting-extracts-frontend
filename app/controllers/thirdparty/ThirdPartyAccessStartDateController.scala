@@ -35,7 +35,7 @@ import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ThirdPartyAccessStartDateController @Inject() (
+class ThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.systemUTC())(
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   thirdPartyNavigator: ThirdPartyNavigator,
@@ -50,7 +50,7 @@ class ThirdPartyAccessStartDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val currentDate: LocalDate               = LocalDate.now()
+  val currentDate: LocalDate               = LocalDate.now(clock.getZone())
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

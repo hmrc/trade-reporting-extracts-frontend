@@ -26,14 +26,18 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.ReportDateRangePage
 import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import utils.DateTimeFormats
+import utils.DateTimeFormats.dateTimeFormat
 import views.html.report.ReportDateRangeView
-import java.time.{Clock, Instant, ZoneOffset}
 
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.temporal.ChronoUnit
 import scala.concurrent.Future
 
 class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
@@ -42,11 +46,17 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val reportDateRangeRoute: String = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
 
-  val formProvider                = new ReportDateRangeFormProvider()
-  val form: Form[ReportDateRange] = formProvider("reportDateRange.error.required")
+  val formProvider                        = new ReportDateRangeFormProvider()
+  val form: Form[ReportDateRange]         = formProvider("reportDateRange.error.required")
+  val instant: Instant                    = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+  val fixedClock: Clock                   = Clock.fixed(instant, ZoneOffset.UTC)
+  private implicit val messages: Messages = stubMessages()
 
-  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+  private def lastFullCalendarMonthHintStrings(clock: Clock = fixedClock): (String, String) = {
+    val (start, end) = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock))
+    val fmt          = dateTimeFormat()(messages.lang)
+    (start.format(fmt), end.format(fmt))
+  }
 
   "ReportDateRange Controller" - {
 
@@ -67,7 +77,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form,
           NormalMode,
-          ("1 April 2025", "30 April 2025"),
+          lastFullCalendarMonthHintStrings(),
           isMoreThanOneReport = false
         )(
           request,
@@ -78,7 +88,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view/dates when last day of calendar month after T-2 current day for a GET" in {
 
-      val fixedInstant = Instant.parse("2025-05-01T00:00:00Z")
+      val fixedInstant = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).atStartOfDay().toInstant(ZoneOffset.UTC)
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -96,7 +106,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form,
           NormalMode,
-          ("1 March 2025", "31 March 2025"),
+          lastFullCalendarMonthHintStrings(),
           isMoreThanOneReport = false
         )(
           request,
@@ -125,7 +135,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form.fill(ReportDateRange.LastFullCalendarMonth),
           NormalMode,
-          ("1 April 2025", "30 April 2025"),
+          lastFullCalendarMonthHintStrings(),
           isMoreThanOneReport = false
         )(
           request,
@@ -181,7 +191,7 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           boundForm,
           NormalMode,
-          ("1 April 2025", "30 April 2025"),
+          lastFullCalendarMonthHintStrings(),
           isMoreThanOneReport = false
         )(
           request,
