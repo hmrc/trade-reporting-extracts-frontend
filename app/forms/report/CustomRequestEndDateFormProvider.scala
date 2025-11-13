@@ -23,12 +23,12 @@ import play.api.i18n.Messages
 import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
 
-class CustomRequestEndDateFormProvider @Inject() extends Mappings {
+class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
+  private val currentDate: LocalDate = LocalDate.now(clock)
 
   def apply(startDate: LocalDate, maybeThirdPartyRequest: Boolean, thirdPartyDataEndDate: Option[LocalDate])(implicit
     messages: Messages

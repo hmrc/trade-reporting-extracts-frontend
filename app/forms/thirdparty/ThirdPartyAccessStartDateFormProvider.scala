@@ -18,16 +18,14 @@ package forms.thirdparty
 
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.i18n.{Lang, Messages}
-import utils.DateTimeFormats
-import utils.DateTimeFormats.dateTimeFormat
-
+import play.api.i18n.Messages
+import java.time.Clock
 import java.time.LocalDate
 import javax.inject.Inject
 
-class ThirdPartyAccessStartDateFormProvider @Inject() extends Mappings {
+class ThirdPartyAccessStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private val currentDate: LocalDate = LocalDate.now()
+  private val currentDate: LocalDate = LocalDate.now(clock.getZone())
 
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
