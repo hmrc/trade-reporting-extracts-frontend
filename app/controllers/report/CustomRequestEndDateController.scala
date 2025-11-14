@@ -39,7 +39,7 @@ import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CustomRequestEndDateController @Inject(clock: Clock = Clock.systemUTC()) (
+class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   reportNavigator: ReportNavigator,
@@ -211,7 +211,7 @@ class CustomRequestEndDateController @Inject(clock: Clock = Clock.systemUTC()) (
 
   def calculateActiveDate(startDate: LocalDate)(implicit messages: Messages): String = {
     val daysDiff = ChronoUnit.DAYS.between(startDate, LocalDate.now(clock)).abs
-    val fmt = dateTimeHintFormat
+    val fmt      = dateTimeHintFormat
     if (daysDiff < 3) {
       LocalDate.now(clock).minusDays(3).format(fmt)
     } else {
