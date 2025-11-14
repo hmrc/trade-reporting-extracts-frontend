@@ -30,14 +30,16 @@ import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReportHelpers
 import views.html.report.CustomRequestEndDateView
+import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, ZoneOffset}
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, LocalDate, ZoneOffset}
 import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CustomRequestEndDateController @Inject() (
+class CustomRequestEndDateController @Inject(clock: Clock = Clock.systemUTC()) (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   reportNavigator: ReportNavigator,
@@ -194,17 +196,26 @@ class CustomRequestEndDateController @Inject() (
   }
 
   private def reportLengthStringGen(startDate: LocalDate, plus31Days: Boolean)(implicit messages: Messages): String = {
-    val languageTag      = if (messages.lang.code == "cy") "cy" else "en"
-    val formatterForHint = DateTimeFormatter.ofPattern("d MM yyyy", Locale.forLanguageTag(languageTag))
-    val formatter        = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
+    val formatterForHint = dateTimeHintFormat
+    val formatter        = dateTimeFormat()(messages.lang)
     if (plus31Days) {
       if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
         LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatterForHint)
       } else {
-        startDate.plusDays(30).format(formatterForHint)
+        calculateActiveDate(startDate.plusDays(30))
       }
     } else {
       startDate.format(formatter)
+    }
+  }
+
+  def calculateActiveDate(startDate: LocalDate)(implicit messages: Messages): String = {
+    val daysDiff = ChronoUnit.DAYS.between(startDate, LocalDate.now(clock)).abs
+    val fmt = dateTimeHintFormat
+    if (daysDiff < 3) {
+      LocalDate.now(clock).minusDays(3).format(fmt)
+    } else {
+      startDate.format(fmt)
     }
   }
 }
