@@ -49,7 +49,6 @@ object ThirdPartyReferenceSummary {
       case Some(value) => ValueViewModel(HtmlFormat.escape(reference.get).toString)
       case None        => ValueViewModel("site.notApplicable")
     }
-    println("isThirdPartyEnabled in summary row: " + isThirdPartyEnabled)
     if (isThirdPartyEnabled) {
       Some(
         SummaryListRowViewModel(

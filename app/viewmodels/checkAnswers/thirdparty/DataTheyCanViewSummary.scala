@@ -116,15 +116,13 @@ object DataTheyCanViewSummary {
 
   def detailsRow(thirdPartyDetails: ThirdPartyDetails, isThirdPartyEnabled: Boolean)(implicit
     messages: Messages
-  ): Option[SummaryListRow] = {
-    println("isThirdPartyEnabled in DataTheyCanViewSummary: " + isThirdPartyEnabled)
+  ): Option[SummaryListRow] =
     buildRow(
       thirdPartyDetails.dataStartDate,
       thirdPartyDetails.dataEndDate,
       "dataTheyCanView.checkYourAnswersLabel",
       isThirdPartyEnabled
     )
-  }
 
   def businessDetailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
     buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "businessDetails.dataRange.label", false)

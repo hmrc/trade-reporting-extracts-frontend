@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails}
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
@@ -25,6 +26,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
 import org.mockito.Mockito.when
+import play.api.mvc.RequestHeader
+import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, DataTheyCanViewSummary, DataTypesSummary, EoriNumberSummary, ThirdPartyAccessPeriodSummary, ThirdPartyReferenceSummary}
 import viewmodels.govuk.all.SummaryListViewModel
@@ -38,6 +41,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
   "ThirdPartyDetails Controller" - {
 
     val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+    val mockFrontendAppConfig: FrontendAppConfig                         = mock[FrontendAppConfig]
+    val mockSessionRepository                                            = mock[SessionRepository]
 
     "must return OK and the correct view for a GET when consent given, no reference" in {
 
@@ -60,9 +65,14 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
         )
         .build()
 
@@ -77,9 +87,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)(messages(application)).get,
-            DataTypesSummary.detailsRow(Set("import"))(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails)(messages(application)).get
+            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), false)(messages(application)).get,
+            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
           )
         )
 
@@ -109,9 +119,14 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
         )
         .build()
 
@@ -126,10 +141,65 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"))(messages(application)).get,
-            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)(messages(application)).get,
-            DataTypesSummary.detailsRow(Set("import"))(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails)(messages(application)).get
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false)(messages(application)).get,
+            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), false)(messages(application)).get,
+            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
+          )
+        )
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET when editThirdPartyEnabled is true" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = None,
+        dataTypes = Set("import"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Granted)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(
+          Future.successful(
+            thirdPartyDetails
+          )
+        )
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+        val list = SummaryListViewModel(
+          Seq(
+            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
+            BusinessInfoSummary.row("foo")(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), true)(messages(application)).get,
+            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true)(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), true)(messages(application)).get,
+            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true)(messages(application)).get
           )
         )
 
@@ -159,9 +229,14 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
         )
         .build()
 
@@ -175,10 +250,10 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         val list = SummaryListViewModel(
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"))(messages(application)).get,
-            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)(messages(application)).get,
-            DataTypesSummary.detailsRow(Set("import"))(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails)(messages(application)).get
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false)(messages(application)).get,
+            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), false)(messages(application)).get,
+            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
           )
         )
 
@@ -208,9 +283,14 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
         )
         .build()
 
@@ -224,10 +304,10 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         val list = SummaryListViewModel(
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(None)(messages(application)).get,
-            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)(messages(application)).get,
-            DataTypesSummary.detailsRow(Set("import"))(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails)(messages(application)).get
+            ThirdPartyReferenceSummary.detailsRow(None, false)(messages(application)).get,
+            ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), false)(messages(application)).get,
+            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
           )
         )
 

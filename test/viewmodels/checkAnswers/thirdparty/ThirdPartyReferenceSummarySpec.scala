@@ -68,7 +68,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
 
   ".detailsRow" - {
     "must return summary list row when given a reference" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"))
+      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), false)
 
       result mustBe Some(
         SummaryListRowViewModel(
@@ -79,12 +79,29 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
     }
 
     "must return summary list row with N/A when no reference is given" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(None)
+      val result = ThirdPartyReferenceSummary.detailsRow(None, false)
 
       result mustBe Some(
         SummaryListRowViewModel(
           key = "thirdPartyReference.checkYourAnswersLabel",
           value = ValueViewModel("site.notApplicable")
+        )
+      )
+    }
+
+    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), true)
+
+      result mustBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyReference.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlFormat.escape("ref").toString),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            ).withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
+          )
         )
       )
     }

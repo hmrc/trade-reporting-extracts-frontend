@@ -17,14 +17,15 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
-import models.{ThirdPartyDetails, UserAnswers}
+import models.UserAnswers
 import models.thirdparty.DataTypes
 import pages.thirdparty.DataTypesPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-
-import java.time.LocalDate
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
 
 class DataTypesSummarySpec extends SpecBase {
 
@@ -58,7 +59,7 @@ class DataTypesSummarySpec extends SpecBase {
   ".detailsRow" - {
     "must return summary list row when given single data type" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports")).get
+      val result = DataTypesSummary.detailsRow(Set("imports"), false).get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
@@ -66,12 +67,40 @@ class DataTypesSummarySpec extends SpecBase {
 
     "must return summary list row when given multiple data types" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports")).get
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false).get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
       result.value.content.asHtml.body must include(messages("dataTypes.export"))
     }
+
+    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), true).get
+
+      result mustBe
+        SummaryListRowViewModel(
+          key = "thirdPartyDetails.dataTypes.label",
+          value = ValueViewModel(HtmlContent("dataTypes.import,<br>dataTypes.export")),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            ).withVisuallyHiddenText(messages("dataTypes.change.hidden"))
+          )
+        )
+
+    }
+
+    "when tpEnabledAndNotBusinessDetailsRow false, return the summary row without change action" in {
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false).get
+
+      result mustBe
+        SummaryListRowViewModel(
+          key = "thirdPartyDetails.dataTypes.label",
+          value = ValueViewModel(HtmlContent("dataTypes.import,<br>dataTypes.export"))
+        )
+    }
+
   }
 
   ".businessDetailsRow" - {

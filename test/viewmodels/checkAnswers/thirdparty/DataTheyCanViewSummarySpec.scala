@@ -108,7 +108,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -130,7 +130,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -139,6 +139,33 @@ class DataTheyCanViewSummarySpec extends SpecBase {
               startDate.format(dateTimeFormat()),
               endDate.format(dateTimeFormat())
             )
+          )
+        )
+      )
+    }
+
+    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
           )
         )
       )
