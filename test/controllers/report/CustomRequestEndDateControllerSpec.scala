@@ -141,7 +141,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           form,
           NormalMode,
           startDateString,
-          "31 01 2025",
+          "31 1 2025",
           false,
           true,
           Some(
@@ -186,7 +186,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           form,
           NormalMode,
           startDateString,
-          "31 01 2025",
+          "31 1 2025",
           false,
           true,
           Some(
@@ -235,7 +235,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           form,
           NormalMode,
           startDateString,
-          "31 01 2025",
+          "31 1 2025",
           false,
           true,
           Some(
@@ -453,7 +453,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           boundForm,
           NormalMode,
           startDateString,
-          "31 01 2025",
+          "31 1 2025",
           false,
           true,
           Some(
