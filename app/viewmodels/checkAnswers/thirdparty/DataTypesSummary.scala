@@ -56,7 +56,8 @@ object DataTypesSummary {
 
   private def buildRow(
     dataTypes: Set[String],
-    keyMessage: String
+    keyMessage: String,
+    tpEnabledAndNotBusinessDetailsRow: Boolean
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
     val dataTypeObjects: Set[DataTypes] = dataTypes.collect {
@@ -72,17 +73,36 @@ object DataTypesSummary {
       )
     )
 
-    Some(
-      SummaryListRowViewModel(
-        key = keyMessage,
-        value = value
+    if (tpEnabledAndNotBusinessDetailsRow) {
+      Some(
+        SummaryListRowViewModel(
+          key = keyMessage,
+          value = value,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            )
+              .withVisuallyHiddenText(messages("dataTypes.change.hidden"))
+          )
+        )
       )
-    )
+    } else {
+      Some(
+        SummaryListRowViewModel(
+          key = keyMessage,
+          value = value
+        )
+      )
+    }
+
   }
 
-  def detailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label")
+  def detailsRow(dataTypes: Set[String], isThirdPartyEnabled: Boolean)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
+    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label", isThirdPartyEnabled)
 
   def businessDetailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(dataTypes, "businessDetails.dataTypes.label")
+    buildRow(dataTypes, "businessDetails.dataTypes.label", false)
 }

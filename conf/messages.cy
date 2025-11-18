@@ -580,6 +580,7 @@ authorisedThirdParties.link1 = cy: add them again
 authorisedThirdParties.view = cy: View
 authorisedThirdParties.view.hidden = cy: View {0} details
 authorisedThirdParties.remove = cy: Remove
+authorisedThirdParties.edit = cy: Edit
 authorisedThirdParties.remove.hidden = cy: Remove {0} as a third party
 authorisedThirdParties.noThirdParties.title = cy: You have not added any third parties yet
 authorisedThirdParties.noThirdParties.heading = cy: You have not added any third parties yet

@@ -42,17 +42,35 @@ object ThirdPartyReferenceSummary {
       )
     }
 
-  def detailsRow(reference: Option[String])(implicit messages: Messages): Option[SummaryListRow] = {
+  def detailsRow(reference: Option[String], isThirdPartyEnabled: Boolean)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
     val value = reference match {
       case Some(value) => ValueViewModel(HtmlFormat.escape(reference.get).toString)
       case None        => ValueViewModel("site.notApplicable")
     }
-    Some(
-      SummaryListRowViewModel(
-        key = "thirdPartyReference.checkYourAnswersLabel",
-        value = value
+    if (isThirdPartyEnabled) {
+      Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyReference.checkYourAnswersLabel",
+          value = value,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            )
+              .withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
+          )
+        )
       )
-    )
+    } else {
+      Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyReference.checkYourAnswersLabel",
+          value = value
+        )
+      )
+    }
   }
 
 }

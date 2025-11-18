@@ -16,6 +16,7 @@
 
 package controllers.thirdparty
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus}
@@ -38,7 +39,8 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
   getOrCreate: DataRetrievalOrCreateAction,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyDetailsView,
-  tradeReportingExtractsService: TradeReportingExtractsService
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
@@ -72,18 +74,18 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
         case (true, true)  =>
           Seq(
             BusinessInfoSummary.row(maybeBusinessInfo.get),
-            ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName)
+            ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName, config.editThirdPartyEnabled)
           )
         case (true, false) =>
           Seq(BusinessInfoSummary.row(maybeBusinessInfo.get))
         case (false, _)    =>
-          Seq(ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName))
+          Seq(ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName, config.editThirdPartyEnabled))
       }
     )
       ++ Seq(
-        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails),
-        DataTypesSummary.detailsRow(thirdPartyDetails.dataTypes),
-        DataTheyCanViewSummary.detailsRow(thirdPartyDetails)
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled),
+        DataTypesSummary.detailsRow(thirdPartyDetails.dataTypes, config.editThirdPartyEnabled),
+        DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled)
       )
 
   private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] =

@@ -109,7 +109,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)
+      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -136,7 +136,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails)
+      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -147,6 +147,36 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         )
       )
     }
+
+    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            ).withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
+          )
+        )
+      )
+    }
+
   }
 
   ".businessDetailsRow" - {

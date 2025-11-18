@@ -67,7 +67,8 @@ object DataTheyCanViewSummary {
   private def buildRow(
     startDateOpt: Option[LocalDate],
     endDateOpt: Option[LocalDate],
-    keyMessage: String
+    keyMessage: String,
+    tpEnabledAndNotBusinessDetailsRow: Boolean
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
     implicit val lang: Lang = messages.lang
@@ -89,17 +90,40 @@ object DataTheyCanViewSummary {
         ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
     }
 
-    Some(
-      SummaryListRowViewModel(
-        key = keyMessage,
-        value = value
+    if (tpEnabledAndNotBusinessDetailsRow) {
+      Some(
+        SummaryListRowViewModel(
+          key = keyMessage,
+          value = value,
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              "#"
+            )
+              .withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
+          )
+        )
       )
-    )
+    } else {
+      Some(
+        SummaryListRowViewModel(
+          key = keyMessage,
+          value = value
+        )
+      )
+    }
   }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "dataTheyCanView.checkYourAnswersLabel")
+  def detailsRow(thirdPartyDetails: ThirdPartyDetails, isThirdPartyEnabled: Boolean)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
+    buildRow(
+      thirdPartyDetails.dataStartDate,
+      thirdPartyDetails.dataEndDate,
+      "dataTheyCanView.checkYourAnswersLabel",
+      isThirdPartyEnabled
+    )
 
   def businessDetailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "businessDetails.dataRange.label")
+    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "businessDetails.dataRange.label", false)
 }

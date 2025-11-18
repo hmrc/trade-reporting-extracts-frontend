@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.UserActiveStatus
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import org.jsoup.Jsoup
@@ -24,8 +25,10 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
+import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import views.html.thirdparty.AuthorisedThirdPartiesView
 
@@ -157,6 +160,86 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
           "This business has not agreed to share their data. Contact them directly for more information."
         )
         document.text()                                        must include("Not applicable")
+      }
+    }
+
+    "must show edit action when editThirdPartyEnabled is true" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockAppConfig                     = mock[FrontendAppConfig]
+      val mockSessionRepository             = mock[SessionRepository]
+
+      val thirdParty = Seq(
+        AuthorisedThirdPartiesViewModel(
+          eori = "GB123456789000",
+          businessInfo = Some("Business Name"),
+          referenceName = Some("Reference Name"),
+          UserActiveStatus.Active
+        )
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
+        .thenReturn(Future.successful(thirdParty))
+      when(mockAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[FrontendAppConfig].toInstance(mockAppConfig)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val doc = Jsoup.parse(contentAsString(result))
+        doc.text() must include(messages(application)("authorisedThirdParties.edit"))
+        doc.text() must include(messages(application)("authorisedThirdParties.remove"))
+      }
+    }
+
+    "must show view action when editThirdPartyEnabled is false" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockAppConfig                     = mock[FrontendAppConfig]
+      val mockSessionRepository             = mock[SessionRepository]
+
+      val thirdParty = Seq(
+        AuthorisedThirdPartiesViewModel(
+          eori = "GB123456789000",
+          businessInfo = Some("Business Name"),
+          referenceName = Some("Reference Name"),
+          UserActiveStatus.Active
+        )
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
+        .thenReturn(Future.successful(thirdParty))
+      when(mockAppConfig.editThirdPartyEnabled).thenReturn(false)
+      when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[FrontendAppConfig].toInstance(mockAppConfig)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+
+        val doc = Jsoup.parse(contentAsString(result))
+        doc.text() must include(messages(application)("authorisedThirdParties.view"))
+        doc.text() must include(messages(application)("authorisedThirdParties.remove"))
       }
     }
   }
