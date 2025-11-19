@@ -59,7 +59,7 @@ class DataTypesSummarySpec extends SpecBase {
   ".detailsRow" - {
     "must return summary list row when given single data type" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports"), false).get
+      val result = DataTypesSummary.detailsRow(Set("imports"), false, "thirdPartyEori").get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
@@ -67,7 +67,7 @@ class DataTypesSummarySpec extends SpecBase {
 
     "must return summary list row when given multiple data types" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false).get
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false, "thirdPartyEori").get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
@@ -75,7 +75,7 @@ class DataTypesSummarySpec extends SpecBase {
     }
 
     "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), true).get
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), true, "thirdPartyEori").get
 
       result mustBe
         SummaryListRowViewModel(
@@ -84,7 +84,7 @@ class DataTypesSummarySpec extends SpecBase {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              "/request-customs-declaration-data/editThirdPartyDataTypes/thirdPartyEori"
             ).withVisuallyHiddenText(messages("dataTypes.change.hidden"))
           )
         )
@@ -92,7 +92,7 @@ class DataTypesSummarySpec extends SpecBase {
     }
 
     "when tpEnabledAndNotBusinessDetailsRow false, return the summary row without change action" in {
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false).get
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false, "thirdPartyEori").get
 
       result mustBe
         SummaryListRowViewModel(

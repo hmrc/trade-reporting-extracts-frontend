@@ -700,3 +700,9 @@ requestNotCompleted.heading = Your report request cannot be submitted
 requestNotCompleted.paragraph1 = You had third-party access to {0} when you started this request. That access has now been removed.
 requestNotCompleted.paragraph2 = To regain access, speak to the importer or exporter. They’ll need to add you again as a third party before you can request a report for this EORI number.
 requestNotCompleted.paragraph3 = Go to homepage
+
+editThirdPartyDataTypes.title = EditThirdPartyDataTypes
+editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
+editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
+editThirdPartyDataTypes.error.required = Select editThirdPartyDataTypes
+editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes
