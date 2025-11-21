@@ -80,13 +80,22 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
               answers
                 .get(EditThirdPartyReferencePage(thirdPartyEori))
                 .orElse(thirdPartyDetails.referenceName),
-              config.editThirdPartyEnabled
+              config.editThirdPartyEnabled,
+              thirdPartyEori
             )
           )
         case (true, false) =>
           Seq(BusinessInfoSummary.row(maybeBusinessInfo.get))
         case (false, _)    =>
-          Seq(ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName, config.editThirdPartyEnabled))
+          Seq(
+            ThirdPartyReferenceSummary.detailsRow(
+              answers
+                .get(EditThirdPartyReferencePage(thirdPartyEori))
+                .orElse(thirdPartyDetails.referenceName),
+              config.editThirdPartyEnabled,
+              thirdPartyEori
+            )
+          )
       }
     )
       ++ Seq(
