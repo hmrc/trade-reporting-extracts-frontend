@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus, UserAnswers}
-import pages.editThirdParty.EditThirdPartyDataTypesPage
+import pages.editThirdParty.{EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
@@ -76,7 +76,12 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
         case (true, true)  =>
           Seq(
             BusinessInfoSummary.row(maybeBusinessInfo.get),
-            ThirdPartyReferenceSummary.detailsRow(thirdPartyDetails.referenceName, config.editThirdPartyEnabled)
+            ThirdPartyReferenceSummary.detailsRow(
+              answers
+                .get(EditThirdPartyReferencePage(thirdPartyEori))
+                .orElse(thirdPartyDetails.referenceName),
+              config.editThirdPartyEnabled
+            )
           )
         case (true, false) =>
           Seq(BusinessInfoSummary.row(maybeBusinessInfo.get))
