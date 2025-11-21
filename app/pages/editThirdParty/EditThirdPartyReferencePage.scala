@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package navigation
+package pages.editThirdParty
 
-import models.UserAnswers
-import pages.Page
-import pages.editThirdParty.{EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
-import play.api.mvc.Call
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-class EditThirdPartyNavigator extends Navigator {
+case class EditThirdPartyReferencePage(thirdPartyEori: String) extends QuestionPage[String] {
 
-  override val normalRoutes: Page => UserAnswers => Call = {
-    case EditThirdPartyDataTypesPage(thirdPartyEori) =>
-      answers => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+  override def path: JsPath = JsPath \ "editThirdParty" \ thirdPartyEori \ toString
 
-    case EditThirdPartyReferencePage(thirdPartyEori) =>
-      answers => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
-  }
+  override def toString: String = "editThirdPartyReference"
 }
