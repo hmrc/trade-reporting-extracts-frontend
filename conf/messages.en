@@ -131,6 +131,14 @@ unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed
 unauthorisedCdsEnrolment.bullet3.link = sign out
 unauthorisedCdsEnrolment.bullet3 = and sign in with the correct details if you have more than one account
 
+unsupportedAffinityGroup.title = You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.heading = You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.message1 = To use this service, you must log in with an individual or organisation Government Gateway user ID.
+unsupportedAffinityGroup.message2 = You may need to:
+unsupportedAffinityGroup.bullet1 = create an individual or organisation Government Gateway user ID (opens in a new tab)
+unsupportedAffinityGroup.bullet2.link = sign out
+unsupportedAffinityGroup.bullet2 = and sign in with the correct details if you have more than one account
+
 reportGuidance.title = Request a CDS report
 reportGuidance.heading = Request a CDS report
 reportGuidance.instructions.title = Before you start
