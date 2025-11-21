@@ -255,7 +255,6 @@ maybeAdditionalEmail.change.hidden = cy: if you want to add another email for no
 maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
 maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
 
-
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address
 checkNewEmail.heading2 = cy: Is this email address correct?
@@ -701,3 +700,9 @@ requestNotCompleted.heading = cy: Your report request cannot be submitted
 requestNotCompleted.paragraph1= cy: You had third-party access to {0} when you started this request. That access has now been removed.
 requestNotCompleted.paragraph2= cy: To regain access, speak to the importer or exporter. They’ll need to add you again as a third party before you can request a report for this EORI number.
 requestNotCompleted.paragraph3= cy: Go to homepage
+
+editThirdPartyDataTypes.title = EditThirdPartyDataTypes
+editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
+editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
+editThirdPartyDataTypes.error.required = Select editThirdPartyDataTypes
+editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes

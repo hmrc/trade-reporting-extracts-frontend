@@ -24,10 +24,14 @@ import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 trait Navigator {
 
-  val normalRoutes: Page => UserAnswers => Call
-  val checkRoutes: Page => UserAnswers => Call
-  val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call
-  val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call
+  val normalRoutes: Page => UserAnswers => Call                    =
+    _ => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+  val checkRoutes: Page => UserAnswers => Call                     =
+    _ => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+  val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call =
+    _ => _ => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+  val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call  =
+    _ => _ => _ => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
 
   def nextPage(page: Page, mode: Mode = NormalMode, userAnswers: UserAnswers): Call = mode match {
     case NormalMode =>

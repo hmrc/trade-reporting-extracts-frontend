@@ -19,7 +19,8 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus}
+import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus, UserAnswers}
+import pages.editThirdParty.EditThirdPartyDataTypesPage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
@@ -57,7 +58,7 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
                                 clock
                               )
         calculatedDateValue = computeCalculatedDateValue(thirdPartyDetails, status)
-        rows                = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori)
+        rows                = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori, request.userAnswers)
         list                = SummaryListViewModel(rows = rows.flatten)
       } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming))
   }
@@ -65,7 +66,8 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
   private def rowGenerator(
     thirdPartyDetails: ThirdPartyDetails,
     maybeBusinessInfo: Option[String],
-    thirdPartyEori: String
+    thirdPartyEori: String,
+    answers: UserAnswers
   )(implicit messages: Messages): Seq[Option[SummaryListRow]] =
     Seq(
       EoriNumberSummary.detailsRow(thirdPartyEori)
@@ -84,7 +86,14 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
     )
       ++ Seq(
         ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled),
-        DataTypesSummary.detailsRow(thirdPartyDetails.dataTypes, config.editThirdPartyEnabled),
+        DataTypesSummary.detailsRow(
+          answers
+            .get(EditThirdPartyDataTypesPage(thirdPartyEori))
+            .map(_.map(_.toString))
+            .getOrElse(thirdPartyDetails.dataTypes),
+          config.editThirdPartyEnabled,
+          thirdPartyEori
+        ),
         DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled)
       )
 

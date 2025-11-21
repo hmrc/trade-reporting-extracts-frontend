@@ -4,6 +4,7 @@
 ->         /                               app.report.Routes
 ->         /                               app.thirdparty.Routes
 ->         /                               app.problem.Routes
+->         /                               app.editThirdParty.Routes
 GET        /                               controllers.IndexController.onPageLoad()
 
 GET        /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)

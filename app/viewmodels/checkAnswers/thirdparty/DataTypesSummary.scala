@@ -57,12 +57,13 @@ object DataTypesSummary {
   private def buildRow(
     dataTypes: Set[String],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean
+    tpEnabledAndNotBusinessDetailsRow: Boolean,
+    thirdPartyEori: Option[String]
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
     val dataTypeObjects: Set[DataTypes] = dataTypes.collect {
-      case "imports" => DataTypes.Import
-      case "exports" => DataTypes.Export
+      case "imports" | "import" => DataTypes.Import
+      case "exports" | "export" => DataTypes.Export
     }
 
     val value = ValueViewModel(
@@ -73,7 +74,7 @@ object DataTypesSummary {
       )
     )
 
-    if (tpEnabledAndNotBusinessDetailsRow) {
+    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
       Some(
         SummaryListRowViewModel(
           key = keyMessage,
@@ -81,7 +82,7 @@ object DataTypesSummary {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              controllers.editThirdParty.routes.EditThirdPartyDataTypesController.onPageLoad(thirdPartyEori.get).url
             )
               .withVisuallyHiddenText(messages("dataTypes.change.hidden"))
           )
@@ -98,11 +99,11 @@ object DataTypesSummary {
 
   }
 
-  def detailsRow(dataTypes: Set[String], isThirdPartyEnabled: Boolean)(implicit
+  def detailsRow(dataTypes: Set[String], isThirdPartyEnabled: Boolean, thirdPartyEori: String)(implicit
     messages: Messages
   ): Option[SummaryListRow] =
-    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label", isThirdPartyEnabled)
+    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label", isThirdPartyEnabled, Some(thirdPartyEori))
 
   def businessDetailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(dataTypes, "businessDetails.dataTypes.label", false)
+    buildRow(dataTypes, "businessDetails.dataTypes.label", false, None)
 }

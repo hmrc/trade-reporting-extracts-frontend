@@ -1,0 +1,2 @@
+GET        /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onPageLoad(thirdPartyEori: String)
+POST       /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onSubmit(thirdPartyEori: String)
