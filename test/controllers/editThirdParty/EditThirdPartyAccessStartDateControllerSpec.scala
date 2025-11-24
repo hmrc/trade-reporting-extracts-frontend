@@ -43,13 +43,13 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
 
   private implicit val messages: Messages = stubMessages()
-  private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
+  private val stubClock: Clock            = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val formProvider = new EditThirdPartyAccessStartDateFormProvider()
-  private def form = formProvider()
+  private def form         = formProvider()
 
   private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-  private val mockSessionRepository = mock[SessionRepository]
+  private val mockSessionRepository             = mock[SessionRepository]
 
   val currentDate: LocalDate = LocalDate.now(stubClock.getZone)
 
@@ -62,7 +62,7 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
     dataEndDate = None
   )
 
-  private val thirdPartyEori = "thirdPartyEori"
+  private val thirdPartyEori                    = "thirdPartyEori"
   private val submittedDifferentDate: LocalDate = currentDate.plusDays(2)
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/editThirdPartyAccessEnd/thirdPartyEori")
@@ -91,15 +91,19 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetailsResponse))
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)).build()
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, editThirdPartyAccessStartDateRoute)
-        val result = route(application, request).value
-        val view   = application.injector.instanceOf[EditThirdPartyAccessStartDateView]
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[EditThirdPartyAccessStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(currentDate), thirdPartyEori, currentDateFormatted)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(currentDate), thirdPartyEori, currentDateFormatted)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -107,15 +111,19 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetailsResponse))
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)).build()
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
 
       running(application) {
-        val view   = application.injector.instanceOf[EditThirdPartyAccessStartDateView]
+        val view    = application.injector.instanceOf[EditThirdPartyAccessStartDateView]
         val request = FakeRequest(GET, editThirdPartyAccessStartDateRoute)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(currentDate), thirdPartyEori, currentDateFormatted)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(currentDate), thirdPartyEori, currentDateFormatted)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -145,7 +153,7 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request = FakeRequest(GET, editThirdPartyAccessStartDateRoute)
-        val result = route(application, request).value
+        val result  = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
@@ -161,7 +169,6 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
-
 
     "must set a user answer when submitted value differs from original start date" in {
       val userAnswersCaptor: ArgumentCaptor[UserAnswers] =
