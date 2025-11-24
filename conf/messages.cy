@@ -710,6 +710,13 @@ requestNotCompleted.paragraph1= cy: You had third-party access to {0} when you s
 requestNotCompleted.paragraph2= cy: To regain access, speak to the importer or exporter. They’ll need to add you again as a third party before you can request a report for this EORI number.
 requestNotCompleted.paragraph3= cy: Go to homepage
 
+editThirdPartyReference.title = cy: What name will you use to reference this EORI number?
+editThirdPartyReference.heading = cy: What name will you use to reference this EORI number?
+editThirdPartyReference.checkYourAnswersLabel = cy: Reference name
+editThirdPartyReference.error.required = cy: Enter the name you will use to reference this EORI number
+editThirdPartyReference.error.length = cy: The name you will use to reference this EORI number must be 100 characters or fewer
+editThirdPartyReference.change.hidden = cy: reference name
+
 editThirdPartyDataTypes.title = EditThirdPartyDataTypes
 editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
 editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes

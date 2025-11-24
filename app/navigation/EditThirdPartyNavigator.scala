@@ -18,7 +18,7 @@ package navigation
 
 import models.UserAnswers
 import pages.Page
-import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage}
+import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
 import play.api.mvc.Call
 
 class EditThirdPartyNavigator extends Navigator {
@@ -30,5 +30,7 @@ class EditThirdPartyNavigator extends Navigator {
       _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
     case EditThirdPartyAccessStartDatePage(thirdPartyEori) =>
       _ => controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori)
+    case EditThirdPartyReferencePage(thirdPartyEori)       =>
+      _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
   }
 }

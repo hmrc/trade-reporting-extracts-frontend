@@ -1,6 +1,9 @@
 GET        /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onPageLoad(thirdPartyEori: String)
 POST       /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onSubmit(thirdPartyEori: String)
 
+GET        /editThirdPartyReference/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onPageLoad(thirdPartyEori: String)
+POST       /editThirdPartyReference/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onSubmit(thirdPartyEori: String)
+
 GET        /editThirdPartyAccessStart/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onPageLoad(thirdPartyEori: String)
 POST       /editThirdPartyAccessStart/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onSubmit(thirdPartyEori: String)
 
