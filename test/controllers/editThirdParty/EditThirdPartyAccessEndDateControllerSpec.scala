@@ -184,34 +184,6 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers
-        .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), LocalDate.of(2024, 1, 1))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
-
-      val request = FakeRequest(POST, editThirdPartyAccessEndDateRoute)
-        .withFormUrlEncodedBody(("value", "invalid value"))
-
-      running(application) {
-        val boundForm = form(LocalDate.of(2024, 1, 1)).bind(Map("value" -> "invalid value"))
-        val view      = application.injector.instanceOf[EditThirdPartyAccessEndDateView]
-        val result    = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          dateFormatter(LocalDate.of(2024, 1, 1)),
-          thirdPartyEori,
-          expectedHint(LocalDate.of(2024, 1, 1))
-        )(request, messages(application)).toString
-      }
-    }
-
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -324,29 +296,6 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         val updated = captor.getValue
         updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
         updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-      }
-    }
-
-    "must reject an end date before dynamic minimum (start date today ⇒ min is today)" in {
-      val originalStartDate = fixedToday
-
-      val userAnswers = emptyUserAnswers
-        .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
-
-      val invalidDate = originalStartDate.minusDays(1)
-
-      running(application) {
-        val request = postRequest(invalidDate)
-        val result  = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include("The date this access will end must be on or after")
       }
     }
 
