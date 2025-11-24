@@ -28,10 +28,10 @@ class EditThirdPartyAccessStartDateFormProvider @Inject() extends Mappings {
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
       "value" -> localDate(
-        invalidKey     = "editThirdPartyAccessStartDate.error.invalid",
+        invalidKey = "editThirdPartyAccessStartDate.error.invalid",
         allRequiredKey = "editThirdPartyAccessStartDate.error.required.all",
         twoRequiredKey = "editThirdPartyAccessStartDate.error.required.two",
-        requiredKey    = "editThirdPartyAccessStartDate.error.required"
+        requiredKey = "editThirdPartyAccessStartDate.error.required"
       )
     )
 }

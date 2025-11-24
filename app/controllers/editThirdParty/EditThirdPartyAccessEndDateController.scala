@@ -35,65 +35,90 @@ import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EditThirdPartyAccessEndDateController @Inject(clock: Clock = Clock.systemUTC())(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: EditThirdPartyNavigator,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: EditThirdPartyAccessEndDateFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        tradeReportingExtractsService: TradeReportingExtractsService,
-                                        view: EditThirdPartyAccessEndDateView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.systemUTC())(
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: EditThirdPartyNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: EditThirdPartyAccessEndDateFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  view: EditThirdPartyAccessEndDateView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val form = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
-      val preparedForm = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
-        case None => form
+      val form                  = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
+      val preparedForm          = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
+        case None  => form
         case value => form.fill(value)
       }
       val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, request)
-      Ok(view(preparedForm, dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get), thirdPartyEori, dateFormatted))
+      Ok(
+        view(
+          preparedForm,
+          dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get),
+          thirdPartyEori,
+          dateFormatted
+        )
+      )
   }
 
   def onSubmit(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
-        val form = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
+        val form                  = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
         val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, request)
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors,
-              dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get), thirdPartyEori, dateFormatted))),
-          value =>
-            if (request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get == thirdPartyDetails.accessStartDate
-              && value == thirdPartyDetails.accessEndDate) {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.remove(EditThirdPartyAccessStartDatePage(thirdPartyEori)))
-                _ <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers))
-            } else {
-              for {
-                updatedAnswers <-
-                  Future.fromTry(request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), value.get)
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              Future.successful(
+                BadRequest(
+                  view(
+                    formWithErrors,
+                    dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get),
+                    thirdPartyEori,
+                    dateFormatted
                   )
-                _ <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(
-                navigator
-                  .nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)
-              )
-            }
-        )
+                )
+              ),
+            value =>
+              if (
+                request.userAnswers
+                  .get(EditThirdPartyAccessStartDatePage(thirdPartyEori))
+                  .get == thirdPartyDetails.accessStartDate
+                && value == thirdPartyDetails.accessEndDate
+              ) {
+                for {
+                  updatedAnswers <-
+                    Future.fromTry(request.userAnswers.remove(EditThirdPartyAccessStartDatePage(thirdPartyEori)))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(
+                  navigator.nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)
+                )
+              } else {
+                for {
+                  updatedAnswers <-
+                    Future.fromTry(request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), value.get))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(
+                  navigator
+                    .nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)
+                )
+              }
+          )
       }
   }
 
   private def getStartDatePlusOneMonth(thirdPartyEori: String, request: DataRequest[AnyContent]): String = {
     val startDate = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get
-    val today = LocalDate.now(clock)
-    val baseDate = if (startDate.isBefore(today)) today else startDate
+    val today     = LocalDate.now(clock)
+    val baseDate  = if (startDate.isBefore(today)) today else startDate
     baseDate.plusMonths(1).format(DateTimeFormats.dateTimeHintFormat)
   }
 }

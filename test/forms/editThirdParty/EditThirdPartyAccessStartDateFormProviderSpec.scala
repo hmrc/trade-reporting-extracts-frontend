@@ -26,7 +26,7 @@ import play.api.test.Helpers.stubMessages
 class EditThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
-  private val form = new EditThirdPartyAccessStartDateFormProvider()()
+  private val form                        = new EditThirdPartyAccessStartDateFormProvider()()
 
   ".value" - {
 

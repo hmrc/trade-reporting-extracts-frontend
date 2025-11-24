@@ -33,31 +33,32 @@ import views.html.editThirdParty.EditThirdPartyAccessStartDateView
 import java.time.{Clock, LocalDate}
 import scala.concurrent.{ExecutionContext, Future}
 
-class EditThirdPartyAccessStartDateController @Inject(clock: Clock = Clock.systemUTC())(
-                                                         override val messagesApi: MessagesApi,
-                                                         sessionRepository: SessionRepository,
-                                                         navigator: EditThirdPartyNavigator,
-                                                         identify: IdentifierAction,
-                                                         getData: DataRetrievalAction,
-                                                         requireData: DataRequiredAction,
-                                                         formProvider: EditThirdPartyAccessStartDateFormProvider,
-                                                         val controllerComponents: MessagesControllerComponents,
-                                                         tradeReportingExtractsService: TradeReportingExtractsService,
-                                                         view: EditThirdPartyAccessStartDateView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class EditThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.systemUTC())(
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  navigator: EditThirdPartyNavigator,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  formProvider: EditThirdPartyAccessStartDateFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  view: EditThirdPartyAccessStartDateView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val currentDate: LocalDate               = LocalDate.now(clock.getZone())
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
-
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       tradeReportingExtractsService
         .getThirdPartyDetails(request.eori, thirdPartyEori)
         .flatMap { thirdPartyDetails =>
-          val form = formProvider()
+          val form         = formProvider()
           val preparedForm = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) match {
-            case None =>
+            case None        =>
               val startDateObjects: LocalDate = thirdPartyDetails.accessStartDate
               form.fill(startDateObjects)
             case Some(value) => form.fill(value)
@@ -70,15 +71,19 @@ class EditThirdPartyAccessStartDateController @Inject(clock: Clock = Clock.syste
     implicit request =>
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
         val form = formProvider()
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, thirdPartyEori, currentDateFormatted))),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EditThirdPartyAccessStartDatePage(thirdPartyEori), value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield  Redirect(navigator.nextPage(EditThirdPartyAccessStartDatePage(thirdPartyEori), userAnswers = updatedAnswers))
-        )
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, thirdPartyEori, currentDateFormatted))),
+            value =>
+              for {
+                updatedAnswers <-
+                  Future.fromTry(request.userAnswers.set(EditThirdPartyAccessStartDatePage(thirdPartyEori), value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(
+                navigator.nextPage(EditThirdPartyAccessStartDatePage(thirdPartyEori), userAnswers = updatedAnswers)
+              )
+          )
       }
   }
 }

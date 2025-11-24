@@ -25,7 +25,7 @@ import utils.DateTimeFormats.dateTimeFormat
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
-class EditThirdPartyAccessEndDateFormProvider @Inject(clock: Clock = Clock.systemUTC()) extends Mappings {
+class EditThirdPartyAccessEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
   private def dynamicMinimum(startDate: LocalDate)(implicit messages: Messages): (LocalDate, String) = {
     val today   = LocalDate.now(clock)
@@ -38,10 +38,10 @@ class EditThirdPartyAccessEndDateFormProvider @Inject(clock: Clock = Clock.syste
     Form(
       "value" -> optional(
         localDate(
-          invalidKey     = "editThirdPartyAccessEndDate.error.invalid",
+          invalidKey = "editThirdPartyAccessEndDate.error.invalid",
           allRequiredKey = "editThirdPartyAccessEndDate.error.required.all",
           twoRequiredKey = "editThirdPartyAccessEndDate.error.required.two",
-          requiredKey    = "editThirdPartyAccessEndDate.error.required"
+          requiredKey = "editThirdPartyAccessEndDate.error.required"
         ).verifying(
           minDate(
             minDateValue,
