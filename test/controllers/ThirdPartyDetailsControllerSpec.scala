@@ -141,7 +141,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false)(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false, "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
@@ -196,7 +196,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), true)(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), true, "eori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true)(messages(application)).get,
             DataTypesSummary.detailsRow(Set("import"), true, "eori")(messages(application)).get,
             DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true)(messages(application)).get
@@ -250,7 +250,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         val list = SummaryListViewModel(
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false)(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false, "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
@@ -304,7 +304,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         val list = SummaryListViewModel(
           Seq(
             EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(None, false)(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(None, false, "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
