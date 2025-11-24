@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package navigation
+package forms.editThirdParty
 
-import models.UserAnswers
-import pages.Page
-import pages.editThirdParty.{EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
-import play.api.mvc.Call
+import forms.mappings.Mappings
+import play.api.data.Form
 
-class EditThirdPartyNavigator extends Navigator {
+import javax.inject.Inject
 
-  override val normalRoutes: Page => UserAnswers => Call = {
-    case EditThirdPartyDataTypesPage(thirdPartyEori) =>
-      answers => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+class EditThirdPartyReferenceFormProvider @Inject() extends Mappings {
 
-    case EditThirdPartyReferencePage(thirdPartyEori) =>
-      answers => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
-  }
+  def apply(): Form[String] =
+    Form(
+      "value" -> text("editThirdPartyReference.error.required")
+        .verifying(maxLength(100, "editThirdPartyReference.error.length"))
+    )
 }

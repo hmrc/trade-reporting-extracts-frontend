@@ -75,7 +75,12 @@ class DataTypesSummarySpec extends SpecBase {
     }
 
     "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), true, "thirdPartyEori").get
+
+      val dataTypes           = Set("imports", "exports")
+      val isThirdPartyEnabled = true
+      val thirdPartyEori      = "thirdPartyEori"
+
+      val result = DataTypesSummary.detailsRow(dataTypes, isThirdPartyEnabled, thirdPartyEori).get
 
       result mustBe
         SummaryListRowViewModel(
@@ -84,11 +89,12 @@ class DataTypesSummarySpec extends SpecBase {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "/request-customs-declaration-data/editThirdPartyDataTypes/thirdPartyEori"
+              controllers.editThirdParty.routes.EditThirdPartyDataTypesController
+                .onPageLoad(thirdPartyEori)
+                .url
             ).withVisuallyHiddenText(messages("dataTypes.change.hidden"))
           )
         )
-
     }
 
     "when tpEnabledAndNotBusinessDetailsRow false, return the summary row without change action" in {

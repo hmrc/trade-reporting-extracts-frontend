@@ -68,7 +68,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
 
   ".detailsRow" - {
     "must return summary list row when given a reference" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), false)
+      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), false, "thirdPartyEori")
 
       result mustBe Some(
         SummaryListRowViewModel(
@@ -79,7 +79,7 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
     }
 
     "must return summary list row with N/A when no reference is given" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(None, false)
+      val result = ThirdPartyReferenceSummary.detailsRow(None, false, "thirdPartyEori")
 
       result mustBe Some(
         SummaryListRowViewModel(
@@ -90,20 +90,27 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
     }
 
     "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), true)
+      val reference           = Some("ref")
+      val isThirdPartyEnabled = true
+      val thirdPartyEori      = "thirdPartyEori"
+
+      val result = ThirdPartyReferenceSummary.detailsRow(reference, isThirdPartyEnabled, thirdPartyEori)
 
       result mustBe Some(
         SummaryListRowViewModel(
           key = "thirdPartyReference.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlFormat.escape("ref").toString),
+          value = ValueViewModel(HtmlFormat.escape(reference.get).toString),
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              controllers.editThirdParty.routes.EditThirdPartyReferenceController
+                .onPageLoad(thirdPartyEori)
+                .url
             ).withVisuallyHiddenText(messages("thirdPartyReference.change.hidden"))
           )
         )
       )
     }
+
   }
 }

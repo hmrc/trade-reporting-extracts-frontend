@@ -37,6 +37,18 @@ class EditThirdPartyNavigatorSpec extends SpecBase {
 
     }
 
+    "EditThirdPartyReferencePage" - {
+
+      "must go back to third party details screen" in {
+        val page    = EditThirdPartyReferencePage("thirdPartyEori")
+        val answers = emptyUserAnswers
+
+        navigator.nextPage(page, userAnswers = answers) mustBe controllers.thirdparty.routes.ThirdPartyDetailsController
+          .onPageLoad("thirdPartyEori")
+      }
+
+    }
+
   }
 
 }
