@@ -22,17 +22,13 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, startDateString: String, date: String)(implicit request: Request[_], messages: Messages)
-
-@contentHint = {
-<p class="govuk-body">@messages("thirdPartyAccessEndDate.message", startDateString)</p>
-<p class="govuk-hint">@messages("thirdPartyAccessEndDate.hint", date)</p>
-}
-
-
-@layout(pageTitle = title(form, messages("thirdPartyAccessEndDate.title"))) {
-
-    @formHelper(action = controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+@(form: Form[_], startDateString: String, thirdPartyEori: String, date: String)(implicit request: Request[_], messages: Messages)
+    @contentHint = {
+        <p class="govuk-body">@messages("editThirdPartyAccessEndDate.message", startDateString)</p>
+        <p class="govuk-hint">@messages("editThirdPartyAccessEndDate.hint" ,date)</p>
+    }
+@layout(pageTitle = title(form, messages("editThirdPartyAccessEndDate.title"))) {
+@formHelper(action = controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
@@ -41,13 +37,12 @@
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("thirdPartyAccessEndDate.heading")).asPageHeading()
-            )
-            .withHint(HintViewModel(HtmlContent(contentHint)))
+                legend = LegendViewModel(messages("editThirdPartyAccessEndDate.heading")).asPageHeading()
+            ).withHint(HintViewModel(HtmlContent(contentHint)))
         )
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
         )
-    }
+}
 }

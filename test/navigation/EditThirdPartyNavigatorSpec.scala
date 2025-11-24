@@ -36,7 +36,29 @@ class EditThirdPartyNavigatorSpec extends SpecBase {
       }
 
     }
-
+    "EditThirdPartyAccessPeriodSummary" - {
+      "EditThirdPartyAccessStartDatePage" - {
+        "must go to edit third party end date screen" in {
+          val page    = EditThirdPartyAccessStartDatePage("thirdPartyEori")
+          val answers = emptyUserAnswers
+          navigator.nextPage(
+            page,
+            userAnswers = answers
+          ) mustBe controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController
+            .onPageLoad("thirdPartyEori")
+        }
+      }
+      "EditThirdPartyAccessEndDatePage" - {
+        "must go back to third party details screen" in {
+          val page    = EditThirdPartyAccessEndDatePage("thirdPartyEori")
+          val answers = emptyUserAnswers
+          navigator.nextPage(
+            page,
+            userAnswers = answers
+          ) mustBe controllers.thirdparty.routes.ThirdPartyDetailsController
+            .onPageLoad("thirdPartyEori")
+        }
+      }
+    }
   }
-
 }

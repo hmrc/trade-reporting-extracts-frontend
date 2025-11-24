@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import models.{CheckMode, ThirdPartyDetails, UserAnswers}
+import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
 import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
@@ -64,15 +65,25 @@ object ThirdPartyAccessPeriodSummary {
       )
     }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails, isThirdPartyEnabled: Boolean)(implicit
+  def detailsRow(
+    thirdPartyDetails: ThirdPartyDetails,
+    isThirdPartyEnabled: Boolean,
+    thirdPartyEori: String,
+    answers: UserAnswers
+  )(implicit
     messages: Messages
   ): Option[SummaryListRow] =
     Some(
       buildRow(
-        thirdPartyDetails.accessStartDate,
-        thirdPartyDetails.accessEndDate,
+        answers
+          .get(EditThirdPartyAccessStartDatePage(thirdPartyEori))
+          .getOrElse(thirdPartyDetails.accessStartDate),
+        answers
+          .get(EditThirdPartyAccessEndDatePage(thirdPartyEori))
+          .orElse(thirdPartyDetails.accessEndDate),
         "thirdPartyAccessPeriod.checkYourAnswersLabel",
-        isThirdPartyEnabled
+        isThirdPartyEnabled,
+        Some(thirdPartyEori)
       )
     )
 
@@ -82,7 +93,8 @@ object ThirdPartyAccessPeriodSummary {
         thirdPartyDetails.accessStartDate,
         thirdPartyDetails.accessEndDate,
         "thirdPartyAccessPeriod.checkYourAnswersLabel",
-        false
+        false,
+        None
       )
     )
 
@@ -90,7 +102,8 @@ object ThirdPartyAccessPeriodSummary {
     startDate: LocalDate,
     maybeEndDate: Option[LocalDate],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean
+    tpEnabledAndNotBusinessDetailsRow: Boolean,
+    thirdPartyEori: Option[String]
   )(implicit messages: Messages): SummaryListRow = {
 
     implicit val lang: Lang = messages.lang
@@ -113,14 +126,14 @@ object ThirdPartyAccessPeriodSummary {
         )
     }
 
-    if (tpEnabledAndNotBusinessDetailsRow) {
+    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
       SummaryListRowViewModel(
         key = keyMessage,
         value = value,
         actions = Seq(
           ActionItemViewModel(
             "site.change",
-            "#"
+            controllers.editThirdParty.routes.EditThirdPartyAccessStartDateController.onPageLoad(thirdPartyEori.get).url
           )
             .withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
         )

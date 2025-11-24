@@ -34,6 +34,11 @@ object DateTimeFormats {
     "cy" -> dateTimeFormatter.withLocale(new Locale("cy"))
   )
 
+  def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
+    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
+    date.format(dateTimeFormat()(Lang(languageTag)))
+  }
+
   def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter =
     localisedDateTimeFormatters.getOrElse(lang.code, dateTimeFormatter)
 

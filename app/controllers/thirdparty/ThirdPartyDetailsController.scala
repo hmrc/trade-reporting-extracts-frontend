@@ -85,7 +85,8 @@ class ThirdPartyDetailsController @Inject (clock: Clock = Clock.systemUTC())(
       }
     )
       ++ Seq(
-        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled),
+        ThirdPartyAccessPeriodSummary
+          .detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers),
         DataTypesSummary.detailsRow(
           answers
             .get(EditThirdPartyDataTypesPage(thirdPartyEori))

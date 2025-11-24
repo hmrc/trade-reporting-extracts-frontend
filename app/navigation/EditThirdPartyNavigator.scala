@@ -18,12 +18,17 @@ package navigation
 
 import models.UserAnswers
 import pages.Page
-import pages.editThirdParty.EditThirdPartyDataTypesPage
+import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage}
 import play.api.mvc.Call
 
 class EditThirdPartyNavigator extends Navigator {
 
-  override val normalRoutes: Page => UserAnswers => Call = { case EditThirdPartyDataTypesPage(thirdPartyEori) =>
-    answers => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+  override val normalRoutes: Page => UserAnswers => Call = {
+    case EditThirdPartyAccessEndDatePage(thirdPartyEori)   =>
+      _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+    case EditThirdPartyDataTypesPage(thirdPartyEori)       =>
+      _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+    case EditThirdPartyAccessStartDatePage(thirdPartyEori) =>
+      _ => controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori)
   }
 }
