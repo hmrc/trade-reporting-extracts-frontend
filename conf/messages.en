@@ -131,6 +131,14 @@ unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed
 unauthorisedCdsEnrolment.bullet3.link = sign out
 unauthorisedCdsEnrolment.bullet3 = and sign in with the correct details if you have more than one account
 
+unsupportedAffinityGroup.title = You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.heading = You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.message1 = To use this service, you must log in with an individual or organisation Government Gateway user ID.
+unsupportedAffinityGroup.message2 = You may need to:
+unsupportedAffinityGroup.bullet1 = create an individual or organisation Government Gateway user ID (opens in a new tab)
+unsupportedAffinityGroup.bullet2.link = sign out
+unsupportedAffinityGroup.bullet2 = and sign in with the correct details if you have more than one account
+
 reportGuidance.title = Request a CDS report
 reportGuidance.heading = Request a CDS report
 reportGuidance.instructions.title = Before you start
@@ -502,7 +510,7 @@ thirdPartyAccessPeriod.change.hidden = third-party access period
 thirdPartyAccessEndDate.title = When do you want this access to end? (optional)
 thirdPartyAccessEndDate.heading = When do you want this access to end? (optional)
 thirdPartyAccessEndDate.message =  You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
-thirdPartyAccessEndDate.hint = For example, {0}.
+thirdPartyAccessEndDate.hint = For example, 27 12 2025.
 thirdPartyAccessEndDate.error.required.all = Enter the thirdPartyAccessEndDate
 thirdPartyAccessEndDate.error.required.two = The date this access will end must include a {0} and a {1}
 thirdPartyAccessEndDate.error.required = The date this access will end must include a {0}

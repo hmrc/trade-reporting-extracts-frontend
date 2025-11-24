@@ -131,6 +131,14 @@ unauthorisedCdsEnrolment.bullet2 = cy: wait up to 5 days if you have just subscr
 unauthorisedCdsEnrolment.bullet3.link = cy: sign out
 unauthorisedCdsEnrolment.bullet3 = cy: and sign in with the correct details if you have more than one account
 
+unsupportedAffinityGroup.title = cy:You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.heading = cy: You have used an agent Government Gateway user ID to sign in
+unsupportedAffinityGroup.message1 = cy: To use this service, you must log in with an individual or organisation Government Gateway user ID.
+unsupportedAffinityGroup.message2 = cy: You may need to:
+unsupportedAffinityGroup.bullet1 = cy: create an individual or organisation Government Gateway user ID (opens in a new tab)
+unsupportedAffinityGroup.bullet2.link = cy: sign out
+unsupportedAffinityGroup.bullet2 = cy: and sign in with the correct details if you have more than one account
+
 reportGuidance.title = cy: Request a CDS report
 reportGuidance.heading = cy: Request a CDS report
 reportGuidance.instructions.title = cy: Before you start
@@ -254,6 +262,7 @@ maybeAdditionalEmail.error.required = cy: Select yes if you want to add another 
 maybeAdditionalEmail.change.hidden = cy: if you want to add another email for notifications
 maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
 maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
+
 
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address
@@ -502,7 +511,7 @@ thirdPartyAccessPeriod.change.hidden = cy: third-party access period
 thirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
 thirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
 thirdPartyAccessEndDate.message = cy:  You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
-thirdPartyAccessEndDate.hint = cy: For example, {0}.
+thirdPartyAccessEndDate.hint = cy: For example, 27 12 2025.
 thirdPartyAccessEndDate.error.required.all = cy: Enter the thirdPartyAccessEndDate
 thirdPartyAccessEndDate.error.required.two = cy: The date this access will end must include a {0} and a {1}
 thirdPartyAccessEndDate.error.required = cy: The date this access will end must include a {0}
