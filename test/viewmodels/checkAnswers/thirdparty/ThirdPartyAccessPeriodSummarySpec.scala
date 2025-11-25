@@ -109,7 +109,8 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)
+      val result =
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -136,7 +137,8 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false)
+      val result =
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -150,6 +152,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
 
     "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
       val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.of(2026, 6, 1)
       val thirdPartyDetails = ThirdPartyDetails(
         dataStartDate = None,
         dataEndDate = None,
@@ -158,8 +161,8 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         accessEndDate = None,
         dataTypes = Set("import")
       )
-
-      val result = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true)
+      val thirdPartyEori    = "thirdPartyEori"
+      val result            = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -170,13 +173,14 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              controllers.editThirdParty.routes.EditThirdPartyAccessStartDateController
+                .onPageLoad(thirdPartyEori)
+                .url
             ).withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
           )
         )
       )
     }
-
   }
 
   ".businessDetailsRow" - {

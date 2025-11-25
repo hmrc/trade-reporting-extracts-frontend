@@ -716,6 +716,26 @@ editThirdPartyReference.error.required = Enter the name you will use to referenc
 editThirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
 editThirdPartyReference.change.hidden = reference name
 
+
+editThirdPartyAccessStartDate.title = When do you want this access to start?
+editThirdPartyAccessStartDate.heading = When do you want this access to start?
+editThirdPartyAccessStartDate.hint = For example, {0}.
+editThirdPartyAccessStartDate.error.required.all =  Enter the date this access will start
+editThirdPartyAccessStartDate.error.required.two = The date this access will start must include {0} and a {1}
+editThirdPartyAccessStartDate.error.required = The date this access will start must include a {0}
+editThirdPartyAccessStartDate.error.invalid = The date this access will start must be a real date and only include numbers 0 to 9
+editThirdPartyAccessStartDate.error.min = The date this access will start must be today or in the future
+
+editThirdPartyAccessEndDate.title = When do you want this access to end? (optional)
+editThirdPartyAccessEndDate.heading = When do you want this access to end? (optional)
+editThirdPartyAccessEndDate.message =  You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
+editThirdPartyAccessEndDate.hint = For example, {0}.
+editThirdPartyAccessEndDate.error.required.two = The date this access will end must include a {0} and a {1}
+editThirdPartyAccessEndDate.error.required = The date this access will end must include a {0}
+editThirdPartyAccessEndDate.error.invalid = The date this access will end must be a real date and only include numbers 0 to 9
+editThirdPartyAccessEndDate.error.min = The date this access will end must be on or after {0}
+
+
 editThirdPartyDataTypes.title = EditThirdPartyDataTypes
 editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
 editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes

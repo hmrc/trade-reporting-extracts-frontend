@@ -19,15 +19,16 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.Mode
+import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
 import utils.json.OptionalLocalDateReads.*
-import navigation.{Navigator, ThirdPartyNavigator}
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessEndDateView
 
 import java.time.LocalDate
@@ -55,18 +56,20 @@ class ThirdPartyAccessEndDateController @Inject() (
 
     val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
-    val preparedForm = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
+    val preparedForm          = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
-
-    Ok(view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)))
+    val dateFormatted: String = getStartDatePlusOneMonth(request)
+    Ok(
+      view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get), dateFormatted)
+    )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
-      val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
+      val dateFormatted: String = getStartDatePlusOneMonth(request)
+      val form                  = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
       form
         .bindFromRequest()
@@ -74,7 +77,12 @@ class ThirdPartyAccessEndDateController @Inject() (
           formWithErrors =>
             Future.successful(
               BadRequest(
-                view(formWithErrors, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get))
+                view(
+                  formWithErrors,
+                  mode,
+                  dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
+                  dateFormatted
+                )
               )
             ),
           value =>
@@ -90,5 +98,11 @@ class ThirdPartyAccessEndDateController @Inject() (
   private def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
     val languageTag = if (messages.lang.code == "cy") "cy" else "en"
     date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))
+  }
+
+  private def getStartDatePlusOneMonth(request: DataRequest[AnyContent]) = {
+    val startDatePlusOneMonth: LocalDate = request.userAnswers.get(ThirdPartyAccessStartDatePage).get.plusMonths(1)
+    val dateFormatted: String            = startDatePlusOneMonth.format(DateTimeFormats.dateTimeHintFormat)
+    dateFormatted
   }
 }

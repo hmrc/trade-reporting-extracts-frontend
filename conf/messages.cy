@@ -263,6 +263,7 @@ maybeAdditionalEmail.change.hidden = cy: if you want to add another email for no
 maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
 maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
 
+
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address
 checkNewEmail.heading2 = cy: Is this email address correct?
@@ -721,3 +722,20 @@ editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
 editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
 editThirdPartyDataTypes.error.required = Select editThirdPartyDataTypes
 editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes
+
+editThirdPartyAccessStartDate.title = cy: When do you want this access to start?
+editThirdPartyAccessStartDate.heading = cy: When do you want this access to start?
+editThirdPartyAccessStartDate.error.required.all = cy: Enter the date this access will start
+editThirdPartyAccessStartDate.error.required.two = cy: The date this access will start must include {0} and a {1}
+editThirdPartyAccessStartDate.error.required = cy: date this access will start must include a {0}
+editThirdPartyAccessStartDate.error.invalid = cy: The date this access will start must be a real date and only include numbers 0 to 9
+editThirdPartyAccessStartDate.error.min = cy: The date this access will start must be today or in the future
+
+editThirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
+editThirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
+editThirdPartyAccessEndDate.message = cy: You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
+editThirdPartyAccessEndDate.hint = cy: For example, 27 12 2025.
+editThirdPartyAccessEndDate.error.required.two = cy: The date this access will end must include a {0} and a {1}
+editThirdPartyAccessEndDate.error.required = cy: The date this access will end must include a {0}
+editThirdPartyAccessEndDate.error.invalid = cy: The date this access will end must be a real date and only include numbers 0 to 9
+editThirdPartyAccessEndDate.error.min = cy: The date this access will end must be on or after {0}
