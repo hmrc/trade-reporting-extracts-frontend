@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import controllers.routes
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
@@ -53,17 +54,23 @@ class ThirdPartyAccessEndDateController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
-    val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
-
-    val preparedForm          = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-    val dateFormatted: String = getStartDatePlusOneMonth(request)
-    Ok(
-      view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get), dateFormatted)
-    )
+    request.userAnswers
+      .get(ThirdPartyAccessStartDatePage)
+      .fold {
+        Redirect(routes.DashboardController.onPageLoad())
+      } { startDate =>
+        val form          = formProvider(startDate)
+        val preparedForm  = request.userAnswers.get(ThirdPartyAccessEndDatePage).fold(form)(form.fill)
+        val dateFormatted = getStartDatePlusOneMonth(request)
+        Ok(
+          view(
+            preparedForm,
+            mode,
+            dateFormatter(startDate),
+            dateFormatted
+          )
+        )
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
