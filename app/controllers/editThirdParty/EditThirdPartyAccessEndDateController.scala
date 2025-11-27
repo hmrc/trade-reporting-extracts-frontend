@@ -17,6 +17,7 @@
 package controllers.editThirdParty
 
 import controllers.actions.*
+import controllers.routes
 import forms.EditThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
@@ -52,20 +53,25 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val form                  = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
-      val preparedForm          = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
-        case None  => form
-        case value => form.fill(value)
-      }
-      val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, request)
-      Ok(
-        view(
-          preparedForm,
-          dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get),
-          thirdPartyEori,
-          dateFormatted
-        )
-      )
+      request.userAnswers
+        .get(EditThirdPartyAccessStartDatePage(thirdPartyEori))
+        .fold {
+          Redirect(routes.DashboardController.onPageLoad())
+        } { startDate =>
+          val form          = formProvider(startDate)
+          val preparedForm  = request.userAnswers
+            .get(EditThirdPartyAccessEndDatePage(thirdPartyEori))
+            .fold(form)(endDate => form.fill(Some(endDate)))
+          val dateFormatted = getStartDatePlusOneMonth(thirdPartyEori, request)
+          Ok(
+            view(
+              preparedForm,
+              dateFormatter(startDate),
+              thirdPartyEori,
+              dateFormatted
+            )
+          )
+        }
   }
 
   def onSubmit(thirdPartyEori: String): Action[AnyContent] =
