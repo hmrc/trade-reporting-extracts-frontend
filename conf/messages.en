@@ -741,3 +741,6 @@ editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
 editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
 editThirdPartyDataTypes.error.required = Select editThirdPartyDataTypes
 editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes
+
+editThirdParty.confirmChanges = Confirm changes
+editThirdParty.cancel = Cancel
