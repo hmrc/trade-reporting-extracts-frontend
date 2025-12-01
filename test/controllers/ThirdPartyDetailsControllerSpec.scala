@@ -20,6 +20,8 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeDataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
+import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -27,6 +29,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
 import org.mockito.Mockito.when
+import pages.editThirdParty.EditThirdPartyReferencePage
+import pages.report.{ChooseEoriPage, NewEmailNotificationPage}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.RequestHeader
 import repositories.SessionRepository
@@ -98,7 +102,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
       }
     }
 
@@ -155,7 +159,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
       }
     }
 
@@ -212,7 +216,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
       }
     }
 
@@ -268,7 +272,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
       }
     }
 
@@ -373,6 +377,68 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         content must include(messages(application)("editThirdParty.confirmChanges"))
         content must include(messages(application)("editThirdParty.cancel"))
+        contentAsString(result) mustEqual view(list, "", true, "eori")(request, messages(application)).toString
+      }
+    }
+
+    "removeAnswersAndRedirect" - {
+
+      "must redirect the user and delete userAnswers" in {
+        val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+        when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+        when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+          .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Granted)))
+
+        when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+          .thenReturn(
+            Future.successful(
+              ThirdPartyDetails(
+                referenceName = Some("bar"),
+                accessStartDate = LocalDate.of(2025, 1, 1),
+                accessEndDate = None,
+                dataTypes = Set("import"),
+                dataStartDate = None,
+                dataEndDate = None
+              )
+            )
+          )
+
+        val ua = emptyUserAnswers
+          .set(EditThirdPartyReferencePage("thirdParty1"), "refTP1")
+          .success
+          .value
+          .set(EditThirdPartyReferencePage("thirdParty2"), "refTP2")
+          .success
+          .value
+          .set(NewEmailNotificationPage, "someEori")
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(ua))
+          .overrides(
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(
+            GET,
+            controllers.thirdparty.routes.ThirdPartyDetailsController.removeAnswersAndRedirect("thirdParty1").url
+          )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          val capturedAnswers = userAnswersCaptor.getValue
+          capturedAnswers.get(EditThirdPartyReferencePage("thirdParty1")) mustBe None
+          capturedAnswers.get(EditThirdPartyReferencePage("thirdParty2")) mustBe Some("refTP2")
+          redirectLocation(result).value mustEqual controllers.thirdparty.routes.AuthorisedThirdPartiesController
+            .onPageLoad()
+            .url
+        }
       }
     }
 

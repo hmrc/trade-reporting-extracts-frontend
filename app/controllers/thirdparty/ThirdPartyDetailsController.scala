@@ -26,6 +26,7 @@ import pages.editThirdParty.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Reads
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats
@@ -33,6 +34,8 @@ import utils.DateTimeFormats.computeCalculatedDateValue
 import viewmodels.checkAnswers.thirdparty.*
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
+import utils.DateTimeFormats.computeCalculatedDateValue
+import utils.UserAnswerHelper
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -42,13 +45,15 @@ class ThirdPartyDetailsController @Inject() (
   clock: Clock = Clock.systemUTC(),
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   getOrCreate: DataRetrievalOrCreateAction,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyDetailsView,
   tradeReportingExtractsService: TradeReportingExtractsService,
-  config: FrontendAppConfig
+  config: FrontendAppConfig,
+  userAnswerHelper: UserAnswerHelper,
+  sessionRepository: SessionRepository,
+  getData: DataRetrievalAction,
+  RequireData: DataRequiredAction
 )(implicit ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
@@ -71,7 +76,7 @@ class ThirdPartyDetailsController @Inject() (
         (rows, hasChangesFlag) = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori, request.userAnswers)
 
         list = SummaryListViewModel(rows = rows.flatten)
-      } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming, hasChangesFlag))
+      } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming, hasChangesFlag, thirdPartyEori))
   }
 
   private def rowGenerator(
@@ -172,5 +177,13 @@ class ThirdPartyDetailsController @Inject() (
     companyInfo.consent match {
       case ConsentStatus.Denied => None
       case _                    => Some(companyInfo.name)
+    }
+
+  def removeAnswersAndRedirect(thirdPartyEori: String): Action[AnyContent] =
+    (identify andThen getData andThen RequireData).async { implicit request =>
+      val updatedAnswers = userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers)
+      sessionRepository
+        .set(updatedAnswers)
+        .map(_ => Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad()))
     }
 }
