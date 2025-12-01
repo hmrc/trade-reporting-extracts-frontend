@@ -716,7 +716,6 @@ editThirdPartyReference.error.required = Enter the name you will use to referenc
 editThirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
 editThirdPartyReference.change.hidden = reference name
 
-
 editThirdPartyAccessStartDate.title = When do you want this access to start?
 editThirdPartyAccessStartDate.heading = When do you want this access to start?
 editThirdPartyAccessStartDate.hint = For example, {0}.
@@ -735,7 +734,6 @@ editThirdPartyAccessEndDate.error.required = The date this access will end must 
 editThirdPartyAccessEndDate.error.invalid = The date this access will end must be a real date and only include numbers 0 to 9
 editThirdPartyAccessEndDate.error.min = The date this access will end must be on or after {0}
 
-
 editThirdPartyDataTypes.title = EditThirdPartyDataTypes
 editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
 editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
@@ -744,3 +742,35 @@ editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes
 
 editThirdParty.confirmChanges = Confirm changes
 editThirdParty.cancel = Cancel
+
+editDataStartDate.title = When do you want to give access to your data from?
+editDataStartDate.heading = When do you want to give access to your data from?
+editDataStartDate.message = The service holds data from the past 4 years. This sets how far back the third party can view your data. It does not affect when their access begins.
+editDataStartDate.hint = For example, {0}.
+editDataStartDate.error.required.all = Enter the date you want to give access to your data from
+editDataStartDate.error.required.two = The date you want to give access to your data from must include a {0} and a {1}
+editDataStartDate.error.required = The date you want to give access to your data from must include a {0}
+editDataStartDate.error.invalid = The date you want to give access to your data from must be a real date and only include numbers 0 to 9
+editDataStartDate.error.min = The date you want to give access to your data from must be within the last 4 years
+
+editDataEndDate.title = When do you want to stop giving access to your data? (optional)
+editDataEndDate.heading = When do you want to stop giving access to your data? (optional)
+editDataEndDate.message =  You entered a start date of {0}. Leave this blank if you want to give ongoing access to future data.
+editDataEndDate.hint = For example, 27 05 2025.
+editDataEndDate.error.required.all = Enter the dataEndDate
+editDataEndDate.error.required.two = The date you want to stop giving access to your data from must include a {0} and a {1}
+editDataEndDate.error.required = The date you want to stop giving access to your data from must include a {0}
+editDataEndDate.error.invalid = The date you want to stop giving access to your data must be a real date and only include numbers 0 to 9
+editDataEndDate.error.min = The date you want to stop giving access to your data from must be on or after {0}
+
+editDeclarationDate.title = Do you want to give access to all of your available {0} data?
+editDeclarationDate.heading = Do you want to give access to all of your available {0} data?
+editDeclarationDate.allAvailableData = Yes
+editDeclarationDate.customDateRange = No, I want to add a custom date range
+editDeclarationDate.message1 = The service holds data from the past 4 years.
+editDeclarationDate.checkYourAnswersLabel = Do you want to give access to all of your available {0} data?
+editDeclarationDate.error.required = Select yes if you want to give access to all of your {0} data
+editDeclarationDate.change.hidden = if you want to give access to all of your available {0} data
+editDeclarationDate.import = import
+editDeclarationDate.export = export
+editDeclarationDate.importExport = import and export

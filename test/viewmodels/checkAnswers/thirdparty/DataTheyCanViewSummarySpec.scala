@@ -108,7 +108,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -130,7 +130,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -155,7 +155,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
