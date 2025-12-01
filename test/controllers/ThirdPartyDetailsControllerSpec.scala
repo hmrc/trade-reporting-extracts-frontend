@@ -96,7 +96,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -153,7 +153,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -210,7 +210,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -266,7 +266,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -322,7 +322,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
   }

@@ -18,7 +18,6 @@ package controllers.thirdparty
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import models.report.ReportRequestSection
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

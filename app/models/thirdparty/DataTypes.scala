@@ -50,8 +50,9 @@ object DataTypes extends Enumerable.Implicits {
 
   implicit val dataTypesReads: Reads[DataTypes] = Reads {
     case JsString(str) =>
-      enumerable.withName(str).map(JsSuccess(_)).getOrElse(JsError(s"Unknown DataTypes: $str"))
-    case _             => JsError("Expected DataTypes as JsString")
+      enumerable.withName(str).map(JsSuccess(_)).getOrElse(JsError("error.invalid"))
+    case _             =>
+      JsError("error.invalid")
   }
 
   implicit val dataTypesWrites: Writes[DataTypes] = Writes { dt =>
