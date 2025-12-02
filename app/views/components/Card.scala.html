@@ -16,7 +16,7 @@
 
 @import viewmodels.CardLink
 
-@(id: String, heading: String, subHeading: Option[String] = None, links: Seq[CardLink], extraSubHeading: Option[Html] = None)
+@(id: String, heading: String, subHeading: Option[String] = None, links: Seq[CardLink] = Seq.empty, extraSubHeading: Option[Html] = None, cardContent: Option[Html] = None)
 
 <div class="card" id="@id">
     <div class="card-body">
@@ -29,20 +29,24 @@
         }
     </div>
     <div class="card-action">
-        <ul class="govuk-list">
-            @for(link <- links) {
-            <li>
-                <a class="govuk-link govuk-link--no-visited-state" href="@link.href"
-                   @if(link.openInNewTab) {
-                          target="_blank" rel="noopener noreferrer"
-                   }>
-                    @link.text
-                    @link.dynamicElement.map { de =>
-                    @de
-                    }
-                </a>
-            </li>
-            }
-        </ul>
+        @if(cardContent.isDefined) {
+            @cardContent.get
+        } else {
+            <ul class="govuk-list">
+                @for(link <- links) {
+                <li>
+                    <a class="govuk-link govuk-link--no-visited-state" href="@link.href"
+                       @if(link.openInNewTab) {
+                              target="_blank" rel="noopener noreferrer"
+                       }>
+                        @link.text
+                        @link.dynamicElement.map { de =>
+                        @de
+                        }
+                    </a>
+                </li>
+                }
+            </ul>
+        }
     </div>
 </div>
