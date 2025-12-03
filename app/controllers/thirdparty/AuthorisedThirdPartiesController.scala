@@ -19,9 +19,7 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsPath
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.thirdparty.AuthorisedThirdPartiesView
@@ -32,21 +30,17 @@ import scala.concurrent.ExecutionContext
 class AuthorisedThirdPartiesController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
-  getOrCreate: DataRetrievalOrCreateAction,
   val controllerComponents: MessagesControllerComponents,
   view: AuthorisedThirdPartiesView,
-  sessionRepository: SessionRepository,
   tradeReportingExtractsService: TradeReportingExtractsService,
   config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
       authorisedThirdParties <- tradeReportingExtractsService.getAuthorisedThirdParties(request.eori)
-      clearedAnswers          = request.userAnswers.removePath(JsPath \ "editThirdParty").get
-      _                      <- sessionRepository.set(clearedAnswers)
     } yield Ok(view(authorisedThirdParties, config.editThirdPartyEnabled))
   }
 }

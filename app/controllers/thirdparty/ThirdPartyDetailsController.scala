@@ -42,6 +42,8 @@ class ThirdPartyDetailsController @Inject() (
   clock: Clock = Clock.systemUTC(),
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
   getOrCreate: DataRetrievalOrCreateAction,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyDetailsView,
@@ -51,7 +53,7 @@ class ThirdPartyDetailsController @Inject() (
     extends BaseController
     with I18nSupport {
 
-  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
+  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify  andThen getOrCreate).async {
     implicit request =>
       for {
         companyInfo       <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
