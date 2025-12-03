@@ -16,6 +16,7 @@
 
 package controllers.thirdparty
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,7 +32,8 @@ class AuthorisedThirdPartiesController @Inject() (
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
   view: AuthorisedThirdPartiesView,
-  tradeReportingExtractsService: TradeReportingExtractsService
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  config: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
@@ -39,6 +41,6 @@ class AuthorisedThirdPartiesController @Inject() (
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
       authorisedThirdParties <- tradeReportingExtractsService.getAuthorisedThirdParties(request.eori)
-    } yield Ok(view(authorisedThirdParties))
+    } yield Ok(view(authorisedThirdParties, config.editThirdPartyEnabled))
   }
 }

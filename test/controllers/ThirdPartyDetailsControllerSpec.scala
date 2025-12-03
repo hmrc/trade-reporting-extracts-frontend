@@ -18,7 +18,8 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails}
+import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeDataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
+import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -26,6 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
 import org.mockito.Mockito.when
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.RequestHeader
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
@@ -96,7 +98,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -153,7 +155,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -210,7 +212,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -266,7 +268,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
 
@@ -322,8 +324,57 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
       }
     }
+
+    "must display confirm changes and cancel buttons when there are changes" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = None,
+        dataTypes = Set("import"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Denied)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val modifiedUserAnswers = UserAnswers("id")
+        .set(pages.editThirdParty.EditThirdPartyReferencePage("thirdPartyEori"), "changedRef")
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
+          bind[IdentifierAction].to[FakeIdentifierAction],
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+        val result  = route(application, request).value
+
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(messages(application)("editThirdParty.confirmChanges"))
+        content must include(messages(application)("editThirdParty.cancel"))
+      }
+    }
+
   }
 }

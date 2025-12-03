@@ -18,9 +18,10 @@ package models.thirdparty
 
 import models.{Enumerable, WithName}
 import play.api.i18n.Messages
+import play.api.libs.json._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import viewmodels.govuk.checkbox.*
+import viewmodels.govuk.checkbox._
 
 sealed trait DataTypes
 
@@ -46,4 +47,21 @@ object DataTypes extends Enumerable.Implicits {
 
   implicit val enumerable: Enumerable[DataTypes] =
     Enumerable(values.map(v => v.toString -> v): _*)
+
+  implicit val dataTypesReads: Reads[DataTypes] = Reads {
+    case JsString(str) =>
+      enumerable.withName(str).map(JsSuccess(_)).getOrElse(JsError("error.invalid"))
+    case _             =>
+      JsError("error.invalid")
+  }
+
+  implicit val dataTypesWrites: Writes[DataTypes] = Writes { dt =>
+    JsString(dt.toString)
+  }
+
+  implicit val dataTypesFormat: Format[DataTypes] = Format(dataTypesReads, dataTypesWrites)
+
+  implicit val dataTypesSeqReads: Reads[Seq[DataTypes]]   = Reads.seq(dataTypesReads)
+  implicit val dataTypesSeqWrites: Writes[Seq[DataTypes]] = Writes.seq(dataTypesWrites)
+  implicit val dataTypesSeqFormat: Format[Seq[DataTypes]] = Format(dataTypesSeqReads, dataTypesSeqWrites)
 }
