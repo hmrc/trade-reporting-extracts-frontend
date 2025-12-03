@@ -53,7 +53,7 @@ class ThirdPartyDetailsController @Inject() (
     extends BaseController
     with I18nSupport {
 
-  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify  andThen getOrCreate).async {
+  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
     implicit request =>
       for {
         companyInfo       <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
