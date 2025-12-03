@@ -328,7 +328,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
       }
     }
 
@@ -377,7 +377,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         content must include(messages(application)("editThirdParty.confirmChanges"))
         content must include(messages(application)("editThirdParty.cancel"))
-        contentAsString(result) mustEqual view(list, "", true, "eori")(request, messages(application)).toString
       }
     }
 

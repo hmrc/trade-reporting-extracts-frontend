@@ -76,7 +76,15 @@ class ThirdPartyDetailsController @Inject() (
         (rows, hasChangesFlag) = rowGenerator(thirdPartyDetails, maybeCompanyName, thirdPartyEori, request.userAnswers)
 
         list = SummaryListViewModel(rows = rows.flatten)
-      } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming, hasChangesFlag, thirdPartyEori))
+      } yield Ok(
+        view(
+          list,
+          calculatedDateValue.getOrElse(""),
+          status == UserActiveStatus.Upcoming,
+          hasChangesFlag,
+          thirdPartyEori
+        )
+      )
   }
 
   private def rowGenerator(
