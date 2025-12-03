@@ -41,7 +41,7 @@
 @if(hasChanges) {
 <div class="govuk-button-group">
     @govukButton(
-        ButtonViewModel(messages("editThirdParty.confirmChanges")).asLink(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+        ButtonViewModel(messages("editThirdParty.confirmChanges")).asLink(controllers.editThirdParty.routes.EditThirdPartySubmissionHandler.submit(thirdPartyEori).url)
     )
     <a class="govuk-link" href="@controllers.thirdparty.routes.ThirdPartyDetailsController.removeAnswersAndRedirect(thirdPartyEori).url">@messages("editThirdParty.cancel")</a>
 </div>
