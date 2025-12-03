@@ -22,7 +22,7 @@ import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EditThirdPartyRequest, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -520,5 +520,39 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       }
     }
 
+    "editThirdPartyRequest" - {
+
+      val editThirdPartyRequest = ThirdPartyRequest(
+        "123",
+        "456",
+        Instant.now(),
+        None,
+        None,
+        None,
+        Set("IMPORT"),
+        Some("newRef")
+      )
+
+      "should return confirmation when successful" in {
+
+        when(mockConnector.editThirdPartyRequest(any())(any()))
+          .thenReturn(Future.successful(ThirdPartyAddedConfirmation("456")))
+
+        val result = service.editThirdPartyRequest(editThirdPartyRequest).futureValue
+
+        result mustBe ThirdPartyAddedConfirmation("456")
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.editThirdPartyRequest(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.editThirdPartyRequest(editThirdPartyRequest).futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
   }
 }

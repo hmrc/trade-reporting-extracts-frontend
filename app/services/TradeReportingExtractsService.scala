@@ -21,7 +21,7 @@ import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserDetails}
 import org.apache.pekko.Done
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EditThirdPartyRequest, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import play.api.Logging
 import play.api.i18n.Messages
@@ -111,6 +111,11 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
     hc: HeaderCarrier
   ): Future[ThirdPartyAddedConfirmation] =
     connector.createThirdPartyAddRequest(thirdPartyRequest)
+
+  def editThirdPartyRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyAddedConfirmation] =
+    connector.editThirdPartyRequest(thirdPartyRequest)
 
   def getAuthorisedThirdParties(
     eori: String

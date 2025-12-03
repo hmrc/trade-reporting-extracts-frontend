@@ -213,6 +213,30 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
       )
     }
 
+    "when end date is LocalDate.MAX, return summary list row for ongoing period" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val endDate           = LocalDate.MAX
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = None,
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = Some(endDate),
+        dataTypes = Set("import")
+      )
+
+      val result = ThirdPartyAccessPeriodSummary.businessDetailsRow(thirdPartyDetails)
+
+      result shouldBe Some(
+        SummaryListRowViewModel(
+          key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          )
+        )
+      )
+    }
+
     "when only start date is provided, return summary list row for ongoing period" in {
       val startDate         = LocalDate.of(2025, 6, 1)
       val thirdPartyDetails = ThirdPartyDetails(

@@ -23,7 +23,7 @@ import exceptions.NoAuthorisedUserFoundException
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, EditThirdPartyRequest, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -706,6 +706,79 @@ class TradeReportingExtractsConnectorSpec
           thrown.getMessage must include("some error")
         }
       }
+    }
+
+    "editThirdPartyRequest" - {
+      val url                   = "/trade-reporting-extracts/edit-third-party-request"
+      val editThirdPartyRequest = ThirdPartyRequest(
+        "123",
+        "456",
+        Instant.now(),
+        None,
+        None,
+        None,
+        Set("IMPORT"),
+        Some("newRef")
+      )
+
+      "must return confirmation when successful" in {
+        val app              = application
+        val expectedResponse = ThirdPartyAddedConfirmation("456")
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .put(urlEqualTo(url))
+              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+              .willReturn(ok(Json.toJson(expectedResponse).toString))
+          )
+
+          val result = connector.editThirdPartyRequest(editThirdPartyRequest).futureValue
+          result mustBe expectedResponse
+        }
+      }
+
+      "must return error when confirmation can't be parsed" in {
+        val app                = application
+        val unexpectedResponse = "foo"
+
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .put(urlEqualTo(url))
+              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+              .willReturn(ok(Json.toJson(unexpectedResponse).toString))
+          )
+
+          val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+        }
+
+      }
+
+      "must return error when anything but OK" in {
+
+        val app = application
+
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .put(urlEqualTo(url))
+              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+              .willReturn(aResponse().withStatus(500).withBody("some error"))
+          )
+
+          val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+        }
+
+      }
+
     }
 
     "getAuthorisedBusinessDetails" - {

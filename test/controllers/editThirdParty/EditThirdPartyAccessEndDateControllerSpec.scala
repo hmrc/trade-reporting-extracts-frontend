@@ -76,6 +76,14 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, editThirdPartyAccessEndDateRoute)
 
+  def postNoEndDateRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
+    FakeRequest(POST, editThirdPartyAccessEndDateRoute)
+      .withFormUrlEncodedBody(
+        "value.day"   -> "",
+        "value.month" -> "",
+        "value.year"  -> ""
+      )
+
   def postRequest(date: LocalDate): FakeRequest[AnyContentAsFormUrlEncoded] =
     FakeRequest(POST, editThirdPartyAccessEndDateRoute)
       .withFormUrlEncodedBody(
@@ -295,6 +303,97 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
 
         val updated = captor.getValue
         updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
+        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+      }
+    }
+
+    "must persist LocalDate.MAX when user selects 'No End Date' but there was an original end date" in {
+
+      val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val originalStartDate = LocalDate.of(2024, 1, 1)
+      val originalEndDate   = LocalDate.now().plusDays(1)
+
+      val thirdPartyDetailsResponse =
+        ThirdPartyDetails(
+          referenceName = Some(thirdPartyEori),
+          accessStartDate = originalStartDate,
+          accessEndDate = Some(originalEndDate),
+          dataTypes = Set.empty,
+          dataStartDate = None,
+          dataEndDate = None
+        )
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetailsResponse))
+      when(mockSessionRepository.set(captor.capture())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[Clock].toInstance(fixedClock),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, postNoEndDateRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val updated = captor.getValue
+        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe Some(LocalDate.MAX)
+      }
+    }
+
+    "must not persist end date when user selects 'No End Date' and there was no original end date" in {
+
+      val captor = org.mockito.ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val originalStartDate = LocalDate.of(2024, 1, 1)
+
+      val thirdPartyDetailsResponse =
+        ThirdPartyDetails(
+          referenceName = Some(thirdPartyEori),
+          accessStartDate = originalStartDate,
+          accessEndDate = None,
+          dataTypes = Set.empty,
+          dataStartDate = None,
+          dataEndDate = None
+        )
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetailsResponse))
+      when(mockSessionRepository.set(captor.capture())) thenReturn Future.successful(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[Clock].toInstance(fixedClock),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, postNoEndDateRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val updated = captor.getValue
         updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
       }
     }

@@ -92,10 +92,16 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
                   )
                 } else {
                   value match {
-                    case Some(endDate) =>
+                    case Some(endDate)                                   =>
                       Future.fromTry(request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), endDate))
-                    case None          =>
+                    case None if thirdPartyDetails.accessEndDate.isEmpty =>
+                      // case if user selects 'No End Date' and there was no end date previously, user answer not persisted
                       Future.fromTry(request.userAnswers.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)))
+                    case None                                            =>
+                      // case if user selects 'No End Date' and there was an end date previously, set to LocalDate.MAX to indicate no end date to discern if page was answered
+                      Future.fromTry(
+                        request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), LocalDate.MAX)
+                      )
                   }
                 }
               updatedAnswersF.flatMap { updatedAnswers =>
