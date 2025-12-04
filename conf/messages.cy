@@ -113,6 +113,7 @@ dashboard.thirdPartyAccess.authorisedAccounts = cy: Businesses you have third-pa
 dashboard.support.heading = cy: Support
 dashboard.support.fieldsInReport = cy: What do the fields in my report mean? (opens in new tab)
 dashboard.support.reportTypes = cy: What are the different report types?
+dashboard.support.queriesLink = cy: If you have queries about the data in your report, email {0} for support.
 
 contactDetails.title = cy: Your contact details
 contactDetails.heading = cy: Your contact details
@@ -373,6 +374,7 @@ availableReports.table.expiryDate = cy: Expiry date
 availableReports.table.referenceNumber = cy: Reference number
 availableReports.table.action = cy: Action
 availableReports.table.unknownCompany = cy: Not applicable
+availableReports.queriesLink = cy: If you have queries about the data in your report, email {0} for support.
 
 requestedReports.title = cy: Reports in progress
 requestedReports.heading = cy: Reports in progress
