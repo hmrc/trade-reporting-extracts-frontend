@@ -35,8 +35,8 @@ class RequestNotCompletedController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val traderEori = request.userAnswers.get(SelectThirdPartyEoriPage)
-    Ok(view(traderEori.get))
+  def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
+    implicit request =>
+      Ok(view(traderEori))
   }
 }

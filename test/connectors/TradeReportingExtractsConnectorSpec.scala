@@ -19,24 +19,21 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, serverError, urlEqualTo}
+import exceptions.NoAuthorisedUserFoundException
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyRequest}
 import org.apache.pekko.Done
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-
+import com.fasterxml.jackson.core.JsonParseException
 import java.time.*
-import java.time.{Instant, LocalDate, LocalDateTime}
-import scala.concurrent.Future
 
 class TradeReportingExtractsConnectorSpec
     extends SpecBase
@@ -707,6 +704,94 @@ class TradeReportingExtractsConnectorSpec
             connector.getSelectThirdPartyEori(eori).futureValue
           }
           thrown.getMessage must include("some error")
+        }
+      }
+    }
+
+    "getAuthorisedBusinessDetails" - {
+      val url            = "/trade-reporting-extracts/authorised-business-details"
+      val thirdPartyEori = "GB123456789000"
+      val traderEori     = "GB111111111111"
+
+      val validThirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("Test Company"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = Some(LocalDate.of(2025, 12, 31)),
+        dataTypes = Set("imports"),
+        dataStartDate = Some(LocalDate.of(2024, 6, 1)),
+        dataEndDate = Some(LocalDate.of(2024, 12, 31))
+      )
+
+      "must return ThirdPartyDetails when API returns 200 with valid JSON" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+              .willReturn(ok(Json.toJson(validThirdPartyDetails).toString()))
+          )
+
+          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).futureValue
+          result mustBe validThirdPartyDetails
+        }
+      }
+
+      "must throw NoAuthorisedUserFoundException when API returns 404" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+              .willReturn(aResponse().withStatus(NOT_FOUND).withBody("No authorised user found for third party EORI:"))
+          )
+
+          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+          result mustBe a[NoAuthorisedUserFoundException]
+          result.getMessage mustBe "No authorised user found for third party EORI:"
+        }
+      }
+
+      "must throw UpstreamErrorResponse when API returns other error status" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("Server error"))
+          )
+
+          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+          result.asInstanceOf[UpstreamErrorResponse].statusCode mustBe INTERNAL_SERVER_ERROR
+          result.asInstanceOf[UpstreamErrorResponse].message must include(
+            "Unexpected response from /trade-reporting-extracts/authorised-business-details"
+          )
+        }
+      }
+
+      "must throw JsonParseException when JSON parsing fails" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+              .willReturn(ok("invalid json"))
+          )
+
+          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+          result mustBe an[JsonParseException]
         }
       }
     }

@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
+import utils.{ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestStartDateView
 
 import java.time.LocalDate
@@ -59,7 +59,7 @@ class CustomRequestStartDateController @Inject() (
       val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
 
       if (maybeThirdPartyRequest) {
-        for {
+        (for {
           details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
                            request.eori,
                            request.userAnswers.get(SelectThirdPartyEoriPage).get
@@ -78,14 +78,13 @@ class CustomRequestStartDateController @Inject() (
             maybeThirdPartyRequest,
             rangeString
           )
-        )
+        )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
       } else {
         val form         = formProvider(false, None, None)
         val preparedForm = request.userAnswers.get(CustomRequestStartDatePage) match {
           case None        => form
           case Some(value) => form.fill(value)
         }
-
         Future.successful(
           Ok(
             view(
@@ -118,58 +117,60 @@ class CustomRequestStartDateController @Inject() (
         Future.successful((formProvider(maybeThirdPartyRequest = false, None, None), None))
       }
 
-      formAndDetailsFuture.flatMap { case (form, maybeDetails) =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              val viewResult = maybeDetails match {
-                case Some(details) =>
-                  BadRequest(
-                    view(
-                      formWithErrors,
-                      mode,
-                      ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                      maybeThirdPartyRequest,
-                      startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
+      formAndDetailsFuture
+        .flatMap { case (form, maybeDetails) =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                val viewResult = maybeDetails match {
+                  case Some(details) =>
+                    BadRequest(
+                      view(
+                        formWithErrors,
+                        mode,
+                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                        maybeThirdPartyRequest,
+                        startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
+                      )
                     )
-                  )
-                case None          =>
-                  BadRequest(
-                    view(
-                      formWithErrors,
-                      mode,
-                      ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                      maybeThirdPartyRequest,
-                      None
+                  case None          =>
+                    BadRequest(
+                      view(
+                        formWithErrors,
+                        mode,
+                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                        maybeThirdPartyRequest,
+                        None
+                      )
                     )
-                  )
-              }
-              Future.successful(viewResult)
-            },
-            value =>
-              (
-                request.userAnswers.get(CustomRequestStartDatePage),
-                request.userAnswers.get(CustomRequestEndDatePage)
-              ) match {
-                case (Some(startDate), Some(endDate)) if value.isBefore(startDate) || value.isAfter(endDate) =>
-                  for {
-                    removedEndDate <- Future.fromTry(request.userAnswers.remove(CustomRequestEndDatePage))
-                    updatedAnswers <- Future.fromTry(removedEndDate.set(CustomRequestStartDatePage, value))
-                    redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
-                    answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                    _              <- sessionRepository.set(answersWithNav)
-                  } yield Redirect(redirectUrl)
-                case _                                                                                       =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
-                    redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
-                    answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                    _              <- sessionRepository.set(answersWithNav)
-                  } yield Redirect(redirectUrl)
-              }
-          )
-      }
+                }
+                Future.successful(viewResult)
+              },
+              value =>
+                (
+                  request.userAnswers.get(CustomRequestStartDatePage),
+                  request.userAnswers.get(CustomRequestEndDatePage)
+                ) match {
+                  case (Some(startDate), Some(endDate)) if value.isBefore(startDate) || value.isAfter(endDate) =>
+                    for {
+                      removedEndDate <- Future.fromTry(request.userAnswers.remove(CustomRequestEndDatePage))
+                      updatedAnswers <- Future.fromTry(removedEndDate.set(CustomRequestStartDatePage, value))
+                      redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
+                      answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                      _              <- sessionRepository.set(answersWithNav)
+                    } yield Redirect(redirectUrl)
+                  case _                                                                                       =>
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestStartDatePage, value))
+                      redirectUrl     = reportNavigator.nextPage(CustomRequestStartDatePage, mode, updatedAnswers).url
+                      answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                      _              <- sessionRepository.set(answersWithNav)
+                    } yield Redirect(redirectUrl)
+                }
+            )
+        }
+        .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
     }
 
   private def startEndDateStringGenerator(startDate: Option[LocalDate], endDate: Option[LocalDate])(implicit

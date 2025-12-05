@@ -18,6 +18,7 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
+import exceptions.NoAuthorisedUserFoundException
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, ReportTypeImport}
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import models.{AlreadySubmittedFlag, NotificationEmail, SelectThirdPartyEori, UserAnswers}
@@ -327,7 +328,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(notificationEmail))
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
-        .thenReturn(Future.successful(Seq.empty[AuthorisedThirdPartiesViewModel]))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No access")))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
@@ -345,7 +346,7 @@ class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad()
+          .onPageLoad("GB123456789000")
           .url
       }
     }

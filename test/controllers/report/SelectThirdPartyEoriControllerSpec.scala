@@ -37,7 +37,8 @@ import services.TradeReportingExtractsService
 import views.html.problem.NoThirdPartyAccessView
 import views.html.report.SelectThirdPartyEoriView
 import java.time.LocalDate
-
+import exceptions.NoAuthorisedUserFoundException
+import models.AlreadySubmittedFlag
 import scala.concurrent.Future
 
 class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
@@ -354,6 +355,89 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
         val capturedAnswers = userAnswersCaptor.getValue
         capturedAnswers.get(SelectThirdPartyEoriPage) mustBe Some("answer")
         capturedAnswers.get(DecisionPage) mustBe None
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, selectThirdPartyEoriRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+
+        val view      = application.injector.instanceOf[SelectThirdPartyEoriView]
+        val boundForm = form.bind(Map("value" -> ""))
+
+        contentAsString(result) mustEqual view(boundForm, NormalMode, eoriList)(
+          request,
+          messages(application)
+        ).toString
+      }
+    }
+
+    "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown" in {
+
+      val testEori              = "answer"
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      when(mockTradeReportingExtractsService.getSelectThirdPartyEori(any())(any())) thenReturn Future.successful(
+        eoriList
+      )
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any())) thenReturn Future
+        .failed(new NoAuthorisedUserFoundException("Test exception"))
+
+      val sectionNav  = SectionNavigation("reportRequestSection")
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(sectionNav, "/foo")
+        .success
+        .value
+        .set(ReportNamePage, "foo")
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, selectThirdPartyEoriRoute)
+            .withFormUrlEncodedBody(("value", testEori))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad(testEori)
+          .url
+
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ReportTypeImportPage) mustBe None
+        capturedAnswers.get(sectionNav) mustBe None
+        capturedAnswers.get(DecisionPage) mustBe None
+        capturedAnswers.get(ReportNamePage) mustBe None
+        capturedAnswers.get(AlreadySubmittedFlag()) mustBe Some(true)
       }
     }
 

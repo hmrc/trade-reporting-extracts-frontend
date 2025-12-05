@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
+import utils.{ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestEndDateView
 import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
 
@@ -62,7 +62,7 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
       val startDate: LocalDate   = request.userAnswers.get(CustomRequestStartDatePage).get
 
       if (maybeThirdPartyRequest) {
-        for {
+        (for {
           details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
                            request.eori,
                            request.userAnswers.get(SelectThirdPartyEoriPage).get
@@ -82,7 +82,7 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
             maybeThirdPartyRequest,
             Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
           )
-        )
+        )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
       } else {
         val form         = formProvider(startDate, false, None)
         val preparedForm = request.userAnswers.get(CustomRequestEndDatePage) match {
@@ -124,48 +124,50 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
         Future.successful((formProvider(startDate, false, None), None))
       }
 
-      formAndDetailsFuture.flatMap { case (form, maybeDetails) =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              val viewResult = maybeDetails match {
-                case Some(details) =>
-                  BadRequest(
-                    view(
-                      formWithErrors,
-                      mode,
-                      reportLengthStringGen(startDate, plus31Days = false),
-                      reportLengthStringGen(startDate, plus31Days = true),
-                      ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                      maybeThirdPartyRequest,
-                      Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
+      formAndDetailsFuture
+        .flatMap { case (form, maybeDetails) =>
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                val viewResult = maybeDetails match {
+                  case Some(details) =>
+                    BadRequest(
+                      view(
+                        formWithErrors,
+                        mode,
+                        reportLengthStringGen(startDate, plus31Days = false),
+                        reportLengthStringGen(startDate, plus31Days = true),
+                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                        maybeThirdPartyRequest,
+                        Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
+                      )
                     )
-                  )
-                case None          =>
-                  BadRequest(
-                    view(
-                      formWithErrors,
-                      mode,
-                      reportLengthStringGen(startDate, plus31Days = false),
-                      reportLengthStringGen(startDate, plus31Days = true),
-                      ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                      maybeThirdPartyRequest,
-                      None
+                  case None          =>
+                    BadRequest(
+                      view(
+                        formWithErrors,
+                        mode,
+                        reportLengthStringGen(startDate, plus31Days = false),
+                        reportLengthStringGen(startDate, plus31Days = true),
+                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                        maybeThirdPartyRequest,
+                        None
+                      )
                     )
-                  )
-              }
-              Future.successful(viewResult)
-            },
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestEndDatePage, value))
-                redirectUrl     = reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers).url
-                answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                _              <- sessionRepository.set(answersWithNav)
-              } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, answersWithNav))
-          )
-      }
+                }
+                Future.successful(viewResult)
+              },
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestEndDatePage, value))
+                  redirectUrl     = reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers).url
+                  answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                  _              <- sessionRepository.set(answersWithNav)
+                } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, answersWithNav))
+            )
+        }
+        .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
   }
 
   private def thirdPartyStartEndDateStringGen(

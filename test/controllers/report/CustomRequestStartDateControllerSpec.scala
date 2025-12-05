@@ -35,6 +35,7 @@ import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import views.html.report.CustomRequestStartDateView
+import exceptions.NoAuthorisedUserFoundException
 
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
@@ -436,6 +437,60 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for onPageLoad request" in {
+
+      val testEori              = "GB123456789012"
+      val userAnswers           = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("Test exception")))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad(testEori)
+          .url
+      }
+    }
+
+    "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for POST onSubmit request" in {
+
+      val testEori              = "GB123456789012"
+      val userAnswers           = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("Test exception")))
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, postRequest(startDate)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad(testEori)
+          .url
       }
     }
   }
