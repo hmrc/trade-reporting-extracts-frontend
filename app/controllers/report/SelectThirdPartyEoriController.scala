@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ErrorHandlers
 import views.html.report.SelectThirdPartyEoriView
 
 import javax.inject.Inject
@@ -82,14 +83,15 @@ class SelectThirdPartyEoriController @Inject() (
               BadRequest(view(formWithErrors, mode, selectThirdPartyEori))
             },
           value =>
-            for {
+            (for {
               thirdPartyDetails <- tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, value)
               updatedAnswers    <-
                 Future.fromTry(updateAnswersBasedOnDataTypes(request.userAnswers, value, thirdPartyDetails.dataTypes))
               redirectUrl        = navigator.nextPage(SelectThirdPartyEoriPage, mode, updatedAnswers).url
               answersWithNav     = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
               _                 <- sessionRepository.set(answersWithNav)
-            } yield Redirect(navigator.nextPage(SelectThirdPartyEoriPage, mode, answersWithNav))
+            } yield Redirect(navigator.nextPage(SelectThirdPartyEoriPage, mode, answersWithNav)))
+              .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository, value))
         )
   }
 

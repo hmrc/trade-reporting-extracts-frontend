@@ -37,7 +37,8 @@ class RequestNotCompletedControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestNotCompletedController.onPageLoad().url)
+        val request =
+          FakeRequest(GET, controllers.report.routes.RequestNotCompletedController.onPageLoad("GB123456789000").url)
 
         val result = route(application, request).value
 

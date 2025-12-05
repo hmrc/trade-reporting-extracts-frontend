@@ -26,8 +26,10 @@ import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.ErrorHandlers
 import viewmodels.checkAnswers.report.*
 import viewmodels.govuk.summarylist.*
 import views.html.report.CheckYourAnswersView
@@ -38,6 +40,7 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
+  sessionRepository: SessionRepository,
   requireData: DataRequiredAction,
   navigator: ReportNavigator,
   preventBackNavigationAfterSubmissionAction: PreventBackNavigationAfterSubmissionAction,
@@ -61,13 +64,15 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
 
     thirdPartyEoriOpt match {
       case Some(thirdPartyEori) =>
-        tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, thirdPartyEori).map {
-          thirdPartyDetails =>
+        tradeReportingExtractsService
+          .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
+          .map { thirdPartyDetails =>
             val dataTypes           = thirdPartyDetails.dataTypes
             val showDecisionSummary = !(dataTypes == Set("exports") || dataTypes == Set("imports"))
 
             buildSummaryRows(showDecisionSummary)
-        }
+          }
+          .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
       case None                 =>
         Future.successful {
           buildSummaryRows(true)
