@@ -37,14 +37,13 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
   implicit val ec: ExecutionContext = ExecutionContext.global
 
-
   "ErrorHandlers" - {
 
     "handleNoAuthorisedUserFoundException" - {
 
       val mockSessionRepository = mock[SessionRepository]
-      val testEori = "GB123456789012"
-      val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
+      val testEori              = "GB123456789012"
+      val userAnswers           = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
 
       val dataRequest: DataRequest[AnyContent] = DataRequest(
         request = FakeRequest(),
@@ -58,24 +57,27 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
         reset(mockSessionRepository)
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler   = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val exception = new NoAuthorisedUserFoundException("Test exception")
 
         val result = handler(exception).futureValue
 
         status(Future.successful(result)) mustEqual SEE_OTHER
-        redirectLocation(Future.successful(result)) mustBe Some(controllers.report.routes.RequestNotCompletedController.onPageLoad(testEori).url)
+        redirectLocation(Future.successful(result)) mustBe Some(
+          controllers.report.routes.RequestNotCompletedController.onPageLoad(testEori).url
+        )
 
         verify(mockSessionRepository, times(1)).set(any[UserAnswers]())
       }
 
       "must redirect to IndexController when SelectThirdPartyEoriPage has no value" in {
         reset(mockSessionRepository)
-        val userAnswers = emptyUserAnswers
+        val userAnswers               = emptyUserAnswers
         val dataRequestWithNewAnswers = dataRequest.copy(userAnswers = userAnswers)
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequestWithNewAnswers, mockSessionRepository)
+        val handler   =
+          ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequestWithNewAnswers, mockSessionRepository)
         val exception = new NoAuthorisedUserFoundException("Test exception")
 
         val result = handler(exception).futureValue
@@ -92,7 +94,7 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler   = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val exception = new NoAuthorisedUserFoundException("Test exception")
 
         handler(exception).futureValue
@@ -106,7 +108,7 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler   = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val exception = new NoAuthorisedUserFoundException("Test exception")
 
         handler(exception).futureValue
@@ -117,9 +119,10 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       "must handle session repository failure gracefully" in {
         val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
 
-        when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.failed(new RuntimeException("Session save failed")))
+        when(mockSessionRepository.set(any[UserAnswers]()))
+          .thenReturn(Future.failed(new RuntimeException("Session save failed")))
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler   = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val exception = new NoAuthorisedUserFoundException("Test exception")
 
         val f = handler(exception)
@@ -129,7 +132,7 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       "must only handle NoAuthorisedUserFoundException" in {
         val userAnswers = emptyUserAnswers
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler        = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val otherException = new RuntimeException("Different exception")
 
         handler.isDefinedAt(otherException) mustBe false
@@ -138,7 +141,7 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       "must be defined for NoAuthorisedUserFoundException" in {
         val userAnswers = emptyUserAnswers
 
-        val handler = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
+        val handler         = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val targetException = new NoAuthorisedUserFoundException("Target exception")
 
         handler.isDefinedAt(targetException) mustBe true

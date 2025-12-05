@@ -35,14 +35,13 @@ object ErrorHandlers {
   )(implicit ec: ExecutionContext): PartialFunction[Throwable, Future[Result]] = {
     case _: NoAuthorisedUserFoundException =>
       for {
-        updatedAnswers                   <- Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+        updatedAnswers                   <-
+          Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
         updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
         _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-      } yield {
-        request.userAnswers.get(SelectThirdPartyEoriPage) match {
-          case Some(eori) => Redirect(controllers.report.routes.RequestNotCompletedController.onPageLoad(eori))
-          case None       => Redirect(controllers.routes.IndexController.onPageLoad())
-        }
+      } yield request.userAnswers.get(SelectThirdPartyEoriPage) match {
+        case Some(eori) => Redirect(controllers.report.routes.RequestNotCompletedController.onPageLoad(eori))
+        case None       => Redirect(controllers.routes.IndexController.onPageLoad())
       }
   }
 
@@ -53,7 +52,8 @@ object ErrorHandlers {
   )(implicit ec: ExecutionContext): PartialFunction[Throwable, Future[Result]] = {
     case _: NoAuthorisedUserFoundException =>
       for {
-        updatedAnswers                   <- Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+        updatedAnswers                   <-
+          Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
         updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
         _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
       } yield Redirect(controllers.report.routes.RequestNotCompletedController.onPageLoad(thirdPartyEori))
