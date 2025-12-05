@@ -97,7 +97,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
+            DataTheyCanViewSummary
+              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .get
           )
         )
 
@@ -154,7 +156,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
+            DataTheyCanViewSummary
+              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .get
           )
         )
 
@@ -211,7 +215,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .detailsRow(thirdPartyDetails, true, "eori", emptyUserAnswers)(messages(application))
               .get,
             DataTypesSummary.detailsRow(Set("import"), true, "eori")(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true)(messages(application)).get
+            DataTheyCanViewSummary
+              .detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .get
           )
         )
 
@@ -267,7 +273,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
+            DataTheyCanViewSummary
+              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .get
           )
         )
 
@@ -323,7 +331,9 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
             DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false)(messages(application)).get
+            DataTheyCanViewSummary
+              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .get
           )
         )
 

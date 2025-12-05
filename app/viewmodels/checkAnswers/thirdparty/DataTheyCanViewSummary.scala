@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import models.{CheckMode, ThirdPartyDetails, UserAnswers}
+import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage}
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
 import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
@@ -24,6 +25,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
+import models.thirdparty.DeclarationDate
 
 import java.time.LocalDate
 
@@ -68,7 +71,8 @@ object DataTheyCanViewSummary {
     startDateOpt: Option[LocalDate],
     endDateOpt: Option[LocalDate],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean
+    tpEnabledAndNotBusinessDetailsRow: Boolean,
+    thirdPartyEori: Option[String]
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
     implicit val lang: Lang = messages.lang
@@ -90,7 +94,7 @@ object DataTheyCanViewSummary {
         ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
     }
 
-    if (tpEnabledAndNotBusinessDetailsRow) {
+    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
       Some(
         SummaryListRowViewModel(
           key = keyMessage,
@@ -98,7 +102,7 @@ object DataTheyCanViewSummary {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad(thirdPartyEori.get).url
             )
               .withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
           )
@@ -114,16 +118,40 @@ object DataTheyCanViewSummary {
     }
   }
 
-  def detailsRow(thirdPartyDetails: ThirdPartyDetails, isThirdPartyEnabled: Boolean)(implicit
+  def detailsRow(
+    thirdPartyDetails: ThirdPartyDetails,
+    isThirdPartyEnabled: Boolean,
+    thirdPartyEori: String,
+    answers: UserAnswers
+  )(implicit
     messages: Messages
   ): Option[SummaryListRow] =
     buildRow(
-      thirdPartyDetails.dataStartDate,
-      thirdPartyDetails.dataEndDate,
+      answers.get(EditDeclarationDatePage(thirdPartyEori)).match {
+        case Some(date) if date == DeclarationDate.AllAvailableData => None
+        case _                                                      =>
+          answers
+            .get(EditDataStartDatePage(thirdPartyEori))
+            .orElse(thirdPartyDetails.dataStartDate)
+      },
+      answers.get(EditDeclarationDatePage(thirdPartyEori)).match {
+        case Some(date) if date == DeclarationDate.AllAvailableData => None
+        case _                                                      =>
+          answers
+            .get(EditDataEndDatePage(thirdPartyEori))
+            .getOrElse(thirdPartyDetails.dataEndDate)
+      },
       "dataTheyCanView.checkYourAnswersLabel",
-      isThirdPartyEnabled
+      isThirdPartyEnabled,
+      Some(thirdPartyEori)
     )
 
   def businessDetailsRow(thirdPartyDetails: ThirdPartyDetails)(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(thirdPartyDetails.dataStartDate, thirdPartyDetails.dataEndDate, "businessDetails.dataRange.label", false)
+    buildRow(
+      thirdPartyDetails.dataStartDate,
+      thirdPartyDetails.dataEndDate,
+      "businessDetails.dataRange.label",
+      false,
+      None
+    )
 }

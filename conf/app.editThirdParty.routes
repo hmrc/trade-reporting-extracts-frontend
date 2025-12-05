@@ -9,3 +9,12 @@ POST       /editThirdPartyAccessStart/:thirdPartyEori                      contr
 
 GET        /editThirdPartyAccessEnd/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori: String)
 POST       /editThirdPartyAccessEnd/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori: String)
+
+GET         /edit-data-start-date/:thirdPartyEori                            controllers.editThirdParty.EditDataStartDateController.onPageLoad(thirdPartyEori: String)
+POST        /edit-data-start-date/:thirdPartyEori                            controllers.editThirdParty.EditDataStartDateController.onSubmit(thirdPartyEori: String)
+
+GET         /edit-data-end-date/:thirdPartyEori                              controllers.editThirdParty.EditDataEndDateController.onPageLoad(thirdPartyEori: String)
+POST        /edit-data-end-date/:thirdPartyEori                              controllers.editThirdParty.EditDataEndDateController.onSubmit(thirdPartyEori: String)
+
+GET         /edit-data-access-range/:thirdPartyEori                          controllers.editThirdParty.EditDeclarationDateController.onPageLoad(thirdPartyEori: String)
+POST        /edit-data-access-range/:thirdPartyEori                          controllers.editThirdParty.EditDeclarationDateController.onSubmit(thirdPartyEori: String)
