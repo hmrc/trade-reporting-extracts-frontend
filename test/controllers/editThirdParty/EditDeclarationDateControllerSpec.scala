@@ -39,7 +39,7 @@ import scala.concurrent.Future
 
 class EditDeclarationDateControllerSpec extends SpecBase with MockitoSugar {
 
-  private val formProvider = new EditDeclarationDateFormProvider()
+  private val formProvider                  = new EditDeclarationDateFormProvider()
   private def form(dataTypesString: String) = formProvider(Seq(dataTypesString))
 
   def onwardRoute = Call("GET", "/foo")
@@ -94,7 +94,11 @@ class EditDeclarationDateControllerSpec extends SpecBase with MockitoSugar {
         val dataTypesString = messages(application)("declarationDate.import")
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form(dataTypesString).fill(DeclarationDate.AllAvailableData), thirdPartyEori, dataTypesString)(
+        contentAsString(result) mustEqual view(
+          form(dataTypesString).fill(DeclarationDate.AllAvailableData),
+          thirdPartyEori,
+          dataTypesString
+        )(
           getRequest(),
           messages(application)
         ).toString
@@ -102,7 +106,7 @@ class EditDeclarationDateControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val saved = DeclarationDate.CustomDateRange
+      val saved       = DeclarationDate.CustomDateRange
       val userAnswers = UserAnswers(userAnswersId).set(EditDeclarationDatePage(thirdPartyEori), saved).success.value
 
       val mockTradeService = mock[TradeReportingExtractsService]
@@ -154,7 +158,7 @@ class EditDeclarationDateControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository).set(any())
       }
     }
-    
+
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = None).build()
 

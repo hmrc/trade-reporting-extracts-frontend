@@ -129,7 +129,7 @@ class ThirdPartyDetailsController @Inject() (
         config.editThirdPartyEnabled,
         thirdPartyEori
       ),
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled)
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers)
     )
 
     val hasChangesFlag = detectChanges(thirdPartyDetails, answers, thirdPartyEori)
@@ -143,9 +143,17 @@ class ThirdPartyDetailsController @Inject() (
   ): Boolean = buildChecks(thirdPartyDetails, thirdPartyEori).exists { check =>
     answers.get(check.page)(check.reads) match {
       case Some(value) => check.normalize(value) != check.original
+      case None =>   "" != check.original
       case None        => false
     }
   }
+
+  private val showOptDate: Option[LocalDate] => String =
+    _.map(_.toString).getOrElse("")
+
+  private implicit val optLocalDateReads: Reads[Option[LocalDate]] =
+    Reads.optionWithNull[LocalDate]
+
 
   private def buildChecks(thirdPartyDetails: ThirdPartyDetails, thirdPartyEori: String): Seq[ChangeCheck[_]] = Seq(
     ChangeCheck(
@@ -171,7 +179,19 @@ class ThirdPartyDetailsController @Inject() (
       (v: LocalDate) => v.toString,
       thirdPartyDetails.accessEndDate.map(_.toString).getOrElse(""),
       implicitly[Reads[LocalDate]]
-    )
+    ),
+    ChangeCheck(
+    EditDataStartDatePage(thirdPartyEori),
+    (v: LocalDate) => v.toString,
+    thirdPartyDetails.dataStartDate.map(_.toString).getOrElse(""),
+    implicitly[Reads[LocalDate]]
+  ),
+    ChangeCheck(
+      EditDataEndDatePage(thirdPartyEori),
+    showOptDate,
+    showOptDate(thirdPartyDetails.accessEndDate),
+    optLocalDateReads
+  )
   )
 
   private case class ChangeCheck[A](

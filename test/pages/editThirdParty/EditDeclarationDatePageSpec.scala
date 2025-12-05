@@ -43,7 +43,10 @@ class EditDeclarationDatePageSpec extends SpecBase {
         .value
 
       val cleanedUserAnswers =
-        EditDeclarationDatePage("thirpartyeori").cleanup(Some(DeclarationDate.AllAvailableData), userAnswers).success.value
+        EditDeclarationDatePage("thirpartyeori")
+          .cleanup(Some(DeclarationDate.AllAvailableData), userAnswers)
+          .success
+          .value
 
       cleanedUserAnswers.get(EditDataStartDatePage("thirpartyeori")) mustBe None
       cleanedUserAnswers.get(EditDataEndDatePage("thirpartyeori")) mustBe None
@@ -66,7 +69,10 @@ class EditDeclarationDatePageSpec extends SpecBase {
         .value
 
       val cleanedUserAnswers =
-        EditDeclarationDatePage("thirpartyeori").cleanup(Some(DeclarationDate.CustomDateRange), userAnswers).success.value
+        EditDeclarationDatePage("thirpartyeori")
+          .cleanup(Some(DeclarationDate.CustomDateRange), userAnswers)
+          .success
+          .value
 
       cleanedUserAnswers.get(EditDataStartDatePage("thirpartyeori")) mustBe Some(LocalDate.of(2023, 1, 1))
       cleanedUserAnswers.get(EditDataEndDatePage("thirpartyeori")).get mustBe Some(LocalDate.of(2023, 12, 31))
