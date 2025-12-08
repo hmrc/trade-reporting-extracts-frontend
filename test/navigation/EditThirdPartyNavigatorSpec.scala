@@ -18,6 +18,7 @@ package navigation
 
 import base.SpecBase
 import pages.editThirdParty.*
+import models.thirdparty.DeclarationDate
 
 class EditThirdPartyNavigatorSpec extends SpecBase {
 
@@ -72,6 +73,59 @@ class EditThirdPartyNavigatorSpec extends SpecBase {
           .onPageLoad("thirdPartyEori")
       }
 
+    }
+
+    "EditDeclarationDatePage" - {
+
+      "must go back to third party details when AllAvailableData selected" in {
+        val page    = EditDeclarationDatePage("thirdPartyEori")
+        val answers = emptyUserAnswers.set(page, DeclarationDate.AllAvailableData).success.value
+
+        navigator.nextPage(page, userAnswers = answers) mustBe controllers.thirdparty.routes.ThirdPartyDetailsController
+          .onPageLoad("thirdPartyEori")
+      }
+
+      "must go to edit data start date when CustomDateRange selected" in {
+        val page    = EditDeclarationDatePage("thirdPartyEori")
+        val answers = emptyUserAnswers.set(page, DeclarationDate.CustomDateRange).success.value
+
+        navigator.nextPage(
+          page,
+          userAnswers = answers
+        ) mustBe controllers.editThirdParty.routes.EditDataStartDateController
+          .onPageLoad("thirdPartyEori")
+      }
+
+      "must go to journey recovery when no answer present" in {
+        val page    = EditDeclarationDatePage("thirdPartyEori")
+        val answers = emptyUserAnswers
+
+        navigator.nextPage(page, userAnswers = answers) mustBe controllers.problem.routes.JourneyRecoveryController
+          .onPageLoad()
+      }
+    }
+
+    "EditDataStartDatePage" - {
+      "must go to edit data end date screen" in {
+        val page    = EditDataStartDatePage("thirdPartyEori")
+        val answers = emptyUserAnswers
+
+        navigator.nextPage(
+          page,
+          userAnswers = answers
+        ) mustBe controllers.editThirdParty.routes.EditDataEndDateController
+          .onPageLoad("thirdPartyEori")
+      }
+    }
+
+    "EditDataEndDatePage" - {
+      "must go back to third party details screen" in {
+        val page    = EditDataEndDatePage("thirdPartyEori")
+        val answers = emptyUserAnswers
+
+        navigator.nextPage(page, userAnswers = answers) mustBe controllers.thirdparty.routes.ThirdPartyDetailsController
+          .onPageLoad("thirdPartyEori")
+      }
     }
 
   }

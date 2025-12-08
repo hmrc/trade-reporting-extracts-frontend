@@ -61,15 +61,15 @@ class ThirdPartyDetailsController @Inject() (
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getOrCreate).async {
     implicit request =>
       for {
-        companyInfo <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
-        maybeCompanyName = resolveDisplayName(companyInfo)
+        companyInfo       <- tradeReportingExtractsService.getCompanyInformation(thirdPartyEori)
+        maybeCompanyName   = resolveDisplayName(companyInfo)
         thirdPartyDetails <- tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori)
 
         status = UserActiveStatus.fromInstants(
-          thirdPartyDetails.accessStartDate.atStartOfDay(clock.getZone).toInstant,
-          thirdPartyDetails.dataStartDate.map(_.atStartOfDay(clock.getZone).toInstant),
-          clock
-        )
+                   thirdPartyDetails.accessStartDate.atStartOfDay(clock.getZone).toInstant,
+                   thirdPartyDetails.dataStartDate.map(_.atStartOfDay(clock.getZone).toInstant),
+                   clock
+                 )
 
         calculatedDateValue = computeCalculatedDateValue(thirdPartyDetails, status)
 
@@ -88,17 +88,17 @@ class ThirdPartyDetailsController @Inject() (
   }
 
   private def rowGenerator(
-                            thirdPartyDetails: ThirdPartyDetails,
-                            maybeBusinessInfo: Option[String],
-                            thirdPartyEori: String,
-                            answers: UserAnswers
-                          )(implicit messages: Messages): (Seq[Option[SummaryListRow]], Boolean) = {
+    thirdPartyDetails: ThirdPartyDetails,
+    maybeBusinessInfo: Option[String],
+    thirdPartyEori: String,
+    answers: UserAnswers
+  )(implicit messages: Messages): (Seq[Option[SummaryListRow]], Boolean) = {
 
     val rows = Seq(
       EoriNumberSummary.detailsRow(thirdPartyEori)
     ) ++ (
       (maybeBusinessInfo.isDefined, thirdPartyDetails.referenceName.isDefined) match {
-        case (true, true) =>
+        case (true, true)  =>
           Seq(
             BusinessInfoSummary.row(maybeBusinessInfo.get),
             ThirdPartyReferenceSummary.detailsRow(
@@ -109,7 +109,7 @@ class ThirdPartyDetailsController @Inject() (
           )
         case (true, false) =>
           Seq(BusinessInfoSummary.row(maybeBusinessInfo.get))
-        case (false, _) =>
+        case (false, _)    =>
           Seq(
             ThirdPartyReferenceSummary.detailsRow(
               answers.get(EditThirdPartyReferencePage(thirdPartyEori)).orElse(thirdPartyDetails.referenceName),
@@ -118,7 +118,7 @@ class ThirdPartyDetailsController @Inject() (
             )
           )
       }
-      ) ++ Seq(
+    ) ++ Seq(
       ThirdPartyAccessPeriodSummary
         .detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers),
       DataTypesSummary.detailsRow(
@@ -143,15 +143,16 @@ class ThirdPartyDetailsController @Inject() (
   ): Boolean = buildChecks(thirdPartyDetails, thirdPartyEori).exists { check =>
     if (check.page == EditDataStartDatePage(thirdPartyEori) || check.page == EditDataEndDatePage(thirdPartyEori)) {
       (answers.get(check.page)(check.reads), answers.get(EditDeclarationDatePage(thirdPartyEori))) match {
-        case (Some(value), _) => check.normalize(value) != check.original
+        case (Some(value), _)                               => check.normalize(value) != check.original
         case (None, Some(DeclarationDate.AllAvailableData)) => check.original != ""
-        case (_, _) => false
+        case (_, _)                                         => false
       }
     } else {
       answers.get(check.page)(check.reads) match {
-      case Some(value) => check.normalize(value) != check.original
-      case None => false
-    }}
+        case Some(value) => check.normalize(value) != check.original
+        case None        => false
+      }
+    }
   }
 
   private val showOptDate: Option[LocalDate] => String =
@@ -159,7 +160,6 @@ class ThirdPartyDetailsController @Inject() (
 
   private implicit val optLocalDateReads: Reads[Option[LocalDate]] =
     Reads.optionWithNull[LocalDate]
-
 
   private def buildChecks(thirdPartyDetails: ThirdPartyDetails, thirdPartyEori: String): Seq[ChangeCheck[_]] = Seq(
     ChangeCheck(
@@ -187,17 +187,17 @@ class ThirdPartyDetailsController @Inject() (
       implicitly[Reads[LocalDate]]
     ),
     ChangeCheck(
-    EditDataStartDatePage(thirdPartyEori),
-    (v: LocalDate) => v.toString,
-    thirdPartyDetails.dataStartDate.map(_.toString).getOrElse(""),
-    implicitly[Reads[LocalDate]]
-  ),
+      EditDataStartDatePage(thirdPartyEori),
+      (v: LocalDate) => v.toString,
+      thirdPartyDetails.dataStartDate.map(_.toString).getOrElse(""),
+      implicitly[Reads[LocalDate]]
+    ),
     ChangeCheck(
       EditDataEndDatePage(thirdPartyEori),
-    showOptDate,
-    showOptDate(thirdPartyDetails.accessEndDate),
-    optLocalDateReads
-  )
+      showOptDate,
+      showOptDate(thirdPartyDetails.accessEndDate),
+      optLocalDateReads
+    )
   )
 
   private case class ChangeCheck[A](

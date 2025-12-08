@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeDataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
-import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
+import models.thirdparty.DeclarationDate
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +29,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import play.api.inject.bind
 import org.mockito.Mockito.when
-import pages.editThirdParty.EditThirdPartyReferencePage
+import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyReferencePage}
 import pages.report.{ChooseEoriPage, NewEmailNotificationPage}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.RequestHeader
@@ -216,7 +216,7 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
               .get,
             DataTypesSummary.detailsRow(Set("import"), true, "eori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, true, "eori", emptyUserAnswers)(messages(application))
               .get
           )
         )
@@ -387,6 +387,190 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         content must include(messages(application)("editThirdParty.confirmChanges"))
         content must include(messages(application)("editThirdParty.cancel"))
+      }
+    }
+
+    "must display confirm changes when EditDataStartDatePage answer differs from original" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = None,
+        dataTypes = Set("import"),
+        dataStartDate = Some(LocalDate.of(2025, 1, 1)),
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Denied)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val modifiedUserAnswers = UserAnswers("id")
+        .set(EditDataStartDatePage("thirdPartyEori"), LocalDate.of(2025, 2, 1))
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
+          bind[IdentifierAction].to[FakeIdentifierAction],
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+        val result  = route(application, request).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(messages(application)("editThirdParty.confirmChanges"))
+      }
+    }
+
+    "must display confirm changes when data start absent in answers but EditDeclarationDatePage is AllAvailableData and original present" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = None,
+        dataTypes = Set("import"),
+        dataStartDate = Some(LocalDate.of(2025, 1, 1)),
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Denied)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val modifiedUserAnswers = UserAnswers("id")
+        .set(EditDeclarationDatePage("thirdPartyEori"), DeclarationDate.AllAvailableData)
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
+          bind[IdentifierAction].to[FakeIdentifierAction],
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+        val result  = route(application, request).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(messages(application)("editThirdParty.confirmChanges"))
+      }
+    }
+
+    "must display confirm changes when EditDataEndDatePage answer is set and differs from original" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = None,
+        dataTypes = Set("import"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Denied)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val modifiedUserAnswers = UserAnswers("id")
+        .set(EditDataEndDatePage("thirdPartyEori"), Some(LocalDate.of(2025, 3, 1)))
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
+          bind[IdentifierAction].to[FakeIdentifierAction],
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+        val result  = route(application, request).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(messages(application)("editThirdParty.confirmChanges"))
+      }
+    }
+
+    "must display confirm changes when data end absent in answers but EditDeclarationDatePage is AllAvailableData and original present" in {
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        referenceName = Some("bar"),
+        accessStartDate = LocalDate.of(2025, 1, 1),
+        accessEndDate = Some(LocalDate.of(2025, 4, 1)),
+        dataTypes = Set("import"),
+        dataStartDate = None,
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(CompanyInformation("foo", ConsentStatus.Denied)))
+
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
+        .thenReturn(Future.successful(thirdPartyDetails))
+
+      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
+      when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+
+      val modifiedUserAnswers = UserAnswers("id")
+        .set(EditDeclarationDatePage("thirdPartyEori"), DeclarationDate.AllAvailableData)
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
+          bind[IdentifierAction].to[FakeIdentifierAction],
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+        val result  = route(application, request).value
+        val content = contentAsString(result)
+
+        status(result) mustEqual OK
+        content must include(messages(application)("editThirdParty.confirmChanges"))
       }
     }
 

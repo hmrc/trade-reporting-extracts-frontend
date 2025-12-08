@@ -18,9 +18,11 @@ package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
 import models.{CheckMode, ThirdPartyDetails, UserAnswers}
+import models.thirdparty.DeclarationDate
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.shouldBe
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
+import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage}
 import play.api.i18n.{Lang, Messages}
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -164,8 +166,64 @@ class DataTheyCanViewSummarySpec extends SpecBase {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              "#"
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad("thirdPartyEori").url
             ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
+          )
+        )
+      )
+    }
+
+    "when EditDeclarationDatePage is AllAvailableData, return the all-data summary row" in {
+      val startDate         = LocalDate.of(2025, 6, 1)
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = Some(LocalDate.of(2025, 6, 30)),
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val answers = emptyUserAnswers
+        .set(EditDeclarationDatePage("thirdPartyEori"), DeclarationDate.AllAvailableData)
+        .get
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", answers) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
+        )
+      )
+    }
+
+    "when edit pages provide dates, prefer those over ThirdPartyDetails values" in {
+      val editedStart = LocalDate.of(2025, 7, 1)
+      val editedEnd   = LocalDate.of(2025, 7, 31)
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(LocalDate.of(2025, 6, 1)),
+        dataEndDate = Some(LocalDate.of(2025, 6, 30)),
+        referenceName = None,
+        accessStartDate = LocalDate.of(2025, 6, 1),
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val answers = emptyUserAnswers
+        .set(EditDataStartDatePage("thirdPartyEori"), editedStart)
+        .get
+        .set(EditDataEndDatePage("thirdPartyEori"), Some(editedEnd))
+        .get
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", answers) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages(
+              "dataTheyCanView.fixed.answerLabel",
+              editedStart.format(dateTimeFormat()),
+              editedEnd.format(dateTimeFormat())
+            )
           )
         )
       )
