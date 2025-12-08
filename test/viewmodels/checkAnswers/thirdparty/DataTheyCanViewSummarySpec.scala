@@ -228,6 +228,39 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         )
       )
     }
+
+    "when start date is available, and end date is set to MAX return the summary row for ongoing period" in {
+      val startDate = LocalDate.of(2025, 6, 1)
+      val editedEnd = LocalDate.MAX
+
+      val thirdPartyDetails = ThirdPartyDetails(
+        dataStartDate = Some(startDate),
+        dataEndDate = None,
+        referenceName = None,
+        accessStartDate = startDate,
+        accessEndDate = None,
+        dataTypes = Set("import")
+      )
+
+      val answers = emptyUserAnswers
+        .set(EditDataEndDatePage("thirdPartyEori"), Some(editedEnd))
+        .get
+
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", answers) shouldBe Some(
+        SummaryListRowViewModel(
+          key = "dataTheyCanView.checkYourAnswersLabel",
+          value = ValueViewModel(
+            messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad("thirdPartyEori").url
+            ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
+          )
+        )
+      )
+    }
   }
 
   ".businessDetailsRow" - {

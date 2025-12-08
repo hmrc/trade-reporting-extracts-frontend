@@ -258,6 +258,39 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must set LocalDate.MAX when user selects 'No End Date' and service had previous end date" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val serviceEnd = fixedValidAnswer
+
+      val mockTradeService = mock[TradeReportingExtractsService]
+      when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
+        .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), Some(serviceEnd))))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeService)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, editRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+
+        capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(LocalDate.MAX))
+      }
+    }
+
     "must update end date when submitted end differs from service-provided end" in {
 
       val mockSessionRepository = mock[SessionRepository]

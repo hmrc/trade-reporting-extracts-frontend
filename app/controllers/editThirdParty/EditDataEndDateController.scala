@@ -99,19 +99,23 @@ class EditDataEndDateController @Inject() (
               Future.successful(BadRequest(view(formWithErrors, thirdPartyEori, dateFormatter(startDate)))),
             value =>
               for {
-                updatedAnswers <- thirdPartyDetails.dataEndDate match {
-                                    case None                =>
-                                      Future
-                                        .fromTry(request.userAnswers.set(EditDataEndDatePage(thirdPartyEori), value))
-                                    case Some(originalValue) =>
-                                      if (Some(originalValue) == value) {
-                                        Future.fromTry(request.userAnswers.remove(EditDataEndDatePage(thirdPartyEori)))
-                                      } else {
-                                        Future.fromTry(
-                                          request.userAnswers.set(EditDataEndDatePage(thirdPartyEori), value)
-                                        )
-                                      }
-                                  }
+                updatedAnswers <-
+                  thirdPartyDetails.dataEndDate match {
+                    case Some(originalValue) if Some(originalValue) == value =>
+                      Future.fromTry(request.userAnswers.remove(EditDataEndDatePage(thirdPartyEori)))
+                    case Some(originalValue) if value.isEmpty                =>
+                      // case if user selects 'No End Date' and there was an end date previously, set to LocalDate.MAX to indicate no end date to discern if page was answered
+                      Future
+                        .fromTry(request.userAnswers.set(EditDataEndDatePage(thirdPartyEori), Some(LocalDate.MAX)))
+                    case Some(originalValue)                                 =>
+                      Future.fromTry(
+                        request.userAnswers.set(EditDataEndDatePage(thirdPartyEori), value)
+                      )
+                    case None                                                =>
+                      Future
+                        .fromTry(request.userAnswers.set(EditDataEndDatePage(thirdPartyEori), value))
+
+                  }
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(
                 editThirdPartyNavigator.nextPage(EditDataEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)

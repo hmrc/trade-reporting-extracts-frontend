@@ -78,7 +78,11 @@ object DataTheyCanViewSummary {
     implicit val lang: Lang = messages.lang
 
     val value = (startDateOpt, endDateOpt) match {
-      case (Some(startDate), Some(endDate)) =>
+      case (Some(startDate), Some(endDate)) if Some(endDate).contains(LocalDate.MAX) =>
+        ValueViewModel(
+          messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+        )
+      case (Some(startDate), Some(endDate))                                          =>
         ValueViewModel(
           messages(
             "dataTheyCanView.fixed.answerLabel",
@@ -86,11 +90,11 @@ object DataTheyCanViewSummary {
             endDate.format(dateTimeFormat())
           )
         )
-      case (Some(startDate), None)          =>
+      case (Some(startDate), None)                                                   =>
         ValueViewModel(
           messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
         )
-      case _                                =>
+      case _                                                                         =>
         ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
     }
 
