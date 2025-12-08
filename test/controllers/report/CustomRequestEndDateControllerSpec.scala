@@ -56,7 +56,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider                      = new CustomRequestEndDateFormProvider()
   private val mostRecentPossibleStartDate       = LocalDate.now(ZoneOffset.UTC).minusDays(3)
   private val mostRecentPossibleStartDateString =
-    mostRecentPossibleStartDate.format(DateTimeFormatter.ofPattern("d MM yyyy"))
+    mostRecentPossibleStartDate.format(DateTimeFormatter.ofPattern("d M yyyy"))
   private val possibleStartDateString           =
     mostRecentPossibleStartDate.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
   private val startDate                         = LocalDate.now(ZoneOffset.UTC).minusYears(1)
