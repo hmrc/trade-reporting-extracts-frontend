@@ -24,7 +24,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage}
+import pages.editThirdParty.EditDataEndDatePage
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -36,9 +36,7 @@ import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.editThirdParty.EditDataEndDateView
 
-import java.time.format.DateTimeFormatter
 import java.time.LocalDate
-import java.util.Locale
 import scala.concurrent.Future
 
 class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
@@ -84,11 +82,6 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         "value.year"  -> d.getYear.toString
       )
 
-  def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))
-  }
-
   "EditDataEndDate Controller" - {
 
     "must return OK and the correct view for a GET when no prior data and service has start date" in {
@@ -108,7 +101,11 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[EditDataEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form(currentLocalDate), thirdPartyEori, dateFormatter(currentLocalDate))(
+        contentAsString(result) mustEqual view(
+          form(currentLocalDate),
+          thirdPartyEori,
+          DateTimeFormats.dateFormatter(currentLocalDate)
+        )(
           getRequest(),
           messages(application)
         ).toString
@@ -138,7 +135,7 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form(currentLocalDate).fill(Some(fixedValidAnswer)),
           thirdPartyEori,
-          dateFormatter(currentLocalDate)
+          DateTimeFormats.dateFormatter(currentLocalDate)
         )(
           getRequest(),
           messages(application)
@@ -166,7 +163,11 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form(serviceStart), thirdPartyEori, dateFormatter(serviceStart))(
+        contentAsString(result) mustEqual view(
+          form(serviceStart),
+          thirdPartyEori,
+          DateTimeFormats.dateFormatter(serviceStart)
+        )(
           getRequest(),
           messages(application)
         ).toString
@@ -344,7 +345,11 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, thirdPartyEori, dateFormatter(currentLocalDate))(
+        contentAsString(result) mustEqual view(
+          boundForm,
+          thirdPartyEori,
+          DateTimeFormats.dateFormatter(currentLocalDate)
+        )(
           request,
           messages(application)
         ).toString

@@ -19,20 +19,18 @@ package controllers.editThirdParty
 import controllers.actions.*
 import forms.editThirdParty.EditDataEndDateFormProvider
 import models.Mode
-import models.thirdparty.AddThirdPartySection
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage}
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.editThirdParty.EditDataEndDateView
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -77,7 +75,7 @@ class EditDataEndDateController @Inject() (
               view(
                 preparedForm,
                 thirdPartyEori,
-                dateFormatter(startDate)
+                DateTimeFormats.dateFormatter(startDate)
               )
             )
           )
@@ -96,7 +94,8 @@ class EditDataEndDateController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors =>
-              Future.successful(BadRequest(view(formWithErrors, thirdPartyEori, dateFormatter(startDate)))),
+              Future
+                .successful(BadRequest(view(formWithErrors, thirdPartyEori, DateTimeFormats.dateFormatter(startDate)))),
             value =>
               for {
                 updatedAnswers <-
@@ -122,10 +121,5 @@ class EditDataEndDateController @Inject() (
               )
           )
       }
-  }
-
-  private def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))
   }
 }

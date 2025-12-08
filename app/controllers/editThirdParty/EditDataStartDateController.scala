@@ -18,13 +18,11 @@ package controllers.editThirdParty
 
 import controllers.actions.*
 import forms.editThirdParty.EditDataStartDateFormProvider
-import forms.thirdparty.DataStartDateFormProvider
 import models.Mode
 import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage}
-import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -33,9 +31,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.editThirdParty.EditDataStartDateView
-import views.html.thirdparty.DataStartDateView
 
-import java.time.{Clock, LocalDate}
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

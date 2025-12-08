@@ -19,8 +19,8 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.thirdparty.{DataTypes, DeclarationDate}
 import models.thirdparty.DataTypes.*
+import models.thirdparty.{DataTypes, DeclarationDate}
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus, UserAnswers}
 import pages.editThirdParty.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -29,13 +29,11 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.DateTimeFormats
 import utils.DateTimeFormats.computeCalculatedDateValue
+import utils.{DateTimeFormats, UserAnswerHelper}
 import viewmodels.checkAnswers.thirdparty.*
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
-import utils.DateTimeFormats.computeCalculatedDateValue
-import utils.UserAnswerHelper
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject

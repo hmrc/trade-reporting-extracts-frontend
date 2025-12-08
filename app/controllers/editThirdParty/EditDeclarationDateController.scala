@@ -17,20 +17,17 @@
 package controllers.editThirdParty
 
 import controllers.actions.*
-import forms.thirdparty.DeclarationDateFormProvider
+import forms.editThirdParty.EditDeclarationDateFormProvider
 import models.Mode
-import models.thirdparty.{AddThirdPartySection, DataTypes}
-import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage}
-import navigation.{EditThirdPartyNavigator, Navigator, ThirdPartyNavigator}
-import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
+import models.thirdparty.{DataTypes, DeclarationDate}
+import navigation.{EditThirdPartyNavigator, Navigator}
+import pages.editThirdParty.EditDeclarationDatePage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.editThirdParty.EditDeclarationDateView
-import models.thirdparty.DeclarationDate
-import forms.editThirdParty.EditDeclarationDateFormProvider
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
