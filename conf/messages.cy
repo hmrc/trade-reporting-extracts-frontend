@@ -741,3 +741,35 @@ editThirdPartyAccessEndDate.error.required.two = cy: The date this access will e
 editThirdPartyAccessEndDate.error.required = cy: The date this access will end must include a {0}
 editThirdPartyAccessEndDate.error.invalid = cy: The date this access will end must be a real date and only include numbers 0 to 9
 editThirdPartyAccessEndDate.error.min = cy: The date this access will end must be on or after {0}
+
+editDataStartDate.title = cy: When do you want to give access to your data from?
+editDataStartDate.heading = cy: When do you want to give access to your data from?
+editDataStartDate.message = cy: The service holds data from the past 4 years. This sets how far back the third party can view your data. It does not affect when their access begins.
+editDataStartDate.hint = cy: For example, {0}.
+editDataStartDate.error.required.all = cy: Enter the date you want to give access to your data from
+editDataStartDate.error.required.two = cy: The date you want to give access to your data from must include a {0} and a {1}
+editDataStartDate.error.required = cy: The date you want to give access to your data from must include a {0}
+editDataStartDate.error.invalid = cy: The date you want to give access to your data from must be a real date and only include numbers 0 to 9
+editDataStartDate.error.min = cy: The date you want to give access to your data from must be within the last 4 years
+
+editDataEndDate.title = cy: When do you want to stop giving access to your data? (optional)
+editDataEndDate.heading = cy: When do you want to stop giving access to your data? (optional)
+editDataEndDate.message =  cy: You entered a start date of {0}. Leave this blank if you want to give ongoing access to future data.
+editDataEndDate.hint = cy: For example, 27 05 2025.
+editDataEndDate.error.required.all = cy: Enter the dataEndDate
+editDataEndDate.error.required.two = cy: The date you want to stop giving access to your data from must include a {0} and a {1}
+editDataEndDate.error.required = cy: The date you want to stop giving access to your data from must include a {0}
+editDataEndDate.error.invalid = cy: The date you want to stop giving access to your data must be a real date and only include numbers 0 to 9
+editDataEndDate.error.min = cy: The date you want to stop giving access to your data from must be on or after {0}
+
+editDeclarationDate.title = cy: Do you want to give access to all of your available {0} data?
+editDeclarationDate.heading = cy: Do you want to give access to all of your available {0} data?
+editDeclarationDate.allAvailableData = cy: Yes
+editDeclarationDate.customDateRange = cy: No, I want to add a custom date range
+editDeclarationDate.message1 = cy: The service holds data from the past 4 years.
+editDeclarationDate.checkYourAnswersLabel = cy: Do you want to give access to all of your available {0} data?
+editDeclarationDate.error.required = cy: Select yes if you want to give access to all of your {0} data
+editDeclarationDate.change.hidden = cy: if you want to give access to all of your available {0} data
+editDeclarationDate.import = cy: import
+editDeclarationDate.export = cy: export
+editDeclarationDate.importExport = cy: import and export

@@ -18,8 +18,9 @@ package navigation
 
 import models.UserAnswers
 import pages.Page
-import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
+import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
 import play.api.mvc.Call
+import models.thirdparty.DeclarationDate
 
 class EditThirdPartyNavigator extends Navigator {
 
@@ -32,5 +33,21 @@ class EditThirdPartyNavigator extends Navigator {
       _ => controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori)
     case EditThirdPartyReferencePage(thirdPartyEori)       =>
       _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+    case EditDeclarationDatePage(thirdPartyEori)           => declarationDateRoutes(thirdPartyEori)
+    case EditDataStartDatePage(thirdPartyEori)             =>
+      _ => controllers.editThirdParty.routes.EditDataEndDateController.onPageLoad(thirdPartyEori)
+    case EditDataEndDatePage(thirdPartyEori)               =>
+      _ => controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
   }
+
+  private def declarationDateRoutes(thirdPartyEori: String)(answers: UserAnswers): Call =
+    answers
+      .get(EditDeclarationDatePage(thirdPartyEori))
+      .map {
+        case DeclarationDate.AllAvailableData =>
+          controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(thirdPartyEori)
+        case DeclarationDate.CustomDateRange  =>
+          controllers.editThirdParty.routes.EditDataStartDateController.onPageLoad(thirdPartyEori)
+      }
+      .getOrElse(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
 }

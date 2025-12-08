@@ -19,8 +19,8 @@ package controllers.thirdparty
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.thirdparty.DataTypes
 import models.thirdparty.DataTypes.*
+import models.thirdparty.{DataTypes, DeclarationDate}
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus, UserAnswers}
 import pages.editThirdParty.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -29,13 +29,11 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.DateTimeFormats
 import utils.DateTimeFormats.computeCalculatedDateValue
+import utils.{DateTimeFormats, UserAnswerHelper}
 import viewmodels.checkAnswers.thirdparty.*
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
-import utils.DateTimeFormats.computeCalculatedDateValue
-import utils.UserAnswerHelper
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -129,7 +127,7 @@ class ThirdPartyDetailsController @Inject() (
         config.editThirdPartyEnabled,
         thirdPartyEori
       ),
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled)
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers)
     )
 
     val hasChangesFlag = detectChanges(thirdPartyDetails, answers, thirdPartyEori)
@@ -141,11 +139,25 @@ class ThirdPartyDetailsController @Inject() (
     answers: UserAnswers,
     thirdPartyEori: String
   ): Boolean = buildChecks(thirdPartyDetails, thirdPartyEori).exists { check =>
-    answers.get(check.page)(check.reads) match {
-      case Some(value) => check.normalize(value) != check.original
-      case None        => false
+    if (check.page == EditDataStartDatePage(thirdPartyEori) || check.page == EditDataEndDatePage(thirdPartyEori)) {
+      (answers.get(check.page)(check.reads), answers.get(EditDeclarationDatePage(thirdPartyEori))) match {
+        case (Some(value), _)                               => check.normalize(value) != check.original
+        case (None, Some(DeclarationDate.AllAvailableData)) => check.original != ""
+        case (_, _)                                         => false
+      }
+    } else {
+      answers.get(check.page)(check.reads) match {
+        case Some(value) => check.normalize(value) != check.original
+        case None        => false
+      }
     }
   }
+
+  private val showOptDate: Option[LocalDate] => String =
+    _.map(_.toString).getOrElse("")
+
+  private implicit val optLocalDateReads: Reads[Option[LocalDate]] =
+    Reads.optionWithNull[LocalDate]
 
   private def buildChecks(thirdPartyDetails: ThirdPartyDetails, thirdPartyEori: String): Seq[ChangeCheck[_]] = Seq(
     ChangeCheck(
@@ -171,6 +183,18 @@ class ThirdPartyDetailsController @Inject() (
       (v: LocalDate) => v.toString,
       thirdPartyDetails.accessEndDate.map(_.toString).getOrElse(""),
       implicitly[Reads[LocalDate]]
+    ),
+    ChangeCheck(
+      EditDataStartDatePage(thirdPartyEori),
+      (v: LocalDate) => v.toString,
+      thirdPartyDetails.dataStartDate.map(_.toString).getOrElse(""),
+      implicitly[Reads[LocalDate]]
+    ),
+    ChangeCheck(
+      EditDataEndDatePage(thirdPartyEori),
+      showOptDate,
+      showOptDate(thirdPartyDetails.accessEndDate),
+      optLocalDateReads
     )
   )
 
