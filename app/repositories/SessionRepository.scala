@@ -63,15 +63,21 @@ class SessionRepository @Inject() (
         update = Updates.set("lastUpdated", Instant.now(clock))
       )
       .toFuture()
-      .map(_ => true)
+      .map(_.wasAcknowledged())
   }
 
   def get(id: String): Future[Option[UserAnswers]] = Mdc.preservingMdc {
-    keepAlive(id).flatMap { _ =>
-      collection
-        .find(byId(id))
-        .headOption()
-    }
+    collection
+      .updateOne(
+        filter = byId(id),
+        update = Updates.set("lastUpdated", Instant.now(clock))
+      )
+      .toFuture()
+      .flatMap { _ =>
+        collection
+          .find(byId(id))
+          .headOption()
+      }
   }
 
   def set(answers: UserAnswers): Future[Boolean] = Mdc.preservingMdc {
@@ -85,13 +91,13 @@ class SessionRepository @Inject() (
         options = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .map(_ => true)
+      .map(_.wasAcknowledged())
   }
 
   def clear(id: String): Future[Boolean] = Mdc.preservingMdc {
     collection
       .deleteOne(byId(id))
       .toFuture()
-      .map(_ => true)
+      .map(_.wasAcknowledged())
   }
 }
