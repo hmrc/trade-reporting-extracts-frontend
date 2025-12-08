@@ -21,9 +21,7 @@ import config.FrontendAppConfig
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import play.api.Logging
 
-import java.nio.file.{Files, Paths}
 import javax.inject.Singleton
-import scala.util.{Failure, Success, Try}
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
@@ -41,6 +39,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.ws.writeableOf_JsValue
 import play.api.http.Status
+import exceptions.NoAuthorisedUserFoundException
 
 @Singleton
 class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppConfig, httpClient: HttpClientV2)(
@@ -259,7 +258,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK =>
+          case OK  =>
             Json.parse(response.body).validate[ThirdPartyDetails] match {
               case JsSuccess(thirdPartyDetails, _) =>
                 Future.successful(thirdPartyDetails)
@@ -272,8 +271,11 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                   )
                 )
             }
-          case _  =>
-            logger.error(s"Failed to authorised business details: ${response.status} - ${response.body}")
+          case 404 =>
+            logger.warn(s"No authorised user found for trader EORI - ${response.body}")
+            Future.failed(NoAuthorisedUserFoundException(response.body))
+          case _   =>
+            logger.error(s"Failed to get authorised business details: ${response.status} - ${response.body}")
             Future.failed(
               UpstreamErrorResponse(
                 "Unexpected response from /trade-reporting-extracts/authorised-business-details",

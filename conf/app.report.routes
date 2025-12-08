@@ -72,5 +72,5 @@ GET        /change-check-new-email                  controllers.report.CheckNewE
 POST       /change-check-new-email                  controllers.report.CheckNewEmailController.onSubmit(mode: Mode = CheckMode)
 
 GET        /export-item-report                       controllers.report.ExportItemReportController.onPageLoad()
-GET        /request-not-completed                       controllers.report.RequestNotCompletedController.onPageLoad()
+GET        /request-not-completed                       controllers.report.RequestNotCompletedController.onPageLoad(eori: String)
 

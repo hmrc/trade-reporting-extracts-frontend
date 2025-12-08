@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import base.SpecBase
+import exceptions.NoAuthorisedUserFoundException
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
@@ -109,6 +110,28 @@ class BusinessDetailsControllerSpec extends SpecBase with MockitoSugar {
         val document = Jsoup.parse(contentAsString(result))
         document.text() must include("GB123456789000")
         document.text() must not include "Test Business Ltd"
+      }
+    }
+
+    "must redirect to NoThirdPartyAccessController when NoAuthorisedUserFoundException is thrown by getAuthorisedBusinessDetails" in {
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No access")))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.BusinessDetailsController.onPageLoad(businessEori).url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.problem.routes.NoThirdPartyAccessController.onPageLoad().url)
       }
     }
   }

@@ -18,6 +18,7 @@ package controllers.report
 
 import base.SpecBase
 import controllers.report
+import exceptions.NoAuthorisedUserFoundException
 import models.SectionNavigation
 import models.report.Decision
 import org.mockito.ArgumentMatchers.any
@@ -194,6 +195,40 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val content = contentAsString(result)
         content must include("Type of data to download")
         status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown" in {
+      val sectionNav     = SectionNavigation("reportRequestSection")
+      val thirdPartyEori = "GB123456789000"
+      val userAnswers    = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Export)
+        .success
+        .value
+        .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+
+      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found for third party EORI:")))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad(thirdPartyEori)
+          .url
       }
     }
   }

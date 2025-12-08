@@ -18,6 +18,7 @@ package controllers.thirdparty
 
 import controllers.BaseController
 import controllers.actions.*
+import exceptions.NoAuthorisedUserFoundException
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserActiveStatus}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,7 +46,7 @@ class BusinessDetailsController @Inject (clock: Clock = Clock.systemUTC())(
     with I18nSupport {
 
   def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
-    for {
+    (for {
       companyInfo        <- tradeReportingExtractsService.getCompanyInformation(traderEori)
       maybeCompanyName    = resolveDisplayName(companyInfo)
       thirdPartyDetails  <- tradeReportingExtractsService.getAuthorisedBusinessDetails(request.eori, traderEori)
@@ -57,7 +58,10 @@ class BusinessDetailsController @Inject (clock: Clock = Clock.systemUTC())(
       calculatedDateValue = computeCalculatedDateValue(thirdPartyDetails, status)
       rows                = rowGenerator(thirdPartyDetails, maybeCompanyName, traderEori)
       list                = SummaryListViewModel(rows = rows.flatten)
-    } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming))
+    } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming))).recover {
+      case _: NoAuthorisedUserFoundException =>
+        Redirect(controllers.problem.routes.NoThirdPartyAccessController.onPageLoad())
+    }
   }
 
   private def rowGenerator(
