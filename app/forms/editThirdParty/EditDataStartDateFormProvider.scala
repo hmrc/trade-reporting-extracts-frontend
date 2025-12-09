@@ -19,6 +19,7 @@ package forms.editThirdParty
 import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.i18n.Messages
+import utils.Constants.thirdPartyDataAccessLookBackYears
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -26,7 +27,7 @@ import javax.inject.Inject
 class EditDataStartDateFormProvider @Inject() extends Mappings {
 
   private val currentDate: LocalDate        = LocalDate.now()
-  private val dateMinusFourYears: LocalDate = currentDate.minusYears(4)
+  private val minimumAllowedDate: LocalDate = currentDate.minusYears(thirdPartyDataAccessLookBackYears)
 
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
@@ -38,7 +39,7 @@ class EditDataStartDateFormProvider @Inject() extends Mappings {
       )
         .verifying(
           minDate(
-            dateMinusFourYears,
+            minimumAllowedDate,
             "editDataStartDate.error.min"
           )
         )

@@ -21,4 +21,5 @@ case object Constants {
   val eori: String       = "eori"
   val eoriMaxLength: Int = 17
   val eoriMinLength: Int = 14
+  val thirdPartyDataAccessLookBackYears: Int = 4
 }

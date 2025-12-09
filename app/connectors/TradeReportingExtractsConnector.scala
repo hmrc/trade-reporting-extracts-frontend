@@ -46,8 +46,6 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   implicit ec: ExecutionContext
 ) extends Logging {
 
-  private val defaultPath = "conf/resources/eoriList.json"
-
   def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/setup-user")

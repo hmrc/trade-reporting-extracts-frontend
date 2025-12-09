@@ -20,7 +20,6 @@ import controllers.actions.*
 import forms.editThirdParty.EditDataStartDateFormProvider
 import models.Mode
 import models.requests.DataRequest
-import models.thirdparty.AddThirdPartySection
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -44,7 +43,6 @@ class EditDataStartDateController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   formProvider: EditDataStartDateFormProvider,
-  addThirdPartySection: AddThirdPartySection,
   val controllerComponents: MessagesControllerComponents,
   tradeReportingExtractsService: TradeReportingExtractsService,
   view: EditDataStartDateView

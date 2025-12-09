@@ -18,7 +18,6 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import models.thirdparty.AddThirdPartySection
-import pages.thirdparty.ThirdPartyDataOwnerConsentPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

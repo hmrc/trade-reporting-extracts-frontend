@@ -19,10 +19,10 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.{AddThirdPartySection, ConfirmEori}
-import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
 import models.{CompanyInformation, ConsentStatus, Mode}
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ConfirmEoriPage, EoriNumberPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -49,7 +49,7 @@ class ConfirmEoriController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[ConfirmEori] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>

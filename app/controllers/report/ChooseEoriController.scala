@@ -16,11 +16,10 @@
 
 package controllers.report
 
-import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.ChooseEoriFormProvider
-import models.{CheckMode, Mode, UserAnswers}
+import models.Mode
 import models.report.{ChooseEori, ReportDateRange, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.QuestionPage
@@ -32,7 +31,6 @@ import views.html.report.ChooseEoriView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class ChooseEoriController @Inject() (
   override val messagesApi: MessagesApi,
@@ -44,8 +42,7 @@ class ChooseEoriController @Inject() (
   formProvider: ChooseEoriFormProvider,
   reportRequestSection: ReportRequestSection,
   view: ChooseEoriView,
-  val controllerComponents: MessagesControllerComponents,
-  appConfig: FrontendAppConfig
+  val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController {
 

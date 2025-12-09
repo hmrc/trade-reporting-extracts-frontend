@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.mappings.Mappings
-import models.StringFieldRegex
 import play.api.data.Form
 import utils.Constants.maxNameLength
 

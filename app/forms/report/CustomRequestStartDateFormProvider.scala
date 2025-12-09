@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.i18n.Messages
 
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
 class CustomRequestStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {

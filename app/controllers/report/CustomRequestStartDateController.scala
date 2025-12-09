@@ -18,10 +18,10 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.CustomRequestStartDateFormProvider
-import models.{Mode, ThirdPartyDetails}
 import models.report.ReportRequestSection
+import models.{Mode, ThirdPartyDetails}
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
+import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

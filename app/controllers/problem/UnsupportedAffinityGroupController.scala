@@ -16,7 +16,6 @@
 
 package controllers.problem
 
-import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -26,9 +25,6 @@ import javax.inject.Inject
 
 class UnsupportedAffinityGroupController @Inject() (
   override val messagesApi: MessagesApi,
-  identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: UnsupportedAffinityGroupView
 ) extends FrontendBaseController

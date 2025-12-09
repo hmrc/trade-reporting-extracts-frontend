@@ -18,8 +18,6 @@ package models.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.Instant
-
 case class ThirdPartyAddedEvent(
   IsImporterExporterForDataToShare: Boolean,
   thirdPartyEoriAccessGiven: Boolean,

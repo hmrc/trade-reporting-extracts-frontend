@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.editThirdParty.EditDeclarationDateFormProvider
 import models.Mode
 import models.thirdparty.{DataTypes, DeclarationDate}
-import navigation.{EditThirdPartyNavigator, Navigator}
+import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.EditDeclarationDatePage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +36,6 @@ class EditDeclarationDateController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
   editThirdPartyNavigator: EditThirdPartyNavigator,
-  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,

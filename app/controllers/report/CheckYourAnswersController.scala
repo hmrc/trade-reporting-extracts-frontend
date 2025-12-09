@@ -19,12 +19,11 @@ package controllers.report
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.BaseController
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, MissingDependentAnswersAction, PreventBackNavigationAfterSubmissionAction}
-import models.report.ReportTypeImport
+import controllers.actions.*
 import models.requests.DataRequest
 import navigation.ReportNavigator
 import pages.report.CheckYourAnswersPage
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
@@ -57,9 +56,6 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
     andThen preventBackNavigationAfterSubmissionAction
     andThen missingDependentAnswersAction).async { implicit request =>
 
-    val reportTypeImports: Set[ReportTypeImport] =
-      request.userAnswers.get(pages.report.ReportTypeImportPage).getOrElse(Set.empty)
-
     val thirdPartyEoriOpt = request.userAnswers.get(pages.report.SelectThirdPartyEoriPage)
 
     thirdPartyEoriOpt match {
@@ -90,8 +86,8 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
     }
   }
 
-  def buildSummaryRows(showDecisionSummary: Boolean)(implicit request: DataRequest[AnyContent]) = {
-    implicit val messages                 = messagesApi.preferred(request)
+  private def buildSummaryRows(showDecisionSummary: Boolean)(implicit request: DataRequest[AnyContent]) = {
+    implicit val messages: Messages = messagesApi.preferred(request)
     val rows: Seq[Option[SummaryListRow]] = Seq(
       if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
       if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,

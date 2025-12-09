@@ -23,7 +23,7 @@ import play.api.i18n.Messages
 import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
 class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {

@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json, OFormat}
+import play.api.libs.json.*
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 

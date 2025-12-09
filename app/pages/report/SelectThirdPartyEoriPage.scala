@@ -16,7 +16,6 @@
 
 package pages.report
 
-import models.SelectThirdPartyEori
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

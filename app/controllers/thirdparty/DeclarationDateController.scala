@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.thirdparty.DeclarationDateFormProvider
 import models.Mode
 import models.thirdparty.{AddThirdPartySection, DataTypes}
-import navigation.{Navigator, ThirdPartyNavigator}
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +36,6 @@ class DeclarationDateController @Inject() (
   sessionRepository: SessionRepository,
   thirdPartyNavigator: ThirdPartyNavigator,
   addThirdPartySection: AddThirdPartySection,
-  navigator: Navigator,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,

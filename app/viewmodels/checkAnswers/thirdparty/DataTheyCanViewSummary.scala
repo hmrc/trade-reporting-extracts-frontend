@@ -16,17 +16,16 @@
 
 package viewmodels.checkAnswers.thirdparty
 
+import models.thirdparty.DeclarationDate
 import models.{CheckMode, ThirdPartyDetails, UserAnswers}
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage}
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
-import utils.json.OptionalLocalDateReads.*
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import utils.DateTimeFormats.dateTimeFormat
+import utils.json.OptionalLocalDateReads.*
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
-import models.thirdparty.DeclarationDate
 
 import java.time.LocalDate
 

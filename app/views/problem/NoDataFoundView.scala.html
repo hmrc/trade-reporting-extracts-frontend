@@ -14,11 +14,8 @@
  * limitations under the License.
  *@
 
-@import java.time.Instant
-
 @this(
-        layout: templates.Layout,
-        govukButton: GovukButton
+        layout: templates.Layout
 )
 
 @(reportName: String, reportRef: String, reportStartDate: String, reportEndDate: String)(implicit request: Request[_], messages: Messages)

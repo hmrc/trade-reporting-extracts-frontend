@@ -18,9 +18,8 @@ package controllers.editThirdParty
 
 import controllers.actions.*
 import forms.editThirdParty.EditThirdPartyDataTypesFormProvider
-import models.NormalMode
 import models.thirdparty.DataTypes
-import navigation.{EditThirdPartyNavigator, Navigator}
+import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.EditThirdPartyDataTypesPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

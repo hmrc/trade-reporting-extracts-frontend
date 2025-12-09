@@ -37,7 +37,6 @@ class BusinessDetailsController @Inject (clock: Clock = Clock.systemUTC())(
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getOrCreate: DataRetrievalOrCreateAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: BusinessDetailsView,
   tradeReportingExtractsService: TradeReportingExtractsService
