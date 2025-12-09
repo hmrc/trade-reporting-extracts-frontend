@@ -123,4 +123,7 @@ object DateTimeFormats {
         details.dataEndDate
       )
     }
+
+  def localDateToInstant(date: LocalDate): Instant =
+    date.atStartOfDay(ZoneOffset.UTC).toInstant
 }

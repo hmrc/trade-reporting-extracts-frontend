@@ -408,4 +408,42 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
             )
         }
       }
+
+  def editThirdPartyRequest(
+    thirdPartyRequest: ThirdPartyRequest
+  )(implicit hc: HeaderCarrier): Future[ThirdPartyAddedConfirmation] =
+    httpClient
+      .put(url"${frontendAppConfig.tradeReportingExtractsApi}/edit-third-party-request")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.toJson(thirdPartyRequest))
+      .execute[HttpResponse]
+      .logFailureReason("Trade reporting extracts connector on editThirdPartyRequest")
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            Json.parse(response.body).validate[ThirdPartyAddedConfirmation] match {
+              case JsSuccess(thirdPartyEditedConfirmation, _) =>
+                Future.successful(thirdPartyEditedConfirmation)
+              case JsError(errors)                            =>
+                logger.error(s"Failed to parse 'thirdPartyEditedConfirmation' from response JSON: $errors")
+                Future.failed(
+                  UpstreamErrorResponse(
+                    "Unexpected response from /trade-reporting-extracts/edit-third-party-request",
+                    response.status
+                  )
+                )
+            }
+          case _  =>
+            logger.error(
+              s"Unexpected response from call to /trade-reporting-extracts/edit-third-party-request with status : ${response.status}"
+            )
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/edit-third-party-request",
+                response.status
+              )
+            )
+        }
+      }
+
 }

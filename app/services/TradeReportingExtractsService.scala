@@ -112,6 +112,11 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
   ): Future[ThirdPartyAddedConfirmation] =
     connector.createThirdPartyAddRequest(thirdPartyRequest)
 
+  def editThirdPartyRequest(thirdPartyRequest: ThirdPartyRequest)(implicit
+    hc: HeaderCarrier
+  ): Future[ThirdPartyAddedConfirmation] =
+    connector.editThirdPartyRequest(thirdPartyRequest)
+
   def getAuthorisedThirdParties(
     eori: String
   )(implicit hc: HeaderCarrier): Future[Seq[AuthorisedThirdPartiesViewModel]] =

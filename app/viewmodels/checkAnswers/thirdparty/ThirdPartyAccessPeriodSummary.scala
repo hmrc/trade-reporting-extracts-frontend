@@ -109,7 +109,14 @@ object ThirdPartyAccessPeriodSummary {
     implicit val lang: Lang = messages.lang
 
     val value = maybeEndDate match {
-      case Some(endDate) =>
+      case Some(endDate) if endDate == LocalDate.MAX =>
+        ValueViewModel(
+          messages(
+            "thirdPartyAccessPeriod.ongoing.answerLabel",
+            startDate.format(dateTimeFormat())
+          )
+        )
+      case Some(endDate)                             =>
         ValueViewModel(
           messages(
             "thirdPartyAccessPeriod.fixed.answerLabel",
@@ -117,7 +124,7 @@ object ThirdPartyAccessPeriodSummary {
             endDate.format(dateTimeFormat())
           )
         )
-      case _             =>
+      case _                                         =>
         ValueViewModel(
           messages(
             "thirdPartyAccessPeriod.ongoing.answerLabel",
