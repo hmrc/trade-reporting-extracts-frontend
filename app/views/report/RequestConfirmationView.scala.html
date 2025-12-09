@@ -19,9 +19,7 @@
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton,
-        govukPanel: GovukPanel,
-        govukTable: GovukTable
+        govukPanel: GovukPanel
 )
 
 @(additionalEmailList : Option[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, notificationEmail: String, date: String, time: String)(implicit request: Request[_], messages: Messages)

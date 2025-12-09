@@ -16,12 +16,9 @@
 
 package pages.report
 
-import models.UserAnswers
 import models.report.Decision
 import pages.QuestionPage
 import play.api.libs.json.JsPath
-
-import scala.util.Try
 
 case object DecisionPage extends QuestionPage[Decision] {
 

@@ -27,7 +27,6 @@ class ReportFailedController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: ReportFailedView
 ) extends FrontendBaseController

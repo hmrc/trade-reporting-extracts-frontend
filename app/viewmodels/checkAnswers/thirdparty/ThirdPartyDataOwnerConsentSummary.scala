@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.thirdparty.ThirdPartyDataOwnerConsentPage
 import play.api.i18n.Messages

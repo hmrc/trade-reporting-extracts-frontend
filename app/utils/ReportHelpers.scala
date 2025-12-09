@@ -16,13 +16,8 @@
 
 package utils
 
-import models.ReportStatus.NO_DATA_AVAILABLE
 import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
-import play.api.mvc.{Call, Result}
-import play.api.mvc.Results.Redirect
-
-import java.time.Instant
 
 case class ReportStatusDisplayData(
   key: String,

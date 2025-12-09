@@ -19,7 +19,7 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.DataTypesFormProvider
 import models.Mode
-import navigation.{Navigator, ThirdPartyNavigator}
+import navigation.ThirdPartyNavigator
 import pages.thirdparty.DataTypesPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

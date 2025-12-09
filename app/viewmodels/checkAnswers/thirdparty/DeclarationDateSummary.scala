@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers.thirdparty
 
-import controllers.routes
 import models.thirdparty.DataTypes
 import models.{CheckMode, UserAnswers}
 import pages.thirdparty.{DataTypesPage, DeclarationDatePage}

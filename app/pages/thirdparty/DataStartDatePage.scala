@@ -16,12 +16,10 @@
 
 package pages.thirdparty
 
-import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import java.time.LocalDate
-import scala.util.Try
 
 case object DataStartDatePage extends QuestionPage[LocalDate] {
 

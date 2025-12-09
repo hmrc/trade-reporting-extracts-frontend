@@ -16,12 +16,8 @@
 
 package pages.thirdparty
 
-import models.thirdparty.AddThirdPartySection
-import models.UserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
-
-import scala.util.{Success, Try}
 
 case object ThirdPartyDataOwnerConsentPage extends QuestionPage[Boolean] {
 

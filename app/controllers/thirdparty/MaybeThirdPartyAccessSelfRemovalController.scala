@@ -18,8 +18,6 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
-import models.{Mode, NormalMode}
-import navigation.{Navigator, ThirdPartyNavigator}
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

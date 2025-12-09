@@ -16,14 +16,11 @@
 
 @import models.report._
 @import utils.ReportHelpers
-@import models.ReportStatus
 
 @this(
   layout: templates.Layout,
-  govukButton: GovukButton,
   govukTabs: GovukTabs,
-  govukTable: GovukTable,
-  govukTag: GovukTag,
+  govukTable: GovukTable
 )
 
 @(requestedReports: RequestedReportsViewModel,

@@ -17,7 +17,6 @@
 package forms.report
 
 import forms.mappings.Mappings
-import models.SelectThirdPartyEori
 import play.api.data.Form
 
 import javax.inject.Inject

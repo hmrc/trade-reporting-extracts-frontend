@@ -21,8 +21,9 @@ import forms.report.CheckNewEmailFormProvider
 import models.Mode
 import models.report.ReportRequestSection
 import models.requests.DataRequest
-import navigation.{Navigator, ReportNavigator}
-import pages.report.{CheckNewEmailPage, EmailSelectionPage, NewEmailNotificationPage}
+import navigation.ReportNavigator
+import pages.report.{CheckNewEmailPage, NewEmailNotificationPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,7 +48,7 @@ class CheckNewEmailController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 

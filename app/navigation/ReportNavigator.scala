@@ -244,19 +244,13 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   private def maybeAdditionalEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
     answers.get(MaybeAdditionalEmailPage) match {
       case Some(true) =>
-        answers.get(NewEmailNotificationPage).isDefined match {
-          case true  => controllers.report.routes.CheckYourAnswersController.onPageLoad()
-          case false => controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
+        if (answers.get(NewEmailNotificationPage).isDefined) {
+          controllers.report.routes.CheckYourAnswersController.onPageLoad()
+        } else {
+          controllers.report.routes.EmailSelectionController.onPageLoad(CheckMode)
         }
       case _          => controllers.report.routes.CheckYourAnswersController.onPageLoad()
     }
-
-  private def navigateBasedOnThirdPartyFlag(
-    ifThirdPartyEnabled: => Call,
-    ifThirdPartyDisabled: => Call
-  ): UserAnswers => Call = { _ =>
-    if (appConfig.thirdPartyEnabled) ifThirdPartyEnabled else ifThirdPartyDisabled
-  }
 
   private def navigateBasedOnNotificationsFlag(
     ifNotificationsEnabled: => Call,

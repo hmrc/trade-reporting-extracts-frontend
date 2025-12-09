@@ -22,6 +22,7 @@ import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import models.{Mode, UserAnswers}
 import navigation.ReportNavigator
 import pages.report.{DecisionPage, ReportTypeImportPage, SelectThirdPartyEoriPage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -50,7 +51,7 @@ class SelectThirdPartyEoriController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>

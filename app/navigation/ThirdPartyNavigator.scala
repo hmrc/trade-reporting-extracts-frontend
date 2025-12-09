@@ -17,13 +17,11 @@
 package navigation
 
 import com.google.inject.Inject
-import controllers.thirdparty.routes
+import models.thirdparty.{ConfirmEori, DeclarationDate}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.thirdparty.*
-import models.thirdparty.{ConfirmEori, DeclarationDate}
 import play.api.mvc.Call
-import utils.json.OptionalLocalDateReads.*
 
 class ThirdPartyNavigator @Inject() extends Navigator {
 

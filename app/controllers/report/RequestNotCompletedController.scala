@@ -17,7 +17,6 @@
 package controllers.report
 
 import controllers.actions.*
-import pages.report.SelectThirdPartyEoriPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

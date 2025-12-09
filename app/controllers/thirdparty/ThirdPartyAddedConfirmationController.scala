@@ -20,22 +20,19 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.requests.DataRequest
-import models.thirdparty.DataTypes.{Export, Import}
+import models.thirdparty.*
 import models.{AlreadyAddedThirdPartyFlag, CompanyInformation, ConsentStatus}
-import models.thirdparty.{AddThirdPartySection, ConfirmEori, DataTypes, DeclarationDate, ThirdPartyAddedEvent}
-import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
+import pages.thirdparty.*
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{AuditService, ThirdPartyService, TradeReportingExtractsService}
 import utils.DateTimeFormats.dateTimeFormat
-import views.html.thirdparty.ThirdPartyAddedConfirmationView
 import utils.json.OptionalLocalDateReads.*
+import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.{Clock, LocalDate, ZoneOffset}
 import javax.inject.Inject
-import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.concurrent.{ExecutionContext, Future}
 
 class ThirdPartyAddedConfirmationController @Inject() (
