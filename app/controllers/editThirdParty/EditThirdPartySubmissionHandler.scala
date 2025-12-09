@@ -19,14 +19,17 @@ package controllers.editThirdParty
 import com.google.inject.Inject
 import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.thirdparty.ThirdPartyRequest
-import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
+import models.ThirdPartyDetails
+import models.requests.DataRequest
+import models.thirdparty.{DeclarationDate, ThirdPartyRequest}
+import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import utils.UserAnswerHelper
 import utils.DateTimeFormats.localDateToInstant
+import utils.json.OptionalLocalDateReads.*
 
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.ExecutionContext
@@ -46,6 +49,7 @@ class EditThirdPartySubmissionHandler @Inject (
   def submit(thirdPartyEori: String): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { previousDetails =>
+
         val updatedDetails = ThirdPartyRequest(
           userEORI = request.eori,
           thirdPartyEORI = thirdPartyEori,
@@ -54,19 +58,9 @@ class EditThirdPartySubmissionHandler @Inject (
               .get(EditThirdPartyAccessStartDatePage(thirdPartyEori))
               .getOrElse(previousDetails.accessStartDate)
           ),
-          accessEnd = (
-            request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)),
-            previousDetails.accessEndDate
-          ) match {
-            case (Some(value), _) if value == LocalDate.MAX =>
-              None
-            case (Some(value), _)                           => Some(localDateToInstant(value))
-            case (None, Some(prevValue))                    => Some(localDateToInstant(prevValue))
-            case (_, _)                                     => None
-          },
-          // NEED PAGES
-          reportDateStart = None,
-          reportDateEnd = None,
+          accessEnd = determineAccessEndDate(thirdPartyEori, request, previousDetails),
+          reportDateStart = determineReportDateStart(thirdPartyEori, request, previousDetails),
+          reportDateEnd = determineReportDateEnd(thirdPartyEori, request, previousDetails),
           accessType = request.userAnswers
             .get(EditThirdPartyDataTypesPage(thirdPartyEori))
             .map(_.map(_.toString.toUpperCase()))
@@ -81,9 +75,61 @@ class EditThirdPartySubmissionHandler @Inject (
           _             <- sessionRepository.set(updatedAnswers)
         } yield Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad()))
           .recover { case ex =>
+            logger.error(s"Error submitting edit third party: ${ex.getMessage}", ex)
             // TODO RECOVER SOMEWHERE BETTER?
             Redirect(controllers.routes.DashboardController.onPageLoad())
           }
       }
+    }
+
+  private def determineAccessEndDate(
+    thirdPartyEori: String,
+    request: DataRequest[AnyContent],
+    previousDetails: ThirdPartyDetails
+  ) =
+    (
+      request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)),
+      previousDetails.accessEndDate
+    ) match {
+      case (Some(value), _) if value == LocalDate.MAX =>
+        None
+      case (Some(value), _)                           => Some(localDateToInstant(value))
+      case (None, Some(prevValue))                    => Some(localDateToInstant(prevValue))
+      case (_, _)                                     => None
+    }
+
+  private def determineReportDateStart(
+    thirdPartyEori: String,
+    request: DataRequest[AnyContent],
+    previousDetails: ThirdPartyDetails
+  ) =
+    (
+      request.userAnswers.get(EditDeclarationDatePage(thirdPartyEori)),
+      previousDetails.dataStartDate,
+      request.userAnswers.get(EditDataStartDatePage(thirdPartyEori))
+    ) match {
+      case (Some(DeclarationDate.AllAvailableData), _, _) => None
+      case (_, _, Some(value))                            => Some(localDateToInstant(value))
+      case (_, Some(prevValue), _)                        => Some(localDateToInstant(prevValue))
+      case (_, _, _)                                      => None
+    }
+
+  private def determineReportDateEnd(
+    thirdPartyEori: String,
+    request: DataRequest[AnyContent],
+    previousDetails: ThirdPartyDetails
+  ) =
+    (
+      request.userAnswers.get(EditDataEndDatePage(thirdPartyEori)),
+      previousDetails.dataEndDate,
+      request.userAnswers.get(EditDeclarationDatePage(thirdPartyEori))
+    ) match {
+      case (_, _, Some(DeclarationDate.AllAvailableData))      =>
+        None
+      case (Some(Some(value)), _, _) if value == LocalDate.MAX =>
+        None
+      case (Some(Some(value)), _, _)                           => Some(localDateToInstant(value))
+      case (None, Some(prevValue), _)                          => Some(localDateToInstant(prevValue))
+      case (_, _, _)                                           => None
     }
 }
