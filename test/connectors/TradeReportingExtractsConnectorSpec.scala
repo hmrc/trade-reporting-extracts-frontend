@@ -23,23 +23,19 @@ import exceptions.NoAuthorisedUserFoundException
 import models.ConsentStatus.Granted
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, EditThirdPartyRequest, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import org.apache.pekko.Done
+import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import com.fasterxml.jackson.core.JsonParseException
+import org.apache.pekko.Done
+
 import java.time.*
 
-class TradeReportingExtractsConnectorSpec
-    extends SpecBase
-    with ScalaFutures
-    with WireMockHelper
-    with ScalaCheckPropertyChecks {
+class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures with WireMockHelper {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 

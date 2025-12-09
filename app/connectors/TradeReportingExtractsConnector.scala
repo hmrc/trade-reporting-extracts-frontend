@@ -24,7 +24,7 @@ import play.api.Logging
 import javax.inject.Singleton
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.thirdparty.{AccountAuthorityOverViewModel, EditThirdPartyRequest, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import org.apache.pekko.Done
 import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
