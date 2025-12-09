@@ -87,7 +87,7 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   }
 
   private def buildSummaryRows(showDecisionSummary: Boolean)(implicit request: DataRequest[AnyContent]) = {
-    implicit val messages: Messages = messagesApi.preferred(request)
+    implicit val messages: Messages       = messagesApi.preferred(request)
     val rows: Seq[Option[SummaryListRow]] = Seq(
       if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
       if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
