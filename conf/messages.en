@@ -113,7 +113,6 @@ dashboard.thirdPartyAccess.authorisedAccounts = Businesses you have third-party 
 dashboard.support.heading = Support
 dashboard.support.fieldsInReport = What do the fields in my report mean? (opens in new tab)
 dashboard.support.reportTypes = What are the different report types?
-dashboard.support.queriesLink = If you have queries about the data in your report, email {0} for support.
 
 contactDetails.title = Your contact details
 contactDetails.heading = Your contact details
@@ -373,7 +372,6 @@ availableReports.table.expiryDate = Expiry date
 availableReports.table.referenceNumber = Reference number
 availableReports.table.action = Action
 availableReports.table.unknownCompany = Not applicable
-availableReports.queriesLink = If you have queries about the data in your report, email {0} for support.
 
 
 requestedReports.title = Reports in progress
