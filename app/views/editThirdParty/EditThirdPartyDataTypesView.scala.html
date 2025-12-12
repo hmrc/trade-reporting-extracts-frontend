@@ -26,6 +26,10 @@
 
 @(form: Form[_], thirdPartyEori: String)(implicit request: Request[_], messages: Messages)
 
+@content = {
+    <p class="govuk-hint">@messages("editThirdPartyDataTypes.hint")</p>
+}
+
 @layout(pageTitle = title(form, messages("editThirdPartyDataTypes.title"))) {
 
     @formHelper(action = controllers.editThirdParty.routes.EditThirdPartyDataTypesController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
@@ -35,12 +39,12 @@
         }
 
         @govukCheckboxes(
-        CheckboxesViewModel(
-        form   = form,
-        name   = "value",
-        legend = LegendViewModel(messages("editThirdPartyDataTypes.heading")).asPageHeading(),
-        items  = DataTypes.checkboxItems
-        )
+            CheckboxesViewModel(
+                form   = form,
+                name   = "value",
+                legend = LegendViewModel(messages("editThirdPartyDataTypes.heading")).asPageHeading(),
+                items  = DataTypes.checkboxItems
+            ).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(

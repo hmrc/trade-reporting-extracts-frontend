@@ -26,6 +26,10 @@
 
 @(form: Form[_], thirdPartyEori: String)(implicit request: Request[_], messages: Messages)
 
+@content = {
+    <p class="govuk-body">@messages("editThirdPartyReference.message")</p>
+}
+
 @layout(pageTitle = title(form, messages("editThirdPartyReference.title"))) {
 
     @formHelper(action = controllers.editThirdParty.routes.EditThirdPartyReferenceController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
@@ -39,7 +43,7 @@
                 field = form("value"),
                 label = LabelViewModel(messages("editThirdPartyReference.heading")).asPageHeading()
             )
-            .withWidth(Full)
+            .withWidth(Full).withHint(HintViewModel(HtmlContent(content)))
         )
 
         @govukButton(

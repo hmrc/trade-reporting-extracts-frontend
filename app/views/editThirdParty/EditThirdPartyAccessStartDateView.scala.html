@@ -24,6 +24,7 @@
 
 @(form: Form[_], thirdPartyEori: String, date: String)(implicit request: Request[_], messages: Messages)
 @contentHint = {
+    <p class="govuk-body">@messages("thirdPartyAccessStartDate.message")</p>
     <p class="govuk-hint">@messages("editThirdPartyAccessStartDate.hint", date)</p>
 }
 @layout(pageTitle = title(form, messages("editThirdPartyAccessStartDate.title"))) {
