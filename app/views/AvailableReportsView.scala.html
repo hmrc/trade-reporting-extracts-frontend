@@ -32,9 +32,6 @@ guidanceUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
-<div>
-    <h2 class="govuk-heading-l">@messages("requestedReports.myReports")</h2>
-    <p class="govuk-body">@Html(messages("availableReports.queriesLink", """<a class="govuk-link" href="mailto:trefeedback@@hmrc.gov.uk">trefeedback@hmrc.gov.uk</a>"""))</p>
   @govukTable(Table(
     head = Some(Seq(
       HeadCell(content = Text(messages("availableReports.table.reportName"))),
@@ -61,14 +58,13 @@ guidanceUrl: String
                 )
             )
         )
-    }
+    },
+    caption = Some(messages("availableReports.myReports")),
+    captionClasses = "govuk-table__caption--l"
   ))
-</div>
 }
 
 @thirdPartyReportsContent = {
-<h2 class="govuk-heading-l">@messages("requestedReports.thirdPartyReports")</h2>
-<p class="govuk-body">@Html(messages("availableReports.queriesLink", """<a class="govuk-link" href="mailto:trefeedback@@hmrc.gov.uk">trefeedback@hmrc.gov.uk</a>"""))</p>
   @govukTable(Table(
     head = Some(Seq(
       HeadCell(content = Text(messages("availableReports.table.reportName"))),
@@ -97,9 +93,11 @@ guidanceUrl: String
                 )
             )
         )
+    },
+        caption = Some(messages("availableReports.thirdPartyReports")),
+        captionClasses = "govuk-table__caption--l"
+        ))
     }
-  ))
-}
 
 @titleContent = @{
   if (maybeUserReports || maybeThirdPartyReports) {
@@ -117,7 +115,7 @@ guidanceUrl: String
     isFullWidth = true) {
 
    @if(maybeUserReports || maybeThirdPartyReports) {
-       <h1 class="govuk-heading-l">@messages("availableReports.heading")</h1>
+       <h1 class="govuk-heading-xl">@messages("availableReports.heading")</h1>
        <p class="govuk-body">@messages("availableReports.message1")</p>
         <ul class="govuk-list--spaced govuk-list--bullet">
             <li class="govuk-body">@messages("availableReports.bullet1")</li>
