@@ -43,16 +43,16 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider = new ThirdPartyAccessEndDateFormProvider()
   private def form         = formProvider(LocalDate.now)
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/data-types")
 
-  val validAnswer = LocalDate.now(ZoneOffset.UTC)
+  private val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
-  lazy val thirdPartyAccessEndDateRoute =
+  private lazy val thirdPartyAccessEndDateRoute =
     controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
-  def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
+  def getRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, thirdPartyAccessEndDateRoute)
 
   def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -72,13 +72,13 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
       ).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", "1 2 2024")(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -99,11 +99,11 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 January 2024", "1 2 2024")(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -134,6 +134,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, postRequest()).value
 
         status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
@@ -172,7 +173,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
