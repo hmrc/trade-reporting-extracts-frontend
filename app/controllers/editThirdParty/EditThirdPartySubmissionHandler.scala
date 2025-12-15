@@ -21,16 +21,16 @@ import controllers.BaseController
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import models.ThirdPartyDetails
 import models.requests.DataRequest
-import models.thirdparty.{DeclarationDate, ThirdPartyRequest}
+import models.thirdparty.{DataUpdate, DeclarationDate, ThirdPartyRequest, ThirdPartyUpdatedEvent}
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage, EditThirdPartyDataTypesPage, EditThirdPartyReferencePage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.TradeReportingExtractsService
+import services.{AuditService, TradeReportingExtractsService}
 import utils.UserAnswerHelper
 import utils.DateTimeFormats.localDateToInstant
 import utils.json.OptionalLocalDateReads.*
-
+import scala.collection.mutable.ListBuffer
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.ExecutionContext
 
@@ -41,7 +41,8 @@ class EditThirdPartySubmissionHandler @Inject (
   requireData: DataRequiredAction,
   tradeReportingExtractsService: TradeReportingExtractsService,
   userAnswerHelper: UserAnswerHelper,
-  sessionRepository: SessionRepository
+  sessionRepository: SessionRepository,
+  auditService: AuditService
 )(implicit val ec: ExecutionContext)
     extends BaseController
     with I18nSupport {
@@ -71,6 +72,11 @@ class EditThirdPartySubmissionHandler @Inject (
 
         (for {
           _             <- tradeReportingExtractsService.editThirdPartyRequest(updatedDetails)
+          _             <- auditService.auditThirdPartyUpdated(buildThirdPartyUpdatedEvent(request.eori, thirdPartyEori, previousDetails, updatedDetails))
+                            .recover { case ex =>
+                              logger.warn(s"Audit failed for third party edit: ${ex.getMessage}", ex)
+                              ()
+                            }
           updatedAnswers = userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers)
           _             <- sessionRepository.set(updatedAnswers)
         } yield Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad()))
@@ -133,3 +139,82 @@ class EditThirdPartySubmissionHandler @Inject (
       case (_, _, _)                                           => None
     }
 }
+
+
+private def buildThirdPartyUpdatedEvent(
+                                           requesterEori: String,
+                                           thirdPartyEori: String,
+                                           previousDetails: ThirdPartyDetails,
+                                           updatedDetails: ThirdPartyRequest
+                                         ): ThirdPartyUpdatedEvent = {
+
+  val updates = ListBuffer[DataUpdate]()
+
+  val previousAccessType = previousDetails.dataTypes match {
+    case types if types.contains("EXPORT") && types.contains("IMPORT") => "import, export"
+    case types if types.contains("EXPORT") => "export"
+    case _ => "import"
+  }
+  val newAccessType = updatedDetails.accessType match {
+    case types if types.contains("EXPORT") && types.contains("IMPORT") => "import, export"
+    case types if types.contains("EXPORT") => "export"
+    case _ => "import"
+  }
+  if (previousAccessType != newAccessType) {
+    updates += DataUpdate("accessType", previousAccessType, newAccessType)
+  }
+  val previousRefName = previousDetails.referenceName.getOrElse("")
+  val newRefName = updatedDetails.referenceName.getOrElse("")
+  if (previousRefName != newRefName) {
+    updates += DataUpdate("referenceName", previousRefName, newRefName)
+  }
+  val previousAccessStart = previousDetails.accessStartDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+  val newAccessStart = updatedDetails.accessStart.toString
+  if (previousAccessStart != newAccessStart) {
+    updates += DataUpdate("thirdPartyAccessStart", previousAccessStart, newAccessStart)
+  }
+  val previousAccessEnd = previousDetails.accessEndDate match {
+    case Some(endDate) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+    case None => "indefinite"
+  }
+  val newAccessEnd = updatedDetails.accessEnd match {
+    case Some(endDate) => endDate.toString
+    case None => "indefinite"
+  }
+  if (previousAccessEnd != newAccessEnd) {
+    updates += DataUpdate("thirdPartyAccessEnd", previousAccessEnd, newAccessEnd)
+  }
+  val previousAllData = previousDetails.dataStartDate.isEmpty && previousDetails.dataEndDate.isEmpty
+  val newAllData = updatedDetails.reportDateStart.isEmpty && updatedDetails.reportDateEnd.isEmpty
+  if (previousAllData != newAllData) {
+    updates += DataUpdate("thirdPartyGivenAccessAllData", previousAllData.toString, newAllData.toString)
+  }
+  val previousDataStart = previousDetails.dataStartDate match {
+    case Some(startDate) => startDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+    case None => "all available data"
+  }
+  val newDataStart = updatedDetails.reportDateStart match {
+    case Some(startDate) => startDate.toString
+    case None => "all available data"
+  }
+  if (previousDataStart != newDataStart) {
+    updates += DataUpdate("thirdPartyDataStart", previousDataStart, newDataStart)
+  }
+  val previousDataEnd = previousDetails.dataEndDate match {
+    case Some(endDate) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+    case None => "all available data"
+  }
+  val newDataEnd = updatedDetails.reportDateEnd match {
+    case Some(endDate) => endDate.toString
+    case None => "all available data"
+  }
+  if (previousDataEnd != newDataEnd) {
+    updates += DataUpdate("thirdPartyDataEnd", previousDataEnd, newDataEnd)
+  }
+  ThirdPartyUpdatedEvent(
+    requesterEori = requesterEori,
+    thirdPartyEori = thirdPartyEori,
+    updatesToThirdPartyData = updates.toList
+  )
+}
+
