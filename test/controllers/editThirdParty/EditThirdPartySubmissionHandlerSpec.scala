@@ -19,7 +19,7 @@ package controllers.editThirdParty
 import base.SpecBase
 import controllers.routes
 import models.{ThirdPartyDetails, UserAnswers}
-import models.thirdparty.{DataTypes, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{DataTypes, DataUpdate, ThirdPartyAddedConfirmation, ThirdPartyRequest, ThirdPartyUpdatedEvent}
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
@@ -34,7 +34,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import play.api.test.FakeRequest
 import repositories.SessionRepository
-import services.TradeReportingExtractsService
+import services.{AuditService, TradeReportingExtractsService}
 
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
@@ -253,6 +253,120 @@ class EditThirdPartySubmissionHandlerSpec
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe routes.DashboardController.onPageLoad().url
+      }
+    }
+
+    "must call audit service with correct event when third party details are updated" in {
+      val mockService      = mock[TradeReportingExtractsService]
+      val mockAuditService = mock[AuditService]
+
+      when(mockService.editThirdPartyRequest(any())(any()))
+        .thenReturn(Future.successful(ThirdPartyAddedConfirmation("GB123456789000")))
+
+      when(mockAuditService.auditThirdPartyUpdated(any())(any()))
+        .thenReturn(Future.successful(()))
+
+      when(mockService.getThirdPartyDetails(any(), any())(any())).thenReturn(
+        Future.successful(
+          ThirdPartyDetails(
+            None,
+            LocalDate.of(2024, 1, 1),
+            Some(LocalDate.of(2024, 12, 31)),
+            Set("EXPORT"),
+            Some(LocalDate.of(2024, 6, 1)),
+            Some(LocalDate.of(2024, 11, 30))
+          )
+        )
+      )
+
+      val userAnswers = emptyUserAnswers
+        .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), startDate)
+        .success
+        .value
+        .set(EditThirdPartyAccessEndDatePage(thirdPartyEori), endDate)
+        .success
+        .value
+        .set(EditThirdPartyDataTypesPage(thirdPartyEori), Set(DataTypes.Import, DataTypes.Export))
+        .success
+        .value
+        .set(EditThirdPartyReferencePage(thirdPartyEori), "Updated Reference")
+        .success
+        .value
+
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockService),
+          bind[AuditService].toInstance(mockAuditService)
+        )
+        .build()
+
+      running(application) {
+        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+
+        val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+
+        val auditCaptor = ArgumentCaptor.forClass(classOf[ThirdPartyUpdatedEvent])
+        verify(mockAuditService).auditThirdPartyUpdated(auditCaptor.capture())(any())
+
+        val auditEvent = auditCaptor.getValue
+        auditEvent.requesterEori mustBe "GB123456789012"
+        auditEvent.thirdPartyEori mustBe thirdPartyEori
+
+        auditEvent.updatesToThirdPartyData must contain(DataUpdate("accessType", "export", "import, export"))
+        auditEvent.updatesToThirdPartyData must contain(DataUpdate("referenceName", "", "Updated Reference"))
+        auditEvent.updatesToThirdPartyData must contain(
+          DataUpdate("thirdPartyAccessStart", "2024-01-01T00:00:00Z", "2025-01-01T00:00:00Z")
+        )
+      }
+    }
+
+    "must handle audit service failure gracefully without affecting the edit operation" in {
+      val mockService      = mock[TradeReportingExtractsService]
+      val mockAuditService = mock[AuditService]
+
+      when(mockService.editThirdPartyRequest(any())(any()))
+        .thenReturn(Future.successful(ThirdPartyAddedConfirmation("GB123456789000")))
+
+      when(mockAuditService.auditThirdPartyUpdated(any())(any()))
+        .thenReturn(Future.failed(new RuntimeException("Audit service failed")))
+
+      when(mockService.getThirdPartyDetails(any(), any())(any())).thenReturn(
+        Future.successful(
+          ThirdPartyDetails(
+            None,
+            LocalDate.of(2024, 1, 1),
+            None,
+            Set("EXPORT"),
+            None,
+            None
+          )
+        )
+      )
+
+      val userAnswers = emptyUserAnswers
+        .set(EditThirdPartyReferencePage(thirdPartyEori), "New Reference")
+        .success
+        .value
+
+      val application = applicationBuilder(Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockService),
+          bind[AuditService].toInstance(mockAuditService)
+        )
+        .build()
+
+      running(application) {
+        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+
+        val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe controllers.thirdparty.routes.AuthorisedThirdPartiesController
+          .onPageLoad()
+          .url
+        verify(mockAuditService).auditThirdPartyUpdated(any())(any())
+        verify(mockService).editThirdPartyRequest(any())(any())
       }
     }
   }
