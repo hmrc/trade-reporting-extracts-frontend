@@ -72,11 +72,14 @@ class EditThirdPartySubmissionHandler @Inject (
 
         (for {
           _             <- tradeReportingExtractsService.editThirdPartyRequest(updatedDetails)
-          _             <- auditService.auditThirdPartyUpdated(buildThirdPartyUpdatedEvent(request.eori, thirdPartyEori, previousDetails, updatedDetails))
-                            .recover { case ex =>
-                              logger.warn(s"Audit failed for third party edit: ${ex.getMessage}", ex)
-                              ()
-                            }
+          _             <- auditService
+                             .auditThirdPartyUpdated(
+                               buildThirdPartyUpdatedEvent(request.eori, thirdPartyEori, previousDetails, updatedDetails)
+                             )
+                             .recover { case ex =>
+                               logger.warn(s"Audit failed for third party edit: ${ex.getMessage}", ex)
+                               ()
+                             }
           updatedAnswers = userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers)
           _             <- sessionRepository.set(updatedAnswers)
         } yield Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad()))
@@ -140,73 +143,72 @@ class EditThirdPartySubmissionHandler @Inject (
     }
 }
 
-
 private def buildThirdPartyUpdatedEvent(
-                                           requesterEori: String,
-                                           thirdPartyEori: String,
-                                           previousDetails: ThirdPartyDetails,
-                                           updatedDetails: ThirdPartyRequest
-                                         ): ThirdPartyUpdatedEvent = {
+  requesterEori: String,
+  thirdPartyEori: String,
+  previousDetails: ThirdPartyDetails,
+  updatedDetails: ThirdPartyRequest
+): ThirdPartyUpdatedEvent = {
 
   val updates = ListBuffer[DataUpdate]()
 
-  val previousAccessType = previousDetails.dataTypes match {
+  val previousAccessType  = previousDetails.dataTypes match {
     case types if types.contains("EXPORT") && types.contains("IMPORT") => "import, export"
-    case types if types.contains("EXPORT") => "export"
-    case _ => "import"
+    case types if types.contains("EXPORT")                             => "export"
+    case _                                                             => "import"
   }
-  val newAccessType = updatedDetails.accessType match {
+  val newAccessType       = updatedDetails.accessType match {
     case types if types.contains("EXPORT") && types.contains("IMPORT") => "import, export"
-    case types if types.contains("EXPORT") => "export"
-    case _ => "import"
+    case types if types.contains("EXPORT")                             => "export"
+    case _                                                             => "import"
   }
   if (previousAccessType != newAccessType) {
     updates += DataUpdate("accessType", previousAccessType, newAccessType)
   }
-  val previousRefName = previousDetails.referenceName.getOrElse("")
-  val newRefName = updatedDetails.referenceName.getOrElse("")
+  val previousRefName     = previousDetails.referenceName.getOrElse("")
+  val newRefName          = updatedDetails.referenceName.getOrElse("")
   if (previousRefName != newRefName) {
     updates += DataUpdate("referenceName", previousRefName, newRefName)
   }
   val previousAccessStart = previousDetails.accessStartDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-  val newAccessStart = updatedDetails.accessStart.toString
+  val newAccessStart      = updatedDetails.accessStart.toString
   if (previousAccessStart != newAccessStart) {
     updates += DataUpdate("thirdPartyAccessStart", previousAccessStart, newAccessStart)
   }
-  val previousAccessEnd = previousDetails.accessEndDate match {
+  val previousAccessEnd   = previousDetails.accessEndDate match {
     case Some(endDate) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-    case None => "indefinite"
+    case None          => "indefinite"
   }
-  val newAccessEnd = updatedDetails.accessEnd match {
+  val newAccessEnd        = updatedDetails.accessEnd match {
     case Some(endDate) => endDate.toString
-    case None => "indefinite"
+    case None          => "indefinite"
   }
   if (previousAccessEnd != newAccessEnd) {
     updates += DataUpdate("thirdPartyAccessEnd", previousAccessEnd, newAccessEnd)
   }
-  val previousAllData = previousDetails.dataStartDate.isEmpty && previousDetails.dataEndDate.isEmpty
-  val newAllData = updatedDetails.reportDateStart.isEmpty && updatedDetails.reportDateEnd.isEmpty
+  val previousAllData     = previousDetails.dataStartDate.isEmpty && previousDetails.dataEndDate.isEmpty
+  val newAllData          = updatedDetails.reportDateStart.isEmpty && updatedDetails.reportDateEnd.isEmpty
   if (previousAllData != newAllData) {
     updates += DataUpdate("thirdPartyGivenAccessAllData", previousAllData.toString, newAllData.toString)
   }
-  val previousDataStart = previousDetails.dataStartDate match {
+  val previousDataStart   = previousDetails.dataStartDate match {
     case Some(startDate) => startDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-    case None => "all available data"
+    case None            => "all available data"
   }
-  val newDataStart = updatedDetails.reportDateStart match {
+  val newDataStart        = updatedDetails.reportDateStart match {
     case Some(startDate) => startDate.toString
-    case None => "all available data"
+    case None            => "all available data"
   }
   if (previousDataStart != newDataStart) {
     updates += DataUpdate("thirdPartyDataStart", previousDataStart, newDataStart)
   }
-  val previousDataEnd = previousDetails.dataEndDate match {
+  val previousDataEnd     = previousDetails.dataEndDate match {
     case Some(endDate) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-    case None => "all available data"
+    case None          => "all available data"
   }
-  val newDataEnd = updatedDetails.reportDateEnd match {
+  val newDataEnd          = updatedDetails.reportDateEnd match {
     case Some(endDate) => endDate.toString
-    case None => "all available data"
+    case None          => "all available data"
   }
   if (previousDataEnd != newDataEnd) {
     updates += DataUpdate("thirdPartyDataEnd", previousDataEnd, newDataEnd)
@@ -217,4 +219,3 @@ private def buildThirdPartyUpdatedEvent(
     updatesToThirdPartyData = updates.toList
   )
 }
-
