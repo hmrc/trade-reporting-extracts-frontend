@@ -22,6 +22,7 @@ import models.Mode
 import models.thirdparty.{DataTypes, DeclarationDate}
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.EditDeclarationDatePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -57,7 +58,7 @@ class EditDeclarationDateController @Inject() (
             case "exports" => DataTypes.Export
           }
           val dataTypesString                 = getDataTypesString(dataTypeObjects)
-          val form                            = formProvider(Seq(dataTypesString))
+          val form: Form[DeclarationDate]     = formProvider(Seq(dataTypesString))
 
           val declartionDateObject: DeclarationDate = thirdPartyDetails.dataStartDate.isEmpty match {
             case true  => DeclarationDate.AllAvailableData
@@ -85,7 +86,7 @@ class EditDeclarationDateController @Inject() (
           }
           val dataTypesString                 = getDataTypesString(dataTypeObjects)
 
-          val form = formProvider(Seq(dataTypesString))
+          val form: Form[DeclarationDate] = formProvider(Seq(dataTypesString))
 
           form
             .bindFromRequest()

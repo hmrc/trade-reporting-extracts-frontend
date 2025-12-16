@@ -17,9 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
-import models.{CheckMode, UserAnswers}
 import org.scalatest.matchers.should.Matchers.shouldBe
-import pages.thirdparty.EoriNumberPage
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import play.twirl.api.HtmlFormat

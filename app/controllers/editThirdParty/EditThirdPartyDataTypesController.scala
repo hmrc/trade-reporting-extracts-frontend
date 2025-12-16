@@ -21,6 +21,7 @@ import forms.editThirdParty.EditThirdPartyDataTypesFormProvider
 import models.thirdparty.DataTypes
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.EditThirdPartyDataTypesPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -46,7 +47,7 @@ class EditThirdPartyDataTypesController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Set[DataTypes]] = formProvider()
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>

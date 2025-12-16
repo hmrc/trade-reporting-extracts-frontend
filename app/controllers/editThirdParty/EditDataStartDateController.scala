@@ -22,6 +22,7 @@ import models.Mode
 import models.requests.DataRequest
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -58,8 +59,8 @@ class EditDataStartDateController @Inject() (
       tradeReportingExtractsService
         .getThirdPartyDetails(request.eori, thirdPartyEori)
         .flatMap { thirdPartyDetails =>
-          val form         = formProvider()
-          val preparedForm = request.userAnswers.get(EditDataStartDatePage(thirdPartyEori)) match {
+          val form: Form[LocalDate] = formProvider()
+          val preparedForm          = request.userAnswers.get(EditDataStartDatePage(thirdPartyEori)) match {
             case None        =>
               thirdPartyDetails.dataStartDate match {
                 case Some(date) => form.fill(date)
@@ -74,8 +75,8 @@ class EditDataStartDateController @Inject() (
   def onSubmit(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
-        val form        = formProvider()
-        val dataEndDate =
+        val form: Form[LocalDate] = formProvider()
+        val dataEndDate           =
           request.userAnswers.get(EditDataEndDatePage(thirdPartyEori)).getOrElse(thirdPartyDetails.dataEndDate)
         form
           .bindFromRequest()
