@@ -89,7 +89,7 @@ class RequestConfirmationController @Inject() (
       reportConfirmations              <- tradeReportingExtractsService.createReportRequest(
                                             reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
                                           )
-      transformedConfirmations          = trasnformReportConfirmations(reportConfirmations)
+      transformedConfirmations          = transformReportConfirmations(reportConfirmations)
       updatedAnswers                    = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
       updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
       _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
@@ -112,7 +112,7 @@ class RequestConfirmationController @Inject() (
       formattedSystemTime(clock)(messages.lang)
     )
 
-  private def trasnformReportConfirmations(
+  private def transformReportConfirmations(
     reportConfirmations: Seq[ReportConfirmation]
   ): Seq[ReportConfirmation] =
     reportConfirmations.map { rc =>
