@@ -76,17 +76,17 @@ class AuthenticatedIdentifierAction @Inject() (
 
     maybeEnrolment match {
       case Some(enrolment) if enrolment.value.nonEmpty =>
-        config.userAllowListEnabled match
-          case true  =>
-            userAllowListConnector.check(config.userAllowListFeature, enrolment.value).flatMap {
-              case true  =>
-                block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
-              case false =>
-                logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
-                Future.successful(Redirect(controllers.problem.routes.NoPermissionController.onPageLoad()))
-            }
-          case false =>
-            block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+        if (config.userAllowListEnabled) {
+          userAllowListConnector.check(config.userAllowListFeature, enrolment.value).flatMap {
+            case true  =>
+              block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+            case false =>
+              logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
+              Future.successful(Redirect(controllers.problem.routes.NoPermissionController.onPageLoad()))
+          }
+        } else {
+          block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
+        }
       case Some(_)                                     =>
         throw InternalError("EORI is empty")
       case None                                        =>

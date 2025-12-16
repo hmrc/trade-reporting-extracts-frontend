@@ -18,8 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import forms.report.CustomRequestEndDateFormProvider
-import models.{Mode, ThirdPartyDetails}
 import models.report.ReportRequestSection
+import models.{Mode, ThirdPartyDetails}
 import navigation.ReportNavigator
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, SelectThirdPartyEoriPage}
 import play.api.data.Form
@@ -28,14 +28,12 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ErrorHandlers, ReportHelpers}
-import views.html.report.CustomRequestEndDateView
 import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
+import utils.{DateTimeFormats, ErrorHandlers, ReportHelpers}
+import views.html.report.CustomRequestEndDateView
 
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDate, ZoneOffset}
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -174,28 +172,25 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
     startDate: LocalDate,
     dataStartDate: Option[LocalDate],
     dataEndDate: Option[LocalDate]
-  )(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    val formatter   = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
+  )(implicit messages: Messages): String =
     (dataStartDate, dataEndDate) match {
       case (Some(_), Some(_)) =>
         messages("customRequestEndDate.thirdParty.message1", reportLengthStringGen(startDate, plus31Days = false)) +
           " " + messages("customRequestEndDate.thirdParty.message2")
-          + " " + dataStartDate.get.format(formatter)
+          + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.to")
-          + " " + dataEndDate.get.format(formatter)
+          + " " + DateTimeFormats.dateFormatter(dataEndDate.get)
           + ". " + messages("customRequestEndDate.thirdParty.message3")
       case (Some(_), _)       =>
         messages("customRequestEndDate.thirdParty.message1", reportLengthStringGen(startDate, plus31Days = false)) +
           " " + messages("customRequestEndDate.thirdParty.message2")
-          + " " + dataStartDate.get.format(formatter)
+          + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.onwards") + " " + messages(
             "customRequestEndDate.thirdParty.message3"
           )
       case (_, _)             =>
         messages("customRequestEndDate.thirdParty.allDataAccess", reportLengthStringGen(startDate, plus31Days = false))
     }
-  }
 
   private def reportLengthStringGen(startDate: LocalDate, plus31Days: Boolean)(implicit messages: Messages): String = {
     val formatterForHint = dateTimeHintFormat

@@ -22,16 +22,15 @@ import models.Mode
 import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.thirdparty.DataEndDateView
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,7 +58,7 @@ class DataEndDateController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, dateFormatter(request.userAnswers.get(DataStartDatePage).get)))
+    Ok(view(preparedForm, mode, DateTimeFormats.dateFormatter(request.userAnswers.get(DataStartDatePage).get)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -73,7 +72,11 @@ class DataEndDateController @Inject() (
           formWithErrors =>
             Future.successful(
               BadRequest(
-                view(formWithErrors, mode, dateFormatter(request.userAnswers.get(DataStartDatePage).get))
+                view(
+                  formWithErrors,
+                  mode,
+                  DateTimeFormats.dateFormatter(request.userAnswers.get(DataStartDatePage).get)
+                )
               )
             ),
           value =>
@@ -86,8 +89,4 @@ class DataEndDateController @Inject() (
         )
   }
 
-  private def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))
-  }
 }
