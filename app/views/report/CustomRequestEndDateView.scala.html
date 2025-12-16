@@ -23,8 +23,8 @@
 )
 
 @(form: Form[_],
-mode: Mode, startDateString: String,
-hintTextString: String,
+mode: Mode, startDate: String,
+endDateHint: String,
 isMoreThanOneReport: Boolean,
 maybeThirdPartyRequest: Boolean,
 thirdPartyString: Option[String])(implicit request: Request[_], messages: Messages)
@@ -33,9 +33,9 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
     @if(maybeThirdPartyRequest) {
         <p class="govuk-body">@thirdPartyString </p>
     } else {
-        <p class="govuk-body">@messages("customRequestEndDate.message1", startDateString)</p>
+        <p class="govuk-body">@messages("customRequestEndDate.message1", startDate)</p>
     }
-    <p class="govuk-hint">@messages("customRequestEndDate.hint", hintTextString)</p>
+    <p class="govuk-hint">@messages("customRequestEndDate.hint", endDateHint)</p>
 }
 
 @layout(pageTitle = title(form,

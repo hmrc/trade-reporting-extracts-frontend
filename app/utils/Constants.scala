@@ -22,4 +22,6 @@ case object Constants {
   val eoriMaxLength: Int                     = 17
   val eoriMinLength: Int                     = 14
   val thirdPartyDataAccessLookBackYears: Int = 4
+  val maxReportRequestDays: Int              = 31
+  val minReportingLagDays: Int               = 2
 }

@@ -28,12 +28,13 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
-import utils.{DateTimeFormats, ErrorHandlers, ReportHelpers}
+import utils.Constants.{maxReportRequestDays, minReportingLagDays}
+import utils.DateTimeFormats.dateTimeHintFormat
+import utils.{Constants, DateTimeFormats, ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestEndDateView
 
 import java.time.temporal.ChronoUnit
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -74,8 +75,8 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
           view(
             preparedForm,
             mode,
-            reportLengthStringGen(startDate, plus31Days = false),
-            reportLengthStringGen(startDate, plus31Days = true),
+            DateTimeFormats.dateFormatter(startDate),
+            calculateMaxEndDate(startDate),
             ReportHelpers.isMoreThanOneReport(request.userAnswers),
             maybeThirdPartyRequest,
             Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
@@ -93,8 +94,8 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
             view(
               preparedForm,
               mode,
-              reportLengthStringGen(startDate, plus31Days = false),
-              reportLengthStringGen(startDate, plus31Days = true),
+              DateTimeFormats.dateFormatter(startDate),
+              calculateMaxEndDate(startDate),
               ReportHelpers.isMoreThanOneReport(request.userAnswers),
               maybeThirdPartyRequest,
               None
@@ -134,8 +135,8 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                       view(
                         formWithErrors,
                         mode,
-                        reportLengthStringGen(startDate, plus31Days = false),
-                        reportLengthStringGen(startDate, plus31Days = true),
+                        DateTimeFormats.dateFormatter(startDate), // start date
+                        calculateMaxEndDate(startDate), // hint text
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest,
                         Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
@@ -146,8 +147,8 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                       view(
                         formWithErrors,
                         mode,
-                        reportLengthStringGen(startDate, plus31Days = false),
-                        reportLengthStringGen(startDate, plus31Days = true),
+                        DateTimeFormats.dateFormatter(startDate),
+                        calculateMaxEndDate(startDate),
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest,
                         None
@@ -175,44 +176,39 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
   )(implicit messages: Messages): String =
     (dataStartDate, dataEndDate) match {
       case (Some(_), Some(_)) =>
-        messages("customRequestEndDate.thirdParty.message1", reportLengthStringGen(startDate, plus31Days = false)) +
+        messages("customRequestEndDate.thirdParty.message1", DateTimeFormats.dateFormatter(startDate)) +
           " " + messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.to")
           + " " + DateTimeFormats.dateFormatter(dataEndDate.get)
           + ". " + messages("customRequestEndDate.thirdParty.message3")
       case (Some(_), _)       =>
-        messages("customRequestEndDate.thirdParty.message1", reportLengthStringGen(startDate, plus31Days = false)) +
+        messages("customRequestEndDate.thirdParty.message1", DateTimeFormats.dateFormatter(startDate)) +
           " " + messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.onwards") + " " + messages(
             "customRequestEndDate.thirdParty.message3"
           )
       case (_, _)             =>
-        messages("customRequestEndDate.thirdParty.allDataAccess", reportLengthStringGen(startDate, plus31Days = false))
+        messages("customRequestEndDate.thirdParty.allDataAccess", DateTimeFormats.dateFormatter(startDate))
     }
 
-  private def reportLengthStringGen(startDate: LocalDate, plus31Days: Boolean)(implicit messages: Messages): String = {
-    val formatterForHint = dateTimeHintFormat
-    val formatter        = dateTimeFormat()(messages.lang)
-    if (plus31Days) {
-      if (startDate.plusDays(31).isAfter(LocalDate.now(ZoneOffset.UTC))) {
-        LocalDate.now(ZoneOffset.UTC).minusDays(3).format(formatterForHint)
+  private def calculateMaxEndDate(startDate: LocalDate): String = {
+    val ComparisonBufferDays = minReportingLagDays + 1
+    val today                = LocalDate.now(clock)
+    val startPlusMax         = startDate.plusDays(maxReportRequestDays)
+    val baselineEndDate      = startDate.plusDays(maxReportRequestDays - 1)
+    val latestAllowedDate    = today.minusDays(ComparisonBufferDays)
+
+    val chosenDate =
+      if (startPlusMax.isAfter(today)) {
+        latestAllowedDate
       } else {
-        calculateActiveDate(startDate.plusDays(30))
+        val daysDiff = ChronoUnit.DAYS.between(baselineEndDate, today).abs
+        if (daysDiff < ComparisonBufferDays) latestAllowedDate
+        else baselineEndDate
       }
-    } else {
-      startDate.format(formatter)
-    }
-  }
 
-  def calculateActiveDate(startDate: LocalDate)(implicit messages: Messages): String = {
-    val daysDiff = ChronoUnit.DAYS.between(startDate, LocalDate.now(clock)).abs
-    val fmt      = dateTimeHintFormat
-    if (daysDiff < 3) {
-      LocalDate.now(clock).minusDays(3).format(fmt)
-    } else {
-      startDate.format(fmt)
-    }
+    chosenDate.format(dateTimeHintFormat)
   }
 }
