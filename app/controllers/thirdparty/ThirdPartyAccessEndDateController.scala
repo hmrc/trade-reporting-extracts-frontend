@@ -60,7 +60,12 @@ class ThirdPartyAccessEndDateController @Inject() (
     }
     val dateFormatted: String = getStartDatePlusOneMonth(request)
     Ok(
-      view(preparedForm, mode, DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get), dateFormatted)
+      view(
+        preparedForm,
+        mode,
+        DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
+        dateFormatted
+      )
     )
   }
 
