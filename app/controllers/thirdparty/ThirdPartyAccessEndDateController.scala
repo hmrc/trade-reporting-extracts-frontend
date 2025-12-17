@@ -21,19 +21,17 @@ import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
-import utils.json.OptionalLocalDateReads.*
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
+import utils.json.OptionalLocalDateReads.*
 import views.html.thirdparty.ThirdPartyAccessEndDateView
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,7 +60,12 @@ class ThirdPartyAccessEndDateController @Inject() (
     }
     val dateFormatted: String = getStartDatePlusOneMonth(request)
     Ok(
-      view(preparedForm, mode, dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get), dateFormatted)
+      view(
+        preparedForm,
+        mode,
+        DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
+        dateFormatted
+      )
     )
   }
 
@@ -80,7 +83,7 @@ class ThirdPartyAccessEndDateController @Inject() (
                 view(
                   formWithErrors,
                   mode,
-                  dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
+                  DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
                   dateFormatted
                 )
               )
@@ -93,11 +96,6 @@ class ThirdPartyAccessEndDateController @Inject() (
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
         )
-  }
-
-  private def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag)))
   }
 
   private def getStartDatePlusOneMonth(request: DataRequest[AnyContent]) = {

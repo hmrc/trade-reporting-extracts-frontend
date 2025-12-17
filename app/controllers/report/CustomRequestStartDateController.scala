@@ -28,12 +28,10 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{ErrorHandlers, ReportHelpers}
+import utils.{DateTimeFormats, ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestStartDateView
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -175,23 +173,22 @@ class CustomRequestStartDateController @Inject() (
 
   private def startEndDateStringGenerator(startDate: Option[LocalDate], endDate: Option[LocalDate])(implicit
     messages: Messages
-  ): Option[String] = {
-    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
-    val formatter   = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag(languageTag))
+  ): Option[String] =
     (startDate, endDate) match {
       case (Some(_), None)    =>
         Some(
           messages("customRequestStartDate.message2.thirdParty")
-            + " " + startDate.get.format(formatter) + " " + messages("customRequestStartDate.thirdParty.onwards")
+            + " " + DateTimeFormats.dateFormatter(startDate.get) + " " + messages(
+              "customRequestStartDate.thirdParty.onwards"
+            )
         )
       case (Some(_), Some(_)) =>
         Some(
           messages("customRequestStartDate.message2.thirdParty")
-            + " " + startDate.get.format(formatter) + " " + messages(
+            + " " + DateTimeFormats.dateFormatter(startDate.get) + " " + messages(
               "customRequestStartDate.thirdParty.to"
-            ) + " " + endDate.get.format(formatter) + "."
+            ) + " " + DateTimeFormats.dateFormatter(endDate.get) + "."
         )
       case (_, _)             => None
     }
-  }
 }

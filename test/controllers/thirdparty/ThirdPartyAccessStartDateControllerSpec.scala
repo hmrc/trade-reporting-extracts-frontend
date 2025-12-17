@@ -25,14 +25,14 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
-import utils.json.OptionalLocalDateReads.*
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import utils.DateTimeFormats
+import utils.json.OptionalLocalDateReads.*
 import views.html.thirdparty.ThirdPartyAccessStartDateView
 
 import java.time.{LocalDate, ZoneOffset}
@@ -45,18 +45,18 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
   private val formProvider = new ThirdPartyAccessStartDateFormProvider()
   private def form         = formProvider()
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/request-customs-declaration-data/access-end-date")
 
   val currentDate: String = LocalDate.now.format(DateTimeFormats.dateTimeHintFormat)
 
-  val validAnswer = LocalDate.now(ZoneOffset.UTC)
+  private val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
-  lazy val thirdPartyAccessStartDateRoute =
+  private lazy val thirdPartyAccessStartDateRoute =
     controllers.thirdparty.routes.ThirdPartyAccessStartDateController.onPageLoad(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
-  def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
+  def getRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, thirdPartyAccessStartDateRoute)
 
   def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
@@ -74,13 +74,13 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         val view = application.injector.instanceOf[ThirdPartyAccessStartDateView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, currentDate)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -95,11 +95,11 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
       running(application) {
         val view = application.injector.instanceOf[ThirdPartyAccessStartDateView]
 
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, currentDate)(
-          getRequest(),
+          getRequest,
           messages(application)
         ).toString
       }
@@ -123,6 +123,7 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
         val result = route(application, postRequest()).value
 
         status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
@@ -291,7 +292,7 @@ class ThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoSugar
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val result = route(application, getRequest()).value
+        val result = route(application, getRequest).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url

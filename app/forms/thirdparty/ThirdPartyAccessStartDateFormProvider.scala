@@ -23,9 +23,7 @@ import java.time.Clock
 import java.time.LocalDate
 import javax.inject.Inject
 
-class ThirdPartyAccessStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
-
-  private val currentDate: LocalDate = LocalDate.now(clock.getZone())
+class ThirdPartyAccessStartDateFormProvider extends Mappings {
 
   def apply()(implicit messages: Messages): Form[LocalDate] =
     Form(
@@ -35,11 +33,5 @@ class ThirdPartyAccessStartDateFormProvider @Inject (clock: Clock = Clock.system
         twoRequiredKey = "thirdPartyAccessStartDate.error.required.two",
         requiredKey = "thirdPartyAccessStartDate.error.required"
       )
-        .verifying(
-          minDate(
-            currentDate,
-            "thirdPartyAccessStartDate.error.min"
-          )
-        )
     )
 }

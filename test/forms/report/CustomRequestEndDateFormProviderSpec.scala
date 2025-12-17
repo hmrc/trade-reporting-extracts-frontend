@@ -20,6 +20,7 @@ import forms.behaviours.DateBehaviours
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
+import utils.Constants.maxReportRequestDays
 import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
@@ -33,14 +34,14 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
   private val futureDate: LocalDate          = currentDate.plusDays(1)
   private val currentDateMinusDay: LocalDate = currentDate.minusDays(1)
   private val beforeStartDate: LocalDate     = startDate.minusDays(1)
-  private val illegalReportLengthDate        = startDate.plusDays(32)
+  private val illegalReportLengthDate        = startDate.plusDays(maxReportRequestDays + 1)
   private val form                           = new CustomRequestEndDateFormProvider()(startDate, false, None)
 
   ".value" - {
 
     val validData = datesBetween(
       min = startDate,
-      max = startDate.plusDays(31)
+      max = startDate.plusDays(maxReportRequestDays)
     )
 
     behave like dateField(form, "value", validData)

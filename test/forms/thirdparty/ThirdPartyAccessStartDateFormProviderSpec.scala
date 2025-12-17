@@ -17,14 +17,10 @@
 package forms.thirdparty
 
 import forms.behaviours.DateBehaviours
-import forms.thirdparty.ThirdPartyAccessStartDateFormProvider
-import play.api.data.FormError
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import utils.DateTimeFormats
-import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.LocalDate
 
 class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
 
@@ -45,11 +41,5 @@ class ThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
 
     behave like mandatoryDateField(form, "value", "thirdPartyAccessStartDate.error.required.all")
 
-    behave like dateFieldWithMin(
-      form,
-      "value",
-      min,
-      FormError("value", "thirdPartyAccessStartDate.error.min", Seq())
-    )
   }
 }
