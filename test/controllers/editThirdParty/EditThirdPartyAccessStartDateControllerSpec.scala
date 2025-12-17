@@ -18,7 +18,7 @@ package controllers.editThirdParty
 
 import java.time.{Clock, Instant, LocalDate, ZoneId, ZoneOffset}
 import base.SpecBase
-import forms.EditThirdPartyAccessStartDateFormProvider
+import forms.editThirdParty.EditThirdPartyAccessStartDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor

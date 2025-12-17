@@ -33,7 +33,7 @@
 package controllers.editThirdParty
 
 import base.SpecBase
-import forms.EditThirdPartyAccessEndDateFormProvider
+import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any

@@ -17,7 +17,7 @@
 package controllers.editThirdParty
 
 import controllers.actions.*
-import forms.EditThirdPartyAccessStartDateFormProvider
+import forms.editThirdParty.EditThirdPartyAccessStartDateFormProvider
 
 import javax.inject.Inject
 import navigation.EditThirdPartyNavigator
