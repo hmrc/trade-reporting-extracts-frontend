@@ -17,15 +17,14 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import controllers.routes
 import forms.thirdparty.DeclarationDateFormProvider
+import models.NormalMode
 import models.thirdparty.{DataTypes, DeclarationDate}
-import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
+import pages.thirdparty.DataTypesPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest

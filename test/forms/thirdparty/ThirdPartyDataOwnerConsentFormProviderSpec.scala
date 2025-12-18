@@ -17,7 +17,6 @@
 package forms.thirdparty
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.thirdparty.ThirdPartyDataOwnerConsentFormProvider
 import play.api.data.FormError
 
 class ThirdPartyDataOwnerConsentFormProviderSpec extends BooleanFieldBehaviours {

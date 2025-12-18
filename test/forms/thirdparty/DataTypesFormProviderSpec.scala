@@ -17,7 +17,6 @@
 package forms.thirdparty
 
 import forms.behaviours.CheckboxFieldBehaviours
-import forms.thirdparty.DataTypesFormProvider
 import models.thirdparty.DataTypes
 import play.api.data.FormError
 

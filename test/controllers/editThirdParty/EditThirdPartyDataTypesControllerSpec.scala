@@ -19,7 +19,7 @@ package controllers.editThirdParty
 import base.SpecBase
 import forms.editThirdParty.EditThirdPartyDataTypesFormProvider
 import models.thirdparty.DataTypes
-import models.{NormalMode, ThirdPartyDetails, UserAnswers}
+import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -86,8 +86,6 @@ class EditThirdPartyDataTypesControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, editThirdPartyDataTypesRoute)
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[EditThirdPartyDataTypesView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.DashboardController.onPageLoad().url

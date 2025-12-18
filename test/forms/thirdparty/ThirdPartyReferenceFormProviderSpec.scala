@@ -17,7 +17,6 @@
 package forms.thirdparty
 
 import forms.behaviours.StringFieldBehaviours
-import forms.thirdparty.ThirdPartyReferenceFormProvider
 import play.api.data.FormError
 
 class ThirdPartyReferenceFormProviderSpec extends StringFieldBehaviours {

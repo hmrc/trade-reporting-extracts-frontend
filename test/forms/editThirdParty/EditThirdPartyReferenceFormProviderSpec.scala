@@ -17,7 +17,6 @@
 package forms.editThirdParty
 
 import forms.behaviours.StringFieldBehaviours
-import forms.editThirdParty.EditThirdPartyReferenceFormProvider
 import play.api.data.FormError
 
 class EditThirdPartyReferenceFormProviderSpec extends StringFieldBehaviours {

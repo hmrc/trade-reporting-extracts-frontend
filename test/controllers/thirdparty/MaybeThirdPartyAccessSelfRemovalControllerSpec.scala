@@ -17,9 +17,8 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import controllers.routes
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
-import models.{NormalMode, UserAnswers}
+import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

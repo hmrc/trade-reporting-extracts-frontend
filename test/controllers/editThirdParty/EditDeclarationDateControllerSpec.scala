@@ -18,10 +18,9 @@ package controllers.editThirdParty
 
 import base.SpecBase
 import forms.editThirdParty.EditDeclarationDateFormProvider
-import models.{ThirdPartyDetails, UserAnswers}
 import models.thirdparty.DeclarationDate
+import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar

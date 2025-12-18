@@ -24,12 +24,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.thirdparty.RemoveThirdPartyPage
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.{AuditService, TradeReportingExtractsService}
-import views.html.thirdparty.RemoveThirdPartyConfirmationView
-import play.api.inject.bind
 
 import java.time.{Clock, Instant, LocalDateTime, ZoneId}
 import scala.concurrent.Future
@@ -71,8 +70,6 @@ class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
           FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad("Eori").url)
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[RemoveThirdPartyConfirmationView]
 
         status(result) mustEqual OK
         val capturedAnswers = userAnswersCaptor.getValue

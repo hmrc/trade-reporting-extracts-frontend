@@ -22,7 +22,7 @@ import models.UserActiveStatus
 import models.thirdparty.AuthorisedThirdPartiesViewModel
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.mvc.RequestHeader

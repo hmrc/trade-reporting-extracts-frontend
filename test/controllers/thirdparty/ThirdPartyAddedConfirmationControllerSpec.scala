@@ -19,22 +19,20 @@ package controllers.thirdparty
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.WireMockHelper
-import controllers.routes
 import models.CompanyInformation
 import models.ConsentStatus.Granted
-import models.thirdparty.{ConfirmEori, DataTypes, DeclarationDate, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.thirdparty.{ConfirmEoriPage, DataEndDatePage, DataStartDatePage, DataTypesPage, DeclarationDatePage, EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage, ThirdPartyDataOwnerConsentPage, ThirdPartyReferencePage}
-import play.api.test.FakeRequest
+import pages.thirdparty.*
 import play.api.inject.bind
+import play.api.test.FakeRequest
 import play.api.test.Helpers.{running, *}
 import services.{AuditService, ThirdPartyService, TradeReportingExtractsService}
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
-import java.time.LocalDate
-import java.time.{Clock, Instant, ZoneId}
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 import scala.concurrent.Future
 
 class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with WireMockHelper {

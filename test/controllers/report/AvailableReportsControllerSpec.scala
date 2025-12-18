@@ -21,17 +21,14 @@ import config.FrontendAppConfig
 import models.ReportTypeName
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.should
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.HttpEntity
 import play.api.inject.bind
-import play.api.mvc.{ResponseHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.TradeReportingExtractsService
-import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AvailableReportsView
 
 import java.time.Instant
@@ -286,7 +283,6 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
         )
         val result  = route(application, request).value
-        val config  = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual SEE_OTHER
       }

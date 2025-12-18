@@ -500,8 +500,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
         val invalidResponse = """{ "foo": "bar" }"""
 
-        val response = Json.toJson(validThirdPartyDetails).toString()
-        val app      = application
+        val app = application
         running(app) {
           val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 

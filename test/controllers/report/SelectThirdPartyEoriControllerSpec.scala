@@ -17,28 +17,25 @@
 package controllers.report
 
 import base.SpecBase
-import controllers.routes
+import exceptions.NoAuthorisedUserFoundException
 import forms.report.SelectThirdPartyEoriFormProvider
-import models.report.{ChooseEori, Decision, ReportTypeImport}
-import models.{NormalMode, SectionNavigation, SelectThirdPartyEori, UserAnswers}
-import navigation.{FakeNavigator, FakeReportNavigator, Navigator}
+import models.report.{Decision, ReportTypeImport}
+import models.{AlreadySubmittedFlag, NormalMode, SectionNavigation, SelectThirdPartyEori, UserAnswers}
+import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, DecisionPage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
-import play.api.i18n.Messages
+import pages.report.{DecisionPage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
-import views.html.problem.NoThirdPartyAccessView
 import views.html.report.SelectThirdPartyEoriView
+
 import java.time.LocalDate
-import exceptions.NoAuthorisedUserFoundException
-import models.AlreadySubmittedFlag
 import scala.concurrent.Future
 
 class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
@@ -140,8 +137,6 @@ class SelectThirdPartyEoriControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(GET, selectThirdPartyEoriRoute)
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[NoThirdPartyAccessView]
 
         status(result) `mustEqual` SEE_OTHER
         redirectLocation(result).value mustEqual noThirdPartyAccessRoute.url

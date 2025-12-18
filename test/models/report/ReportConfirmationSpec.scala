@@ -19,7 +19,6 @@ package models.report
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
-import models.report.ReportConfirmation
 
 class ReportConfirmationSpec extends AnyFreeSpec with Matchers {
 

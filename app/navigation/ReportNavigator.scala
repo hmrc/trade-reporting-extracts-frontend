@@ -73,7 +73,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
     case ReportNamePage             =>
       navigateTo(controllers.report.routes.CheckYourAnswersController.onPageLoad())
-    case MaybeAdditionalEmailPage   => maybeAdditionalEmailRoutes(CheckMode)
+    case MaybeAdditionalEmailPage   => maybeAdditionalEmailRoutes()
     case EmailSelectionPage         =>
       conditionalNavigate(
         isAddNewEmail,
@@ -241,7 +241,7 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
       case None        => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
     }
 
-  private def maybeAdditionalEmailRoutes(mode: Mode)(answers: UserAnswers): Call =
+  private def maybeAdditionalEmailRoutes()(answers: UserAnswers): Call =
     answers.get(MaybeAdditionalEmailPage) match {
       case Some(true) =>
         if (answers.get(NewEmailNotificationPage).isDefined) {

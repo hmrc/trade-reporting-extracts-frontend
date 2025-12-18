@@ -17,7 +17,6 @@
 package forms.editThirdParty
 
 import forms.behaviours.DateBehaviours
-import forms.editThirdParty.EditDataEndDateFormProvider
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 
