@@ -1,16 +1,16 @@
-GET        /editThirdParty/submit/:thirdPartyEori                          controllers.editThirdParty.EditThirdPartySubmissionHandler.submit(thirdPartyEori: String)
+GET        /edit-third-party/submit/:thirdPartyEori                          controllers.editThirdParty.EditThirdPartySubmissionHandler.submit(thirdPartyEori: String)
 
-GET        /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onPageLoad(thirdPartyEori: String)
-POST       /editThirdPartyDataTypes/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onSubmit(thirdPartyEori: String)
+GET        /edit-data-types/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onPageLoad(thirdPartyEori: String)
+POST       /edit-data-types/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyDataTypesController.onSubmit(thirdPartyEori: String)
 
-GET        /editThirdPartyReference/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onPageLoad(thirdPartyEori: String)
-POST       /editThirdPartyReference/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onSubmit(thirdPartyEori: String)
+GET        /edit-reference-name/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onPageLoad(thirdPartyEori: String)
+POST       /edit-reference-name/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyReferenceController.onSubmit(thirdPartyEori: String)
 
-GET        /editThirdPartyAccessStart/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onPageLoad(thirdPartyEori: String)
-POST       /editThirdPartyAccessStart/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onSubmit(thirdPartyEori: String)
+GET        /edit-access-start-date/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onPageLoad(thirdPartyEori: String)
+POST       /edit-access-start-date/:thirdPartyEori                      controllers.editThirdParty.EditThirdPartyAccessStartDateController.onSubmit(thirdPartyEori: String)
 
-GET        /editThirdPartyAccessEnd/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori: String)
-POST       /editThirdPartyAccessEnd/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori: String)
+GET        /edit-access-end-date/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onPageLoad(thirdPartyEori: String)
+POST       /edit-access-end-date/:thirdPartyEori                        controllers.editThirdParty.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori: String)
 
 GET         /edit-data-start-date/:thirdPartyEori                            controllers.editThirdParty.EditDataStartDateController.onPageLoad(thirdPartyEori: String)
 POST        /edit-data-start-date/:thirdPartyEori                            controllers.editThirdParty.EditDataStartDateController.onSubmit(thirdPartyEori: String)

@@ -28,7 +28,8 @@
         <p class="govuk-hint">@messages("editThirdPartyAccessEndDate.hint" ,date)</p>
     }
 @layout(pageTitle = title(form, messages("editThirdPartyAccessEndDate.title"))) {
-@formHelper(action = controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
+
+    @formHelper(action = controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))

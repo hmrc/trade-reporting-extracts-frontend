@@ -18,7 +18,7 @@ package controllers.editThirdParty
 
 import java.time.{Clock, Instant, LocalDate, ZoneId, ZoneOffset}
 import base.SpecBase
-import forms.EditThirdPartyAccessStartDateFormProvider
+import forms.editThirdParty.EditThirdPartyAccessStartDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
@@ -65,7 +65,7 @@ class EditThirdPartyAccessStartDateControllerSpec extends SpecBase with MockitoS
   private val thirdPartyEori                    = "thirdPartyEori"
   private val submittedDifferentDate: LocalDate = currentDate.plusDays(2)
 
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/editThirdPartyAccessEnd/thirdPartyEori")
+  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/edit-access-end-date/thirdPartyEori")
 
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
 

@@ -716,29 +716,36 @@ editThirdPartyReference.checkYourAnswersLabel = cy: Reference name
 editThirdPartyReference.error.required = cy: Enter the name you will use to reference this EORI number
 editThirdPartyReference.error.length = cy: The name you will use to reference this EORI number must be 100 characters or fewer
 editThirdPartyReference.change.hidden = cy: reference name
-
-editThirdPartyDataTypes.title = EditThirdPartyDataTypes
-editThirdPartyDataTypes.heading = EditThirdPartyDataTypes
-editThirdPartyDataTypes.checkYourAnswersLabel = EditThirdPartyDataTypes
-editThirdPartyDataTypes.error.required = Select editThirdPartyDataTypes
-editThirdPartyDataTypes.change.hidden = EditThirdPartyDataTypes
+editThirdPartyReference.message = cy: This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
 
 editThirdPartyAccessStartDate.title = cy: When do you want this access to start?
 editThirdPartyAccessStartDate.heading = cy: When do you want this access to start?
-editThirdPartyAccessStartDate.error.required.all = cy: Enter the date this access will start
+editThirdPartyAccessStartDate.message = cy: You can enter today’s date or choose a future date.
+editThirdPartyAccessStartDate.hint = cy: For example, {0}.
+editThirdPartyAccessStartDate.error.required.all =  cy: Enter the date this access will start
 editThirdPartyAccessStartDate.error.required.two = cy: The date this access will start must include {0} and a {1}
-editThirdPartyAccessStartDate.error.required = cy: date this access will start must include a {0}
+editThirdPartyAccessStartDate.error.required = cy: The date this access will start must include a {0}
 editThirdPartyAccessStartDate.error.invalid = cy: The date this access will start must be a real date and only include numbers 0 to 9
 editThirdPartyAccessStartDate.error.min = cy: The date this access will start must be today or in the future
 
 editThirdPartyAccessEndDate.title = cy: When do you want this access to end? (optional)
 editThirdPartyAccessEndDate.heading = cy: When do you want this access to end? (optional)
-editThirdPartyAccessEndDate.message = cy: You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
-editThirdPartyAccessEndDate.hint = cy: For example, 27 12 2025.
+editThirdPartyAccessEndDate.message =  cy: You entered a start date of {0}. Leave blank for ongoing access, you can update this later.
+editThirdPartyAccessEndDate.hint = cy: For example, {0}.
 editThirdPartyAccessEndDate.error.required.two = cy: The date this access will end must include a {0} and a {1}
 editThirdPartyAccessEndDate.error.required = cy: The date this access will end must include a {0}
 editThirdPartyAccessEndDate.error.invalid = cy: The date this access will end must be a real date and only include numbers 0 to 9
 editThirdPartyAccessEndDate.error.min = cy: The date this access will end must be on or after {0}
+
+editThirdPartyDataTypes.title = cy: Which types of data do you want to give access to?
+editThirdPartyDataTypes.heading = cy: Which types of data do you want to give access to?
+editThirdPartyDataTypes.checkYourAnswersLabel = cy: Types of data to give access to
+editThirdPartyDataTypes.error.required = cy: Select which types of data you want to give access to
+editThirdPartyDataTypes.change.hidden = cy: Types of data to give access to
+editThirdPartyDataTypes.hint = cy: Select all that apply.
+
+editThirdParty.confirmChanges = cy: Confirm changes
+editThirdParty.cancel = cy: Cancel
 
 editDataStartDate.title = cy: When do you want to give access to your data from?
 editDataStartDate.heading = cy: When do you want to give access to your data from?
