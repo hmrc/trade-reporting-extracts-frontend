@@ -17,12 +17,11 @@
 package controllers.editThirdParty
 
 import controllers.actions.*
-import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
+import forms.EditThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
-import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -53,13 +52,15 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val form: Form[Option[LocalDate]] =
-        formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
-      val preparedForm                  = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
-        case None  => form
-        case value => form.fill(value)
+      val form = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
+
+      val preparedForm = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
+        case Some(d) if d == LocalDate.MAX => form
+        case Some(d)                       => form.fill(Some(d))
+        case None                          => form
       }
-      val dateFormatted: String         = getStartDatePlusOneMonth(thirdPartyEori, request)
+
+      val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, request)
       Ok(
         view(
           preparedForm,
@@ -72,9 +73,9 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
 
   def onSubmit(thirdPartyEori: String): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      val startDate                     = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get
-      val form: Form[Option[LocalDate]] = formProvider(startDate)
-      val dateFormatted                 = getStartDatePlusOneMonth(thirdPartyEori, request)
+      val startDate     = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get
+      val form          = formProvider(startDate)
+      val dateFormatted = getStartDatePlusOneMonth(thirdPartyEori, request)
 
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
         form
