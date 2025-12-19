@@ -23,6 +23,7 @@ import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -52,7 +53,7 @@ class ThirdPartyAccessEndDateController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val form = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
+    val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
     val preparedForm          = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
       case None        => form
@@ -71,8 +72,8 @@ class ThirdPartyAccessEndDateController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val dateFormatted: String = getStartDatePlusOneMonth(request)
-      val form                  = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
+      val dateFormatted: String         = getStartDatePlusOneMonth(request)
+      val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
       form
         .bindFromRequest()

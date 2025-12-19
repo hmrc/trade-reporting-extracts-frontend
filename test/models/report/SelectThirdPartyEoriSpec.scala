@@ -17,13 +17,12 @@
 package models.report
 
 import models.SelectThirdPartyEori
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.{JsError, JsString, Json}
+import play.api.libs.json.{JsString, Json}
 
 class SelectThirdPartyEoriSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 

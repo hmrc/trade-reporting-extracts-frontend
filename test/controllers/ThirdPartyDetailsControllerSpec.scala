@@ -18,24 +18,24 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeDataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
-import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
+import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
 import models.thirdparty.DeclarationDate
+import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import play.api.inject.bind
-import org.mockito.Mockito.when
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyReferencePage}
-import pages.report.{ChooseEoriPage, NewEmailNotificationPage}
+import pages.report.NewEmailNotificationPage
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.RequestHeader
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
-import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, DataTheyCanViewSummary, DataTypesSummary, EoriNumberSummary, ThirdPartyAccessPeriodSummary, ThirdPartyReferenceSummary}
+import viewmodels.checkAnswers.thirdparty.*
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
 

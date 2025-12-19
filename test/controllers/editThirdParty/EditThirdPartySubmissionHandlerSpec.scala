@@ -18,22 +18,21 @@ package controllers.editThirdParty
 
 import base.SpecBase
 import controllers.routes
-import models.{ThirdPartyDetails, UserAnswers}
-import models.thirdparty.{DataTypes, DataUpdate, ThirdPartyAddedConfirmation, ThirdPartyRequest, ThirdPartyUpdatedEvent}
+import models.ThirdPartyDetails
+import models.thirdparty.*
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
 import org.scalactic.Prettifier.default
-import play.api.inject.bind
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import pages.editThirdParty.*
+import play.api.inject.bind
 import play.api.mvc.Result
-import play.api.test.Helpers.*
 import play.api.test.FakeRequest
-import repositories.SessionRepository
+import play.api.test.Helpers.*
 import services.{AuditService, TradeReportingExtractsService}
 
 import java.time.{LocalDate, ZoneOffset}

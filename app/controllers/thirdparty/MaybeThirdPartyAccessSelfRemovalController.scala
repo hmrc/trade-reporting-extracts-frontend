@@ -19,6 +19,7 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -40,7 +41,7 @@ class MaybeThirdPartyAccessSelfRemovalController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getOrCreate) { implicit request =>
     Ok(view(form, traderEori))

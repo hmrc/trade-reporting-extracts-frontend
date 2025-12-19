@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessStartDateView
 import models.thirdparty.AddThirdPartySection
+import play.api.data.Form
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -55,7 +56,7 @@ class ThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.systemUT
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val form = formProvider()
+    val form: Form[LocalDate] = formProvider()
 
     val preparedForm = request.userAnswers.get(ThirdPartyAccessStartDatePage) match {
       case None        => form
@@ -68,7 +69,7 @@ class ThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.systemUT
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val form = formProvider()
+      val form: Form[LocalDate] = formProvider()
 
       form
         .bindFromRequest()

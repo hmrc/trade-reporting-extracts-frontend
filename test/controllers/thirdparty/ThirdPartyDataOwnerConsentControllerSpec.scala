@@ -17,7 +17,6 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import controllers.routes
 import forms.thirdparty.ThirdPartyDataOwnerConsentFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}

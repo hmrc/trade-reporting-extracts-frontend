@@ -23,6 +23,7 @@ import models.Mode
 import models.report.{EmailSelection, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.report.EmailSelectionPage
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -52,8 +53,8 @@ class EmailSelectionController @Inject() (
       tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
         val dynamicEmails = userDetails.additionalEmails
         if dynamicEmails.nonEmpty then
-          val form         = formProvider(dynamicEmails)
-          val preparedForm = request.userAnswers.get(EmailSelectionPage) match {
+          val form: Form[Set[String]] = formProvider(dynamicEmails)
+          val preparedForm            = request.userAnswers.get(EmailSelectionPage) match {
             case None        => form
             case Some(value) => form.fill(value)
           }
@@ -72,8 +73,8 @@ class EmailSelectionController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
       tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
-        val dynamicEmails = userDetails.additionalEmails
-        val form          = formProvider(dynamicEmails)
+        val dynamicEmails           = userDetails.additionalEmails
+        val form: Form[Set[String]] = formProvider(dynamicEmails)
 
         form
           .bindFromRequest()

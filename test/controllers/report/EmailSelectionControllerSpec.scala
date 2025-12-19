@@ -95,8 +95,6 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, emailSelectionRoute)
         val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[EmailSelectionView]
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
       }

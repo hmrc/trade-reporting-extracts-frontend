@@ -17,7 +17,6 @@
 package models.thirdparty
 
 import generators.ModelGenerators
-import models.thirdparty.DataTypes
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec

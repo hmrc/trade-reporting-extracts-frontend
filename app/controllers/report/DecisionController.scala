@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.report.DecisionView
 import config.FrontendAppConfig
+import play.api.data.Form
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,7 +50,7 @@ class DecisionController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  private val form = formProvider()
+  private val form: Form[Decision] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen belowReportRequestLimitAction) { implicit request =>

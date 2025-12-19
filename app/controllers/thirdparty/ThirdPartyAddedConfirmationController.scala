@@ -87,14 +87,8 @@ class ThirdPartyAddedConfirmationController @Inject() (
 
     ThirdPartyAddedEvent(
       IsImporterExporterForDataToShare = userAnswers.get(ThirdPartyDataOwnerConsentPage).get,
-      thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).get match {
-        case ConfirmEori.Yes => true
-        case ConfirmEori.No  => false
-      },
-      thirdPartyGivenAccessAllData = userAnswers.get(DeclarationDatePage).get match {
-        case DeclarationDate.AllAvailableData => true
-        case DeclarationDate.CustomDateRange  => false
-      },
+      thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).contains(ConfirmEori.Yes),
+      thirdPartyGivenAccessAllData = userAnswers.get(DeclarationDatePage).contains(DeclarationDate.AllAvailableData),
       requesterEori = request.eori,
       thirdPartyEori = userAnswers.get(EoriNumberPage).get,
       thirdPartyBusinessInformation = maybeCompanyName,

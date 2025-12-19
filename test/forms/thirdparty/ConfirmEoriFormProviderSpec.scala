@@ -17,7 +17,6 @@
 package forms.thirdparty
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.ConfirmEori
 import play.api.data.FormError
 

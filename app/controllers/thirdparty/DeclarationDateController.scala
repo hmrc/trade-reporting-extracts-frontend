@@ -19,9 +19,10 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.DeclarationDateFormProvider
 import models.Mode
-import models.thirdparty.{AddThirdPartySection, DataTypes}
+import models.thirdparty.{AddThirdPartySection, DataTypes, DeclarationDate}
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{DataTypesPage, DeclarationDatePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,8 +48,8 @@ class DeclarationDateController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val dataTypesString = getDataTypesString(request.userAnswers.get(DataTypesPage))
-    val form            = formProvider(Seq(dataTypesString))
+    val dataTypesString             = getDataTypesString(request.userAnswers.get(DataTypesPage))
+    val form: Form[DeclarationDate] = formProvider(Seq(dataTypesString))
 
     val preparedForm = request.userAnswers.get(DeclarationDatePage) match {
       case None        => form
@@ -60,8 +61,8 @@ class DeclarationDateController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val dataTypesString = getDataTypesString(request.userAnswers.get(DataTypesPage))
-      val form            = formProvider(Seq(dataTypesString))
+      val dataTypesString             = getDataTypesString(request.userAnswers.get(DataTypesPage))
+      val form: Form[DeclarationDate] = formProvider(Seq(dataTypesString))
 
       form
         .bindFromRequest()

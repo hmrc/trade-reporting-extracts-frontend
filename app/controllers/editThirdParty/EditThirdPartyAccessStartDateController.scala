@@ -22,6 +22,7 @@ import forms.editThirdParty.EditThirdPartyAccessStartDateFormProvider
 import javax.inject.Inject
 import navigation.EditThirdPartyNavigator
 import pages.editThirdParty.EditThirdPartyAccessStartDatePage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -56,8 +57,8 @@ class EditThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.syst
       tradeReportingExtractsService
         .getThirdPartyDetails(request.eori, thirdPartyEori)
         .flatMap { thirdPartyDetails =>
-          val form         = formProvider()
-          val preparedForm = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) match {
+          val form: Form[LocalDate] = formProvider()
+          val preparedForm          = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) match {
             case None        =>
               val startDateObjects: LocalDate = thirdPartyDetails.accessStartDate
               form.fill(startDateObjects)
@@ -70,7 +71,7 @@ class EditThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.syst
   def onSubmit(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
-        val form = formProvider()
+        val form: Form[LocalDate] = formProvider()
         form
           .bindFromRequest()
           .fold(

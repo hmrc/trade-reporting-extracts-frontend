@@ -17,7 +17,6 @@
 package forms.thirdparty
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
 import play.api.data.FormError
 
 class MaybeThirdPartyAccessSelfRemovalFormProviderSpec extends BooleanFieldBehaviours {

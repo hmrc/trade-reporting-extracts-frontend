@@ -154,7 +154,6 @@ class ReportTypeImportControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, reportTypeImportRoute)
 
         val result = route(application, request).value
-        val config = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url

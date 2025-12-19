@@ -17,12 +17,9 @@
 package models
 
 import base.SpecBase
+import play.api.libs.json.{JsError, JsString, JsSuccess}
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.{JsError, JsString, JsSuccess}
 
 class UserActiveStatusSpec extends SpecBase {
 

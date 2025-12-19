@@ -16,14 +16,15 @@
 
 package services
 
-import org.scalatestplus.mockito.MockitoSugar
+import models.UserAnswers
+import models.thirdparty.{DataTypes, DeclarationDate}
+import org.scalatest.TryValues.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.TryValues._
-import models.thirdparty.{DataTypes, DeclarationDate, ThirdPartyRequest}
-import models.UserAnswers
-import pages.thirdparty._
+import org.scalatestplus.mockito.MockitoSugar
+import pages.thirdparty.*
+
 import java.time.{Clock, Instant, LocalDate, ZoneId}
 
 class ThirdPartyServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {

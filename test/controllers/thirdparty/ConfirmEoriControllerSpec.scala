@@ -17,7 +17,6 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import controllers.routes
 import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.ConfirmEori
 import models.{CompanyInformation, ConsentStatus, NormalMode, UserAnswers}

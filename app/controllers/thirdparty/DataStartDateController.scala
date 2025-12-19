@@ -23,6 +23,7 @@ import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{DataEndDatePage, DataStartDatePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -55,7 +56,7 @@ class DataStartDateController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
-    val form = formProvider()
+    val form: Form[LocalDate] = formProvider()
 
     val preparedForm = request.userAnswers.get(DataStartDatePage) match {
       case None        => form
@@ -68,7 +69,7 @@ class DataStartDateController @Inject() (
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val form = formProvider()
+      val form: Form[LocalDate] = formProvider()
 
       form
         .bindFromRequest()

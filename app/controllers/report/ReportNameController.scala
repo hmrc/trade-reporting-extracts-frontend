@@ -75,7 +75,7 @@ class ReportNameController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val form = formFor(request.userAnswers)
+      val form: Form[String] = formFor(request.userAnswers)
       form
         .bindFromRequest()
         .fold(

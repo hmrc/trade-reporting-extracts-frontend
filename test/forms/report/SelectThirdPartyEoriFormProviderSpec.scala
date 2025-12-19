@@ -17,8 +17,6 @@
 package forms.report
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.report.SelectThirdPartyEoriFormProvider
-import models.SelectThirdPartyEori
 import play.api.data.FormError
 
 class SelectThirdPartyEoriFormProviderSpec extends OptionFieldBehaviours {

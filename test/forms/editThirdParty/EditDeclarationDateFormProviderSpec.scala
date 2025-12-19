@@ -17,7 +17,6 @@
 package forms.editThirdParty
 
 import forms.behaviours.OptionFieldBehaviours
-import forms.editThirdParty.EditDeclarationDateFormProvider
 import models.thirdparty.DeclarationDate
 import play.api.data.{Form, FormError}
 

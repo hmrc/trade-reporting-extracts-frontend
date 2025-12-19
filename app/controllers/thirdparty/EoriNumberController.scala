@@ -23,6 +23,7 @@ import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
 import pages.QuestionPage
 import pages.thirdparty.*
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -50,8 +51,8 @@ class EoriNumberController @Inject() (
     with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val userEori = request.eori
-    val form     = formProvider(userEori)
+    val userEori           = request.eori
+    val form: Form[String] = formProvider(userEori)
 
     val preparedForm = request.userAnswers.get(EoriNumberPage) match {
       case None        => form

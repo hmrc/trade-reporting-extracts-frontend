@@ -27,7 +27,7 @@ import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
 import org.apache.pekko.Done
-import play.api.http.Status.{NO_CONTENT, OK, TOO_MANY_REQUESTS}
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.json.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -65,7 +65,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .withBody(requestBody)
       .execute[HttpResponse]
       .flatMap {
-        case response if response.status == 200 =>
+        case response if response.status == OK =>
           Json
             .parse(response.body)
             .validate[RequestedReportsViewModel]
@@ -78,11 +78,11 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
               validModel => Future.successful(validModel)
             )
 
-        case response if response.status == 204 =>
+        case response if response.status == NO_CONTENT =>
           logger.info(s"No reports found for EORI: $eoriNumber")
           Future.successful(RequestedReportsViewModel(None, None))
 
-        case response if response.status == 400 =>
+        case response if response.status == BAD_REQUEST =>
           val msg = s"Bad request when fetching reports for EORI: $eoriNumber - ${response.body}"
           logger.warn(msg)
           Future.failed(new IllegalArgumentException(msg))
@@ -106,7 +106,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .withBody(Json.obj(eori -> eoriNumber))
       .execute[AvailableReportsViewModel]
       .recover { ex =>
-        logger.error(s"Failed to fetch EORI history: ${ex.getMessage}", ex)
+        logger.error(s"Failed to fetch Available Reports: ${ex.getMessage}", ex)
         throw ex
       }
 
@@ -256,7 +256,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK  =>
+          case OK        =>
             Json.parse(response.body).validate[ThirdPartyDetails] match {
               case JsSuccess(thirdPartyDetails, _) =>
                 Future.successful(thirdPartyDetails)
@@ -269,10 +269,10 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
                   )
                 )
             }
-          case 404 =>
+          case NOT_FOUND =>
             logger.warn(s"No authorised user found for trader EORI - ${response.body}")
             Future.failed(NoAuthorisedUserFoundException(response.body))
-          case _   =>
+          case _         =>
             logger.error(s"Failed to get authorised business details: ${response.status} - ${response.body}")
             Future.failed(
               UpstreamErrorResponse(

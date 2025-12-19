@@ -16,9 +16,9 @@
 
 package controllers.actions
 
-import controllers.actions.DataRetrievalOrCreateAction
 import models.UserAnswers
 import models.requests.{DataRequest, IdentifierRequest}
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class CustomFakeDataRetrievalOrCreateAction(userAnswers: UserAnswers) extends DataRetrievalOrCreateAction {

@@ -18,7 +18,6 @@ package models
 
 import base.SpecBase
 import play.api.libs.json.Json
-import models.ThirdPartyDetails
 
 import java.time.LocalDate
 

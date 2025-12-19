@@ -19,15 +19,11 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserDetails}
-import org.apache.pekko.Done
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import play.api.Logging
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.select.SelectItem
 import uk.gov.hmrc.http.HeaderCarrier
-import models.UserActiveStatus
 
 import java.time.Clock
 import javax.inject.{Inject, Singleton}

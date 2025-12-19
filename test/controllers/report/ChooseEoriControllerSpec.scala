@@ -19,13 +19,13 @@ package controllers.report
 import base.SpecBase
 import forms.report.ChooseEoriFormProvider
 import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
-import models.{CheckMode, EoriRole, NormalMode, UserAnswers}
+import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EoriRolePage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
+import pages.report.*
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

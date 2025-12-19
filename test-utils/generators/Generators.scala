@@ -16,8 +16,6 @@
 
 package generators
 
-import models.StringFieldRegex
-
 import java.time.{Instant, LocalDate, ZoneOffset}
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.*

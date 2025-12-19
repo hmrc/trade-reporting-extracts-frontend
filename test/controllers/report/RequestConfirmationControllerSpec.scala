@@ -20,8 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import exceptions.NoAuthorisedUserFoundException
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, ReportTypeImport}
-import models.thirdparty.AuthorisedThirdPartiesViewModel
-import models.{AlreadySubmittedFlag, NotificationEmail, SelectThirdPartyEori, UserAnswers}
+import models.{AlreadySubmittedFlag, NotificationEmail, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +35,7 @@ import services.{ReportRequestDataService, TradeReportingExtractsService}
 import utils.DateTimeFormats.formattedSystemTime
 import views.html.report.RequestConfirmationView
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneId, ZoneOffset}
+import java.time.{Clock, Instant, LocalDateTime, ZoneId}
 import scala.concurrent.Future
 
 class RequestConfirmationControllerSpec extends SpecBase with MockitoSugar {

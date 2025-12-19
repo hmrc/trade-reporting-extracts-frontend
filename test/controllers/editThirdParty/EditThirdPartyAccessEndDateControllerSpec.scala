@@ -47,7 +47,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
-import utils.DateTimeFormats.dateFormatter
 import views.html.editThirdParty.EditThirdPartyAccessEndDateView
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}

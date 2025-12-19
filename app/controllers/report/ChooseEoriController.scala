@@ -24,6 +24,7 @@ import models.report.{ChooseEori, ReportDateRange, ReportRequestSection}
 import navigation.ReportNavigator
 import pages.QuestionPage
 import pages.report.*
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -46,7 +47,7 @@ class ChooseEoriController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  private val form = formProvider()
+  private val form: Form[ChooseEori] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData) { implicit request =>
