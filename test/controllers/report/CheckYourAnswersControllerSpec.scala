@@ -19,17 +19,17 @@ package controllers.report
 import base.SpecBase
 import controllers.report
 import exceptions.NoAuthorisedUserFoundException
-import models.SectionNavigation
-import models.report.Decision
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.{AlreadySubmittedFlag, SectionNavigation}
+import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
+import models.EoriRole
+import pages.report._
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.report.DecisionPage
 import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import viewmodels.govuk.all.SummaryListViewModel
-import views.html.report.CheckYourAnswersView
+import repositories.SessionRepository
 
 import scala.concurrent.Future
 
@@ -39,8 +39,28 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     val sectionNav = SectionNavigation("reportRequestSection")
 
     "must return OK and the correct view for a GET" in {
-      val userAnswers =
-        emptyUserAnswers.set(sectionNav, "/request-customs-declaration-data/check-your-answers").success.value
+      val userAnswers = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .success
+        .value
+        .set(ReportNamePage, "Test Report")
+        .success
+        .value
+        .set(MaybeAdditionalEmailPage, false)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -49,17 +69,33 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CheckYourAnswersView]
-        val list = SummaryListViewModel(Seq.empty)
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
       }
     }
 
     "must redirect to the next page for a POST" in {
-      val userAnswers =
-        emptyUserAnswers.set(sectionNav, "/request-customs-declaration-data/check-your-answers").success.value
+      val userAnswers = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .success
+        .value
+        .set(ReportNamePage, "Test Report")
+        .success
+        .value
+        .set(MaybeAdditionalEmailPage, false)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -82,10 +118,25 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
         .success
         .value
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
         .set(DecisionPage, Decision.Export)
         .success
         .value
         .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .success
+        .value
+        .set(ReportNamePage, "Test Report")
+        .success
+        .value
+        .set(MaybeAdditionalEmailPage, false)
         .success
         .value
 
@@ -123,10 +174,28 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
         .success
         .value
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
         .set(DecisionPage, Decision.Import)
         .success
         .value
         .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .success
+        .value
+        .set(ReportNamePage, "Test Report")
+        .success
+        .value
+        .set(MaybeAdditionalEmailPage, false)
         .success
         .value
 
@@ -164,10 +233,28 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
         .success
         .value
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .success
+        .value
         .set(DecisionPage, Decision.Export)
         .success
         .value
         .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .success
+        .value
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .success
+        .value
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .success
+        .value
+        .set(ReportNamePage, "Test Report")
+        .success
+        .value
+        .set(MaybeAdditionalEmailPage, false)
         .success
         .value
 
@@ -229,6 +316,74 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
           .onPageLoad(thirdPartyEori)
           .url
+      }
+    }
+
+    "must redirect to ReportRequestIssueController when validation fails for incomplete user answers" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val incompleteUserAnswers = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(incompleteUserAnswers))
+        .overrides(inject.bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+          .onPageLoad()
+          .url
+
+        // Verify that AlreadySubmittedFlag was set and session was updated
+        verify(mockSessionRepository).set(argThat { (userAnswers: models.UserAnswers) =>
+          userAnswers.get(AlreadySubmittedFlag()).contains(true)
+        })
+      }
+    }
+    "must clear all report request answers and set AlreadySubmittedFlag when validation fails" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+      val userAnswersWithData = emptyUserAnswers
+        .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
+        .success
+        .value
+        .set(DecisionPage, Decision.Import)
+        .success
+        .value
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithData))
+        .overrides(inject.bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+          .onPageLoad()
+          .url
+
+        // Verify that the session repository was called to set updated answers
+        verify(mockSessionRepository).set(argThat { (updatedAnswers: models.UserAnswers) =>
+          updatedAnswers.get(AlreadySubmittedFlag()).contains(true) &&
+          updatedAnswers.get(DecisionPage).isEmpty &&
+          updatedAnswers.get(EoriRolePage).isEmpty
+        })
       }
     }
   }

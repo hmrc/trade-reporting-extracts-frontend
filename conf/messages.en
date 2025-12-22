@@ -681,6 +681,12 @@ reportFailed.message1 = We could not produce this report.
 reportFailed.message2 = You can
 reportFailed.linkText = request a new report
 
+reportNavIssue.title = There was a problem with your requested report
+reportNavIssue.h1 = There was a problem with your requested report
+reportNavIssue.message1 = This report could not be submitted because the page was accessed in an unexpected way.
+reportNavIssue.message2 = The data you are requesting is still available. Please {0} to request a new report.
+reportNavIssue.link = start again
+
 thirdPartyAlreadyAdded.title = You have already added this third party
 thirdPartyAlreadyAdded.heading = You have already added this third party
 thirdPartyAlreadyAdded.message1 = You cannot edit this third party after adding them.

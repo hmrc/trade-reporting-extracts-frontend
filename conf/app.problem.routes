@@ -13,3 +13,6 @@ GET        /no-permission                             controllers.problem.NoPerm
 GET        /no-data-found/:reportName/:reportRef/:reportStartDate/:reportEndDate                       controllers.problem.NoDataFoundController.onPageLoad(reportName: String, reportRef: String, reportStartDate: String, reportEndDate: String)
 
 GET        /report-failed/:reportName/:reportRef                       controllers.problem.ReportFailedController.onPageLoad(reportName: String, reportRef: String)
+
+
+GET        /navigation-error                      controllers.problem.ReportRequestIssueController.onPageLoad()
