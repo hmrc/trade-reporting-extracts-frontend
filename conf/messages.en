@@ -785,6 +785,3 @@ editDeclarationDate.change.hidden = if you want to give access to all of your av
 editDeclarationDate.import = import
 editDeclarationDate.export = export
 editDeclarationDate.importExport = import and export
-
-reportRequestIssue.title = reportRequestIssue
-reportRequestIssue.heading = reportRequestIssue
