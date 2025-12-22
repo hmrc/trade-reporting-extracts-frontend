@@ -17,7 +17,7 @@
 package controllers.editThirdParty
 
 import controllers.actions.*
-import forms.EditThirdPartyAccessEndDateFormProvider
+import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
 import navigation.EditThirdPartyNavigator
