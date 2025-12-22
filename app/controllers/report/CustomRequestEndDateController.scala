@@ -16,6 +16,7 @@
 
 package controllers.report
 
+import controllers.*
 import controllers.actions.*
 import forms.report.CustomRequestEndDateFormProvider
 import models.report.ReportRequestSection
@@ -32,7 +33,7 @@ import utils.Constants.{maxReportRequestDays, minReportingLagDays}
 import utils.DateTimeFormats.dateTimeHintFormat
 import utils.{Constants, DateTimeFormats, ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestEndDateView
-
+import models.AlreadySubmittedFlag
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -54,56 +55,57 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-
-      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
-      val startDate: LocalDate   = request.userAnswers.get(CustomRequestStartDatePage).get
-
-      if (maybeThirdPartyRequest) {
-        (for {
-          details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
-                           request.eori,
-                           request.userAnswers.get(SelectThirdPartyEoriPage).get
-                         )
-          form         = formProvider(startDate, maybeThirdPartyRequest, details.dataEndDate)
-          preparedForm = request.userAnswers.get(CustomRequestEndDatePage) match {
-                           case None        => form
-                           case Some(value) => form.fill(value)
-                         }
-        } yield Ok(
-          view(
-            preparedForm,
-            mode,
-            DateTimeFormats.dateFormatter(startDate),
-            calculateMaxEndDate(startDate),
-            ReportHelpers.isMoreThanOneReport(request.userAnswers),
-            maybeThirdPartyRequest,
-            Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
-          )
-        )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
-      } else {
-        val form         = formProvider(startDate, false, None)
-        val preparedForm = request.userAnswers.get(CustomRequestEndDatePage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
-
-        Future.successful(
-          Ok(
-            view(
-              preparedForm,
-              mode,
-              DateTimeFormats.dateFormatter(startDate),
-              calculateMaxEndDate(startDate),
-              ReportHelpers.isMoreThanOneReport(request.userAnswers),
-              maybeThirdPartyRequest,
-              None
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      request.userAnswers
+        .get(CustomRequestStartDatePage)
+        .fold {
+          for {
+            updatedAnswers                   <-
+              Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+            updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
+            _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
+          } yield Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
+        } { startDate =>
+          val maybeThirdPartyEori = request.userAnswers.get(SelectThirdPartyEoriPage)
+          maybeThirdPartyEori.fold {
+            val form         = formProvider(startDate, false, None)
+            val preparedForm = request.userAnswers.get(CustomRequestEndDatePage).fold(form)(form.fill)
+            Future.successful(
+              Ok(
+                view(
+                  preparedForm,
+                  mode,
+                  DateTimeFormats.dateFormatter(startDate),
+                  calculateMaxEndDate(startDate),
+                  ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                  maybeThirdPartyRequest = false,
+                  None
+                )
+              )
             )
-          )
-        )
-      }
-  }
+          } { thirdPartyEori =>
+            tradeReportingExtractsService
+              .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
+              .map { details =>
+                val form         = formProvider(startDate, maybeThirdPartyRequest = true, details.dataEndDate)
+                val preparedForm = request.userAnswers.get(CustomRequestEndDatePage).fold(form)(form.fill)
+                Ok(
+                  view(
+                    preparedForm,
+                    mode,
+                    DateTimeFormats.dateFormatter(startDate),
+                    calculateMaxEndDate(startDate),
+                    ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                    maybeThirdPartyRequest = true,
+                    Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
+                  )
+                )
+              }
+              .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
+          }
+        }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>

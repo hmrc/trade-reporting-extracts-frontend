@@ -21,14 +21,16 @@ import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.requests.DataRequest
+import models.report.ReportRequestSection
 import navigation.ReportNavigator
+import models.AlreadySubmittedFlag
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.ErrorHandlers
+import utils.{ErrorHandlers, ReportRequestFieldsValidator}
 import viewmodels.checkAnswers.report.*
 import viewmodels.govuk.summarylist.*
 import views.html.report.CheckYourAnswersView
@@ -62,17 +64,14 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
       case Some(thirdPartyEori) =>
         tradeReportingExtractsService
           .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
-          .map { thirdPartyDetails =>
+          .flatMap { thirdPartyDetails =>
             val dataTypes           = thirdPartyDetails.dataTypes
             val showDecisionSummary = !(dataTypes == Set("exports") || dataTypes == Set("imports"))
-
             buildSummaryRows(showDecisionSummary)
           }
           .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
       case None                 =>
-        Future.successful {
-          buildSummaryRows(true)
-        }
+        buildSummaryRows(true)
     }
   }
 
@@ -87,19 +86,29 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   }
 
   private def buildSummaryRows(showDecisionSummary: Boolean)(implicit request: DataRequest[AnyContent]) = {
-    implicit val messages: Messages       = messagesApi.preferred(request)
-    val rows: Seq[Option[SummaryListRow]] = Seq(
-      if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
-      if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
-      EoriRoleSummary.row(request.userAnswers),
-      ReportTypeImportSummary.row(request.userAnswers),
-      ReportDateRangeSummary.row(request.userAnswers),
-      ReportNameSummary.row(request.userAnswers),
-      MaybeAdditionalEmailSummary.row(request.userAnswers),
-      EmailSelectionSummary.row(request.userAnswers)
-    )
-
-    val list = SummaryListViewModel(rows = rows.flatten)
-    Ok(view(list))
+    implicit val messages: Messages = messagesApi.preferred(request)
+    val validationResult            =
+      ReportRequestFieldsValidator.validateMandatoryFields(request.userAnswers, showDecisionSummary)
+    if (!validationResult.isValid) {
+      for {
+        updatedAnswers                   <-
+          Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
+        updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadySubmittedFlag(), true))
+        _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
+      } yield Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
+    } else {
+      val rows: Seq[Option[SummaryListRow]] = Seq(
+        if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+        if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
+        EoriRoleSummary.row(request.userAnswers),
+        ReportTypeImportSummary.row(request.userAnswers),
+        ReportDateRangeSummary.row(request.userAnswers),
+        ReportNameSummary.row(request.userAnswers),
+        MaybeAdditionalEmailSummary.row(request.userAnswers),
+        EmailSelectionSummary.row(request.userAnswers)
+      )
+      val list                              = SummaryListViewModel(rows = rows.flatten)
+      Future.successful(Ok(view(list)))
+    }
   }
 }

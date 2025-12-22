@@ -34,52 +34,59 @@ import java.time.{LocalDate, ZoneOffset}
 object ReportDateRangeSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ReportDateRangePage).map { answer =>
+    answers.get(ReportDateRangePage).flatMap { answer =>
       val moreThanOneReport = ReportHelpers.isMoreThanOneReport(answers)
-      val value             = ValueViewModel(answer match
+
+      val valueContent = answer match {
         case ReportDateRange.CustomDateRange =>
-          val startDate = answers
-            .get(CustomRequestStartDatePage)
-            .map(_.format(dateTimeFormat()(lang = messages.lang)))
-            .getOrElse("")
-          val endDate   = answers
-            .get(CustomRequestEndDatePage)
-            .map(_.format(dateTimeFormat()(lang = messages.lang)))
-            .getOrElse("")
-          HtmlContent(HtmlFormat.escape(startDate + " to " + endDate))
+          for {
+            startDate <- answers.get(CustomRequestStartDatePage)
+            endDate   <- answers.get(CustomRequestEndDatePage)
+          } yield HtmlContent(
+            HtmlFormat.escape(
+              startDate.format(dateTimeFormat()(lang = messages.lang)) + " to " +
+                endDate.format(dateTimeFormat()(lang = messages.lang))
+            )
+          )
         case _                               =>
           val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(ZoneOffset.UTC))
-          HtmlContent(
-            HtmlFormat.escape(
-              messages(
-                s"reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel",
-                startEndDate._1.format(dateTimeFormat()(messages.lang)),
-                startEndDate._2.format(dateTimeFormat()(messages.lang))
+          Some(
+            HtmlContent(
+              HtmlFormat.escape(
+                messages(
+                  s"reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel",
+                  startEndDate._1.format(dateTimeFormat()(messages.lang)),
+                  startEndDate._2.format(dateTimeFormat()(messages.lang))
+                )
               )
             )
           )
-      )
+      }
 
-      SummaryListRowViewModel(
-        key =
-          if (moreThanOneReport) "reportDateRange.pluralReport.checkYourAnswersLabel"
-          else {
-            "reportDateRange.singleReport.checkYourAnswersLabel"
-          },
-        value = value,
-        actions = Seq(
-          ActionItemViewModel(
-            "site.change",
-            if (answers.get(ChooseEoriPage).contains(ChooseEori.Myauthority))
-              routes.CustomRequestStartDateController.onPageLoad(CheckMode).url
-            else routes.ReportDateRangeController.onPageLoad(CheckMode).url
+      valueContent.map { content =>
+        SummaryListRowViewModel(
+          key =
+            if (moreThanOneReport) "reportDateRange.pluralReport.checkYourAnswersLabel"
+            else {
+              "reportDateRange.singleReport.checkYourAnswersLabel"
+            },
+          value = ValueViewModel(content),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              if (answers.get(ChooseEoriPage).contains(ChooseEori.Myauthority)) {
+                routes.CustomRequestStartDateController.onPageLoad(CheckMode).url
+              } else {
+                routes.ReportDateRangeController.onPageLoad(CheckMode).url
+              }
+            )
+              .withVisuallyHiddenText(if (moreThanOneReport) {
+                messages("reportDateRange.pluralReport.change.hidden")
+              } else {
+                messages("reportDateRange.singleReport.change.hidden")
+              })
           )
-            .withVisuallyHiddenText(if (moreThanOneReport) {
-              messages("reportDateRange.pluralReport.change.hidden")
-            } else {
-              messages("reportDateRange.singleReport.change.hidden")
-            })
         )
-      )
+      }
     }
 }

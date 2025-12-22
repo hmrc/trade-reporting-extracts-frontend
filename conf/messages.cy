@@ -681,6 +681,12 @@ reportFailed.message1 = cy: We could not produce this report.
 reportFailed.message2 = cy: You can
 reportFailed.linkText = cy: request a new report
 
+reportNavIssue.title = cy: There was a problem with your requested report
+reportNavIssue.h1 = cy: There was a problem with your requested report
+reportNavIssue.message1 = cy: This report could not be submitted because the page was accessed in an unexpected way.
+reportNavIssue.message2 = cy: The data you are requesting is still available. Please {0} to request a new report.
+reportNavIssue.link = cy: start again
+
 thirdPartyAlreadyAdded.title = cy: You have already added this third party
 thirdPartyAlreadyAdded.heading = cy: You have already added this third party
 thirdPartyAlreadyAdded.message1 = cy: You cannot edit this third party after adding them.
