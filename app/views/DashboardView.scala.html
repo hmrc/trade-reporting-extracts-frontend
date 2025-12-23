@@ -29,7 +29,7 @@
 @(eori: String, userDetails: UserDetails, guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("dashboard.title")),
+    pageTitle = messages("service.name") + " - " + messages("site.govuk"),
     showBackLink = false,
     isFullWidth = true
 ) {
