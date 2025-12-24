@@ -26,7 +26,7 @@
     <div class="govuk-body">
         <p>@messages("eoriAlreadyAdded.message1", eoriNumber)</p>
         <p>@messages("eoriAlreadyAdded.message2")
-            <a href="#" class="govuk-link govuk-link--no-visited-state">@messages("eoriAlreadyAdded.link1")</a>
+            <a href="@controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(eoriNumber).url" class="govuk-link govuk-link--no-visited-state">@messages("eoriAlreadyAdded.link1")</a>
         </p>
         <p>
             <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link govuk-link--no-visited-state">
