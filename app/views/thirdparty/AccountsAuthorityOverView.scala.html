@@ -55,6 +55,8 @@
 
 @accountsAuthorityOverContent = {
 @govukTable(Table(
+    caption = Some(messages("accountsAuthorityOver.title")),
+    captionClasses = "govuk-visually-hidden",
     head = Some(Seq(
         HeadCell(content = Text(messages("accountsAuthorityOver.eori"))),
         HeadCell(content = Text(messages("accountsAuthorityOver.businessInfo"))),
