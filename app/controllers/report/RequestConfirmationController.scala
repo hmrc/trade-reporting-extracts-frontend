@@ -20,9 +20,6 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import models.report.{EmailSelection, ReportConfirmation, SubmissionMeta}
 import models.requests.DataRequest
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -60,7 +57,7 @@ class RequestConfirmationController @Inject() (
         view(
           additionalEmailList,
           isMoreThanOneReport,
-          trasnformReportConfirmations(submissionMeta.reportConfirmations),
+          transformReportConfirmations(submissionMeta.reportConfirmations),
           surveyUrl,
           submissionMeta.notificationEmail,
           submissionMeta.submittedDate,
