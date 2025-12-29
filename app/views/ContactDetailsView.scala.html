@@ -21,11 +21,7 @@
 
 @(companyInformation: CompanyInformation, eori: String, emailAddress: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("contactDetails.title")), showBackLink = false,
-        breadcrumbContribution = Seq(
-             BreadcrumbsItem(content = Text(messages("contactDetails.title")), href = Some(s"#"))
-        ),
-) {
+@layout(pageTitle = titleNoForm(messages("contactDetails.title"))) {
 
     <h1 class="govuk-heading-l">@messages("contactDetails.heading")</h1>
     <p class="govuk-body">@messages("contactDetails.intro")</p>
