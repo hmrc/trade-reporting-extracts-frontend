@@ -115,9 +115,6 @@ guidanceUrl: String
 
     @layout(
     pageTitle = titleNoForm(messages(titleContent)),
-    showBackLink = false,
-    breadcrumbContribution = Seq(
-    BreadcrumbsItem(content = Text(messages("availableReports.title")), href = Some(s"#"))),
     isFullWidth = true) {
 
    @if(maybeUserReports || maybeThirdPartyReports) {

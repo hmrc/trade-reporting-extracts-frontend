@@ -28,10 +28,7 @@
 
 
 @layout(
-    pageTitle = title(form,messages("chooseEori.title")),
-    breadcrumbContribution = Seq(),
-    showSignOut = true
-) {
+    pageTitle = title(form,messages("chooseEori.title"))) {
 
 @formHelper(action = controllers.report.routes.ChooseEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

@@ -28,10 +28,7 @@
 
 @mainContent = {
     @if(authorisedThirdParties.isEmpty) {
-        @layout(pageTitle = messages("authorisedThirdParties.noThirdParties.title"), isFullWidth = true, breadcrumbContribution = Seq(
-BreadcrumbsItem(content = Text(messages("authorisedThirdParties.noThirdParties.title")), href = Some(s"#"))
-),
-showBackLink = false) {
+        @layout(pageTitle = messages("authorisedThirdParties.noThirdParties.title"), isFullWidth = true) {
             <h1 class="govuk-heading-xl">@messages("authorisedThirdParties.noThirdParties.heading")</h1>
             <p class="govuk-body">
                 @messages("authorisedThirdParties.noThirdParties.message1")
@@ -50,10 +47,7 @@ showBackLink = false) {
             </p>
         }
     } else {
-        @layout(pageTitle = titleNoForm(messages("authorisedThirdParties.title")), isFullWidth = true, breadcrumbContribution = Seq(
-BreadcrumbsItem(content = Text(messages("authorisedThirdParties.title")), href = Some(s"#"))
-),
-showBackLink = false) {
+        @layout(pageTitle = titleNoForm(messages("authorisedThirdParties.title")), isFullWidth = true) {
             <h1 class="govuk-heading-xl">@messages("authorisedThirdParties.heading")</h1>
             <p class="govuk-body">@messages("authorisedThirdParties.message1")</p>
             @if(!editThirdParty) {
