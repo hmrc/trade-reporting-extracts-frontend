@@ -22,10 +22,12 @@ import controllers.BaseController
 import controllers.actions.*
 import models.requests.DataRequest
 import models.report.ReportRequestSection
+import models.report.ReportTypeImport
 import navigation.ReportNavigator
 import models.AlreadySubmittedFlag
 import pages.report.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
@@ -72,16 +74,6 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
           .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
       case None                 =>
         buildSummaryRows(true)
-    }
-  }
-
-  def onSubmit(): Action[AnyContent] = (identify
-    andThen getData
-    andThen requireData
-    andThen preventBackNavigationAfterSubmissionAction
-    andThen missingDependentAnswersAction).async { implicit request =>
-    Future.successful {
-      Redirect(navigator.nextPage(CheckYourAnswersPage, userAnswers = request.userAnswers))
     }
   }
 
