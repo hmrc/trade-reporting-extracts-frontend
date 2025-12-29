@@ -32,7 +32,7 @@
     }
 }
 
-@layout(pageTitle = title(form, messages("maybeAdditionalEmail.title")), breadcrumbContribution = Seq()) {
+@layout(pageTitle = title(form, messages("maybeAdditionalEmail.title"))) {
 
     @formHelper(action =  controllers.report.routes.MaybeAdditionalEmailController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

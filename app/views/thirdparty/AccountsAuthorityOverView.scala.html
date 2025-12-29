@@ -28,10 +28,7 @@
 
 @mainContent = {
 @if(accountsAuthorityOver.isEmpty) {
-    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = true, breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.noBusinesses.title")), href = Some(s"#"))
-    ),
-        showBackLink = false) {
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = true) {
         <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.noBusinesses.heading")</h1>
         <p class="govuk-body">
         @messages("accountsAuthorityOver.noBusinesses.message")
@@ -43,10 +40,7 @@
         </p>
     }
 } else {
-    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.title")), isFullWidth = true, breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.title")), href = Some(s"#"))
-    ),
-        showBackLink = false) {
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.title")), isFullWidth = true) {
         <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.heading")</h1>
         @accountsAuthorityOverContent
     }
