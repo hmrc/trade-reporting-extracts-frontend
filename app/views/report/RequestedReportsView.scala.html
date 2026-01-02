@@ -30,14 +30,16 @@
 
 @userReportsContent = {
   @requestedReports.availableUserReports.map { reports =>
-    @govukTable(Table(
-      head = Some(Seq(
-        HeadCell(content = Text(messages("requestedReports.table.reportName"))),
-        HeadCell(content = Text(messages("requestedReports.table.referenceNumber"))),
-        HeadCell(content = Text(messages("requestedReports.table.reportType"))),
-        HeadCell(content = Text(messages("requestedReports.table.requestedDate"))),
-        HeadCell(content = Text(messages("requestedReports.table.status")))
-      )),
+    <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("requestedReports.myReports")" aria-describedby="user-reports-scroll-hint">
+      <div id="user-reports-scroll-hint" class="govuk-visually-hidden">@messages("requestedReports.myReports")</div>
+      @govukTable(Table(
+        head = Some(Seq(
+          HeadCell(content = Text(messages("requestedReports.table.reportName"))),
+          HeadCell(content = Text(messages("requestedReports.table.referenceNumber"))),
+          HeadCell(content = Text(messages("requestedReports.table.reportType"))),
+          HeadCell(content = Text(messages("requestedReports.table.requestedDate"))),
+          HeadCell(content = Text(messages("requestedReports.table.status")))
+        )),
       rows = reports.map { data =>
       val displayData = ReportHelpers.reportStatusDisplayData(data.reportStatus, data.reportName, data.referenceNumber, data.formattedReportStartDate.toString, data.formattedReportEndDate.toString)
       Seq(
@@ -55,22 +57,25 @@
         })
       )
     },
-      caption = Some(messages("requestedReports.myReports")),
-      captionClasses = "govuk-table__caption--l"
-    ))
+        caption = Some(messages("requestedReports.myReports")),
+        captionClasses = "govuk-table__caption--l"
+      ))
+    </div>
   }
 }
 
 @thirdPartyReportsContent = {
-  @govukTable(Table(
-    head = Some(Seq(
-      HeadCell(content = Text(messages("requestedReports.table.reportName"))),
-      HeadCell(content = Text(messages("requestedReports.table.referenceNumber"))),
-      HeadCell(content = Text(messages("requestedReports.table.businessInfo"))),
-      HeadCell(content = Text(messages("requestedReports.table.reportType"))),
-      HeadCell(content = Text(messages("requestedReports.table.requestedDate"))),
-      HeadCell(content = Text(messages("requestedReports.table.status")))
-    )),
+  <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("requestedReports.thirdPartyReports")" aria-describedby="third-party-reports-scroll-hint">
+    <div id="third-party-reports-scroll-hint" class="govuk-visually-hidden">@messages("requestedReports.scrollHint")</div>
+    @govukTable(Table(
+      head = Some(Seq(
+        HeadCell(content = Text(messages("requestedReports.table.reportName"))),
+        HeadCell(content = Text(messages("requestedReports.table.referenceNumber"))),
+        HeadCell(content = Text(messages("requestedReports.table.businessInfo"))),
+        HeadCell(content = Text(messages("requestedReports.table.reportType"))),
+        HeadCell(content = Text(messages("requestedReports.table.requestedDate"))),
+        HeadCell(content = Text(messages("requestedReports.table.status")))
+      )),
     rows = requestedReports.availableThirdPartyReports.getOrElse(Seq.empty).map { data =>
       val displayData = ReportHelpers.reportStatusDisplayData(data.reportStatus, data.reportName, data.referenceNumber, data.formattedReportStartDate.toString, data.formattedReportEndDate.toString)
       Seq(
@@ -88,10 +93,11 @@
           }
         })
       )
-    },
-    caption = Some(messages("requestedReports.thirdPartyReports")),
-    captionClasses = "govuk-table__caption--l"
-  ))
+      },
+      caption = Some(messages("requestedReports.thirdPartyReports")),
+      captionClasses = "govuk-table__caption--l"
+    ))
+  </div>
 }
 
 
