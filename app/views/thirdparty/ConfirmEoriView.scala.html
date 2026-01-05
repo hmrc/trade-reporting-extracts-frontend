@@ -38,11 +38,11 @@
 @govukSummaryList(SummaryList(
     rows = Seq(
         SummaryListRow(
-            key = Key(content = Text("EORI number")),
+            key = Key(content = messages("confirmEori.eoriNumber")),
             value = Value(content = Text(eoriNumber))
         ),
         SummaryListRow(
-            key = Key(content = Text("Business information")),
+            key = Key(content = messages("confirmEori.businessName")),
             value = Value(content = Text(businessInfo))
         )
     )
