@@ -290,14 +290,15 @@ requestConfirmation.goToHomepage = Go to homepage
 requestConfirmation.feedbackLink = What did you think of this service?
 requestConfirmation.feedbackDuration = (takes 30 seconds)
 
-newEmailNotification.title = Enter a new email address to receive notifications
-newEmailNotification.heading = Enter a new email address to receive notifications
+newEmailNotification.title = Which email should receive notifications?
+newEmailNotification.heading = Which email should receive notifications?
 newEmailNotification.checkYourAnswersLabel = New notification email
 newEmailNotification.error.required = Enter a new email address to receive notifications
 newEmailNotification.error.length =  Enter a new email address not greater than 100 characters
 newEmailNotification.error.invalidFormat =  Enter a new email address in the correct format, like name@example.com
 newEmailNotification.change.hidden = new notification email
-newEmailNotification.hint = This email will only be used for this report request.
+newEmailNotification.single.hint = We will only use this email to contact the person when your report is ready to download for this request. Only add an email address if you have consent from this person to receive these notifications.
+newEmailNotification.plural.hint = We will only use this email to contact the person when your reports are ready to download for this request. Only add an email address if you have consent from this person to receive these notifications.
 
 customRequestStartDate.singleReport.title = When do you want your report to start?
 customRequestStartDate.pluralReport.title = When do you want your reports to start?
