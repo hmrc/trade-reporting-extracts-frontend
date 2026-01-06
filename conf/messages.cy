@@ -724,7 +724,7 @@ editThirdPartyReference.checkYourAnswersLabel = cy: Reference name
 editThirdPartyReference.error.required = cy: Enter the name you will use to reference this EORI number
 editThirdPartyReference.error.length = cy: The name you will use to reference this EORI number must be 100 characters or fewer
 editThirdPartyReference.change.hidden = cy: reference name
-editThirdPartyReference.message = cy: This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
+editThirdPartyReference.message = cy: Add a reference name for this EORI number to help you manage your third parties.
 
 editThirdPartyAccessStartDate.title = cy: When do you want this access to start?
 editThirdPartyAccessStartDate.heading = cy: When do you want this access to start?
