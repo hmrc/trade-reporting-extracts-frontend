@@ -21,12 +21,7 @@
 
 @(list: SummaryList, calculatedDateValue: String, status: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("businessDetails.title")), showBackLink = false,
-    breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("accountsAuthorityOver.heading")),
-                        href = Some(s"/request-customs-declaration-data/businesses-you-have-access-to")),
-        BreadcrumbsItem(content = Text(messages("businessDetails.title")), href = Some(s"#"))
-    )){
+@layout(pageTitle = titleNoForm(messages("businessDetails.title"))){
     <h1 class="govuk-heading-l">@messages("businessDetails.heading")</h1>
     @if(status && calculatedDateValue != "") {
         <p class="govuk-body" >

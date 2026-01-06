@@ -22,11 +22,7 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("addThirdParty.title")),
-    breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("addThirdParty.title")), href = Some(s"#"))
-    ),
-    showBackLink = false
+    pageTitle = titleNoForm(messages("addThirdParty.title"))
 ) {
 
     <h1 class="govuk-heading-xl">@messages("addThirdParty.heading")</h1>

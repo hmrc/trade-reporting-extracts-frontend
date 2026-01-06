@@ -23,8 +23,7 @@
 
 @(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")),
-    breadcrumbContribution = Seq()) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
     @formHelper(action = controllers.report.routes.SubmitReportController.onSubmit, Symbol("autoComplete") -> "off") {
         <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
 

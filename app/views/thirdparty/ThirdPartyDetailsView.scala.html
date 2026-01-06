@@ -22,11 +22,7 @@
 
 @(list: SummaryList, calculatedDateValue: String, status: Boolean, hasChanges: Boolean, thirdPartyEori: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("thirdPartyDetails.title")),
-    breadcrumbContribution = Seq(
-        BreadcrumbsItem(content = Text(messages("authorisedThirdParties.title")), href = Some(s"/request-customs-declaration-data/manage-third-parties")),
-        BreadcrumbsItem(content = Text(messages("thirdPartyDetails.title")), href = Some(s"#"))
-    ), showBackLink = false){
+@layout(pageTitle = titleNoForm(messages("thirdPartyDetails.title"))){
 
     <h1 class="govuk-heading-l">@messages("thirdPartyDetails.heading")</h1>
 
