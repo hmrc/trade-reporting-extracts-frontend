@@ -11,18 +11,41 @@ $tre-mobile-breakpoint: 640px;
   }
 }
 
-@media (max-width: $tre-mobile-breakpoint) {
-  .tre-scrollable-pane {
-    overflow-x: scroll;
-  }
-
-}
 @media (min-width: $tre-mobile-breakpoint) {
 .hmrc-responsive-table__value {
     overflow-wrap: break-word;
     word-break: break-word;
     }
   }
+
+.tre-table-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+
+  
+  .govuk-table {
+    min-width: 600px;
+    margin-bottom: 0;
+  }
+  
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f3f2f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #b1b4b6;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #626a6e;
+  }
+}
 
 .js-visible {
   display: none !important;

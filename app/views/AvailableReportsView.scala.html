@@ -32,14 +32,16 @@ guidanceUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
-  @govukTable(Table(
-    head = Some(Seq(
-      HeadCell(content = Text(messages("availableReports.table.reportName"))),
-      HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
-      HeadCell(content = Text(messages("availableReports.table.reportType"))),
-      HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
-      HeadCell(content = Text(messages("availableReports.table.action")))
-    )),
+  <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("availableReports.myReports")" aria-describedby="available-user-reports-scroll-hint">
+    <div id="available-user-reports-scroll-hint" class="govuk-visually-hidden">@messages("availableReports.scrollHint")</div>
+    @govukTable(Table(
+      head = Some(Seq(
+        HeadCell(content = Text(messages("availableReports.table.reportName"))),
+        HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
+        HeadCell(content = Text(messages("availableReports.table.reportType"))),
+        HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
+        HeadCell(content = Text(messages("availableReports.table.action")))
+      )),
     rows = availableReports.availableUserReports.getOrElse(Seq.empty).map { data =>
       Seq(
         TableRow(content = Text(messages(data.reportName))),
@@ -59,21 +61,24 @@ guidanceUrl: String
             )
         )
     },
-    caption = Some(messages("availableReports.myReports")),
-    captionClasses = "govuk-table__caption--l"
-  ))
+      caption = Some(messages("availableReports.myReports")),
+      captionClasses = "govuk-table__caption--l"
+    ))
+  </div>
 }
 
 @thirdPartyReportsContent = {
-  @govukTable(Table(
-    head = Some(Seq(
-      HeadCell(content = Text(messages("availableReports.table.reportName"))),
-      HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
-      HeadCell(content = Text(messages("availableReports.table.businessInfo"))),
-      HeadCell(content = Text(messages("availableReports.table.reportType"))),
-      HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
-      HeadCell(content = Text(messages("availableReports.table.action")))
-    )),
+  <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("availableReports.thirdPartyReports")" aria-describedby="available-third-party-reports-scroll-hint">
+    <div id="available-third-party-reports-scroll-hint" class="govuk-visually-hidden">@messages("availableReports.thirdPartyReports")</div>
+    @govukTable(Table(
+      head = Some(Seq(
+        HeadCell(content = Text(messages("availableReports.table.reportName"))),
+        HeadCell(content = Text(messages("availableReports.table.referenceNumber"))),
+        HeadCell(content = Text(messages("availableReports.table.businessInfo"))),
+        HeadCell(content = Text(messages("availableReports.table.reportType"))),
+        HeadCell(content = Text(messages("availableReports.table.expiryDate"))),
+        HeadCell(content = Text(messages("availableReports.table.action")))
+      )),
     rows = availableReports.availableThirdPartyReports.getOrElse(Seq.empty).map { data =>
       Seq(
         TableRow(content = Text(messages(data.reportName))),
@@ -97,7 +102,8 @@ guidanceUrl: String
         caption = Some(messages("availableReports.thirdPartyReports")),
         captionClasses = "govuk-table__caption--l"
         ))
-    }
+    </div>
+  }
 
 @titleContent = @{
   if (maybeUserReports || maybeThirdPartyReports) {
