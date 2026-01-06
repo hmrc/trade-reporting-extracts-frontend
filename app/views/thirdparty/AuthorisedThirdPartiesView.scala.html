@@ -72,6 +72,8 @@ showBackLink = false) {
 
 @authorisedThirdPartiesContent = {
     @govukTable(Table(
+      caption = Some(messages("authorisedThirdParties.title")),
+      captionClasses = "govuk-visually-hidden",
       head = Some(Seq(
         HeadCell(content = Text(messages("authorisedThirdParties.eori"))),
         HeadCell(content = Text(messages("authorisedThirdParties.businessInfo"))),
