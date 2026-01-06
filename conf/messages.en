@@ -463,7 +463,7 @@ thirdPartyReference.checkYourAnswersLabel = Reference name
 thirdPartyReference.error.required = Enter the name you will use to reference this EORI number
 thirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
 thirdPartyReference.change.hidden = reference name
-thirdPartyReference.message = This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
+thirdPartyReference.message = Add a reference name for this EORI number to help you manage your third parties.
 
 dataTypes.title = Which types of data do you want to give access to?
 dataTypes.heading = Which types of data do you want to give access to?

@@ -463,7 +463,7 @@ thirdPartyReference.checkYourAnswersLabel = cy: Reference name
 thirdPartyReference.error.required = cy: Enter the name you will use to reference this EORI number
 thirdPartyReference.error.length = cy: The name you will use to reference this EORI number must be 100 characters or fewer
 thirdPartyReference.change.hidden = cy: reference name
-thirdPartyReference.message = cy: This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
+thirdPartyReference.message = cy: Add a reference name for this EORI number to help you manage your third parties.
 
 dataTypes.title = cy: Which types of data do you want to give access to?
 dataTypes.heading = cy: Which types of data do you want to give access to?
