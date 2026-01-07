@@ -17,12 +17,9 @@
 package controllers.thirdparty
 
 import controllers.actions.*
-import models.thirdparty.ThirdPartySelfRemovalEvent
-import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
+import models.thirdparty.ThirdPartyRemovalMeta
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import services.{AuditService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
@@ -36,42 +33,20 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
-  sessionRepository: SessionRepository,
-  auditService: AuditService,
   view: ThirdPartyAccessSelfRemovedView,
   clock: Clock
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-      val (date, time) = getDateAndTime
-      for {
-        _              <- tradeReportingExtractsService.selfRemoveThirdPartyAccess(traderEori, request.eori)
-        _              <- auditService.auditThirdPartySelfRemoval(
-                            ThirdPartySelfRemovalEvent(
-                              request.userAnswers.get(MaybeThirdPartyAccessSelfRemovalPage).get,
-                              request.eori,
-                              traderEori
-                            )
-                          )
-        updatedAnswers <- Future.fromTry(request.userAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
-        _              <- sessionRepository.set(updatedAnswers)
-      } yield Ok(
-        view(
-          date,
-          time,
-          traderEori
-        )
-      )
-  }
-
-  private def getDateAndTime(implicit messages: Messages): (String, String) =
-    (
-      LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
-      formattedSystemTime(clock)(messages.lang)
-    )
+  def onPageLoad: Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      val submissionMeta = request.userAnswers.submissionMeta
+        .map(_.as[ThirdPartyRemovalMeta])
+        .getOrElse(ThirdPartyRemovalMeta("", "", "", None))
+      Future.successful(Ok(view(submissionMeta.submittedDate,
+        submissionMeta.submittedTime,
+        submissionMeta.eori)))
+    }
 }

@@ -17,17 +17,12 @@
 package controllers.thirdparty
 
 import controllers.actions.*
-import models.thirdparty.ThirdPartyRemovalEvent
-import pages.thirdparty.RemoveThirdPartyPage
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import models.thirdparty.ThirdPartyRemovalMeta
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import services.{AuditService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.RemoveThirdPartyConfirmationView
 
-import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,37 +31,27 @@ class RemoveThirdPartyConfirmationController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  tradeReportingExtractsService: TradeReportingExtractsService,
-  auditService: AuditService,
-  sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  clock: Clock,
   view: RemoveThirdPartyConfirmationView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
-    implicit request =>
-      val (date, time) = getDateAndTime
-      for {
-        notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-        _                 <- tradeReportingExtractsService.removeThirdParty(request.eori, thirdPartyEori)
-        _                 <- auditService.auditThirdPartyRemoval(
-                               ThirdPartyRemovalEvent(
-                                 request.userAnswers.get(RemoveThirdPartyPage).get,
-                                 request.eori,
-                                 thirdPartyEori
-                               )
-                             )
-        updatedAnswers    <- Future.fromTry(request.userAnswers.remove(RemoveThirdPartyPage))
-        _                 <- sessionRepository.set(updatedAnswers)
-      } yield Ok(view(date, time, thirdPartyEori, notificationEmail.address))
-  }
+  def onPageLoad: Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      val submissionMeta = request.userAnswers.submissionMeta
+        .map(_.as[ThirdPartyRemovalMeta])
+        .getOrElse(ThirdPartyRemovalMeta("", "", "", None))
+      Future.successful(
+        Ok(
+          view(
+            submissionMeta.eori,
+            submissionMeta.submittedDate,
+            submissionMeta.submittedTime,
+            submissionMeta.notificationEmail.get
+          )
+        )
+      )
+    }
 
-  private def getDateAndTime(implicit messages: Messages): (String, String) =
-    (
-      LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
-      formattedSystemTime(clock)(messages.lang)
-    )
 }
