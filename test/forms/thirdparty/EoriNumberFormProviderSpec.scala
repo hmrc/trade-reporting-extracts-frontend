@@ -19,6 +19,7 @@ package forms.thirdparty
 import forms.behaviours.StringFieldBehaviours
 import models.StringFieldRegex
 import org.scalacheck.Gen
+import org.scalatest.matchers.should.Matchers.shouldBe
 import play.api.data.{Form, FormError}
 import utils.Constants.{eoriMaxLength, eoriMinLength}
 
@@ -88,6 +89,20 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
         invalidEoriStringsOfExactLength(maxLength),
         FormError(fieldName, invalidKey)
       )
+    }
+
+    "convert lowercase to uppercase" - {
+      "must convert lowercase EORI to uppercase" in {
+        val result = form.bind(Map(fieldName -> "gb123456789001"))
+        result.value  shouldBe Some("GB123456789001")
+        result.errors shouldBe empty
+      }
+
+      "must convert mixed case EORI to uppercase" in {
+        val result = form.bind(Map(fieldName -> "Gb123456789001"))
+        result.value  shouldBe Some("GB123456789001")
+        result.errors shouldBe empty
+      }
     }
   }
 }
