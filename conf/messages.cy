@@ -489,7 +489,7 @@ confirmEori.no = cy: No, I want to enter a different EORI number
 confirmEori.checkYourAnswersLabel = cy: Confirm the EORI number for third-party access
 confirmEori.error.required = cy: Select yes if you want to give this EORI number third-party access
 confirmEori.change.hidden = cy: Confirm the EORI number for third-party access
-confirmEori.noConsent = cy: This business has not agreed to share their data. Contact them directly for more information.
+confirmEori.noConsent = cy: This business has not agreed to share their name. Contact them directly for more details.
 confirmEori.eoriNumber = cy: EORI number
 confirmEori.businessName = cy: Business name
 
@@ -602,7 +602,7 @@ authorisedThirdParties.businessInfo = cy: Business name
 authorisedThirdParties.referenceName = cy: Reference name
 authorisedThirdParties.action = cy: Action
 authorisedThirdParties.status = cy: Status
-authorisedThirdParties.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
+authorisedThirdParties.businessInfo.notAvailable = cy: This business has not agreed to share their name. Contact them directly for more details.
 authorisedThirdParties.referenceName.notAvailable = cy: Not applicable
 
 thirdPartyDetails.title = cy: Third-party details
@@ -624,7 +624,7 @@ accountsAuthorityOver.heading = cy: Businesses you have third-party access to
 accountsAuthorityOver.noBusinesses.title = cy: You do not have third-party access to any businesses
 accountsAuthorityOver.noBusinesses.heading = cy: You do not have third-party access to any businesses
 accountsAuthorityOver.noBusinesses.message = cy: If an importer or exporter gives you access to their customs declaration data, the business details will be shown in your account.
-accountsAuthorityOver.businessInfo.notAvailable = cy: This business has not agreed to share their data. Contact them directly for more information.
+accountsAuthorityOver.businessInfo.notAvailable = cy: This business has not agreed to share their name. Contact them directly for more details.
 accountsAuthorityOver.eori = cy: EORI number
 accountsAuthorityOver.businessInfo = cy: Business name
 accountsAuthorityOver.status = cy: Status
@@ -699,7 +699,7 @@ thirdPartyAlreadyAdded.message3 = cy: Go to the homepage
 selectThirdPartyEori.title = cy: Which third-party EORI number do you want to use?
 selectThirdPartyEori.heading = cy: Which third-party EORI number do you want to use?
 selectThirdPartyEori.checkYourAnswersLabel = cy: selectThirdPartyEori
-selectThirdPartyEori.message1 = cy: Some EORI numbers may not include business information if the business hasn’t given consent to share it.
+selectThirdPartyEori.message1 = cy: Some EORI numbers may not include business name if the business hasn’t given consent to share it.
 selectThirdPartyEori.error.required = cy: Select an EORI number
 selectThirdPartyEori.change.hidden = cy: the EORI number you want to use
 
