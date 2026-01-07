@@ -263,7 +263,6 @@ maybeAdditionalEmail.change.hidden = cy: if you want to add another email for no
 maybeAdditionalEmail.message1.single = cy: Your registered email {0} will be notified when your report is ready to download. Add another email if you want someone else to get this notification too.
 maybeAdditionalEmail.message1.plural = cy: Your registered email {0} will be notified when your reports are ready to download. Add another email if you want someone else to get this notification too.
 
-
 checkNewEmail.title = cy: Check new email address
 checkNewEmail.heading = cy: Check new email address
 checkNewEmail.heading2 = cy: Is this email address correct?
@@ -367,7 +366,7 @@ availableReports.link1.none = cy: monitor the status of your requested reports
 availableReports.link2.none = cy: request a new report
 availableReports.home.link = cy: Go to homepage
 availableReports.table.reportName = cy: Report name
-availableReports.table.businessInfo = cy: Business information
+availableReports.table.businessInfo = cy: Business name
 availableReports.table.reportType = cy: Type of report
 availableReports.table.expiryDate = cy: Expiry date
 availableReports.table.referenceNumber = cy: Reference number
@@ -385,7 +384,7 @@ requestedReports.bullet1.none = cy: view available reports
 requestedReports.bullet2.none = cy: request a report
 requestedReports.home.link = cy: Go to homepage
 requestedReports.table.reportName = cy: Report name
-requestedReports.table.businessInfo = cy: Business information
+requestedReports.table.businessInfo = cy: Business name
 requestedReports.table.reportType = cy: Type of report
 requestedReports.table.requestedDate = cy: Date requested
 requestedReports.table.referenceNumber = cy: Reference number
@@ -580,7 +579,7 @@ thirdPartyAddedConfirmation.link2 = cy: Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = cy: What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = cy: (takes 30 seconds)
 
-BusinessInfo.checkYourAnswersLabel = cy: Business information
+BusinessInfo.checkYourAnswersLabel = cy: Business name
 
 authorisedThirdParties.title = cy: Manage third parties that can access your data
 authorisedThirdParties.heading = cy: Manage third parties that can access your data

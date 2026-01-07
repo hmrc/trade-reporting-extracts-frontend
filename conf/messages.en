@@ -366,13 +366,12 @@ availableReports.link1.none = monitor the status of your requested reports
 availableReports.link2.none = request a new report
 availableReports.home.link = Go to homepage
 availableReports.table.reportName = Report name
-availableReports.table.businessInfo = Business information
+availableReports.table.businessInfo = Business name
 availableReports.table.reportType = Type of report
 availableReports.table.expiryDate = Expiry date
 availableReports.table.referenceNumber = Reference number
 availableReports.table.action = Action
 availableReports.table.unknownCompany = Not applicable
-
 
 requestedReports.title = Reports in progress
 requestedReports.heading = Reports in progress
@@ -385,7 +384,7 @@ requestedReports.bullet1.none = view available reports
 requestedReports.bullet2.none = request a report
 requestedReports.home.link = Go to homepage
 requestedReports.table.reportName = Report name
-requestedReports.table.businessInfo = Business information
+requestedReports.table.businessInfo = Business name
 requestedReports.table.reportType = Type of report
 requestedReports.table.requestedDate = Date requested
 requestedReports.table.referenceNumber = Reference number
@@ -580,7 +579,7 @@ thirdPartyAddedConfirmation.link2 = Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
 
-BusinessInfo.checkYourAnswersLabel = Business information
+BusinessInfo.checkYourAnswersLabel = Business name
 
 authorisedThirdParties.title = Manage third parties that can access your data
 authorisedThirdParties.heading = Manage third parties that can access your data
