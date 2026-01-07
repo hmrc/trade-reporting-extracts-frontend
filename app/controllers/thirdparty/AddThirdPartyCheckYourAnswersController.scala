@@ -91,7 +91,7 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
       submissionMeta = ThirdPartySubmissionMeta(
                          thirdPartyEori = thirdPartyAddedConfirmation.thirdPartyEori,
                          companyName = maybeCompanyName,
-                         submittedDate = submittedDate
+                         submittedDate = LocalDate.now(clock)
                        )
 
       userAnswersWithMeta = updatedAnswersWithFlag.copy(submissionMeta = Some(Json.toJson(submissionMeta).as[JsObject]))

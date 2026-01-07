@@ -21,8 +21,10 @@ import models.thirdparty.ThirdPartyRemovalMeta
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
 import views.html.thirdparty.RemoveThirdPartyConfirmationView
 
+import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,22 +34,25 @@ class RemoveThirdPartyConfirmationController @Inject() (
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
-  view: RemoveThirdPartyConfirmationView
+  view: RemoveThirdPartyConfirmationView,
+  clock: Clock
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      val submissionMeta = request.userAnswers.submissionMeta
+      val submissionMeta                 = request.userAnswers.submissionMeta
         .map(_.as[ThirdPartyRemovalMeta])
-        .getOrElse(ThirdPartyRemovalMeta("", "", "", None))
+        .getOrElse(ThirdPartyRemovalMeta("", Instant.now(), None))
+      val (submittedDate, submittedTime) =
+        DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
       Future.successful(
         Ok(
           view(
+            submittedDate,
+            submittedTime,
             submissionMeta.eori,
-            submissionMeta.submittedDate,
-            submissionMeta.submittedTime,
             submissionMeta.notificationEmail.get
           )
         )

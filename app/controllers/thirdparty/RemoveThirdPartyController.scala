@@ -22,15 +22,14 @@ import forms.thirdparty.RemoveThirdPartyFormProvider
 import models.thirdparty.{ThirdPartyRemovalEvent, ThirdPartyRemovalMeta}
 import pages.thirdparty.RemoveThirdPartyPage
 import play.api.data.Form
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{AuditService, TradeReportingExtractsService}
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.RemoveThirdPartyView
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -55,12 +54,6 @@ class RemoveThirdPartyController @Inject() (
       Future.successful(Ok(view(form, thirdPartyEori)))
     }
 
-  private def getDateAndTime(implicit messages: Messages): (String, String) =
-    (
-      LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
-      formattedSystemTime(clock)(messages.lang)
-    )
-
   def onSubmit(thirdPartyEori: String): Action[AnyContent] =
     (identify andThen getOrCreate).async { implicit request =>
       form
@@ -72,11 +65,9 @@ class RemoveThirdPartyController @Inject() (
               for {
                 updatedAnswers    <- Future.fromTry(request.userAnswers.set(RemoveThirdPartyPage, true))
                 notificationEmail <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-                (date, time)       = getDateAndTime
                 removalMeta        = ThirdPartyRemovalMeta(
                                        eori = thirdPartyEori,
-                                       submittedDate = date,
-                                       submittedTime = time,
+                                       submittedAt = Instant.now(clock),
                                        notificationEmail = Some(notificationEmail.address)
                                      )
 

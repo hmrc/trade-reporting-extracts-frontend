@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.MaybeThirdPartyAccessSelfRemovalView
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, Instant, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,7 +50,7 @@ class MaybeThirdPartyAccessSelfRemovalController @Inject() (
     with I18nSupport {
 
   private val form: Form[Boolean] = formProvider()
-  
+
   def onPageLoad(traderEori: String): Action[AnyContent] =
     (identify andThen getOrCreate) { implicit request =>
       Ok(view(form, traderEori))
@@ -71,26 +71,25 @@ class MaybeThirdPartyAccessSelfRemovalController @Inject() (
           value =>
             if (value) {
               for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeThirdPartyAccessSelfRemovalPage, true))
-                (date, time)       = getDateAndTime
-                removalMeta        = ThirdPartyRemovalMeta(
-                  eori = traderEori,
-                  submittedDate = date,
-                  submittedTime = time,
-                  notificationEmail = None
-                )
+                updatedAnswers     <- Future.fromTry(request.userAnswers.set(MaybeThirdPartyAccessSelfRemovalPage, true))
+                (date, time)        = getDateAndTime
+                removalMeta         = ThirdPartyRemovalMeta(
+                                        eori = traderEori,
+                                        submittedAt = Instant.now(clock),
+                                        notificationEmail = None
+                                      )
                 userAnswersWithMeta = updatedAnswers.copy(submissionMeta = Some(Json.toJson(removalMeta).as[JsObject]))
                 _                  <- sessionRepository.set(userAnswersWithMeta)
 
-                _              <- tradeReportingExtractsService.selfRemoveThirdPartyAccess(traderEori, request.eori)
-                _              <- auditService.auditThirdPartySelfRemoval(
-                                    ThirdPartySelfRemovalEvent(
-                                      thirdPartyOwnAccessRemovalConsent = true,
-                                      requesterEori = request.eori,
-                                      traderEori = traderEori
-                                    )
-                                  )
-                
+                _ <- tradeReportingExtractsService.selfRemoveThirdPartyAccess(traderEori, request.eori)
+                _ <- auditService.auditThirdPartySelfRemoval(
+                       ThirdPartySelfRemovalEvent(
+                         thirdPartyOwnAccessRemovalConsent = true,
+                         requesterEori = request.eori,
+                         traderEori = traderEori
+                       )
+                     )
+
                 clearedAnswers <- Future.fromTry(updatedAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
                 _              <- sessionRepository.set(clearedAnswers)
               } yield Redirect(

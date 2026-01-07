@@ -18,13 +18,13 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import models.thirdparty.ThirdPartyRemovalMeta
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
+import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,9 +44,11 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
     (identify andThen getData andThen requireData).async { implicit request =>
       val submissionMeta = request.userAnswers.submissionMeta
         .map(_.as[ThirdPartyRemovalMeta])
-        .getOrElse(ThirdPartyRemovalMeta("", "", "", None))
-      Future.successful(Ok(view(submissionMeta.submittedDate,
-        submissionMeta.submittedTime,
-        submissionMeta.eori)))
+        .getOrElse(ThirdPartyRemovalMeta("", Instant.now(), None))
+
+      val (submittedDate, submittedTime) =
+        DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
+
+      Future.successful(Ok(view(submittedDate, submittedTime, submissionMeta.eori)))
     }
 }

@@ -18,11 +18,12 @@ package models.report
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.Instant
+
 case class SubmissionMeta(
   reportConfirmations: Seq[ReportConfirmation],
   notificationEmail: String,
-  submittedDate: String,
-  submittedTime: String
+  submittedAt: Instant
 )
 
 object SubmissionMeta {

@@ -18,10 +18,12 @@ package models.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDate
+
 case class ThirdPartySubmissionMeta(
   thirdPartyEori: String,
   companyName: Option[String],
-  submittedDate: String
+  submittedDate: LocalDate
 )
 
 object ThirdPartySubmissionMeta {

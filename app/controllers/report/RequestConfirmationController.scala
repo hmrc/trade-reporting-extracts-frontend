@@ -25,11 +25,12 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
+import utils.{DateTimeFormats, ReportHelpers}
 import views.html.report.RequestConfirmationView
 
+import java.time.{Clock, Instant}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class RequestConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
@@ -38,9 +39,9 @@ class RequestConfirmationController @Inject() (
   requireData: DataRequiredAction,
   val controllerComponents: MessagesControllerComponents,
   view: RequestConfirmationView,
-  config: FrontendAppConfig
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+  config: FrontendAppConfig,
+  clock: Clock
+) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
@@ -50,8 +51,10 @@ class RequestConfirmationController @Inject() (
 
     val submissionMeta = request.userAnswers.submissionMeta
       .map(_.as[SubmissionMeta])
-      .getOrElse(SubmissionMeta(Seq.empty, "", "", ""))
+      .getOrElse(SubmissionMeta(Seq.empty, "", Instant.now()))
 
+    val (submittedDate, submittedTime) =
+      DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
     Future.successful(
       Ok(
         view(
@@ -60,8 +63,8 @@ class RequestConfirmationController @Inject() (
           transformReportConfirmations(submissionMeta.reportConfirmations),
           surveyUrl,
           submissionMeta.notificationEmail,
-          submissionMeta.submittedDate,
-          submissionMeta.submittedTime
+          submittedDate,
+          submittedTime
         )
       )
     )

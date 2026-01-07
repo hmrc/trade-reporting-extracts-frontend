@@ -22,13 +22,12 @@ import models.report.{ReportRequestSection, SubmissionMeta}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 
-import java.time.{Clock, Instant, LocalDate}
+import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
@@ -53,12 +52,10 @@ class SubmitReportController @Inject() (
                              )
 
       updatedAnswers      = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
-      (date, time)        = getDateAndTime(request)
       submissionMetaModel = SubmissionMeta(
                               reportConfirmations = reportConfirmations,
                               notificationEmail = notificationEmail.address,
-                              submittedDate = date,
-                              submittedTime = time
+                              submittedAt = Instant.now(clock)
                             )
 
       updatedAnswersWithFlag = updatedAnswers.set(AlreadySubmittedFlag(), true).get
@@ -71,11 +68,4 @@ class SubmitReportController @Inject() (
     } yield redirectResult
   }
 
-  private def getDateAndTime(request: Request[_]): (String, String) = {
-    val lang = messagesApi.preferred(request).lang
-    (
-      LocalDate.now(clock).format(dateTimeFormat()(lang)),
-      formattedSystemTime(clock)(lang)
-    )
-  }
 }
