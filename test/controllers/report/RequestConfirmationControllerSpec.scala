@@ -18,21 +18,21 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.report.{EmailSelection, ReportConfirmation, SubmissionMeta}
+import models.report.{ReportConfirmation, SubmissionMeta}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import play.api.inject
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import utils.DateTimeFormats.formattedSystemTime
+import play.api.test.Helpers._
+import utils.DateTimeFormats
 import views.html.report.RequestConfirmationView
 
-import java.time.{Clock, Instant, ZoneOffset}
-import play.api.i18n.Lang
-import play.api.inject
+import java.time.{Clock, Instant, ZoneId}
 
 class RequestConfirmationControllerSpec extends SpecBase {
 
-  private val fixedClock: Clock = Clock.fixed(Instant.parse("2025-05-05T10:15:30Z"), ZoneOffset.UTC)
+  private val fixedInstant: Instant = Instant.parse("2025-05-05T10:15:30Z")
+  private val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
 
   "RequestConfirmationController" - {
 
@@ -42,14 +42,15 @@ class RequestConfirmationControllerSpec extends SpecBase {
       val emailString       = selectedEmails.mkString(", ")
       val notificationEmail = "notify@example.com"
 
-      val submissionMetaJson = Json.toJson(
-        SubmissionMeta(
-          reportConfirmations = Seq(ReportConfirmation("MyReport", "importTaxLine", "RE00000001")),
-          notificationEmail = notificationEmail,
-          submittedDate = "5 May 2025",
-          submittedTime = formattedSystemTime(fixedClock)(Lang("en"))
+      val submissionMetaJson: JsObject = Json
+        .toJson(
+          SubmissionMeta(
+            reportConfirmations = Seq(ReportConfirmation("MyReport", "importTaxLine", "RE00000001")),
+            notificationEmail = notificationEmail,
+            submittedAt = Instant.now(fixedClock)
+          )
         )
-      )
+        .as[JsObject]
 
       val userAnswers = emptyUserAnswers
         .set(EmailSelectionPage, selectedEmails.toSet)
@@ -58,7 +59,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .set(NewEmailNotificationPage, newEmail)
         .success
         .value
-        .copy(submissionMeta = Some(submissionMetaJson.as[JsObject]))
+        .copy(submissionMeta = Some(submissionMetaJson))
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(inject.bind[Clock].toInstance(fixedClock))
@@ -68,6 +69,9 @@ class RequestConfirmationControllerSpec extends SpecBase {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val surveyUrl = appConfig.exitSurveyUrl
         val view      = application.injector.instanceOf[RequestConfirmationView]
+
+        val (expectedDate, expectedTime) =
+          DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
 
         val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
         val result  = route(application, request).value
@@ -79,8 +83,8 @@ class RequestConfirmationControllerSpec extends SpecBase {
           Seq(ReportConfirmation("MyReport", "reportTypeImport.importTaxLine", "RE00000001")),
           surveyUrl,
           notificationEmail,
-          "5 May 2025",
-          formattedSystemTime(fixedClock)(Lang("en"))
+          expectedDate,
+          expectedTime
         )(request, messages(application)).toString
 
         contentAsString(result) must include("MyReport")

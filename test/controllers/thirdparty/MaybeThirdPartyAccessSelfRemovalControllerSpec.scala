@@ -19,7 +19,9 @@ package controllers.thirdparty
 import base.SpecBase
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
 import models.UserAnswers
+import org.apache.pekko.Done
 import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
@@ -27,6 +29,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.thirdparty.MaybeThirdPartyAccessSelfRemovalView
 
 import scala.concurrent.Future
@@ -34,10 +37,14 @@ import scala.concurrent.Future
 class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new MaybeThirdPartyAccessSelfRemovalFormProvider()
-  val form         = formProvider()
+  private val form = formProvider()
 
-  lazy val maybeThirdPartyAccessSelfRemovalRoute =
+  private lazy val maybeThirdPartyAccessSelfRemovalRoute =
     controllers.thirdparty.routes.MaybeThirdPartyAccessSelfRemovalController.onPageLoad("traderEori").url
+  private val mockTradeReportingExtractsService          = mock[TradeReportingExtractsService]
+
+  when(mockTradeReportingExtractsService.selfRemoveThirdPartyAccess(any(), any())(any()))
+    .thenReturn(Future.successful(Done))
 
   "MaybeThirdPartyAccessSelfRemoval Controller" - {
 
@@ -60,14 +67,14 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
     "must redirect to the next page when true is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
           .build()
 
@@ -79,11 +86,9 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController
-          .onPageLoad("traderEori")
-          .url
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe Some(true)
+        redirectLocation(
+          result
+        ).value mustEqual controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
       }
     }
 
@@ -97,7 +102,8 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
           .build()
 

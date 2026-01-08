@@ -18,16 +18,22 @@ package controllers.thirdparty
 
 import base.SpecBase
 import forms.thirdparty.RemoveThirdPartyFormProvider
+import models.NotificationEmail
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.Form
+import play.api.inject
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import views.html.thirdparty.RemoveThirdPartyView
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
@@ -58,14 +64,23 @@ class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val notificationEmail                 = NotificationEmail("test@example.com", LocalDateTime.now())
+
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(notificationEmail))
+
+      when(mockTradeReportingExtractsService.removeThirdParty(any(), any())(any()))
+        .thenReturn(Future.successful(Done))
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
           )
           .build()
 
@@ -77,9 +92,9 @@ class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.thirdparty.routes.RemoveThirdPartyConfirmationController
-          .onPageLoad("Eori")
-          .url
+        redirectLocation(
+          result
+        ).value mustEqual controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url
       }
     }
 

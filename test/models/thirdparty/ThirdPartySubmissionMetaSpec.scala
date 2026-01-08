@@ -21,6 +21,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 
+import java.time.LocalDate
+
 class ThirdPartySubmissionMetaSpec extends AnyFreeSpec with Matchers {
 
   "ThirdPartySubmissionMeta" - {
@@ -29,7 +31,7 @@ class ThirdPartySubmissionMetaSpec extends AnyFreeSpec with Matchers {
       val model = ThirdPartySubmissionMeta(
         thirdPartyEori = "GB123456789000",
         companyName = Some("Test Company"),
-        submittedDate = "2025-11-06"
+        submittedDate = LocalDate.parse("2025-11-06")
       )
 
       val json: JsValue = Json.toJson(model)
@@ -50,7 +52,7 @@ class ThirdPartySubmissionMetaSpec extends AnyFreeSpec with Matchers {
       result mustBe a[JsSuccess[_]]
       result.get.thirdPartyEori mustEqual "GB123456789000"
       result.get.companyName.value mustEqual "Test Company"
-      result.get.submittedDate mustEqual "2025-11-06"
+      result.get.submittedDate mustEqual LocalDate.parse("2025-11-06")
     }
 
     "must handle missing optional companyName" in {

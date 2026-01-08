@@ -53,7 +53,7 @@ class RemoveThirdPartyConfirmationController @Inject() (
             submittedDate,
             submittedTime,
             submissionMeta.eori,
-            submissionMeta.notificationEmail.get
+            submissionMeta.notificationEmail.getOrElse("")
           )
         )
       )

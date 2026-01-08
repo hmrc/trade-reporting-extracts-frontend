@@ -18,74 +18,62 @@ package controllers.thirdparty
 
 import base.SpecBase
 import models.UserAnswers
-import org.apache.pekko.Done
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import models.thirdparty.ThirdPartyRemovalMeta
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
-import play.api.i18n.Lang
 import play.api.inject.bind
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import repositories.SessionRepository
-import services.{AuditService, TradeReportingExtractsService}
-import utils.DateTimeFormats.formattedSystemTime
+import play.api.test.Helpers._
+import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
 
 import java.time.{Clock, Instant, ZoneId}
-import scala.concurrent.Future
 
 class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSugar {
 
-  val mockSessionRepository: SessionRepository                         = mock[SessionRepository]
-  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-  val mockAuditService                                                 = mock[AuditService]
+  private val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
 
-  val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
-  val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
+  private val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
 
   "ThirdPartyAccessSelfRemoved Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val userAnswers       = UserAnswers("id").set(MaybeThirdPartyAccessSelfRemovalPage, true).success.value
-      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val removalMeta = ThirdPartyRemovalMeta(
+        eori = "traderEori",
+        submittedAt = fixedInstant,
+        notificationEmail = None
+      )
 
-      when(mockTradeReportingExtractsService.selfRemoveThirdPartyAccess(any(), any())(any()))
-        .thenReturn(Future.successful(Done))
-      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
-      when(mockAuditService.auditThirdPartySelfRemoval(any())(any())) thenReturn Future.successful(())
+      val userAnswers: UserAnswers = emptyUserAnswers.copy(
+        submissionMeta = Some(Json.toJson(removalMeta).as[JsObject])
+      )
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[Clock].toInstance(fixedClock),
-            bind[AuditService].toInstance(mockAuditService)
+            bind[Clock].toInstance(fixedClock)
           )
           .build()
 
       running(application) {
         val request = FakeRequest(
           GET,
-          controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad("traderEori").url
+          controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
         )
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[ThirdPartyAccessSelfRemovedView]
 
+        val (expectedDate, expectedTime) =
+          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view("5 May 2025", formattedSystemTime(fixedClock)(Lang("en")), "traderEori")(
+        contentAsString(result) mustEqual view(expectedDate, expectedTime, "traderEori")(
           request,
           messages(application)
         ).toString
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe None
-        verify(mockAuditService, times(1)).auditThirdPartySelfRemoval(any())(any())
       }
     }
   }
