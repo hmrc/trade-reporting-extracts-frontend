@@ -18,6 +18,9 @@ package utils
 
 import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
+import play.api.i18n.Messages
+
+import java.time.LocalDate
 
 case class ReportStatusDisplayData(
   key: String,
@@ -42,10 +45,10 @@ object ReportHelpers {
   def getReportType(reportType: models.ReportTypeName): String =
     Option(reportType)
       .map {
-        case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "Import header"
-        case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "Import item"
-        case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "Import tax line"
-        case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "Export item"
+        case models.ReportTypeName.IMPORTS_HEADER_REPORT  => "reportTypeImport.importHeader"
+        case models.ReportTypeName.IMPORTS_ITEM_REPORT    => "reportTypeImport.importItem"
+        case models.ReportTypeName.IMPORTS_TAXLINE_REPORT => "reportTypeImport.importTaxLine"
+        case models.ReportTypeName.EXPORTS_ITEM_REPORT    => "reportTypeImport.exportItem"
       }
       .getOrElse(throw new IllegalArgumentException("Unknown or null report type"))
 

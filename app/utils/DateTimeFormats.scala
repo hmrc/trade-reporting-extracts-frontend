@@ -27,20 +27,32 @@ import java.time.temporal.ChronoUnit.DAYS
 
 object DateTimeFormats {
 
-  private val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val fullPattern  = "d MMMM yyyy"
+  private val shortPattern = "d MMM yyyy"
 
-  private val localisedDateTimeFormatters = Map(
-    "en" -> dateTimeFormatter,
-    "cy" -> dateTimeFormatter.withLocale(new Locale("cy"))
-  )
+  private def localisedFormatters(pattern: String): Map[String, DateTimeFormatter] =
+    Seq("en", "cy").map { code =>
+      code -> DateTimeFormatter.ofPattern(pattern, Locale.forLanguageTag(code))
+    }.toMap
+
+  private val localisedDateTimeFormatters      = localisedFormatters(fullPattern)
+  private val localisedShortDateTimeFormatters = localisedFormatters(shortPattern)
 
   def dateFormatter(date: LocalDate)(implicit messages: Messages): String = {
     val languageTag = if (messages.lang.code == "cy") "cy" else "en"
     date.format(dateTimeFormat()(Lang(languageTag)))
   }
 
+  def shortDateFormatter(date: LocalDate)(implicit messages: Messages): String = {
+    val languageTag = if (messages.lang.code == "cy") "cy" else "en"
+    date.format(shortDateTimeFormat()(Lang(languageTag)))
+  }
+
   def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter =
-    localisedDateTimeFormatters.getOrElse(lang.code, dateTimeFormatter)
+    localisedDateTimeFormatters.getOrElse(lang.code, DateTimeFormatter.ofPattern(fullPattern))
+
+  def shortDateTimeFormat()(implicit lang: Lang): DateTimeFormatter =
+    localisedShortDateTimeFormatters.getOrElse(lang.code, DateTimeFormatter.ofPattern(shortPattern))
 
   val dateTimeHintFormat: DateTimeFormatter =
     DateTimeFormatter.ofPattern("d M yyyy")

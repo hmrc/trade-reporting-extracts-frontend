@@ -29,16 +29,10 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = trade-reporting-extracts-frontend
-index.heading = trade-reporting-extracts-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
-
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
-journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
-journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
 signedOut.title = You have signed out
 signedOut.heading = You have signed out
@@ -581,6 +575,9 @@ thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
 
 BusinessInfo.checkYourAnswersLabel = Business name
+
+thirdPartyStatus.active = Active
+thirdPartyStatus.upcoming = Upcoming
 
 authorisedThirdParties.title = Manage third parties that can access your data
 authorisedThirdParties.heading = Manage third parties that can access your data
