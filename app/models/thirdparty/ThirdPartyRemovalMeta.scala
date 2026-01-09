@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package models.thirdparty
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
+import java.time.Instant
 
-case class ThirdPartySubmissionMeta(
-  thirdPartyEori: String,
-  companyName: Option[String],
-  submittedDate: LocalDate
+case class ThirdPartyRemovalMeta(
+  eori: String,
+  submittedAt: Instant,
+  notificationEmail: Option[String]
 )
 
-object ThirdPartySubmissionMeta {
-  implicit val format: OFormat[ThirdPartySubmissionMeta] = Json.format[ThirdPartySubmissionMeta]
+object ThirdPartyRemovalMeta {
+  implicit val format: OFormat[ThirdPartyRemovalMeta] = Json.format[ThirdPartyRemovalMeta]
 }

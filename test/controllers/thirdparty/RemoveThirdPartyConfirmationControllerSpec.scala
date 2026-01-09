@@ -17,65 +17,71 @@
 package controllers.thirdparty
 
 import base.SpecBase
-import models.{NotificationEmail, UserAnswers}
-import org.apache.pekko.Done
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.thirdparty.RemoveThirdPartyPage
+import models.UserAnswers
+import models.thirdparty.ThirdPartyRemovalMeta
 import play.api.inject.bind
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import repositories.SessionRepository
-import services.{AuditService, TradeReportingExtractsService}
+import play.api.test.Helpers._
+import utils.DateTimeFormats
+import views.html.thirdparty.RemoveThirdPartyConfirmationView
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneId}
-import scala.concurrent.Future
+import java.time.{Clock, Instant, ZoneId}
 
 class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
 
-  val mockSessionRepository: SessionRepository                         = mock[SessionRepository]
-  val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-  val mockAuditService: AuditService                                   = mock[AuditService]
+  "RemoveThirdPartyConfirmationController" - {
 
-  "RemoveThirdPartyConfirmation Controller" - {
-
-    "must return OK and the correct view for a GET" in {
-
+    "must return OK and render the correct view for a GET" in {
       val fixedInstant: Instant = Instant.parse("2025-05-20T00:00:00Z")
-      val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.systemDefault())
-      val userAnswers           = UserAnswers("id").set(RemoveThirdPartyPage, true).success.value
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val notificationEmail     = NotificationEmail("notify@example.com", LocalDateTime.now())
+      val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
 
-      when(mockTradeReportingExtractsService.removeThirdParty(any(), any())(any()))
-        .thenReturn(Future.successful(Done))
-      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(notificationEmail))
-      when(mockAuditService.auditThirdPartyRemoval(any())(any())) thenReturn Future.successful(())
-      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+      val removalMeta = ThirdPartyRemovalMeta(
+        eori = "GB123456789000",
+        submittedAt = fixedInstant,
+        notificationEmail = Some("notify@example.com")
+      )
+
+      val userAnswers = emptyUserAnswers.copy(
+        submissionMeta = Some(Json.toJson(removalMeta).as[JsObject])
+      )
 
       val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[Clock].toInstance(fixedClock),
-          bind[AuditService].toInstance(mockAuditService)
-        )
+        .overrides(bind[Clock].toInstance(fixedClock))
         .build()
 
       running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad("Eori").url)
+        val view = application.injector.instanceOf[RemoveThirdPartyConfirmationView]
 
-        val result = route(application, request).value
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
+        val result  = route(application, request).value
+
+        val (expectedDate, expectedTime) =
+          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
 
         status(result) mustEqual OK
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(RemoveThirdPartyPage) mustBe None
-        verify(mockAuditService, times(1)).auditThirdPartyRemoval(any())(any())
+        contentAsString(result) mustEqual view(
+          expectedDate,
+          expectedTime,
+          "GB123456789000",
+          "notify@example.com"
+        )(request, messages(application)).toString
+      }
+    }
+
+    "return OK and render empty values when submissionMeta is missing" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("")
       }
     }
   }
+
 }

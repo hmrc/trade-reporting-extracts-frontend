@@ -70,10 +70,10 @@ GET         /businesses-you-have-access-to              controllers.thirdparty.A
 GET        /remove-my-access-:traderEori                controllers.thirdparty.MaybeThirdPartyAccessSelfRemovalController.onPageLoad(traderEori: String)
 POST       /remove-my-access-:traderEori                controllers.thirdparty.MaybeThirdPartyAccessSelfRemovalController.onSubmit(traderEori: String)
 
-GET        /:traderEori-access-removed-confirmation     controllers.thirdparty.ThirdPartyAccessSelfRemovedController.onPageLoad(traderEori: String)
+GET        /traderEori-access-removed-confirmation     controllers.thirdparty.ThirdPartyAccessSelfRemovedController.onPageLoad
 
 
 GET        /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onPageLoad(thirdPartyEori: String)
 POST       /remove-third-party/:thirdPartyEori                       controllers.thirdparty.RemoveThirdPartyController.onSubmit(thirdPartyEori: String)
 
-GET        /third-party-removed-confirmation/:thirdPartyEori         controllers.thirdparty.RemoveThirdPartyConfirmationController.onPageLoad(thirdPartyEori: String)
+GET        /third-party-removed-confirmation         controllers.thirdparty.RemoveThirdPartyConfirmationController.onPageLoad

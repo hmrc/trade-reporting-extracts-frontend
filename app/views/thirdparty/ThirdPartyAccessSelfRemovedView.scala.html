@@ -23,7 +23,7 @@
 
 @(date: String, time: String, traderEori: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("thirdPartyAccessSelfRemoved.title"))) {
+@layout(pageTitle = titleNoForm(messages("thirdPartyAccessSelfRemoved.title")), showBackLink = false) {
 
     @govukPanel(Panel(
        title = messages("thirdPartyAccessSelfRemoved.heading")

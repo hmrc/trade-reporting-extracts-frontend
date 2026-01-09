@@ -18,14 +18,19 @@ package controllers.thirdparty
 
 import controllers.actions.*
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
+import models.thirdparty.{ThirdPartyRemovalMeta, ThirdPartySelfRemovalEvent}
 import pages.thirdparty.MaybeThirdPartyAccessSelfRemovalPage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.{AuditService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats.{dateTimeFormat, formattedSystemTime}
 import views.html.thirdparty.MaybeThirdPartyAccessSelfRemovalView
 
+import java.time.{Clock, Instant, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,35 +40,67 @@ class MaybeThirdPartyAccessSelfRemovalController @Inject() (
   identify: IdentifierAction,
   getOrCreate: DataRetrievalOrCreateAction,
   formProvider: MaybeThirdPartyAccessSelfRemovalFormProvider,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  auditService: AuditService,
   val controllerComponents: MessagesControllerComponents,
-  view: MaybeThirdPartyAccessSelfRemovalView
+  view: MaybeThirdPartyAccessSelfRemovalView,
+  clock: Clock
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form: Form[Boolean] = formProvider()
+  private val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(traderEori: String): Action[AnyContent] = (identify andThen getOrCreate) { implicit request =>
-    Ok(view(form, traderEori))
-  }
+  def onPageLoad(traderEori: String): Action[AnyContent] =
+    (identify andThen getOrCreate) { implicit request =>
+      Ok(view(form, traderEori))
+    }
 
-  def onSubmit(traderEori: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, traderEori))),
-        value =>
-          if (value) {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MaybeThirdPartyAccessSelfRemovalPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad(traderEori))
-          } else {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url)
-          }
-      )
-  }
+  private def getDateAndTime(implicit messages: Messages): (String, String) =
+    (
+      LocalDate.now(clock).format(dateTimeFormat()(messages.lang)),
+      formattedSystemTime(clock)(messages.lang)
+    )
+
+  def onSubmit(traderEori: String): Action[AnyContent] =
+    (identify andThen getOrCreate).async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, traderEori))),
+          value =>
+            if (value) {
+              for {
+                updatedAnswers     <- Future.fromTry(request.userAnswers.set(MaybeThirdPartyAccessSelfRemovalPage, true))
+                (date, time)        = getDateAndTime
+                removalMeta         = ThirdPartyRemovalMeta(
+                                        eori = traderEori,
+                                        submittedAt = Instant.now(clock),
+                                        notificationEmail = None
+                                      )
+                userAnswersWithMeta = updatedAnswers.copy(submissionMeta = Some(Json.toJson(removalMeta).as[JsObject]))
+                _                  <- sessionRepository.set(userAnswersWithMeta)
+
+                _ <- tradeReportingExtractsService.selfRemoveThirdPartyAccess(traderEori, request.eori)
+                _ <- auditService.auditThirdPartySelfRemoval(
+                       ThirdPartySelfRemovalEvent(
+                         thirdPartyOwnAccessRemovalConsent = true,
+                         requesterEori = request.eori,
+                         traderEori = traderEori
+                       )
+                     )
+
+                clearedAnswers <- Future.fromTry(updatedAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
+                _              <- sessionRepository.set(clearedAnswers)
+              } yield Redirect(
+                controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad
+              )
+            } else {
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.remove(MaybeThirdPartyAccessSelfRemovalPage))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url)
+            }
+        )
+    }
 }

@@ -20,14 +20,10 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
-import models.requests.DataRequest
-import models.report.ReportRequestSection
-import models.report.ReportTypeImport
-import navigation.ReportNavigator
 import models.AlreadySubmittedFlag
-import pages.report.CheckYourAnswersPage
+import models.report.ReportRequestSection
+import models.requests.DataRequest
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
@@ -45,7 +41,6 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
   getData: DataRetrievalAction,
   sessionRepository: SessionRepository,
   requireData: DataRequiredAction,
-  navigator: ReportNavigator,
   preventBackNavigationAfterSubmissionAction: PreventBackNavigationAfterSubmissionAction,
   missingDependentAnswersAction: MissingDependentAnswersAction,
   val controllerComponents: MessagesControllerComponents,

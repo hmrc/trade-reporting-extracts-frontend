@@ -124,6 +124,23 @@ object DateTimeFormats {
       )
     }
 
+  def instantToDateString(instant: Instant, clock: Clock)(implicit messages: Messages): String = {
+    val zoned = instant.atZone(clock.getZone)
+    val fmt   = dateTimeFormat()(messages.lang)
+    zoned.toLocalDate.format(fmt)
+  }
+
+  def instantToTimeString(instant: Instant, clock: Clock)(implicit messages: Messages): String = {
+    val locale    = Locale.forLanguageTag(messages.lang.code)
+    val pattern   = "hh:mm a"
+    val formatter = DateTimeFormatter.ofPattern(pattern, locale)
+    val time      = instant.atZone(clock.getZone).toLocalTime
+    time.format(formatter)
+  }
+
+  def instantToDateAndTime(instant: Instant, clock: Clock)(implicit messages: Messages): (String, String) =
+    (instantToDateString(instant, clock), instantToTimeString(instant, clock))
+
   def localDateToInstant(date: LocalDate): Instant =
     date.atStartOfDay(ZoneOffset.UTC).toInstant
 }

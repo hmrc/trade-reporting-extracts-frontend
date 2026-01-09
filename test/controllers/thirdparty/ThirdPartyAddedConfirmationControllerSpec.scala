@@ -18,13 +18,16 @@ package controllers.thirdparty
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.thirdparty.ThirdPartySubmissionMeta
 import models.UserAnswers
+import models.thirdparty.ThirdPartySubmissionMeta
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import utils.DateTimeFormats.dateFormatter
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
+
+import java.time.LocalDate
 
 class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
@@ -34,7 +37,7 @@ class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSug
       val submissionMeta = ThirdPartySubmissionMeta(
         thirdPartyEori = "GB123456123456",
         companyName = Some("Test Company"),
-        submittedDate = "5 May 2025"
+        submittedDate = LocalDate.parse("2025-05-05")
       )
 
       val userAnswers: UserAnswers = emptyUserAnswers.copy(
@@ -50,16 +53,18 @@ class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSug
         val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
+        val expectedDateText = dateFormatter(LocalDate.parse("2025-05-05"))(messages(application))
+
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
           "GB123456123456",
-          "5 May 2025",
+          expectedDateText,
           appConfig.exitSurveyUrl
         )(request, messages(application)).toString
       }
     }
 
-    "return OK and render the view with empty details when submissionMeta is missing" in {
+    "return OK and render the view with default values when submissionMeta is missing" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -69,10 +74,12 @@ class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSug
         val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
+        val todayDateText = dateFormatter(LocalDate.now())(messages(application))
+
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
           "",
-          "",
+          todayDateText,
           appConfig.exitSurveyUrl
         )(request, messages(application)).toString
       }

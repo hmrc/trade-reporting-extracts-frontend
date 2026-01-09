@@ -22,8 +22,10 @@ import controllers.actions.*
 import models.thirdparty.ThirdPartySubmissionMeta
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import utils.DateTimeFormats.dateFormatter
 import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,15 +42,15 @@ class ThirdPartyAddedConfirmationController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val submissionMeta = request.userAnswers.submissionMeta
+    val submissionMeta    = request.userAnswers.submissionMeta
       .map(_.as[ThirdPartySubmissionMeta])
-      .getOrElse(ThirdPartySubmissionMeta("", None, ""))
-
+      .getOrElse(ThirdPartySubmissionMeta("", None, LocalDate.now()))
+    val submittedDateText = dateFormatter(submissionMeta.submittedDate)
     Future.successful(
       Ok(
         view(
           submissionMeta.thirdPartyEori,
-          submissionMeta.submittedDate,
+          submittedDateText,
           frontendAppConfig.exitSurveyUrl
         )
       )
