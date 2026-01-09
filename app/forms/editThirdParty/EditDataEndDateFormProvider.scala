@@ -32,7 +32,7 @@ class EditDataEndDateFormProvider @Inject() extends Mappings {
       "value" -> optional(
         localDate(
           invalidKey = "editDataEndDate.error.invalid",
-          allRequiredKey = "editDataEndDate.error.required.all",
+          allRequiredKey = "editDataEndDate.error.invalid",
           twoRequiredKey = "editDataEndDate.error.required.two",
           requiredKey = "editDataEndDate.error.required"
         ).verifying(
