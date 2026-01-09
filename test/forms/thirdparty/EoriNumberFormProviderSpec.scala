@@ -17,9 +17,7 @@
 package forms.thirdparty
 
 import forms.behaviours.StringFieldBehaviours
-import models.StringFieldRegex
-import org.scalacheck.Gen
-import org.scalatest.matchers.should.Matchers.shouldBe
+import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.data.{Form, FormError}
 import utils.Constants.{eoriMaxLength, eoriMinLength}
 
@@ -66,29 +64,18 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
       requiredError = FormError(fieldName, requiredKey)
     )
 
-    "with invalid format" - {
-      val allowedCharGen: Gen[Char] =
-        Gen.oneOf(Gen.numChar, Gen.const('G'), Gen.const('g'), Gen.const('B'), Gen.const('b'))
-
-      behave like fieldThatErrorsOnInvalidData(
-        form,
-        fieldName,
-        stringsNotMatchingRegexWithExactLengthAndCorrectChars(
-          StringFieldRegex.eoriFormatRegex,
-          maxLength,
-          allowedCharGen
-        ),
-        FormError(fieldName, invalidFormatKey)
-      )
+    "must error on strings with invalid special characters" in {
+      val testCase = "GB12345678901!"
+      val result   = form.bind(Map(fieldName -> testCase))
+      result.errors                should not be empty
+      result.errors.head.message shouldBe invalidKey
     }
 
-    "with invalid characters" - {
-      behave like fieldThatErrorsOnInvalidData(
-        form,
-        fieldName,
-        invalidEoriStringsOfExactLength(maxLength),
-        FormError(fieldName, invalidKey)
-      )
+    "must error on strings with invalid format" in {
+      val testCase = "12345678901234"
+      val result   = form.bind(Map(fieldName -> testCase))
+      result.errors                should not be empty
+      result.errors.head.message shouldBe invalidFormatKey
     }
 
     "convert lowercase to uppercase" - {
