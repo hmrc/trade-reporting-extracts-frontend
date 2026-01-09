@@ -17,12 +17,11 @@
 package models.report
 
 import models.{ReportStatus, ReportTypeName}
+import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
-import utils.ReportHelpers
+import utils.{DateTimeFormats, ReportHelpers}
 
 import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 case class RequestedUserReportViewModel(
   referenceNumber: String,
@@ -33,23 +32,21 @@ case class RequestedUserReportViewModel(
   reportEndDate: Instant,
   reportStatus: ReportStatus
 ) {
-  def formattedRequestedDate: String =
-    RequestedUserReportViewModel.dateFormatter.format(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formattedRequestedDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
-  def formattedReportStartDate: String =
-    RequestedUserReportViewModel.dateFormatter.format(reportStartDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formattedReportStartDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(reportStartDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
-  def formattedReportEndDate: String =
-    RequestedUserReportViewModel.dateFormatter.format(reportEndDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formattedReportEndDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(reportEndDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
   def formattedReportType: String = ReportHelpers.getReportType(reportType)
 }
 
 object RequestedUserReportViewModel {
-  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH)
-
-  def formatExpiryDate(expiryDate: Instant): String =
-    dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formatExpiryDate(expiryDate: Instant)(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
   implicit val format: OFormat[RequestedUserReportViewModel] = Json.format[RequestedUserReportViewModel]
 }

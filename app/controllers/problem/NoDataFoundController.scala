@@ -20,8 +20,11 @@ import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
+import java.time.format.DateTimeFormatter
 import views.html.problem.NoDataFoundView
 
+import java.time.{LocalDate, format}
 import javax.inject.Inject
 
 class NoDataFoundController @Inject() (
@@ -39,6 +42,17 @@ class NoDataFoundController @Inject() (
     reportStartDate: String,
     reportEndDate: String
   ): Action[AnyContent] = (identify andThen getData) { implicit request =>
-    Ok(view(reportName, reportRef, reportStartDate, reportEndDate))
+
+    def stringToLocalDate(date: String): LocalDate =
+      java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern("d MMM yyyy"))
+
+    Ok(
+      view(
+        reportName,
+        reportRef,
+        DateTimeFormats.shortDateFormatter(stringToLocalDate(reportStartDate)),
+        DateTimeFormats.shortDateFormatter(stringToLocalDate(reportEndDate))
+      )
+    )
   }
 }
