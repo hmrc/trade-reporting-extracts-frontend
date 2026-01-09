@@ -492,6 +492,8 @@ confirmEori.checkYourAnswersLabel = Confirm the EORI number for third-party acce
 confirmEori.error.required = Select yes if you want to give this EORI number third-party access
 confirmEori.change.hidden = Confirm the EORI number for third-party access
 confirmEori.noConsent = This business has not agreed to share their data. Contact them directly for more information.
+confirmEori.eoriNumber = EORI number
+confirmEori.businessInfo = Business information
 
 thirdPartyAccessStartDate.title = When do you want this access to start?
 thirdPartyAccessStartDate.heading = When do you want this access to start?
