@@ -291,14 +291,15 @@ requestConfirmation.goToHomepage = cy: Go to homepage
 requestConfirmation.feedbackLink = cy: What did you think of this service?
 requestConfirmation.feedbackDuration = cy: (takes 30 seconds)
 
-newEmailNotification.title = cy: Enter a new email address to receive notifications
-newEmailNotification.heading = cy: Enter a new email address to receive notifications
+newEmailNotification.title = cy: Which email should receive notifications?
+newEmailNotification.heading = cy: Which email should receive notifications?
 newEmailNotification.checkYourAnswersLabel = cy: New notification email
 newEmailNotification.error.required = cy: Enter a new email address to receive notifications
 newEmailNotification.error.length = cy: Enter a new email address not greater than 100 characters
 newEmailNotification.error.invalidFormat = cy: Enter a new email address in the correct format, like name@example.com
 newEmailNotification.change.hidden = cy: new notification email
-newEmailNotification.hint = cy: This email will only be used for this report request.
+newEmailNotification.single.hint = cy: We will only use this email to contact the person when your report is ready to download for this request. Only add an email address if you have consent from this person to receive these notifications.
+newEmailNotification.plural.hint = cy: We will only use this email to contact the person when your reports are ready to download for this request. Only add an email address if you have consent from this person to receive these notifications.
 
 customRequestStartDate.singleReport.title = cy: When do you want your report to start?
 customRequestStartDate.pluralReport.title = cy: When do you want your reports to start?

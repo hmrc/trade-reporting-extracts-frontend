@@ -27,8 +27,9 @@ import pages.report.NewEmailNotificationPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
+import utils.ReportHelpers
 import views.html.report.NewEmailNotificationView
 
 import scala.concurrent.Future
@@ -57,7 +58,10 @@ class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[NewEmailNotificationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, ReportHelpers.isMoreThanOneReport(emptyUserAnswers))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -75,7 +79,11 @@ class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form.fill("answer"),
+          NormalMode,
+          ReportHelpers.isMoreThanOneReport(userAnswers)
+        )(request, messages(application)).toString
       }
     }
 
@@ -121,7 +129,11 @@ class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          ReportHelpers.isMoreThanOneReport(emptyUserAnswers)
+        )(request, messages(application)).toString
       }
     }
 

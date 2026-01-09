@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReportHelpers
 import views.html.report.NewEmailNotificationView
 
 import javax.inject.Inject
@@ -50,13 +51,13 @@ class NewEmailNotificationController @Inject() (
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
-    val preparedForm = request.userAnswers.get(NewEmailNotificationPage) match {
+    val moreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+    val preparedForm      = request.userAnswers.get(NewEmailNotificationPage) match {
       case None        => form
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode))
+    Ok(view(preparedForm, mode, moreThanOneReport))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -64,7 +65,10 @@ class NewEmailNotificationController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(view(formWithErrors, mode, ReportHelpers.isMoreThanOneReport(request.userAnswers)))
+            ),
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(NewEmailNotificationPage, value))
