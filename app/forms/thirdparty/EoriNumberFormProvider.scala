@@ -29,7 +29,7 @@ class EoriNumberFormProvider @Inject() extends Mappings {
   def apply(userEori: String): Form[String] =
     Form(
       "value" -> text("eoriNumber.error.required")
-        .transform(_.trim.toUpperCase, identity)
+        .transform(_.trim.replaceAll("\\s+", "").toUpperCase, identity)
         .verifying(maxLength(eoriMaxLength, "eoriNumber.error.length"))
         .verifying(minLength(eoriMinLength, "eoriNumber.error.minLength"))
         .verifying(

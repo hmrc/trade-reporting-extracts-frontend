@@ -119,19 +119,6 @@ trait Generators extends ModelGenerators {
       .suchThat(s => !regex.pattern.matcher(s).matches)
   }
 
-  def stringsNotMatchingRegexWithExactLengthAndCorrectChars(
-    regexString: String,
-    exactLength: Int,
-    allowedCharGen: Gen[Char]
-  ): Gen[String] = {
-    val regex = new Regex(regexString)
-
-    Gen
-      .listOfN(exactLength, allowedCharGen)
-      .map(_.mkString)
-      .suchThat(s => !regex.pattern.matcher(s).matches)
-  }
-
   def stringsExceptSpecificValues(excluded: Seq[String]): Gen[String] =
     nonEmptyString suchThat (!excluded.contains(_))
 
