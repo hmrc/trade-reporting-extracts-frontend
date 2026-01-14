@@ -160,7 +160,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         )
         document.text()                                        must include("GB123456789000")
         document.text()                                        must include(
-          "This business has not agreed to share their data. Contact them directly for more information."
+          "This business has not agreed to share their name. Contact them directly for more details."
         )
         document.text()                                        must include("Not applicable")
       }

@@ -367,13 +367,12 @@ availableReports.link1.none = monitor the status of your requested reports
 availableReports.link2.none = request a new report
 availableReports.home.link = Go to homepage
 availableReports.table.reportName = Report name
-availableReports.table.businessInfo = Business information
+availableReports.table.businessInfo = Business name
 availableReports.table.reportType = Type of report
 availableReports.table.expiryDate = Expiry date
 availableReports.table.referenceNumber = Reference number
 availableReports.table.action = Action
 availableReports.table.unknownCompany = Not applicable
-
 
 requestedReports.title = Reports in progress
 requestedReports.heading = Reports in progress
@@ -386,7 +385,7 @@ requestedReports.bullet1.none = view available reports
 requestedReports.bullet2.none = request a report
 requestedReports.home.link = Go to homepage
 requestedReports.table.reportName = Report name
-requestedReports.table.businessInfo = Business information
+requestedReports.table.businessInfo = Business name
 requestedReports.table.reportType = Type of report
 requestedReports.table.requestedDate = Date requested
 requestedReports.table.referenceNumber = Reference number
@@ -464,7 +463,7 @@ thirdPartyReference.checkYourAnswersLabel = Reference name
 thirdPartyReference.error.required = Enter the name you will use to reference this EORI number
 thirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
 thirdPartyReference.change.hidden = reference name
-thirdPartyReference.message = This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
+thirdPartyReference.message = Add a reference name for this EORI number to help you manage your third parties.
 
 dataTypes.title = Which types of data do you want to give access to?
 dataTypes.heading = Which types of data do you want to give access to?
@@ -491,7 +490,9 @@ confirmEori.no = No, I want to enter a different EORI number
 confirmEori.checkYourAnswersLabel = Confirm the EORI number for third-party access
 confirmEori.error.required = Select yes if you want to give this EORI number third-party access
 confirmEori.change.hidden = Confirm the EORI number for third-party access
-confirmEori.noConsent = This business has not agreed to share their data. Contact them directly for more information.
+confirmEori.noConsent = This business has not agreed to share their name. Contact them directly for more details.
+confirmEori.eoriNumber = EORI number
+confirmEori.businessName = Business name
 
 thirdPartyAccessStartDate.title = When do you want this access to start?
 thirdPartyAccessStartDate.heading = When do you want this access to start?
@@ -579,7 +580,7 @@ thirdPartyAddedConfirmation.link2 = Go to homepage
 thirdPartyAddedConfirmation.feedbackLink = What did you think of this service?
 thirdPartyAddedConfirmation.feedbackDuration = (takes 30 seconds)
 
-BusinessInfo.checkYourAnswersLabel = Business information
+BusinessInfo.checkYourAnswersLabel = Business name
 
 authorisedThirdParties.title = Manage third parties that can access your data
 authorisedThirdParties.heading = Manage third parties that can access your data
@@ -598,11 +599,11 @@ authorisedThirdParties.noThirdParties.link1 = add a third party
 authorisedThirdParties.noThirdParties.message2 = to your account.
 authorisedThirdParties.noThirdParties.link2 = Go to homepage
 authorisedThirdParties.eori = EORI number
-authorisedThirdParties.businessInfo = Business information
+authorisedThirdParties.businessInfo = Business name
 authorisedThirdParties.referenceName = Reference name
 authorisedThirdParties.action = Action
 authorisedThirdParties.status = Status
-authorisedThirdParties.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
+authorisedThirdParties.businessInfo.notAvailable = This business has not agreed to share their name. Contact them directly for more details.
 authorisedThirdParties.referenceName.notAvailable = Not applicable
 
 thirdPartyDetails.title = Third-party details
@@ -624,9 +625,9 @@ accountsAuthorityOver.heading = Businesses you have third-party access to
 accountsAuthorityOver.noBusinesses.title = You do not have third-party access to any businesses
 accountsAuthorityOver.noBusinesses.heading = You do not have third-party access to any businesses
 accountsAuthorityOver.noBusinesses.message = If an importer or exporter gives you access to their customs declaration data, the business details will be shown in your account.
-accountsAuthorityOver.businessInfo.notAvailable = This business has not agreed to share their data. Contact them directly for more information.
+accountsAuthorityOver.businessInfo.notAvailable = This business has not agreed to share their name. Contact them directly for more details.
 accountsAuthorityOver.eori = EORI number
-accountsAuthorityOver.businessInfo = Business information
+accountsAuthorityOver.businessInfo = Business name
 accountsAuthorityOver.status = Status
 accountsAuthorityOver.action = Action
 accountsAuthorityOver.view = View
@@ -699,7 +700,7 @@ thirdPartyAlreadyAdded.message3 = Go to the homepage
 selectThirdPartyEori.title = Which third-party EORI number do you want to use?
 selectThirdPartyEori.heading = Which third-party EORI number do you want to use?
 selectThirdPartyEori.checkYourAnswersLabel = selectThirdPartyEori
-selectThirdPartyEori.message1 = Some EORI numbers may not include business information if the business hasn’t given consent to share it.
+selectThirdPartyEori.message1 = Some EORI numbers may not include business name if the business hasn’t given consent to share it.
 selectThirdPartyEori.error.required = Select an EORI number
 selectThirdPartyEori.change.hidden = the EORI number you want to use
 
@@ -723,7 +724,7 @@ editThirdPartyReference.checkYourAnswersLabel = Reference name
 editThirdPartyReference.error.required = Enter the name you will use to reference this EORI number
 editThirdPartyReference.error.length = The name you will use to reference this EORI number must be 100 characters or fewer
 editThirdPartyReference.change.hidden = reference name
-editThirdPartyReference.message = This business has not agreed to share their information. Add a reference name for this EORI number to help you manage your third parties.
+editThirdPartyReference.message = Add a reference name for this EORI number to help you manage your third parties.
 
 editThirdPartyAccessStartDate.title = When do you want this access to start?
 editThirdPartyAccessStartDate.heading = When do you want this access to start?
