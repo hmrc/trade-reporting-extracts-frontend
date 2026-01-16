@@ -29,7 +29,7 @@ class ThirdPartyUpdatedConfirmationControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.ThirdPartyUpdatedConfirmationController.onPageLoad().url)
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         status(result) mustEqual OK
         contentAsString(result) must include(messages(application)("thirdPartyUpdatedConfirmation.heading"))
