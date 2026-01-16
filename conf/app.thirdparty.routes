@@ -63,6 +63,8 @@ POST        /check-your-answers-third-party             controllers.thirdparty.A
 
 GET         /third-party-added-confirmation             controllers.thirdparty.ThirdPartyAddedConfirmationController.onPageLoad()
 
+GET         /third-party-updated-confirmation           controllers.thirdparty.ThirdPartyUpdatedConfirmationController.onPageLoad()
+
 GET         /manage-third-parties                       controllers.thirdparty.AuthorisedThirdPartiesController.onPageLoad()
 
 GET         /businesses-you-have-access-to              controllers.thirdparty.AccountsAuthorityOverController.onPageLoad()

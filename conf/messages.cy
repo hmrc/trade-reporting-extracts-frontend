@@ -786,3 +786,14 @@ editDeclarationDate.change.hidden = cy: if you want to give access to all of you
 editDeclarationDate.import = cy: import
 editDeclarationDate.export = cy: export
 editDeclarationDate.importExport = cy: import and export
+
+thirdPartyUpdatedConfirmation.title = cy: Third-party details updated
+thirdPartyUpdatedConfirmation.heading = cy: Third-party details updated
+thirdPartyUpdatedConfirmation.message1 = cy: Updated on {0} at {1}.
+thirdPartyUpdatedConfirmation.message2 = cy: To keep a record, you can
+thirdPartyUpdatedConfirmation.print.link = cy: print this page.
+thirdPartyUpdatedConfirmation.heading2 = cy: what happens next
+thirdPartyUpdatedConfirmation.message3 = cy: We’ll send an email to the registered address linked to EORI number {0} to confirm the update.
+thirdPartyUpdatedConfirmation.message4 = cy: You can
+thirdPartyUpdatedConfirmation.link1 = cy: manage third parties that can access your data.
+thirdPartyUpdatedConfirmation.link2 = cy: Go to homepage

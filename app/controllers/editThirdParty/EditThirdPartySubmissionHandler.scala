@@ -83,7 +83,7 @@ class EditThirdPartySubmissionHandler @Inject (
                              }
           updatedAnswers = userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers)
           _             <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad()))
+        } yield Redirect(controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController.onPageLoad()))
           .recover { case ex =>
             logger.error(s"Error submitting edit third party: ${ex.getMessage}", ex)
             // TODO RECOVER SOMEWHERE BETTER?

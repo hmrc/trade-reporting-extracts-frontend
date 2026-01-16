@@ -99,7 +99,7 @@ class EditThirdPartySubmissionHandlerSpec
           controller.submit(thirdPartyEori)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe controllers.thirdparty.routes.AuthorisedThirdPartiesController
+        redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
           .onPageLoad()
           .url
 
@@ -361,7 +361,7 @@ class EditThirdPartySubmissionHandlerSpec
 
         val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe controllers.thirdparty.routes.AuthorisedThirdPartiesController
+        redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
           .onPageLoad()
           .url
         verify(mockAuditService).auditThirdPartyUpdated(any())(any())

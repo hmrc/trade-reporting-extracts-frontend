@@ -786,3 +786,16 @@ editDeclarationDate.change.hidden = if you want to give access to all of your av
 editDeclarationDate.import = import
 editDeclarationDate.export = export
 editDeclarationDate.importExport = import and export
+
+thirdPartyUpdatedConfirmation.title = Third-party details updated
+thirdPartyUpdatedConfirmation.heading = Third-party details updated
+thirdPartyUpdatedConfirmation.message1 = Updated on {0} at {1}.
+thirdPartyUpdatedConfirmation.message2 = To keep a record, you can
+thirdPartyUpdatedConfirmation.print.link = print this page.
+thirdPartyUpdatedConfirmation.heading2 = what happens next
+thirdPartyUpdatedConfirmation.message3 =  We’ll send an email to the registered address linked to EORI number {0} to confirm the update.
+thirdPartyUpdatedConfirmation.message4 = You can
+thirdPartyUpdatedConfirmation.link1 = manage third parties that can access your data.
+thirdPartyUpdatedConfirmation.link2 = Go to homepage
+
+
