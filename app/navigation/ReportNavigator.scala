@@ -38,26 +38,20 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case CustomRequestStartDatePage =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
     case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-
-    case ReportNamePage =>
-      navigateBasedOnNotificationsFlag(
-        controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode),
-        controllers.report.routes.CheckYourAnswersController.onPageLoad()
-      )
-
-    case MaybeAdditionalEmailPage =>
+    case ReportNamePage             => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
+    case MaybeAdditionalEmailPage   =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
         controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode)
       )
-    case EmailSelectionPage       =>
+    case EmailSelectionPage         =>
       conditionalNavigate(
         isAddNewEmail,
         controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode)
       )
-    case NewEmailNotificationPage =>
+    case NewEmailNotificationPage   =>
       navigateTo(controllers.report.routes.CheckNewEmailController.onPageLoad(NormalMode))
-    case CheckNewEmailPage        => checkNewEmailRoutes(NormalMode)
+    case CheckNewEmailPage          => checkNewEmailRoutes(NormalMode)
   }
 
   override val checkRoutes: Page => UserAnswers => Call = {
@@ -250,13 +244,6 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
         }
       case _          => controllers.report.routes.CheckYourAnswersController.onPageLoad()
     }
-
-  private def navigateBasedOnNotificationsFlag(
-    ifNotificationsEnabled: => Call,
-    ifNotificationsDisabled: => Call
-  ): UserAnswers => Call = { _ =>
-    if (appConfig.notificationsEnabled) ifNotificationsEnabled else ifNotificationsDisabled
-  }
 
   override val normalRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ =>
     answers => skipFlag => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
