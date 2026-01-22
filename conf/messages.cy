@@ -533,8 +533,8 @@ thirdPartyAddedConfirmation.feedbackDuration = (mae’n cymryd 30 eiliad)
 
 BusinessInfo.checkYourAnswersLabel = Gwybodaeth busnes
 
-thirdPartyStatus.active = cy: Active
-thirdPartyStatus.upcoming = cy: Upcoming
+thirdPartyStatus.active = Ar waith
+thirdPartyStatus.upcoming = Ar ddod
 
 authorisedThirdParties.title = Rheoli pa drydydd parti a all gael mynediad at eich data
 authorisedThirdParties.heading = Rheoli pa drydydd parti a all gael mynediad at eich data
@@ -707,8 +707,8 @@ editThirdPartyDataTypes.error.required = Dewiswch at ba fathau o ddata hoffech r
 editThirdPartyDataTypes.change.hidden = Y mathau o ddata i roi mynediad atynt
 editThirdPartyDataTypes.hint = Dewiswch bob un sy’n berthnasol.
 
-editThirdParty.confirmChanges = cy: Confirm changes
-editThirdParty.cancel = cy: Cancel
+editThirdParty.confirmChanges = Cadarnhau newidiadau
+editThirdParty.cancel = Canslo
 
 editDataStartDate.title = Pryd hoffech ddechrau rhoi mynediad at eich data?
 editDataStartDate.heading = Pryd hoffech ddechrau rhoi mynediad at eich data?
