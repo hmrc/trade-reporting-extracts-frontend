@@ -31,7 +31,6 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
-  when(mockAppConfig.notificationsEnabled).thenReturn(true)
 
   val navigator = new ReportNavigator(mockAppConfig)
 
