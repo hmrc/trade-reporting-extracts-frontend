@@ -17,11 +17,9 @@
 package utils
 
 import base.SpecBase
-import models.UserAnswers
 import models.report.{Decision, ReportDateRange, ReportTypeImport}
 import models.EoriRole
 import pages.report._
-import utils.ReportRequestFieldsValidator._
 
 class ReportRequestFieldsValidatorSpec extends SpecBase {
 
@@ -29,7 +27,7 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
 
     "validateMandatoryFields" - {
 
-      "should return valid result when all fields are present" in {
+      "should return true when all fields are present" in {
         val userAnswers = emptyUserAnswers
           .set(DecisionPage, Decision.Import)
           .success
@@ -52,11 +50,10 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
 
         val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
 
-        result.isValid mustBe true
-        result.missingFields mustBe empty
+        result mustBe true
       }
 
-      "should return invalid result with missing fields when mandatory fields are missing" in {
+      "should return false when mandatory fields are missing" in {
         val userAnswers = emptyUserAnswers
           .set(DecisionPage, Decision.Import)
           .success
@@ -65,12 +62,7 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
 
         val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
 
-        result.isValid mustBe false
-        result.missingFields.length mustBe 4
-        result.missingFields must contain(EoriRoleMissing)
-        result.missingFields must contain(ReportNameMissing)
-        result.missingFields must contain(ReportDateRangeMissing)
-        result.missingFields must contain(ReportTypeImportMissing)
+        result mustBe false
       }
 
       "should not require DecisionSummary when showDecisionSummary is false" in {
@@ -93,8 +85,7 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
 
         val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = false)
 
-        result.isValid mustBe true
-        result.missingFields mustBe empty
+        result mustBe true
       }
 
       "should require CustomRequestStartDate when ReportDateRange is CustomDateRange but start date is missing" in {
@@ -117,13 +108,11 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
           .set(MaybeAdditionalEmailPage, false)
           .success
           .value
-          .set(CustomRequestEndDatePage, java.time.LocalDate.of(2025, 1, 31))
-          .success
-          .value
-        val result      = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+        // Missing CustomRequestStartDatePage
 
-        result.isValid mustBe false
-        result.missingFields must contain(CustomRequestStartDateMissing)
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+
+        result mustBe false
       }
 
       "should require CustomRequestEndDate when ReportDateRange is CustomDateRange but end date is missing" in {
@@ -149,42 +138,14 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
           .set(CustomRequestStartDatePage, java.time.LocalDate.of(2025, 1, 1))
           .success
           .value
-        // Missing: CustomRequestEndDatePage
+        // Missing CustomRequestEndDatePage
 
         val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
 
-        result.isValid mustBe false
-        result.missingFields must contain(CustomRequestEndDateMissing)
+        result mustBe false
       }
 
-      "should require both CustomRequestStartDate and CustomRequestEndDate when ReportDateRange is CustomDateRange but both dates are missing" in {
-        val userAnswers = emptyUserAnswers
-          .set(DecisionPage, Decision.Import)
-          .success
-          .value
-          .set(EoriRolePage, Set(EoriRole.Importer))
-          .success
-          .value
-          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
-          .success
-          .value
-          .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
-          .success
-          .value
-          .set(ReportNamePage, "Test Report")
-          .success
-          .value
-          .set(MaybeAdditionalEmailPage, false)
-          .success
-          .value
-        val result      = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
-
-        result.isValid mustBe false
-        result.missingFields must contain(CustomRequestStartDateMissing)
-        result.missingFields must contain(CustomRequestEndDateMissing)
-      }
-
-      "should be valid when ReportDateRange is CustomDateRange and both custom dates are present" in {
+      "should return true when custom date range is provided with both start and end dates" in {
         val userAnswers = emptyUserAnswers
           .set(DecisionPage, Decision.Import)
           .success
@@ -213,8 +174,7 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
 
         val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
 
-        result.isValid mustBe true
-        result.missingFields mustBe empty
+        result mustBe true
       }
 
       "should not require custom dates when ReportDateRange is not CustomDateRange" in {
@@ -239,8 +199,172 @@ class ReportRequestFieldsValidatorSpec extends SpecBase {
           .value
         val result      = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
 
-        result.isValid mustBe true
-        result.missingFields mustBe empty
+        result mustBe true
+      }
+    }
+
+    "Security Validations" - {
+
+      "should detect Export decision with Import report types mismatch" in {
+        val userAnswers = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .success
+          .value
+          .set(EoriRolePage, Set(EoriRole.Exporter))
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem, ReportTypeImport.ImportHeader))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+
+        result mustBe false
+      }
+
+      "should detect Import decision with Export report types mismatch" in {
+        val userAnswers = emptyUserAnswers
+          .set(DecisionPage, Decision.Import)
+          .success
+          .value
+          .set(EoriRolePage, Set(EoriRole.Importer))
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+
+        result mustBe false
+      }
+
+      "should allow valid decision-report type combinations" in {
+        val userAnswers = emptyUserAnswers
+          .set(DecisionPage, Decision.Import)
+          .success
+          .value
+          .set(EoriRolePage, Set(EoriRole.Importer))
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+
+        result mustBe true
+      }
+
+      "should prevent third party users from selecting Declarant role" in {
+        val userAnswers = emptyUserAnswers
+          .set(SelectThirdPartyEoriPage, "GB123456789000")
+          .success
+          .value
+          .set(EoriRolePage, Set(EoriRole.Declarant))
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = false)
+
+        result mustBe false
+      }
+
+      "should prevent third party users from having report date range data" in {
+        val userAnswers = emptyUserAnswers
+          .set(SelectThirdPartyEoriPage, "GB123456789000")
+          .success
+          .value
+          .set(EoriRolePage, Set(EoriRole.Importer))
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = false)
+
+        result mustBe false
+      }
+
+      "should allow third party users without EoriRole requirement" in {
+        val userAnswers = emptyUserAnswers
+          .set(SelectThirdPartyEoriPage, "GB123456789000")
+          .success
+          .value
+          .set(DecisionPage, Decision.Import)
+          .success
+          .value
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .success
+          .value
+          .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+          .success
+          .value
+          .set(CustomRequestStartDatePage, java.time.LocalDate.of(2025, 1, 1))
+          .success
+          .value
+          .set(CustomRequestEndDatePage, java.time.LocalDate.of(2025, 1, 31))
+          .success
+          .value
+          .set(ReportNamePage, "Test Report")
+          .success
+          .value
+          .set(MaybeAdditionalEmailPage, false)
+          .success
+          .value
+
+        val result = ReportRequestFieldsValidator.validateMandatoryFields(userAnswers, showDecisionSummary = true)
+
+        result mustBe true
       }
     }
   }

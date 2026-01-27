@@ -30,7 +30,7 @@ import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
@@ -89,10 +89,16 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
         .success
         .value
-        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
         .success
         .value
-        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+        .success
+        .value
+        .set(CustomRequestEndDatePage, LocalDate.of(2025, 1, 31))
         .success
         .value
         .set(ReportNamePage, "Test Report")
@@ -105,7 +111,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
       val thirdPartyDetails                 = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
-        accessStartDate = java.time.LocalDate.now(),
+        accessStartDate = LocalDate.now(),
         accessEndDate = None,
         dataTypes = Set("exports"),
         dataStartDate = None,
@@ -151,7 +157,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .success
         .value
-        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+        .success
+        .value
+        .set(CustomRequestEndDatePage, LocalDate.of(2025, 1, 31))
         .success
         .value
         .set(ReportNamePage, "Test Report")
@@ -164,7 +176,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
       val thirdPartyDetails                 = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
-        accessStartDate = java.time.LocalDate.now(),
+        accessStartDate = LocalDate.now(),
         accessEndDate = None,
         dataTypes = Set("imports"),
         dataStartDate = None,
@@ -198,7 +210,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(ChooseEoriPage, ChooseEori.Myauthority)
         .success
         .value
-        .set(DecisionPage, Decision.Export)
+        .set(DecisionPage, Decision.Import)
         .success
         .value
         .set(pages.report.SelectThirdPartyEoriPage, thirdPartyEori)
@@ -210,7 +222,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
         .success
         .value
-        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .set(ReportDateRangePage, ReportDateRange.CustomDateRange)
+        .success
+        .value
+        .set(CustomRequestStartDatePage, LocalDate.of(2025, 1, 1))
+        .success
+        .value
+        .set(CustomRequestEndDatePage, LocalDate.of(2025, 1, 31))
         .success
         .value
         .set(ReportNamePage, "Test Report")
@@ -223,7 +241,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
       val thirdPartyDetails                 = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
-        accessStartDate = java.time.LocalDate.now(),
+        accessStartDate = LocalDate.now(),
         accessEndDate = None,
         dataTypes = Set("imports", "exports"),
         dataStartDate = None,

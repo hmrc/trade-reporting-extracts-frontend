@@ -19,96 +19,83 @@ package utils
 import models.UserAnswers
 import models.{EoriRole, report}
 import models.report.{ReportDateRange, ReportTypeImport}
-import pages.report._
+import pages.report.*
 
 object ReportRequestFieldsValidator {
 
-  sealed trait MissingField {
-    def fieldKey: String
-  }
-
-  case object DecisionMissing extends MissingField {
-    val fieldKey = "decision"
-  }
-
-  case object EoriRoleMissing extends MissingField {
-    val fieldKey = "eoriRole"
-  }
-
-  case object ReportTypeImportMissing extends MissingField {
-    val fieldKey = "reportTypeImport"
-  }
-
-  case object ReportDateRangeMissing extends MissingField {
-    val fieldKey = "reportDateRange"
-  }
-
-  case object CustomRequestStartDateMissing extends MissingField {
-    val fieldKey = "customRequestStartDate"
-  }
-
-  case object CustomRequestEndDateMissing extends MissingField {
-    val fieldKey = "customRequestEndDate"
-  }
-
-  case object ReportNameMissing extends MissingField {
-    val fieldKey = "reportName"
-  }
-
-  case class ValidationResult(isValid: Boolean, missingFields: Seq[MissingField])
-
-  def validateMandatoryFields(userAnswers: UserAnswers, showDecisionSummary: Boolean): ValidationResult = {
-    val missingFields = collectMissingFields(userAnswers, showDecisionSummary)
-    ValidationResult(missingFields.isEmpty, missingFields)
-  }
-
-  private def collectMissingFields(userAnswers: UserAnswers, showDecisionSummary: Boolean): Seq[MissingField] = {
-    val validators = Seq(
-      () => validateDecision(userAnswers, showDecisionSummary),
-      () => validateEoriRole(userAnswers),
-      () => validateReportType(userAnswers),
-      () => validateReportDateRange(userAnswers),
-      () => validateCustomRequestStartDate(userAnswers),
-      () => validateCustomRequestEndDate(userAnswers),
-      () => validateReportName(userAnswers)
+  def validateMandatoryFields(userAnswers: UserAnswers, showDecisionSummary: Boolean): Boolean = {
+    val validations = Seq(
+      validateDecision(userAnswers, showDecisionSummary),
+      validateEoriRole(userAnswers),
+      validateReportType(userAnswers),
+      validateReportDateRange(userAnswers),
+      validateCustomRequestStartDate(userAnswers),
+      validateCustomRequestEndDate(userAnswers),
+      validateReportName(userAnswers),
+      validateRoleReportTypeConsistency(userAnswers),
+      validateThirdPartyAccess(userAnswers)
     )
 
-    validators.flatMap(_.apply())
+    validations.forall(identity)
   }
 
-  private def validateDecision(userAnswers: UserAnswers, showDecisionSummary: Boolean): Option[MissingField] =
-    if (showDecisionSummary && userAnswers.get(DecisionPage).isEmpty) {
-      Some(DecisionMissing)
-    } else {
-      None
-    }
+  private def validateDecision(userAnswers: UserAnswers, showDecisionSummary: Boolean): Boolean =
+    !showDecisionSummary || userAnswers.get(DecisionPage).isDefined
 
-  private def validateEoriRole(userAnswers: UserAnswers): Option[MissingField] = {
+  private def validateEoriRole(userAnswers: UserAnswers): Boolean = {
     val isThirdParty = userAnswers.get(SelectThirdPartyEoriPage).isDefined
-    if (!isThirdParty && userAnswers.get(EoriRolePage).isEmpty) Some(EoriRoleMissing) else None
+    isThirdParty || userAnswers.get(EoriRolePage).isDefined
   }
 
-  private def validateReportType(userAnswers: UserAnswers): Option[MissingField] =
-    if (userAnswers.get(ReportTypeImportPage).isEmpty) Some(ReportTypeImportMissing) else None
+  private def validateReportType(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(ReportTypeImportPage).isDefined
 
-  private def validateReportDateRange(userAnswers: UserAnswers): Option[MissingField] =
-    if (userAnswers.get(ReportDateRangePage).isEmpty) Some(ReportDateRangeMissing) else None
+  private def validateReportDateRange(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(ReportDateRangePage).isDefined
 
-  private def validateCustomRequestStartDate(userAnswers: UserAnswers): Option[MissingField] =
+  private def validateCustomRequestStartDate(userAnswers: UserAnswers): Boolean =
     userAnswers.get(ReportDateRangePage) match {
-      case Some(ReportDateRange.CustomDateRange) if userAnswers.get(CustomRequestStartDatePage).isEmpty =>
-        Some(CustomRequestStartDateMissing)
-      case _                                                                                            => None
+      case Some(ReportDateRange.CustomDateRange) => userAnswers.get(CustomRequestStartDatePage).isDefined
+      case _                                     => true
     }
 
-  private def validateCustomRequestEndDate(userAnswers: UserAnswers): Option[MissingField] =
+  private def validateCustomRequestEndDate(userAnswers: UserAnswers): Boolean =
     userAnswers.get(ReportDateRangePage) match {
-      case Some(ReportDateRange.CustomDateRange) if userAnswers.get(CustomRequestEndDatePage).isEmpty =>
-        Some(CustomRequestEndDateMissing)
-      case _                                                                                          => None
+      case Some(ReportDateRange.CustomDateRange) => userAnswers.get(CustomRequestEndDatePage).isDefined
+      case _                                     => true
     }
 
-  private def validateReportName(userAnswers: UserAnswers): Option[MissingField] =
-    if (userAnswers.get(ReportNamePage).isEmpty) Some(ReportNameMissing) else None
+  private def validateReportName(userAnswers: UserAnswers): Boolean =
+    userAnswers.get(ReportNamePage).isDefined
 
+  private def validateRoleReportTypeConsistency(userAnswers: UserAnswers): Boolean = {
+    val decision    = userAnswers.get(DecisionPage)
+    val reportTypes = userAnswers.get(ReportTypeImportPage).getOrElse(Set.empty)
+
+    decision match {
+      case Some(decision) =>
+        val hasExportDecision = decision.toString.toLowerCase == "export"
+        val hasImportTypes    = reportTypes.exists(reportTyp =>
+          reportTyp == ReportTypeImport.ImportHeader ||
+            reportTyp == ReportTypeImport.ImportItem ||
+            reportTyp == ReportTypeImport.ImportTaxLine
+        )
+        val hasImportDecision = decision.toString.toLowerCase == "import"
+        val hasExportTypes    = reportTypes.contains(ReportTypeImport.ExportItem)
+
+        !((hasExportDecision && hasImportTypes) || (hasImportDecision && hasExportTypes))
+      case None           => true
+    }
+  }
+
+  private def validateThirdPartyAccess(userAnswers: UserAnswers): Boolean = {
+    val isThirdParty = userAnswers.get(SelectThirdPartyEoriPage).isDefined
+    if (isThirdParty) {
+      val eoriRoles       = userAnswers.get(EoriRolePage).getOrElse(Set.empty)
+      val reportDateRange = userAnswers.get(ReportDateRangePage)
+      !(eoriRoles.contains(EoriRole.Declarant) || reportDateRange.contains(ReportDateRange.LastFullCalendarMonth))
+    } else {
+      true
+    }
+  }
 }
