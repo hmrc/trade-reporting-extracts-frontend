@@ -76,7 +76,7 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
     implicit val messages: Messages = messagesApi.preferred(request)
     val validationResult            =
       ReportRequestFieldsValidator.validateMandatoryFields(request.userAnswers, showDecisionSummary)
-    if (!validationResult.isValid) {
+    if (!validationResult) {
       for {
         updatedAnswers                   <-
           Future.successful(ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers))
