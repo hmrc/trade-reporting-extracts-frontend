@@ -798,4 +798,6 @@ thirdPartyUpdatedConfirmation.message4 = You can
 thirdPartyUpdatedConfirmation.link1 = manage third parties that can access your data.
 thirdPartyUpdatedConfirmation.link2 = Go to homepage
 
-
+secondaryEmail.title = Secondary email addresses
+secondaryEmail.body = These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
+secondaryEmail.button.add = Add a secondary email address

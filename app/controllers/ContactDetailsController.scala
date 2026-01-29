@@ -40,7 +40,8 @@ class ContactDetailsController @Inject() (
         view(
           userDetails.companyInformation,
           userDetails.eori,
-          userDetails.notificationEmail.address
+          userDetails.notificationEmail.address,
+          userDetails.additionalEmails
         )
       )
     }

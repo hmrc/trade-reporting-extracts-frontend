@@ -121,6 +121,10 @@ contactDetails.name = cy: Name
 contactDetails.eoriNumber = cy: EORI number
 contactDetails.email = cy: Email address
 
+secondaryEmail.title = cy: Additional email addresses
+secondaryEmail.body = cy: These are additional email addresses that can receive notifications about your reports.
+secondaryEmail.button.add = cy: Add another email address
+
 unauthorisedCdsEnrolment.title = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
 unauthorisedCdsEnrolment.heading = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
 unauthorisedCdsEnrolment.p1 = cy: To use this service, you must have an active CDS subscription.

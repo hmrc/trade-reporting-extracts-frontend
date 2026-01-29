@@ -57,7 +57,7 @@ class ContactDetailsControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ContactDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com")(
+        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com", Seq("test@example.com"))(
           request,
           messages(application)
         ).toString
