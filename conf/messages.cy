@@ -121,6 +121,10 @@ contactDetails.name = cy: Name
 contactDetails.eoriNumber = cy: EORI number
 contactDetails.email = cy: Email address
 
+secondaryEmail.title = cy: Additional email addresses
+secondaryEmail.body = cy: These are additional email addresses that can receive notifications about your reports.
+secondaryEmail.button.add = cy: Add another email address
+
 unauthorisedCdsEnrolment.title = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
 unauthorisedCdsEnrolment.heading = cy: Your account is not subscribed to the Customs Declaration Service (CDS)
 unauthorisedCdsEnrolment.p1 = cy: To use this service, you must have an active CDS subscription.
@@ -786,14 +790,3 @@ editDeclarationDate.change.hidden = cy: if you want to give access to all of you
 editDeclarationDate.import = cy: import
 editDeclarationDate.export = cy: export
 editDeclarationDate.importExport = cy: import and export
-
-thirdPartyUpdatedConfirmation.title = Manylion trydydd parti wedi’u diweddaru
-thirdPartyUpdatedConfirmation.heading = Manylion trydydd parti wedi’u diweddaru
-thirdPartyUpdatedConfirmation.message1 = Wedi’u diweddaru ar {0} am {1}.
-thirdPartyUpdatedConfirmation.message2 = I gadw cofnod, gallwch
-thirdPartyUpdatedConfirmation.print.link = argraffu’r dudalen hon.
-thirdPartyUpdatedConfirmation.heading2 = Yr hyn sy’n digwydd nesaf
-thirdPartyUpdatedConfirmation.message3 = Byddwn yn anfon e-bost at y cyfeiriad cofrestredig sy’n gysylltiedig â rhif EORI {0} i gadarnhau’r diweddariad.
-thirdPartyUpdatedConfirmation.message4 = Gallwch
-thirdPartyUpdatedConfirmation.link1 = reoli pa drydydd parti sydd â mynediad at eich data.
-thirdPartyUpdatedConfirmation.link2 = Ewch i’r hafan
