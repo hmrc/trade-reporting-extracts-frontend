@@ -22,8 +22,8 @@ import play.api.data.{Form, FormError}
 
 class EoriNumberFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey    = "eoriNumber.error.required"
-  val invalidKey     = "eoriNumber.error.invalidEori"
+  val requiredKey = "eoriNumber.error.required"
+  val invalidKey  = "eoriNumber.error.invalidEori"
 
   val userEori           = "GB123456789000"
   val form: Form[String] = new EoriNumberFormProvider().apply(userEori)
