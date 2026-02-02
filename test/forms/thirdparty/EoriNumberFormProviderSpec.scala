@@ -19,17 +19,11 @@ package forms.thirdparty
 import forms.behaviours.StringFieldBehaviours
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.data.{Form, FormError}
-import utils.Constants.{eoriMaxLength, eoriMinLength}
 
 class EoriNumberFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey      = "eoriNumber.error.required"
-  val lengthKey        = "eoriNumber.error.length"
-  val minLengthKey     = "eoriNumber.error.minLength"
-  val invalidFormatKey = "eoriNumber.error.invalidFormat"
-  val invalidKey       = "eoriNumber.error.invalidCharacters"
-  val maxLength: Int   = eoriMaxLength
-  val minLength: Int   = eoriMinLength
+  val requiredKey    = "eoriNumber.error.required"
+  val invalidKey     = "eoriNumber.error.invalidEori"
 
   val userEori           = "GB123456789000"
   val form: Form[String] = new EoriNumberFormProvider().apply(userEori)
@@ -42,20 +36,6 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       validGBEoriGen
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-    )
-
-    behave like fieldWithMinLength(
-      form,
-      fieldName,
-      minLength = minLength,
-      lengthError = FormError(fieldName, minLengthKey, Seq(minLength))
     )
 
     behave like mandatoryField(
@@ -75,7 +55,7 @@ class EoriNumberFormProviderSpec extends StringFieldBehaviours {
       val testCase = "12345678901234"
       val result   = form.bind(Map(fieldName -> testCase))
       result.errors                should not be empty
-      result.errors.head.message shouldBe invalidFormatKey
+      result.errors.head.message shouldBe invalidKey
     }
 
     "convert lowercase to uppercase" - {
