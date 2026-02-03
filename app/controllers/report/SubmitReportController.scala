@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReportHelpers
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
@@ -55,7 +56,8 @@ class SubmitReportController @Inject() (
       submissionMetaModel = SubmissionMeta(
                               reportConfirmations = reportConfirmations,
                               notificationEmail = notificationEmail.address,
-                              submittedAt = Instant.now(clock)
+                              submittedAt = Instant.now(clock),
+                              isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
                             )
 
       updatedAnswersWithFlag = updatedAnswers.set(AlreadySubmittedFlag(), true).get

@@ -49,7 +49,8 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
       val model = SubmissionMeta(
         reportConfirmations = Seq(ReportConfirmation("reportName", "importItem", "RE0000001")),
         notificationEmail = "test@example.com",
-        submittedAt = Instant.now(fixedClock)
+        submittedAt = Instant.now(fixedClock),
+        isMoreThanOneReport = true
       )
 
       val json: JsValue = Json.toJson(model)
@@ -75,7 +76,8 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
         ),
         "notificationEmail"   -> "test@example.com",
         // New field name aligned to model: submittedAt (ISO-8601)
-        "submittedAt"         -> "2025-05-05T00:00:00Z"
+        "submittedAt"         -> "2025-05-05T00:00:00Z",
+        "isMoreThanOneReport" -> true
       )
 
       val result = json.validate[SubmissionMeta]
@@ -89,6 +91,8 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
       meta.reportConfirmations.head.reportReference mustEqual "RE0000001"
       meta.reportConfirmations.head.reportName mustEqual "reportName"
       meta.reportConfirmations.head.reportType mustEqual "importItem"
+
+      meta.isMoreThanOneReport mustEqual true
     }
 
     "must handle multiple report confirmations" in {
@@ -106,7 +110,8 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
           )
         ),
         "notificationEmail"   -> "test@example.com",
-        "submittedAt"         -> "2025-05-05T12:34:56Z"
+        "submittedAt"         -> "2025-05-05T12:34:56Z",
+        "isMoreThanOneReport" -> true
       )
 
       val result = json.validate[SubmissionMeta]

@@ -17,18 +17,19 @@
 package controllers.report
 
 import base.SpecBase
-import models.NotificationEmail
-import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, SubmissionMeta}
+import models.{AlreadySubmittedFlag, NotificationEmail}
+import org.mockito.ArgumentMatchers.{any, argThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 
-import java.time.LocalDateTime
+import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
 import scala.concurrent.Future
 
 class SubmitReportControllerSpec extends SpecBase {
@@ -83,6 +84,75 @@ class SubmitReportControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual controllers.report.routes.RequestConfirmationController
           .onPageLoad()
           .url
+      }
+    }
+
+    "must create SubmissionMeta with correct values and save to session repository" in {
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+
+      val userAnswers         = emptyUserAnswers
+      val notificationEmail   = NotificationEmail("test@example.com", LocalDateTime.now())
+      val reportConfirmations = Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
+
+      val fixedInstant = Instant.parse("2025-06-01T12:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(notificationEmail))
+
+      when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
+        .thenReturn(Future.successful(reportConfirmations))
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(
+          ReportRequestUserAnswersModel(
+            eori = "GB123456789000",
+            dataType = "exports",
+            whichEori = Some("GB987654321000"),
+            eoriRole = Set("declarant"),
+            reportType = Set("summary"),
+            reportStartDate = "2025-01-01",
+            reportEndDate = "2025-12-31",
+            reportName = "Test Report",
+            additionalEmail = Some(Set("notify@example.com"))
+          )
+        )
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+          inject.bind[Clock].toInstance(fixedClock)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val expectedSubmissionMeta = Json
+          .toJson(
+            SubmissionMeta(
+              reportConfirmations = reportConfirmations,
+              notificationEmail = notificationEmail.address,
+              submittedAt = fixedInstant,
+              isMoreThanOneReport = false
+            )
+          )
+          .as[JsObject]
+
+        verify(mockSessionRepository).set(argThat { userAnswers =>
+          userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
+          userAnswers.get(AlreadySubmittedFlag()).contains(true)
+        })
       }
     }
 

@@ -23,7 +23,8 @@ import java.time.Instant
 case class SubmissionMeta(
   reportConfirmations: Seq[ReportConfirmation],
   notificationEmail: String,
-  submittedAt: Instant
+  submittedAt: Instant,
+  isMoreThanOneReport: Boolean
 )
 
 object SubmissionMeta {
