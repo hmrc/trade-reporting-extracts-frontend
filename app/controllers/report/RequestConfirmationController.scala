@@ -47,11 +47,12 @@ class RequestConfirmationController @Inject() (
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
     val additionalEmailList = fetchUpdatedData(request)
     val surveyUrl           = config.exitSurveyUrl
-    val isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
 
     val submissionMeta = request.userAnswers.submissionMeta
       .map(_.as[SubmissionMeta])
-      .getOrElse(SubmissionMeta(Seq.empty, "", Instant.now()))
+      .getOrElse(SubmissionMeta(Seq.empty, "", Instant.now(), false))
+
+    val isMoreThanOneReport = submissionMeta.isMoreThanOneReport
 
     val (submittedDate, submittedTime) =
       DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)

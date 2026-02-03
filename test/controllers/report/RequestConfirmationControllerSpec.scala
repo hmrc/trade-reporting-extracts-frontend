@@ -20,10 +20,12 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.report.{ReportConfirmation, SubmissionMeta}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import play.api.i18n.Messages
+import play.api.i18n.Messages.implicitMessagesProviderToMessages
 import play.api.inject
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import utils.DateTimeFormats
 import views.html.report.RequestConfirmationView
 
@@ -47,7 +49,8 @@ class RequestConfirmationControllerSpec extends SpecBase {
           SubmissionMeta(
             reportConfirmations = Seq(ReportConfirmation("MyReport", "importTaxLine", "RE00000001")),
             notificationEmail = notificationEmail,
-            submittedAt = Instant.now(fixedClock)
+            submittedAt = Instant.now(fixedClock),
+            isMoreThanOneReport = false
           )
         )
         .as[JsObject]
@@ -90,6 +93,51 @@ class RequestConfirmationControllerSpec extends SpecBase {
         contentAsString(result) must include("MyReport")
         contentAsString(result) must include("RE00000001")
         contentAsString(result) must include(notificationEmail)
+        contentAsString(result) must include(
+          messages(application)("requestConfirmation.single.processingRequest", notificationEmail)
+        )
+
+      }
+    }
+
+    "return OK and render plural message when isMoreThanOneReport is true" in {
+      val newEmail          = "new.email@example.com"
+      val selectedEmails    = Seq("email1@example.com", "email2@example.com", newEmail)
+      val emailString       = selectedEmails.mkString(", ")
+      val notificationEmail = "notify@example.com"
+
+      val submissionMetaJson: JsObject = Json
+        .toJson(
+          SubmissionMeta(
+            reportConfirmations = Seq(ReportConfirmation("MyReport", "importTaxLine", "RE00000001")),
+            notificationEmail = notificationEmail,
+            submittedAt = Instant.now(fixedClock),
+            isMoreThanOneReport = true
+          )
+        )
+        .as[JsObject]
+
+      val userAnswers = emptyUserAnswers
+        .set(EmailSelectionPage, selectedEmails.toSet)
+        .success
+        .value
+        .set(NewEmailNotificationPage, newEmail)
+        .success
+        .value
+        .copy(submissionMeta = Some(submissionMetaJson))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(inject.bind[Clock].toInstance(fixedClock))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(
+          messages(application)("requestConfirmation.plural.processingRequest", notificationEmail)
+        )
       }
     }
 
