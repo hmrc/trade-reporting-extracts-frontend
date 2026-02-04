@@ -43,9 +43,9 @@
      </div>
     </dl>
     @if(appConfig.additionalEmailEnabled) {
-    <h2 class="govuk-heading-m">@messages("secondaryEmail.title")</h2>
+    <h2 class="govuk-heading-m">@messages("additionalEmail.title")</h2>
     <div class="govuk-body">
-    <p>@messages("secondaryEmail.body")</p>
+    <p>@messages("additionalEmail.body")</p>
     @if(additionalEmails.nonEmpty) {
         <dl class="govuk-summary-list">
             @for((email, idx) <- additionalEmails.zipWithIndex) {
@@ -53,9 +53,6 @@
                 <dd class="govuk-summary-list__value">@email</dd>
                 <dd class="govuk-summary-list__actions">
                     <ul class="govuk-summary-list__actions-list">
-                        <li class="govuk-summary-list__actions-list-item">
-                            <a class="govuk-link" href="#">Edit<span class="govuk-visually-hidden"> email address</span></a>
-                        </li>
                         <li class="govuk-summary-list__actions-list-item">
                             <a class="govuk-link" href="#">Remove<span class="govuk-visually-hidden"> email address</span></a>
                         </li>
@@ -65,9 +62,11 @@
             }
         </dl>
     }
-    @govukButton(
-        ButtonViewModel(messages("secondaryEmail.button.add"))
-    )
+    @formHelper(action = controllers.contact.routes.NewAdditionalEmailController.onPageLoad(), Symbol("autoComplete") -> "off") {
+        @govukButton(
+            ButtonViewModel(messages("additionalEmail.button.add"))
+        )
+    }
     </div>
     }
 }
