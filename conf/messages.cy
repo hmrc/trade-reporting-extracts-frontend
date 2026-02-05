@@ -825,5 +825,5 @@ emailAdded.message3 = cy: You can
 emailAdded.view.link = cy: view this email in your details.
 emailAdded.heading2 = cy: What happens next
 emailAdded.message4 = cy: You can use this email to get notifications when your reports are available to download.
-emailAdded.message5 = cy: If this email is not used for 395 days, it will be removed from your account.
+emailAdded.message5 = cy: If this email is not used for 365 days, it will be removed from your account.
 emailAdded.link = cy: Go to homepage
