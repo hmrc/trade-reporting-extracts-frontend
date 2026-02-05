@@ -371,6 +371,7 @@ eoriNumber.error.required = Nodwch at ba rif EORI hoffech roi mynediad
 eoriNumber.error.invalidEori = Mae’n rhaid i’r rhif EORI hoffech roi mynediad ato ddechrau gyda ‘GB’, wedi’i ddilyn gan 12 digid 0-9
 eoriNumber.error.notFound = Nodwch rif EORI go iawn
 eoriNumber.error.cannotBeOwnEori = Ni allwch roi mynediad at eich rhif EORI eich hun
+eoriNumber.error.invalidEori = Mae’n rhaid i’r rhif EORI hoffech roi mynediad ato ddechrau gyda ‘GB’, wedi’i ddilyn gan 12 digid 0-9
 eoriNumber.change.hidden = y rhif EORI hoffech roi mynediad ato
 eoriNumber.hint = Dim ond rhif EORI sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er enghraifft, GB123456123456.
 
