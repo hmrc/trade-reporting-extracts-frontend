@@ -25,7 +25,12 @@
 )
 
 @(form: Form[_])(implicit request: Request[_], messages: Messages)
-
+@content = {
+    <p class="govuk-body">@messages("newAdditionalEmail.message")</p>
+}
+@heading = {
+    <h1 class="govuk-heading-l">@messages("newAdditionalEmail.heading")</h1>
+}
 @layout(pageTitle = title(form, messages("newAdditionalEmail.title"))) {
 
     @formHelper(action = controllers.contact.routes.NewAdditionalEmailController.onSubmit()) {
@@ -33,13 +38,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+@heading
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("newAdditionalEmail.heading")).asPageHeading()
-            ).withHint(HintViewModel(messages("newAdditionalEmail.hint")))
-             .asEmail()
+                label = LabelViewModel(HtmlContent(content))
+            ).asEmail()
              .withWidth(Full)
         )
 

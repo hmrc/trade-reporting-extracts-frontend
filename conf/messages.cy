@@ -806,7 +806,7 @@ additionalEmail.button.add = cy: Add a secondary email address
 
 newAdditionalEmail.title = cy: What email address do you want to add?
 newAdditionalEmail.heading = cy: What email address do you want to add?
-newAdditionalEmail.hint = cy: We will only use this email to contact the person when your reports are ready to download. Only add an email address if you have consent from this person to receive these notifications.
+newAdditionalEmail.message = cy: We will only use this email to contact the person when your reports are ready to download. Only add an email address if you have consent from this person to receive these notifications.
 newAdditionalEmail.error.required = cy: Enter the email address you want to add
 newAdditionalEmail.error.invalidFormat = cy: Enter a new email address in the correct format, like name@example.com
 newAdditionalEmail.error.length = cy: Enter a new email address not greater than 100 characters
