@@ -43,8 +43,8 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
         requiredKey = "customRequestEndDate.error.required"
       ).verifying(
         firstError(
-          determineMaximumDate(maybeThirdPartyRequest, thirdPartyDataEndDate, startDate)(messages),
-          maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days")
+          maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days"),
+          determineMaximumDate(maybeThirdPartyRequest, thirdPartyDataEndDate, startDate)(messages)
         )
       ).verifying(
         minDate(

@@ -147,10 +147,9 @@ trait Generators extends ModelGenerators {
   } yield prefix + digits + optional.getOrElse("")
 
   def validGBEoriGen: Gen[String] = for {
-    prefix   <- Gen.oneOf("GB", "gb", "Gb", "gB")
-    digits   <- Gen.listOfN(12, Gen.numChar).map(_.mkString)
-    optional <- Gen.option(Gen.listOfN(3, Gen.numChar).map(_.mkString))
-  } yield prefix + digits + optional.getOrElse("")
+    prefix <- Gen.oneOf("GB", "gb", "Gb", "gB")
+    digits <- Gen.listOfN(12, Gen.numChar).map(_.mkString)
+  } yield prefix + digits
 
   def invalidEoriStringsOfExactLength(exactLength: Int): Gen[String] = {
     val invalidChars = Gen.oneOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '虛', '聾', '€', '♥')
