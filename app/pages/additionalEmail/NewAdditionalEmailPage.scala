@@ -26,4 +26,3 @@ case object NewAdditionalEmailPage extends QuestionPage[String] {
   override def toString: String = "newAdditionalEmail"
 
 }
-

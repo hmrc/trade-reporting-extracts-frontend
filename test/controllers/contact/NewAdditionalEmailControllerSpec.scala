@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new NewAdditionalEmailFormProvider()
-  val form = formProvider()
+  val form         = formProvider()
 
   lazy val newAdditionalEmailRoute = controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url
 
@@ -77,7 +77,9 @@ class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
+          .onPageLoad()
+          .url
       }
     }
 

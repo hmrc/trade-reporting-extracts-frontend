@@ -33,7 +33,7 @@ class NewAdditionalEmailPageSpec extends SpecBase {
 
     "must be able to bind string values" in {
       val emailAddress = "test@example.com"
-      val userAnswers = emptyUserAnswers
+      val userAnswers  = emptyUserAnswers
         .set(NewAdditionalEmailPage, emailAddress)
         .success
         .value
@@ -43,7 +43,7 @@ class NewAdditionalEmailPageSpec extends SpecBase {
 
     "must be able to store and retrieve different email addresses" in {
       val emailAddress = "another@test.co.uk"
-      val userAnswers = emptyUserAnswers
+      val userAnswers  = emptyUserAnswers
         .set(NewAdditionalEmailPage, emailAddress)
         .success
         .value

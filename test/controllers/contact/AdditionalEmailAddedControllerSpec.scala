@@ -28,8 +28,8 @@ import java.time.{Clock, Instant, ZoneOffset}
 class AdditionalEmailAddedControllerSpec extends SpecBase {
 
   private val fixedInstant = Instant.parse("2026-02-04T10:30:00Z")
-  private val fixedClock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
-  
+  private val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
   "AdditionalEmailAdded Controller" - {
 
     "must return OK and the correct view for a GET with valid email address" in {
@@ -41,25 +41,31 @@ class AdditionalEmailAddedControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
+        val request =
+          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AdditionalEmailAddedView]
-        val (expectedDate, expectedTime) = DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+        val view                         = application.injector.instanceOf[AdditionalEmailAddedView]
+        val (expectedDate, expectedTime) =
+          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emailAddress, expectedDate, expectedTime)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(emailAddress, expectedDate, expectedTime)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
       val emailAddress = "test@example.com"
-      val application = applicationBuilder(userAnswers = None).build()
+      val application  = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
+        val request =
+          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
 
         val result = route(application, request).value
 

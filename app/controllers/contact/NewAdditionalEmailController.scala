@@ -28,35 +28,35 @@ import views.html.contact.NewAdditionalEmailView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewAdditionalEmailController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        formProvider: NewAdditionalEmailFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: NewAdditionalEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class NewAdditionalEmailController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  formProvider: NewAdditionalEmailFormProvider,
+  val controllerComponents: MessagesControllerComponents,
+  view: NewAdditionalEmailView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
 
-      val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm))
+    Ok(view(preparedForm))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
-    implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors))),
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
         value =>
           request.userAnswers match {
             case Some(userAnswers) =>
@@ -64,10 +64,10 @@ class NewAdditionalEmailController @Inject()(
                 updatedAnswers <- Future.fromTry(userAnswers.set(NewAdditionalEmailPage, value))
                 _              <- sessionRepository.set(updatedAnswers)
               } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
-            case None =>
+            case None              =>
               for {
-                userAnswers    <- Future.fromTry(models.UserAnswers(request.userId).set(NewAdditionalEmailPage, value))
-                _              <- sessionRepository.set(userAnswers)
+                userAnswers <- Future.fromTry(models.UserAnswers(request.userId).set(NewAdditionalEmailPage, value))
+                _           <- sessionRepository.set(userAnswers)
               } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
           }
       )

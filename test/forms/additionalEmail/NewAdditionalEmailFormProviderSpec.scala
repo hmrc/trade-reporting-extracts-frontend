@@ -22,10 +22,10 @@ import play.api.data.FormError
 
 class NewAdditionalEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "newAdditionalEmail.error.required"
-  val lengthKey = "newAdditionalEmail.error.length"
+  val requiredKey     = "newAdditionalEmail.error.required"
+  val lengthKey       = "newAdditionalEmail.error.length"
   val invalidEmailKey = "newAdditionalEmail.error.invalidFormat"
-  val maxLength = 100
+  val maxLength       = 100
 
   val form = new NewAdditionalEmailFormProvider()()
 
@@ -54,7 +54,7 @@ class NewAdditionalEmailFormProviderSpec extends StringFieldBehaviours {
 
     "must not bind invalid email addresses" in {
       val invalidEmails = Seq("invalid", "@domain.com", "user@", "user..name@domain.com")
-      
+
       invalidEmails.foreach { email =>
         val result = form.bind(Map(fieldName -> email)).apply(fieldName)
         result.errors.exists(_.message == invalidEmailKey) mustBe true

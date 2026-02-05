@@ -35,8 +35,8 @@ import scala.concurrent.Future
 class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new CheckAdditionalEmailFormProvider()
-  val form = formProvider()
-  val testEmail = "test@example.com"
+  val form         = formProvider()
+  val testEmail    = "test@example.com"
 
   lazy val checkAdditionalEmailRoute = controllers.contact.routes.CheckAdditionalEmailController.onPageLoad().url
 
@@ -62,7 +62,7 @@ class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to AdditionalEmailAddedController when user confirms email (Yes)" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockSessionRepository     = mock[SessionRepository]
       val mockTradeReportingService = mock[TradeReportingExtractsService]
 
       when(mockTradeReportingService.addAdditionalEmail(any(), any())(any())).thenReturn(Future.successful(true))
@@ -86,7 +86,9 @@ class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(testEmail).url
+        redirectLocation(result).value mustEqual controllers.contact.routes.AdditionalEmailAddedController
+          .onPageLoad(testEmail)
+          .url
 
         verify(mockTradeReportingService).addAdditionalEmail(any(), any())(any())
         verify(mockSessionRepository).set(any())
@@ -114,7 +116,9 @@ class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.contact.routes.NewAdditionalEmailController
+          .onPageLoad()
+          .url
 
         verify(mockTradeReportingService, never()).addAdditionalEmail(any(), any())(any())
       }
@@ -133,7 +137,7 @@ class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CheckAdditionalEmailView]
+        val view      = application.injector.instanceOf[CheckAdditionalEmailView]
         val boundForm = form.bind(Map("value" -> ""))
 
         status(result) mustEqual BAD_REQUEST

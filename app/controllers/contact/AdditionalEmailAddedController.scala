@@ -26,15 +26,16 @@ import views.html.contact.AdditionalEmailAddedView
 import java.time.{Clock, Instant, LocalDate}
 import javax.inject.Inject
 
-class AdditionalEmailAddedController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      view: AdditionalEmailAddedView,
-                                      clock: Clock
-                                    ) extends FrontendBaseController with I18nSupport {
+class AdditionalEmailAddedController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: AdditionalEmailAddedView,
+  clock: Clock
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(emailAddress: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>

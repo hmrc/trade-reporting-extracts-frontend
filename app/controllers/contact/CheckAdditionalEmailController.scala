@@ -29,42 +29,44 @@ import views.html.contact.CheckAdditionalEmailView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckAdditionalEmailController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        formProvider: CheckAdditionalEmailFormProvider,
-                                        tradeReportingExtractsService: TradeReportingExtractsService,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: CheckAdditionalEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class CheckAdditionalEmailController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  formProvider: CheckAdditionalEmailFormProvider,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  val controllerComponents: MessagesControllerComponents,
+  view: CheckAdditionalEmailView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
-      val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")
-      val preparedForm = request.userAnswers.flatMap(_.get(CheckAdditionalEmailPage)) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-      Ok(view(preparedForm, emailAddress))
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
+    val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")
+    val preparedForm = request.userAnswers.flatMap(_.get(CheckAdditionalEmailPage)) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
+    Ok(view(preparedForm, emailAddress))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData).async {
-    implicit request =>
-      val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, emailAddress))),
+  def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, emailAddress))),
         value =>
           if (value) {
             for {
               emailAdded <- tradeReportingExtractsService.addAdditionalEmail(request.eori, emailAddress)
               _          <- if (emailAdded) {
                               request.userAnswers.fold(Future.unit) { userAnswers =>
-                                Future.fromTry(userAnswers.remove(NewAdditionalEmailPage))
+                                Future
+                                  .fromTry(userAnswers.remove(NewAdditionalEmailPage))
                                   .flatMap(sessionRepository.set)
                               }
                             } else {
