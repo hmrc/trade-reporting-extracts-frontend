@@ -446,4 +446,15 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
+  def addAdditionalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/add-additional-email")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "emailAddress" -> emailAddress))
+      .execute[HttpResponse]
+      .map(_.status == 200)
+      .recover { ex =>
+        logger.error(s"Failed to add additional email: ${ex.getMessage}", ex)
+        false
+      }
 }

@@ -80,7 +80,7 @@
             subHeading = Some(Messages("dashboard.account.subHeading")),
             links = Seq( CardLink(
                 text = Messages("dashboard.account.yourDetails"),
-                href = routes.ContactDetailsController.onPageLoad().url)
+                href = controllers.contact.routes.ContactDetailsController.onPageLoad().url)
             )
         )
         @Card(

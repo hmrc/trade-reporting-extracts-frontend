@@ -20,8 +20,14 @@ GET        /signed-out                     controllers.auth.SignedOutController.
 
 GET        /dashboard                      controllers.DashboardController.onPageLoad()
 
-GET        /contact-details                controllers.ContactDetailsController.onPageLoad()
+GET        /contact-details                controllers.contact.ContactDetailsController.onPageLoad()
 
 GET        /available-to-download          controllers.AvailableReportsController.onPageLoad()
 
 GET        /file-download                  controllers.AvailableReportsController.auditDownloadFile(file: String,fileName: String,reportReference: String)
+
+GET        /add-new-email                  controllers.contact.NewAdditionalEmailController.onPageLoad()
+POST       /add-new-email                  controllers.contact.NewAdditionalEmailController.onSubmit()
+GET        /check-email                    controllers.contact.CheckAdditionalEmailController.onPageLoad()
+POST       /check-email                    controllers.contact.CheckAdditionalEmailController.onSubmit()
+GET        /email-added                    controllers.contact.AdditionalEmailAddedController.onPageLoad(emailAddress: String)

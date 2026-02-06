@@ -554,5 +554,30 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         thrown.getMessage must include("error")
       }
     }
+
+    "addAdditionalEmail" - {
+      val eori         = "GB123456789000"
+      val emailAddress = "additional@email.com"
+
+      "should return true when connector returns true" in {
+        when(mockConnector.addAdditionalEmail(eori, emailAddress)(hc))
+          .thenReturn(Future.successful(true))
+
+        val result = service.addAdditionalEmail(eori, emailAddress).futureValue
+
+        result mustBe true
+        verify(mockConnector).addAdditionalEmail(eori, emailAddress)(hc)
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.addAdditionalEmail(eori, emailAddress)(hc))
+          .thenReturn(Future.failed(new RuntimeException("connector error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.addAdditionalEmail(eori, emailAddress).futureValue
+        }
+        thrown.getMessage must include("connector error")
+      }
+    }
   }
 }

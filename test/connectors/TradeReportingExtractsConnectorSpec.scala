@@ -864,5 +864,60 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       }
     }
 
+    "addAdditionalEmail" - {
+      val url          = "/trade-reporting-extracts/add-additional-email"
+      val eori         = "GB123456789000"
+      val emailAddress = "test@example.com"
+
+      "must return true when API returns status 200" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .post(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+              .willReturn(ok())
+          )
+
+          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+          result mustBe true
+        }
+      }
+
+      "must return false when the API call throws an exception" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .post(urlEqualTo(url))
+              .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
+          )
+
+          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+          result mustBe false
+        }
+      }
+
+      "must return true for status 201" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .post(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+              .willReturn(aResponse().withStatus(CREATED))
+          )
+
+          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+          result mustBe false
+        }
+      }
+    }
   }
 }
