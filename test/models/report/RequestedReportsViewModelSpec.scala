@@ -24,8 +24,12 @@ import play.api.libs.json.Json
 import utils.ReportHelpers
 
 import java.time.Instant
+import play.api.i18n.Messages
+import play.api.test.Helpers.stubMessages
 
 class RequestedReportsViewModelSpec extends AnyFreeSpec with Matchers {
+
+  implicit val messages: Messages = stubMessages()
 
   val userReportsData: Seq[RequestedUserReportViewModel] = Seq(
     RequestedUserReportViewModel(

@@ -44,8 +44,11 @@ object ReportDateRangeSummary {
             endDate   <- answers.get(CustomRequestEndDatePage)
           } yield HtmlContent(
             HtmlFormat.escape(
-              startDate.format(dateTimeFormat()(lang = messages.lang)) + " to " +
+              messages(
+                s"reportDateRange.checkYourAnswersLabel.to",
+                startDate.format(dateTimeFormat()(lang = messages.lang)),
                 endDate.format(dateTimeFormat()(lang = messages.lang))
+              )
             )
           )
         case _                               =>
