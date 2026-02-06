@@ -24,9 +24,14 @@
 
 @(form: Form[_], mode: Mode, isImporter: Boolean)(implicit request: Request[_], messages: Messages)
 
-@content = {
-<p class="govuk-body">@messages("eoriRole.message")</p>
-<p class="govuk-hint">@messages("eoriRole.hint")</p>
+@heading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("eoriRole.heading")</h1>
+}
+@hint = {
+    <p class="govuk-hint">@messages("eoriRole.hint")</p>
+}
+@contentText = {
+    <p class="govuk-body">@messages("eoriRole.message")</p>
 }
 
 @layout(pageTitle = title(form, messages("eoriRole.title")),
@@ -38,14 +43,14 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
-
+        @heading
+        @contentText
         @govukCheckboxes(
             CheckboxesViewModel(
                 form   = form,
                 name   = "value",
-                legend = LegendViewModel(messages("eoriRole.heading")).asPageHeading(),
                 items  = EoriRole.checkboxItems(isImporter)
-            ).withHint(HintViewModel(HtmlContent(content)))
+            ).withHint(HintViewModel(HtmlContent(hint)))
         )
 
         @govukButton(

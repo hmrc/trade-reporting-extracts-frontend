@@ -36,12 +36,12 @@ trait DateFluency {
     )(implicit messages: Messages): DateInput =
       apply(
         field = field,
-        fieldset = Fieldset(legend = Some(legend))
+        fieldset = Some(Fieldset(legend = Some(legend)))
       )
 
     def apply(
       field: Field,
-      fieldset: Fieldset
+      fieldset: Option[Fieldset] = None
     )(implicit messages: Messages): DateInput = {
 
       val errorClass = "govuk-input--error"
@@ -81,7 +81,7 @@ trait DateFluency {
       )
 
       DateInput(
-        fieldset = Some(fieldset),
+        fieldset = fieldset,
         items = items,
         id = field.id,
         errorMessage = errorMessage(field)

@@ -24,13 +24,31 @@
 
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, maybeThirdPartyRequest: Boolean, rangeString: Option[String])(implicit request: Request[_], messages: Messages)
 
-@content = {
+
+@legendContent = {
     @if(maybeThirdPartyRequest) {
-        <p class="govuk-body">@rangeString @messages("customRequestStartDate.message1.thirdParty")</p>
-    } else {
-        <p class="govuk-body">@messages("customRequestStartDate.message1")</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">
+            @rangeString @messages("customRequestStartDate.message1.thirdParty")
+        </p>
+        } else {
+        <p class="govuk-body govuk-!-margin-bottom-0">
+            @messages("customRequestStartDate.message1")
+        </p>
     }
+}
+
+@hint = {
     <p class="govuk-hint">@messages("customRequestStartDate.hint")</p>
+}
+
+@pageHeading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+        @if(isMoreThanOneReport) {
+            @messages("customRequestStartDate.pluralReport.heading")
+        } else {
+            @messages("customRequestStartDate.singleReport.heading")
+        }
+    </h1>
 }
 
 @layout(pageTitle = title(form,
@@ -43,15 +61,13 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
-
+        @pageHeading
+        @legendContent
         @govukDateInput(
             DateViewModel(
-                field  = form("value"),
-                legend = LegendViewModel(
-                    if(isMoreThanOneReport) messages("customRequestStartDate.pluralReport.heading")
-                    else messages("customRequestStartDate.singleReport.heading")).asPageHeading()
-                )
-            .withHint(HintViewModel(HtmlContent(content)))
+                field  = form("value")
+            )
+            .withHint(HintViewModel(HtmlContent(hint)))
         )
 
         @govukButton(

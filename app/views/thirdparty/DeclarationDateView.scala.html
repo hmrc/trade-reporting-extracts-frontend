@@ -29,6 +29,9 @@
 @contentText = {
     <p class="govuk-body">@messages("declarationDate.message1")</p>
 }
+@heading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("declarationDate.heading", dataTypes)</h1>
+}
 
 @layout(pageTitle = title(form, messages("declarationDate.title", dataTypes))) {
 
@@ -37,13 +40,15 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
-
+        @heading
+        @contentText
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("declarationDate.heading", dataTypes)).asPageHeading(),
-                items  = DeclarationDate.options
-            ).withHint(HintViewModel(HtmlContent(contentText)))
+                items  = DeclarationDate.options,
+                fieldset = None
+
+            )
         )
 
         @govukButton(
