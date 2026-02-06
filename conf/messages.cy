@@ -83,7 +83,7 @@ unauthorisedCdsEnrolment.bullet1.link = tanysgrifio i’r CDS (yn agor tab newyd
 unauthorisedCdsEnrolment.bullet1 = os nad ydych eisoes wedi gwneud hynny
 unauthorisedCdsEnrolment.bullet2 = aros hyd at 5 diwrnod os ydych newydd danysgrifio – efallai fod eich mynediad yn dal i fod wrthi’n diweddaru
 unauthorisedCdsEnrolment.bullet3.link = allgofnodi
-unauthorisedCdsEnrolment.bullet3 = ac allgofnodi gan ddefnyddio’r manylion cywir os oes gennych fwy nag un cyfrif
+unauthorisedCdsEnrolment.bullet3 = a mewngofnodi gan ddefnyddio’r manylion cywir os oes gennych fwy nag un cyfrif
 
 unsupportedAffinityGroup.title = Rydych wedi defnyddio Dynodydd Defnyddiwr (ID) asiant ar gyfer Porth y Llywodraeth i fewngofnodi
 unsupportedAffinityGroup.heading = Rydych wedi defnyddio Dynodydd Defnyddiwr (ID) asiant ar gyfer Porth y Llywodraeth i fewngofnodi
@@ -125,7 +125,7 @@ chooseEori.title = Pa rif EORI hoffech ei ddefnyddio?
 chooseEori.heading = Pa rif EORI hoffech ei ddefnyddio?
 chooseEori.myEori = Fy EORI, {0}
 chooseEori.myAuthority = Busnesau y mae gen i fynediad at eu data fel trydydd parti
-chooseEori.checkYourAnswersLabel = rhif EORI hoffech ei ddefnyddio
+chooseEori.checkYourAnswersLabel = Rhif EORI hoffech ei ddefnyddio
 chooseEori.error.required = Dewiswch y rhif EORI hoffech ei ddefnyddio
 chooseEori.change.hidden = y rhif EORI hoffech ei ddefnyddio
 
@@ -150,13 +150,14 @@ reportDateRange.customDateRange = Cyfnod o’ch dewis chi
 reportDateRange.checkYourAnswersLabel = Cyfnod
 reportDateRange.pluralReport.checkYourAnswersLabel = Bydd cyfnod yr adroddiadau yn cwmpasu
 reportDateRange.singleReport.checkYourAnswersLabel = Bydd cyfnod yr adroddiad yn cwmpasu
+reportDateRange.checkYourAnswersLabel.to = {0} i {1}
 reportDateRange.pluralReport.error.required = Dewiswch y cyfnod hoffech fod yr adroddiadau yn ei gwmpasu
 reportDateRange.singleReport.error.required = Dewiswch y cyfnod hoffech fod yr adroddiad yn ei gwmpasu
 reportDateRange.pluralReport.change.hidden = bydd cyfnod yr adroddiadau yn cwmpasu
 reportDateRange.singleReport.change.hidden = bydd cyfnod yr adroddiad yn cwmpasu
 reportDateRange.lastFullCalendarMonth = Mis calendr cyfan diwethaf
 reportDateRange.lastFullCalendarMonth.checkYourAnswersLabel = Mis calendr cyfan diwethaf ({0} i {1})
-reportDateRange.lastFullCalendarMonth.hint = Byddai’r adroddiad hwn yn cynnwys data o {0} to {1}
+reportDateRange.lastFullCalendarMonth.hint = Byddai’r adroddiad hwn yn cynnwys data o {0} i {1}
 
 reportName.pluralReport.title = Pa enw y byddwch yn ei ddefnyddio i adnabod y set hon o adroddiadau?
 reportName.singleReport.title = Pa enw y byddwch yn ei ddefnyddio i adnabod yr adroddiad hwn?
@@ -238,7 +239,7 @@ requestConfirmation.single.processingRequest = Rydym wrthi’n prosesu’ch cais
 requestConfirmation.plural.processingRequest = Rydym wrthi’n prosesu’ch cais. Bydd y rhan fwyaf o’r adroddiadau yn barod o fewn 15 munud, ond gall gymryd hyd at 72 awr. Byddwn yn anfon e-bost i {0} pan fydd eich adroddiadau yn barod i’w lawrlwytho.
 requestConfirmation.additionalEmail = Byddwn hefyd yn anfon e-bost i {0}.
 requestConfirmation.youCan = Gallwch
-requestConfirmation.single.status = wirio statws yr adroddiad rydych wedi gofyn amdanynt
+requestConfirmation.single.status = wirio statws yr adroddiad rydych wedi gofyn amdano
 requestConfirmation.plural.status = wirio statws yr adroddiadau rydych wedi gofyn amdanynt
 requestConfirmation.goToHomepage = Ewch i’r hafan
 requestConfirmation.feedbackLink = Beth oedd eich barn am y gwasanaeth hwn?
@@ -333,7 +334,7 @@ requestedReports.myReports = Fy adroddiadau
 requestedReports.thirdPartyReports = Adorddiadau trydydd parti
 requestedReports.message1 = Gallwch
 requestedReports.message2 = Nid oes gennych unrhyw adroddiadau ar y gweill. Os ydych wedi gofyn am gael adroddiad yn ddiweddar, efallai ei fod eisoes yn barod i’w lawrlwytho. Gallwch chi wneud y canlynol:
-requestedReports.link1 = gweld yr adroddiadau sydd ar gael i’w lawrlwytho
+requestedReports.link1 = weld yr adroddiadau sydd ar gael i’w lawrlwytho
 requestedReports.bullet1.none = gweld yr adroddiadau sydd ar gael
 requestedReports.bullet2.none = gofyn am gael adroddiad
 requestedReports.home.link = Ewch i’r hafan
@@ -366,12 +367,11 @@ tooManySubmissions.heading = Rydych wedi cyrraedd terfyn nifer y ceisiadau am ad
 
 eoriNumber.title = At ba rif EORI hoffech roi mynediad?
 eoriNumber.heading = At ba rif EORI hoffech roi mynediad?
-eoriNumber.checkYourAnswersLabel = y rhif EORI hoffech roi mynediad ato
+eoriNumber.checkYourAnswersLabel = Rhif EORI hoffech roi mynediad ato
 eoriNumber.error.required = Nodwch at ba rif EORI hoffech roi mynediad
 eoriNumber.error.invalidEori = Mae’n rhaid i’r rhif EORI hoffech roi mynediad ato ddechrau gyda ‘GB’, wedi’i ddilyn gan 12 digid 0-9
 eoriNumber.error.notFound = Nodwch rif EORI go iawn
 eoriNumber.error.cannotBeOwnEori = Ni allwch roi mynediad at eich rhif EORI eich hun
-eoriNumber.error.invalidEori = Mae’n rhaid i’r rhif EORI hoffech roi mynediad ato ddechrau gyda ‘GB’, wedi’i ddilyn gan 12 digid 0-9
 eoriNumber.change.hidden = y rhif EORI hoffech roi mynediad ato
 eoriNumber.hint = Dim ond rhif EORI sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er enghraifft, GB123456123456.
 
@@ -425,9 +425,9 @@ dataTypes.error.required = Dewiswch at ba fathau o ddata hoffech roi mynediad
 dataTypes.change.hidden = Y mathau o ddata i roi mynediad atynt
 dataTypes.hint = Dewiswch bob un sy’n berthnasol.
 
-eoriAlreadyAdded.title = Rydych eioes wedi rhoi mynediad fel trydydd parti i’r rhif EORI hwn
-eoriAlreadyAdded.heading = Rydych eioes wedi rhoi mynediad fel trydydd parti i’r rhif EORI hwn
-eoriAlreadyAdded.message1 = Mae eisoes gan y rhif EORI hwn, sef {0}, fynediad fel trydydd parti at ddata eich datganiadau tollau.
+eoriAlreadyAdded.title = Rydych eisoes wedi rhoi mynediad trydydd parti ar gyfer y rhif EORI hwn
+eoriAlreadyAdded.heading = Rydych eisoes wedi rhoi mynediad trydydd parti ar gyfer y rhif EORI hwn
+eoriAlreadyAdded.message1 = Mae eisoes gan y rhif EORI hwn, sef {0}, fynediad trydydd parti at ddata eich datganiadau tollau.
 eoriAlreadyAdded.message2 = Gallwch
 eoriAlreadyAdded.link1 = ddiweddaru manylion am fynediad y trydydd parti hwn.
 eoriAlreadyAdded.link2 = Ewch i’r hafan
@@ -449,17 +449,17 @@ thirdPartyAccessStartDate.title = Pryd hoffech fod y cyfnod o fynediad yn dechra
 thirdPartyAccessStartDate.heading = Pryd hoffech fod y cyfnod o fynediad yn dechrau?
 thirdPartyAccessStartDate.message = Gallwch nodi dyddiad heddiw neu ddewis dyddiad yn y dyfodol.
 thirdPartyAccessStartDate.hint = Er enghraifft, {0}.
-thirdPartyAccessStartDate.error.required.all = Nodwch dyddiad dechrau’r cyfnod hwn o fynediad
+thirdPartyAccessStartDate.error.required.all = Nodwch ddyddiad dechrau’r cyfnod hwn o fynediad
 thirdPartyAccessStartDate.error.required.two = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0} a {1}
 thirdPartyAccessStartDate.error.required = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0}
 thirdPartyAccessStartDate.error.invalid = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn ddyddiad go iawn a dim ond cynnwys y rhifau 0 i 9
 thirdPartyAccessStartDate.error.min = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn heddiw neu’n ddyddiad yn y dyfodol
 thirdPartyAccessStartDate.error.max = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod cyn {0}
 
-thirdPartyAccessPeriod.checkYourAnswersLabel = Cyfnod o fynediad fel trydydd parti
+thirdPartyAccessPeriod.checkYourAnswersLabel = Cyfnod o fynediad trydydd parti
 thirdPartyAccessPeriod.fixed.answerLabel = {0} i {1}
 thirdPartyAccessPeriod.ongoing.answerLabel = O {0} i bresennol
-thirdPartyAccessPeriod.change.hidden = Cyfnod o fynediad fel trydydd parti
+thirdPartyAccessPeriod.change.hidden = Cyfnod o fynediad trydydd parti
 
 thirdPartyAccessEndDate.title = Pryd hoffech fod y cyfnod hwn o fynediad yn dod i ben? (dewisol)
 thirdPartyAccessEndDate.heading = Pryd hoffech fod y cyfnod hwn o fynediad yn dod i ben? (dewisol)
@@ -518,12 +518,12 @@ addThirdPartyCheckYourAnswers.button = Ychwanegu trydydd parti
 
 thirdPartyAddedConfirmation.title = Wedi ychwanegu’r trydydd parti yn llwyddiannus
 thirdPartyAddedConfirmation.heading = Wedi ychwanegu’r trydydd parti yn llwyddiannus
-thirdPartyAddedConfirmation.message1 = Wedi ychwanegu {0}.
+thirdPartyAddedConfirmation.message1 = Wedi ychwanegu ar {0}.
 thirdPartyAddedConfirmation.message2 = I gadw cofnod, gallwch
 thirdPartyAddedConfirmation.print.link = argraffu’r dudalen hon
-thirdPartyAddedConfirmation.message3 = Byddwn yn anfon e-bost i’r cyfeiriad e-bost cofrestredig sy’n gysylltiedig â’r rhif EORI, {0}, i gadarnhau bod mynediad fel trydydd parti wedi cael ei roi ar eich cyfrif.
+thirdPartyAddedConfirmation.message3 = Byddwn yn anfon e-bost i’r cyfeiriad e-bost cofrestredig sy’n gysylltiedig â’r rhif EORI, {0}, i gadarnhau bod mynediad trydydd parti wedi cael ei roi ar eich cyfrif.
 thirdPartyAddedConfirmation.heading2 = Yr hyn sy’n digwydd nesaf
-thirdPartyAddedConfirmation.message4 = Gallwch weld y mynediad hwn fel trydydd parti neu ei ddileu ar unrhyw bryd drwy fynd i’r dudalen
+thirdPartyAddedConfirmation.message4 = Gallwch weld y mynediad trydydd parti hwn neu ei ddileu ar unrhyw bryd drwy fynd i’r dudalen
 thirdPartyAddedConfirmation.link1 = rheoli pa drydydd parti sydd â mynediad at eich data
 thirdPartyAddedConfirmation.link2 = Ewch i’r hafan
 thirdPartyAddedConfirmation.feedbackLink = Beth oedd eich barn am y gwasanaeth hwn?
@@ -564,7 +564,7 @@ thirdPartyDetails.eoriNumber.label = Rhif EORI
 thirdPartyDetails.dataTypes.label = Mathau o ddata y mae gan y trydydd parti fynediad atynt
 thirdPartyDetails.dataRange.label = Bydd y mynediad hwn ar waith o {0} ymlaen.
 thirdPartyDetails.dataRange.allData = Data y mae modd i’r trydydd parti eu gweld
-thirdPartyDetails.activeDate = Yr holl ddata sydd ar gael
+thirdPartyDetails.activeDate = Bydd y mynediad hwn ar waith o {0} ymlaen.
 
 businessDetails.title = Manylion y busnes
 businessDetails.heading = Manylion y busnes
@@ -627,14 +627,14 @@ noDataFound.heading = Heb ganfod data ar gyfer {0} {1}
 noDataFound.message1 = Dewisoch chi’r cyfnod {0} i {1}.
 noDataFound.message2 = Nid oes data ar gyfer yr adroddiad hwn. Gallai hyn fod oherwydd nad oes mewnforion nac allforion yn ystod yr amser hwn.
 noDataFound.message3 = Gallwch
-noDataFound.linkText = gofyn am gael adroddiad newydd
+noDataFound.linkText = ofyn am gael adroddiad newydd
 noDataFound.message4 = gan ddefnyddio cyfnod gwahanol.
 
 reportFailed.title = Roedd problem wrth wneud {0} {1}
 reportFailed.heading = Roedd problem wrth wneud {0} {1}
 reportFailed.message1 = Nid oedd modd i ni greu’r adroddiad hwn.
 reportFailed.message2 = Gallwch
-reportFailed.linkText = gofyn am gael adroddiad newydd
+reportFailed.linkText = ofyn am gael adroddiad newydd
 
 reportNavIssue.title = Roedd problem gyda’r adroddiad rydych wedi gofyn amdano
 reportNavIssue.h1 = Roedd problem gyda’r adroddiad rydych wedi gofyn amdano
@@ -654,12 +654,12 @@ selectThirdPartyEori.title = Rhif EORI pa drydydd parti hoffech ei ddefnyddio?
 selectThirdPartyEori.heading = Rhif EORI pa drydydd parti hoffech ei ddefnyddio?
 selectThirdPartyEori.checkYourAnswersLabel = selectThirdPartyEori
 selectThirdPartyEori.message1 = Efallai na fydd rhai rhifau EORI yn cynnwys enw’r busnes os nad yw’r busnes wedi rhoi caniatâd i rannu’r wybodaeth hon.
-selectThirdPartyEori.error.required = Dewis rhif EORI
+selectThirdPartyEori.error.required = Dewiswch rif EORI
 selectThirdPartyEori.change.hidden = y rhif EORI hoffech ei ddefnyddio
 
 noThirdPartyAccess.heading = Nid oes gennych fynediad fel trydydd parti
 noThirdPartyAccess.message1 = Gallai hyn fod oherwydd y canlynol:
-noThirdPartyAccess.bullet1 = Nid oes neb wedi rhoi mynediad fel trydydd parti at ei ddata
+noThirdPartyAccess.bullet1 = nid oes neb wedi rhoi mynediad trydydd parti at ei ddata
 noThirdPartyAccess.bullet2 = nid yw’ch mynediad fel trydydd parti wedi dechrau eto
 noThirdPartyAccess.bullet3 = mae’ch mynediad fel trydydd parti wedi dod i ben
 noThirdPartyAccess.message2 = Os yw rhywun yn rhoi mynediad i chi yn y dyfodol, bydd modd i chi ofyn am gael adroddiadau ar ei ran.
@@ -667,7 +667,7 @@ noThirdPartyAccess.message3 = Ewch i’r hafan
 
 requestNotCompleted.title = Nid oes modd cyflwyno eich cais
 requestNotCompleted.heading = Nid oes modd cyflwyno eich cais
-requestNotCompleted.paragraph1 = Roedd gennych fynediad fel trydydd parti at {0} pan wnaethoch ddechrau’r cais hwn. Mae’r mynediad hwn bellach wedi’i dynnu.
+requestNotCompleted.paragraph1 = Roedd gennych fynediad trydydd parti at {0} pan wnaethoch ddechrau’r cais hwn. Mae’r mynediad hwn bellach wedi’i dynnu.
 requestNotCompleted.paragraph2 = Er mwyn cael mynediad unwaith eto, siaradwch â’r mewnforiwr neu’r allforiwr. Bydd angen iddo eich ychwanegu chi eto fel trydydd parti cyn bod modd i chi ofyn am gael adroddiad ar gyfer y rhif EORI hwn.
 requestNotCompleted.paragraph3 = Ewch i’r hafan
 
@@ -683,7 +683,7 @@ editThirdPartyAccessStartDate.title = Pryd hoffech fod y cyfnod o fynediad yn de
 editThirdPartyAccessStartDate.heading = Pryd hoffech fod y cyfnod o fynediad yn dechrau?
 editThirdPartyAccessStartDate.message = Gallwch nodi dyddiad heddiw neu ddewis dyddiad yn y dyfodol.
 editThirdPartyAccessStartDate.hint = Er enghraifft, {0}.
-editThirdPartyAccessStartDate.error.required.all =  Nodwch dyddiad dechrau’r cyfnod hwn o fynediad
+editThirdPartyAccessStartDate.error.required.all =  Nodwch ddyddiad dechrau’r cyfnod hwn o fynediad
 editThirdPartyAccessStartDate.error.required.two = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0} a {1}
 editThirdPartyAccessStartDate.error.required = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0}
 editThirdPartyAccessStartDate.error.invalid = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn ddyddiad go iawn a dim ond cynnwys y rhifau 0 i 9
@@ -749,8 +749,6 @@ thirdPartyUpdatedConfirmation.message3 = Byddwn yn anfon e-bost at y cyfeiriad c
 thirdPartyUpdatedConfirmation.message4 = Gallwch
 thirdPartyUpdatedConfirmation.link1 = reoli pa drydydd parti sydd â mynediad at eich data.
 thirdPartyUpdatedConfirmation.link2 = Ewch i’r hafan
-
-
 
 additionalEmail.title = cy: Secondary email addresses
 additionalEmail.body = cy: These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
