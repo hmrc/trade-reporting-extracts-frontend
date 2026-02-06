@@ -150,6 +150,7 @@ reportDateRange.customDateRange = Custom date range
 reportDateRange.checkYourAnswersLabel = Date range
 reportDateRange.pluralReport.checkYourAnswersLabel = Date range reports will cover
 reportDateRange.singleReport.checkYourAnswersLabel = Date range report will cover
+reportDateRange.checkYourAnswersLabel.to = {0} to {1}
 reportDateRange.pluralReport.error.required = Select the date range you want the reports to cover
 reportDateRange.singleReport.error.required = Select the date range you want the report to cover
 reportDateRange.pluralReport.change.hidden = date range reports will cover
