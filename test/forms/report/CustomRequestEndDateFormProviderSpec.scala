@@ -21,32 +21,48 @@ import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import utils.Constants.maxReportRequestDays
-import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
 class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
-  private implicit val messages: Messages    = stubMessages()
-  private val currentDate: LocalDate         = LocalDate.now(ZoneOffset.UTC)
-  private val startDate: LocalDate           = currentDate.minusYears(1)
+  private val fixedToday        = LocalDate.of(2026, 2, 1)
+  private val fixedInstant      = fixedToday.atStartOfDay().toInstant(ZoneOffset.UTC)
+  private val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+  private implicit val messages: Messages = stubMessages()
+
+  private val currentDate: LocalDate         = LocalDate.now(fixedClock)
+  private val startDate: LocalDate           = currentDate.minusDays(1)
   private val futureDate: LocalDate          = currentDate.plusDays(1)
   private val currentDateMinusDay: LocalDate = currentDate.minusDays(1)
-  private val beforeStartDate: LocalDate     = startDate.minusDays(1)
   private val illegalReportLengthDate        = startDate.plusDays(maxReportRequestDays + 1)
-  private val form                           = new CustomRequestEndDateFormProvider()(startDate, false, None)
 
-  ".value" - {
+  private def mkForm(start: LocalDate, isThirdParty: Boolean, tpEnd: Option[LocalDate]) =
+    new CustomRequestEndDateFormProvider(fixedClock)(start, isThirdParty, tpEnd)
+
+  ".value (valid window)" - {
+
+    val startWithWindow: LocalDate = currentDate.minusDays(10)
+    val formWithWindow             = mkForm(startWithWindow, isThirdParty = false, None)
+
+    val capBy31Days      = startWithWindow.plusDays(maxReportRequestDays)
+    val capByToday3      = currentDate.minusDays(3)
+    val upper: LocalDate = if (capBy31Days.isBefore(capByToday3)) capBy31Days else capByToday3
 
     val validData = datesBetween(
-      min = startDate,
-      max = startDate.plusDays(maxReportRequestDays)
+      min = startWithWindow,
+      max = upper
     )
 
-    behave like dateField(form, "value", validData)
+    behave like dateField(formWithWindow, "value", validData)
 
-    behave like mandatoryDateField(form, "value", "customRequestEndDate.error.required.all")
+    behave like mandatoryDateField(formWithWindow, "value", "customRequestEndDate.error.required.all")
+  }
+
+  ".value (error cases with base form)" - {
+    val form = mkForm(startDate, isThirdParty = false, None)
 
     "not bind dates after current date" in {
       val result = form.bind(
@@ -64,7 +80,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       )
     }
 
-    "not bind dates after current date - 2 days" in {
+    "not bind dates after current date - 1 day" in {
       val result = form.bind(
         Map(
           "value.day"   -> currentDateMinusDay.getDayOfMonth.toString,
@@ -92,16 +108,19 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.lengthGreaterThan31Days",
-        List()
+        Nil
       )
     }
 
-    "not bind dates before the startDate" in {
-      val result = form.bind(
+    // IMPORTANT: Because max constraints run first via firstError(...), ensure the chosen date
+    // passes the "today - 3" cap so the minDate(startDate) failure is surfaced.
+    "not bind dates before the startDate (ensure max cap passes so min triggers)" in {
+      val dateAtCap = currentDate.minusDays(3) // <= cap; still before startDate (today - 1)
+      val result    = form.bind(
         Map(
-          "value.day"   -> beforeStartDate.getDayOfMonth.toString,
-          "value.month" -> beforeStartDate.getMonthValue.toString,
-          "value.year"  -> beforeStartDate.getYear.toString
+          "value.day"   -> dateAtCap.getDayOfMonth.toString,
+          "value.month" -> dateAtCap.getMonthValue.toString,
+          "value.year"  -> dateAtCap.getYear.toString
         )
       )
 
@@ -111,11 +130,18 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
         List(startDate.format(dateTimeFormat()(messages.lang)))
       )
     }
+  }
+
+  ".value (third-party cases)" - {
 
     "for third party request, not bind dates after thirdPartyDataEndDate if it is before currentDate.minusDays(3)" in {
-      val thirdPartyDataEndDate  = currentDate.minusDays(10)
-      val form                   = new CustomRequestEndDateFormProvider()(startDate, true, Some(thirdPartyDataEndDate))
-      val afterThirdPartyEndDate = thirdPartyDataEndDate.plusDays(1)
+
+      val thirdPartyDataEndDate = currentDate.minusDays(10)
+      val localStartDate        = currentDate.minusDays(20)
+
+      val form = mkForm(localStartDate, isThirdParty = true, Some(thirdPartyDataEndDate))
+
+      val afterThirdPartyEndDate = thirdPartyDataEndDate.plusDays(1) // currentDate - 9
 
       val result = form.bind(
         Map(
@@ -134,7 +160,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
     "for third party request, not bind dates after currentDate.minusDays(3) if thirdPartyDataEndDate is after currentDate.minusDays(3)" in {
       val thirdPartyDataEndDate = currentDate.minusDays(1)
-      val form                  = new CustomRequestEndDateFormProvider()(startDate, true, Some(thirdPartyDataEndDate))
+      val form                  = mkForm(startDate, isThirdParty = true, Some(thirdPartyDataEndDate))
       val afterAllowedDate      = currentDate
 
       val result = form.bind(
@@ -154,7 +180,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
     "for third party request, allow dates up to thirdPartyDataEndDate if it is before currentDate.minusDays(3)" in {
       val thirdPartyDataEndDate = currentDate.minusDays(10)
-      val form                  = new CustomRequestEndDateFormProvider()(currentDate.minusDays(11), true, Some(thirdPartyDataEndDate))
+      val form                  = mkForm(currentDate.minusDays(11), isThirdParty = true, Some(thirdPartyDataEndDate))
 
       val result = form.bind(
         Map(
@@ -170,7 +196,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
     "for third party request, allow dates up to currentDate.minusDays(3) if thirdPartyDataEndDate is after currentDate.minusDays(3)" in {
       val thirdPartyDataEndDate = currentDate.minusDays(1)
       val allowedDate           = currentDate.minusDays(3)
-      val form                  = new CustomRequestEndDateFormProvider()(currentDate.minusDays(10), true, Some(thirdPartyDataEndDate))
+      val form                  = mkForm(currentDate.minusDays(10), isThirdParty = true, Some(thirdPartyDataEndDate))
 
       val result = form.bind(
         Map(
@@ -182,6 +208,5 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 
       result.errors mustBe empty
     }
-
   }
 }
