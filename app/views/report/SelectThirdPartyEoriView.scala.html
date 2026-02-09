@@ -26,6 +26,12 @@
 @content = {
     <p class="govuk-body">@messages("selectThirdPartyEori.message1")</p>
 }
+
+@pageHeading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+        @messages("selectThirdPartyEori.heading")
+    </h1>
+}
 @layout(pageTitle = title(form, messages("selectThirdPartyEori.title"))) {
 
     @formHelper(action = controllers.report.routes.SelectThirdPartyEoriController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -34,12 +40,14 @@
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
 
+        @pageHeading
+        @content
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("selectThirdPartyEori.heading")).asPageHeading(),
-                items  = selectThirdPartyEori.options()
-            ).withHint(HintViewModel(HtmlContent(content)))
+                items  = selectThirdPartyEori.options(),
+                fieldset = None
+            )
         )
 
         @govukButton(
