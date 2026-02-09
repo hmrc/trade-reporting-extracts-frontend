@@ -19,8 +19,6 @@ package forms.thirdparty
 import forms.mappings.Mappings
 import models.StringFieldRegex
 import play.api.data.Form
-import play.api.data.validation.Constraints.minLength
-import utils.Constants.{eoriMaxLength, eoriMinLength}
 
 import javax.inject.Inject
 
@@ -30,18 +28,10 @@ class EoriNumberFormProvider @Inject() extends Mappings {
     Form(
       "value" -> text("eoriNumber.error.required")
         .transform(_.trim.replaceAll("\\s+", "").toUpperCase, identity)
-        .verifying(maxLength(eoriMaxLength, "eoriNumber.error.length"))
-        .verifying(minLength(eoriMinLength, "eoriNumber.error.minLength"))
         .verifying(
           regexp(
             StringFieldRegex.eoriNumberRegex,
-            "eoriNumber.error.invalidCharacters"
-          )
-        )
-        .verifying(
-          regexp(
-            StringFieldRegex.eoriFormatRegex,
-            "eoriNumber.error.invalidFormat"
+            "eoriNumber.error.invalidEori"
           )
         )
         .verifying("eoriNumber.error.cannotBeOwnEori", eori => !eori.equalsIgnoreCase(userEori))
