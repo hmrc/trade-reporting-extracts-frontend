@@ -809,8 +809,8 @@ newAdditionalEmail.error.required = Enter the email address you want to add
 newAdditionalEmail.error.invalidFormat = Enter a new email address in the correct format, like name@example.com
 newAdditionalEmail.error.length = Enter a new email address not greater than 100 characters
 
-checkEmail.title = Check email
-checkEmail.heading = Check email
+checkEmail.title = Check email address
+checkEmail.heading = Check email address
 checkEmail.heading2 = Is this email address correct?
 checkEmail.error.required = Select yes if this email address is correct
 

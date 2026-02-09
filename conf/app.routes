@@ -28,6 +28,6 @@ GET        /file-download                  controllers.AvailableReportsControlle
 
 GET        /add-new-email                  controllers.contact.NewAdditionalEmailController.onPageLoad()
 POST       /add-new-email                  controllers.contact.NewAdditionalEmailController.onSubmit()
-GET        /check-email                    controllers.contact.CheckAdditionalEmailController.onPageLoad()
-POST       /check-email                    controllers.contact.CheckAdditionalEmailController.onSubmit()
+GET        /check-email-address            controllers.contact.CheckAdditionalEmailController.onPageLoad()
+POST       /check-email-address            controllers.contact.CheckAdditionalEmailController.onSubmit()
 GET        /email-added                    controllers.contact.AdditionalEmailAddedController.onPageLoad(emailAddress: String)
