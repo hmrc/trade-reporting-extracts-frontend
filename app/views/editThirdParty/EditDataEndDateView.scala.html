@@ -25,10 +25,14 @@
 @(form: Form[_], thirdPartyEori: String, startDateString: String)(implicit request: Request[_], messages: Messages)
 
 @contentHint = {
-<p class="govuk-body">@messages("editDataEndDate.message", startDateString)</p>
-<p class="govuk-hint">@messages("editDataEndDate.hint")</p>
+    <p class="govuk-hint">@messages("editDataEndDate.hint")</p>
 }
-
+@contentGuidance = {
+    <p class="govuk-body govuk-!-margin-bottom-0">@messages("editDataEndDate.message", startDateString)</p>
+}
+@heading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("editDataEndDate.heading")</h1>
+}
 
 @layout(pageTitle = title(form, messages("editDataEndDate.title"))) {
 
@@ -37,11 +41,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
-
+        @heading
+        @contentGuidance
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("editDataEndDate.heading")).asPageHeading()
+                legend = Legend()
             )
             .withHint(HintViewModel(HtmlContent(contentHint)))
         )

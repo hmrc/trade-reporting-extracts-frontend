@@ -26,6 +26,24 @@
 
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
+@legendContent = {
+    @if(isMoreThanOneReport) {
+        <p class="govuk-body">
+            @messages("newEmailNotification.plural.hint")
+        </p>
+    } else {
+        <p class="govuk-body">
+            @messages("newEmailNotification.single.hint")
+        </p>
+    }
+}
+
+@pageHeading = {
+<h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+    @messages("newEmailNotification.heading")
+</h1>
+}
+
 @layout(pageTitle = title(form, messages("newEmailNotification.title"))) {
 
     @formHelper(action = controllers.report.routes.NewEmailNotificationController.onSubmit(mode)) {
@@ -33,13 +51,13 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+        @pageHeading
+        @legendContent
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("newEmailNotification.heading")).asPageHeading()
-            ).withHint(HintViewModel(messages(if(isMoreThanOneReport) "newEmailNotification.plural.hint" else "newEmailNotification.single.hint")))
-             .asEmail()
+                label = Label()
+            ).asEmail()
         )
 
         @govukButton(

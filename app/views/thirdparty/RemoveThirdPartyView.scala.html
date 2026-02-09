@@ -24,7 +24,10 @@
 
 @(form: Form[_], thirdPartyEori: String)(implicit request: Request[_], messages: Messages)
 @contentHint = {
-    <p class="govuk-hint">@messages("removeThirdParty.message")</p>
+    <p class="govuk-body">@messages("removeThirdParty.message")</p>
+}
+@heading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("removeThirdParty.heading")</h1>
 }
 @layout(
         pageTitle = title(form, messages("removeThirdParty.title"))
@@ -35,12 +38,13 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+        @heading
+        @contentHint
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("removeThirdParty.heading")).asPageHeading()
-            ).withHint(HintViewModel(HtmlContent(contentHint)))
+                legend = Legend()
+            )
         )
 
         @govukButton(

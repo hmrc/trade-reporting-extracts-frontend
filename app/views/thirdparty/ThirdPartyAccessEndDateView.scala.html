@@ -25,8 +25,13 @@
 @(form: Form[_], mode: Mode, startDateString: String, date: String)(implicit request: Request[_], messages: Messages)
 
 @contentHint = {
-<p class="govuk-body">@messages("thirdPartyAccessEndDate.message", startDateString)</p>
 <p class="govuk-hint">@messages("thirdPartyAccessEndDate.hint", date)</p>
+}
+@heading = {
+<h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("thirdPartyAccessEndDate.heading")</h1>
+}
+@guidanceContent = {
+<p class="govuk-body govuk-!-margin-bottom-0">@messages("thirdPartyAccessEndDate.message", startDateString)</p>
 }
 
 
@@ -37,11 +42,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
-
+        @heading
+        @guidanceContent
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("thirdPartyAccessEndDate.heading")).asPageHeading()
+                legend = Legend()
             )
             .withHint(HintViewModel(HtmlContent(contentHint)))
         )

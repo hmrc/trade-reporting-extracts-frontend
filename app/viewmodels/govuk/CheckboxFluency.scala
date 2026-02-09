@@ -42,17 +42,17 @@ trait CheckboxFluency {
         form = form,
         name = name,
         items = items,
-        fieldset = FieldsetViewModel(legend)
+        fieldset = Some(FieldsetViewModel(legend))
       )
 
     def apply(
       form: Form[_],
       name: String,
       items: Seq[CheckboxItem],
-      fieldset: Fieldset
+      fieldset: Option[Fieldset] = None
     )(implicit messages: Messages): Checkboxes =
       Checkboxes(
-        fieldset = Some(fieldset),
+        fieldset = fieldset,
         name = name,
         errorMessage = errorMessage(form(name)),
         items = items.map { item =>
