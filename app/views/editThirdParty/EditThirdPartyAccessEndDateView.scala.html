@@ -23,10 +23,15 @@
 )
 
 @(form: Form[_], startDateString: String, thirdPartyEori: String, date: String)(implicit request: Request[_], messages: Messages)
-    @contentHint = {
-        <p class="govuk-body">@messages("editThirdPartyAccessEndDate.message", startDateString)</p>
-        <p class="govuk-hint">@messages("editThirdPartyAccessEndDate.hint" ,date)</p>
-    }
+@contentHint = {
+    <p class="govuk-hint">@messages("editThirdPartyAccessEndDate.hint" ,date)</p>
+}
+@contentGuidance = {
+    <p class="govuk-body govuk-!-margin-bottom-0">@messages("editThirdPartyAccessEndDate.message", startDateString)</p>
+}
+@heading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("editThirdPartyAccessEndDate.heading")</h1>
+}
 @layout(pageTitle = title(form, messages("editThirdPartyAccessEndDate.title"))) {
 
     @formHelper(action = controllers.editThirdParty.routes.EditThirdPartyAccessEndDateController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
@@ -34,11 +39,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
-
+        @heading
+        @contentGuidance
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("editThirdPartyAccessEndDate.heading")).asPageHeading()
+                legend = Legend()
             ).withHint(HintViewModel(HtmlContent(contentHint)))
         )
 

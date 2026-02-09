@@ -26,8 +26,20 @@
 
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
-@content = {
-<p class="govuk-body">@messages("reportName.hint")</p>
+
+@pageHeading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+        @if(isMoreThanOneReport) {
+            @messages("reportName.pluralReport.heading")
+        } else {
+            @messages("reportName.singleReport.heading")
+        }
+    </h1>
+}
+@labelContent = {
+    <p class="govuk-body">
+        @messages("reportName.hint")
+    </p>
 }
 
 @layout(pageTitle = title(form, if(isMoreThanOneReport) messages("reportName.pluralReport.title")
@@ -38,14 +50,14 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+        @pageHeading
+        @labelContent
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(if(isMoreThanOneReport) messages("reportName.pluralReport.heading")
-                            else messages("reportName.singleReport.heading")).asPageHeading()
+                label = Label()
             )
-            .withWidth(TwoThirds).withHint(HintViewModel(HtmlContent(content)))
+            .withWidth(TwoThirds)
         )
 
         @govukButton(

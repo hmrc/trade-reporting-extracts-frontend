@@ -24,13 +24,25 @@
 
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, email: String)(implicit request: Request[_], messages: Messages)
 
-@content = {
+
+@legendContent = {
     @if(isMoreThanOneReport) {
-        <p class="govuk-body">@messages("maybeAdditionalEmail.message1.plural", email)</p>
+        <p class="govuk-body">
+            @messages("maybeAdditionalEmail.message1.plural", email)
+        </p>
     } else {
-        <p class="govuk-body">@messages("maybeAdditionalEmail.message1.single", email)</p>
+        <p class="govuk-body">
+            @messages("maybeAdditionalEmail.message1.single", email)
+        </p>
     }
 }
+
+@pageHeading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+        @messages("maybeAdditionalEmail.heading")
+    </h1>
+}
+
 
 @layout(pageTitle = title(form, messages("maybeAdditionalEmail.title"))) {
 
@@ -39,12 +51,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+        @pageHeading
+        @legendContent
         @govukRadios(
             RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("maybeAdditionalEmail.heading")).asPageHeading()
-            ).withHint(HintViewModel(HtmlContent(content)))
+                field = form("value")
+            )
         )
 
         @govukButton(

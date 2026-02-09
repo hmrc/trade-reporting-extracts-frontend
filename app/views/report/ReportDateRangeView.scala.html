@@ -27,55 +27,59 @@
 @(form: Form[_], mode: Mode, hintStrings: (String, String), isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
 @messageContent = {
-
-<p class="govuk-body">@messages("reportDateRange.message")</p>
-
+    <p class="govuk-body">
+        @messages("reportDateRange.message")
+    </p>
 }
 
-@layout(pageTitle = title(form, if(isMoreThanOneReport) messages("reportDateRange.pluralReport.title")
-else messages("reportDateRange.singleReport.title"))) {
-
-
-    @formHelper(action = controllers.report.routes.ReportDateRangeController.onSubmit(mode), Symbol("autoComplete") -> "on") {
-
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+@pageHeading = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+        @if(isMoreThanOneReport) {
+            @messages("reportDateRange.pluralReport.title")
+        } else {
+            @messages("reportDateRange.singleReport.title")
         }
+    </h1>
+}
 
+@layout(pageTitle = title(form,
+        if(isMoreThanOneReport) messages("reportDateRange.pluralReport.title")
+        else messages("reportDateRange.singleReport.title")
+)) {
 
-            @govukRadios(Radios(
-                fieldset = Some(Fieldset(
-                legend = Some(Legend(
-                    content = if(isMoreThanOneReport) messages("reportDateRange.pluralReport.title")
-                              else messages("reportDateRange.singleReport.title"),
-                    classes = "govuk-fieldset__legend--xl",
-                    isPageHeading = true
-                    ))
-                )),
-                hint = Some(Hint(
-                    content = HtmlContent(messageContent)
-                    )),
-                name = "value",
-                items = Seq(
-                    RadioItem(
-                        content = messages("reportDateRange.lastFullCalendarMonth"),
-                        id = Some("value_0"),
-                        value = Some("lastFullCalendarMonth"),
-                        hint = Some(Hint(
-                            content = messages("reportDateRange.lastFullCalendarMonth.hint", hintStrings._1, hintStrings._2))),
-                        checked = form("value").value.contains("lastFullCalendarMonth")
-                ),
-                    RadioItem(
-                        content = messages("reportDateRange.customDateRange"),
-                        id = Some("value_1"),
-                        value = Some("CustomDateRange"),
-                        checked = form("value").value.contains("CustomDateRange")
-                )
-            )
-        ))
+    @formHelper(
+        action = controllers.report.routes.ReportDateRangeController.onSubmit(mode),
+        Symbol("autoComplete") -> "on"
+    ) {
 
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(
+            ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0"))
         )
+    }
+
+    @pageHeading
+    @messageContent
+    @govukRadios(Radios(
+        name = "value",
+        items = Seq(
+            RadioItem(
+                content = messages("reportDateRange.lastFullCalendarMonth"),
+                id = Some("value_0"),
+                value = Some("lastFullCalendarMonth"),
+                hint = Some(Hint(
+                content = messages("reportDateRange.lastFullCalendarMonth.hint", hintStrings._1, hintStrings._2))),
+                checked = form("value").value.contains("lastFullCalendarMonth")
+            ),
+            RadioItem(
+                content = messages("reportDateRange.customDateRange"),
+                id = Some("value_1"),
+                value = Some("CustomDateRange"),
+                checked = form("value").value.contains("CustomDateRange")
+            )
+        )
+    ))
+
+    @govukButton(ButtonViewModel(messages("site.continue")))
     }
 }
