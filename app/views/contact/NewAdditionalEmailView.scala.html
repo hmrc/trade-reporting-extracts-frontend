@@ -38,11 +38,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-@heading
+        @heading
+        @content
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(HtmlContent(content))
+                label = Label()
             ).asEmail()
              .withWidth(Full)
         )
