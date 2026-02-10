@@ -69,3 +69,8 @@ $tre-mobile-breakpoint: 640px;
      white-space: nowrap;
  }
 
+ .govuk-panel__title--long-email {
+     word-break: break-word;
+     overflow-wrap: anywhere;
+ }
+

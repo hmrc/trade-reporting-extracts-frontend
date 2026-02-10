@@ -795,4 +795,30 @@ thirdPartyUpdatedConfirmation.message4 = You can
 thirdPartyUpdatedConfirmation.link1 = manage third parties that can access your data.
 thirdPartyUpdatedConfirmation.link2 = Go to homepage
 
+additionalEmail.title = Secondary email addresses
+additionalEmail.body = These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
+additionalEmail.button.add = Add another email address
 
+newAdditionalEmail.title = What email address do you want to add?
+newAdditionalEmail.heading = What email address do you want to add?
+newAdditionalEmail.message = We will only use this email to contact the person when your reports are ready to download. Only add an email address if you have consent from this person to receive these notifications.
+newAdditionalEmail.error.required = Enter the email address you want to add
+newAdditionalEmail.error.invalidFormat = Enter a new email address in the correct format, like name@example.com
+newAdditionalEmail.error.length = Enter a new email address not greater than 100 characters
+
+checkEmail.title = Check email address
+checkEmail.heading = Check email address
+checkEmail.heading2 = Is this email address correct?
+checkEmail.error.required = Select yes if this email address is correct
+
+emailAdded.title = {0} added - Get customs data for import and export declarations
+emailAdded.heading = {0} added
+emailAdded.message1 = Added on {0} {1}.
+emailAdded.message2 = To keep a record, you can
+emailAdded.print.link = print this page.
+emailAdded.message3 = You can
+emailAdded.view.link = view this email in your details.
+emailAdded.heading2 = What happens next
+emailAdded.message4 = You can use this email to get notifications when your reports are available to download.
+emailAdded.message5 = If this email is not used for 365 days, it will be removed from your account.
+emailAdded.link = Go to homepage

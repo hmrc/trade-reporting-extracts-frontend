@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contact
 
+import controllers.BaseController
 import controllers.actions.*
-
-import javax.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
-import views.html.ContactDetailsView
+import views.html.contact.ContactDetailsView
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ContactDetailsController @Inject() (
@@ -40,7 +40,8 @@ class ContactDetailsController @Inject() (
         view(
           userDetails.companyInformation,
           userDetails.eori,
-          userDetails.notificationEmail.address
+          userDetails.notificationEmail.address,
+          userDetails.additionalEmails
         )
       )
     }

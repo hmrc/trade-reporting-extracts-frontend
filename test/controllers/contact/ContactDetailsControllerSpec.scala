@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contact
 
 import base.SpecBase
+import controllers.routes
 import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +28,7 @@ import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.ContactDetailsView
+import views.html.contact.ContactDetailsView
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
@@ -51,13 +52,13 @@ class ContactDetailsControllerSpec extends SpecBase {
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
           .thenReturn(Future.successful(userDetails))
 
-        val request = FakeRequest(GET, routes.ContactDetailsController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
         val result  = route(application, request).value
 
         val view = application.injector.instanceOf[ContactDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com")(
+        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com", Seq("test@example.com"))(
           request,
           messages(application)
         ).toString

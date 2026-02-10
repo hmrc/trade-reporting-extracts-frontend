@@ -794,3 +794,33 @@ thirdPartyUpdatedConfirmation.message3 = Byddwn yn anfon e-bost at y cyfeiriad c
 thirdPartyUpdatedConfirmation.message4 = Gallwch
 thirdPartyUpdatedConfirmation.link1 = reoli pa drydydd parti sydd â mynediad at eich data.
 thirdPartyUpdatedConfirmation.link2 = Ewch i’r hafan
+
+
+
+additionalEmail.title = cy: Secondary email addresses
+additionalEmail.body = cy: These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
+additionalEmail.button.add = cy: Add another email address
+
+newAdditionalEmail.title = cy: What email address do you want to add?
+newAdditionalEmail.heading = cy: What email address do you want to add?
+newAdditionalEmail.message = cy: We will only use this email to contact the person when your reports are ready to download. Only add an email address if you have consent from this person to receive these notifications.
+newAdditionalEmail.error.required = cy: Enter the email address you want to add
+newAdditionalEmail.error.invalidFormat = cy: Enter a new email address in the correct format, like name@example.com
+newAdditionalEmail.error.length = cy: Enter a new email address not greater than 100 characters
+
+checkEmail.title = cy: Check email address
+checkEmail.heading = cy: Check email address
+checkEmail.heading2 = cy: Is this email address correct?
+checkEmail.error.required = cy: Select yes if this email address is correct
+
+emailAdded.title = cy: {0} added - Get customs data for import and export declarations
+emailAdded.heading = cy: {0} added
+emailAdded.message1 = cy: Added on {0} {1}.
+emailAdded.message2 = cy: To keep a record, you can
+emailAdded.print.link = cy: print this page.
+emailAdded.message3 = cy: You can
+emailAdded.view.link = cy: view this email in your details.
+emailAdded.heading2 = cy: What happens next
+emailAdded.message4 = cy: You can use this email to get notifications when your reports are available to download.
+emailAdded.message5 = cy: If this email is not used for 365 days, it will be removed from your account.
+emailAdded.link = cy: Go to homepage
