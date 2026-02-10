@@ -62,11 +62,12 @@
             }
         </dl>
     }
-    @formHelper(action = controllers.contact.routes.NewAdditionalEmailController.onPageLoad(), Symbol("autoComplete") -> "off") {
+    <p>
         @govukButton(
             ButtonViewModel(messages("additionalEmail.button.add"))
+                .asLink(controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
         )
-    }
+    </p>
     </div>
     }
 }
