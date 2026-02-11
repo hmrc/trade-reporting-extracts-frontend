@@ -17,8 +17,9 @@
 package models.report
 
 import models.{ReportStatus, ReportTypeName}
+import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
-import utils.ReportHelpers
+import utils.{DateTimeFormats, ReportHelpers}
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -34,24 +35,23 @@ case class RequestedThirdPartyReportViewModel(
   reportEndDate: Instant,
   reportStatus: ReportStatus
 ) {
-  def formattedRequestedDate: String =
-    RequestedThirdPartyReportViewModel.dateFormatter.format(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
-  def formattedReportType: String    = ReportHelpers.getReportType(reportType)
+  def formattedRequestedDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(requestedDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
-  def formattedReportStartDate: String =
-    RequestedThirdPartyReportViewModel.dateFormatter.format(
-      reportStartDate.atZone(java.time.ZoneOffset.UTC).toLocalDate
-    )
+  def formattedReportType: String = ReportHelpers.getReportType(reportType)
 
-  def formattedReportEndDate: String =
-    RequestedThirdPartyReportViewModel.dateFormatter.format(reportEndDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formattedReportStartDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(reportStartDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
+  def formattedReportEndDate(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(reportEndDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
 
 }
 
 object RequestedThirdPartyReportViewModel {
-  private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH)
 
-  def formatExpiryDate(expiryDate: Instant): String                =
-    dateFormatter.format(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+  def formatExpiryDate(expiryDate: Instant)(implicit messages: Messages): String =
+    DateTimeFormats.shortDateFormatter(expiryDate.atZone(java.time.ZoneOffset.UTC).toLocalDate)
+
   implicit val format: OFormat[RequestedThirdPartyReportViewModel] = Json.format[RequestedThirdPartyReportViewModel]
 }

@@ -29,8 +29,8 @@ class NoDataFoundControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
       val reportName      = "Test Report"
       val reportRef       = "REF123"
-      val reportStartDate = "2024-01-01"
-      val reportEndDate   = "2024-12-31"
+      val reportStartDate = "1 Jan 2024"
+      val reportEndDate   = "31 Jan 2024"
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 

@@ -143,12 +143,12 @@
     items = Seq(
       TabItem(
         id = Some("my-reports"),
-        label = "My reports",
+        label = messages("requestedReports.myReports"),
         panel = TabPanel(content = HtmlContent(userReportsContent))
     ),
       TabItem(
         id = Some("third-party-reports"),
-        label = "Third party reports",
+        label = messages("requestedReports.thirdPartyReports"),
         panel = TabPanel(content = HtmlContent(thirdPartyReportsContent))
       )
     )

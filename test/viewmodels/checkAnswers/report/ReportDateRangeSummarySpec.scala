@@ -124,7 +124,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
         .success
         .value
 
-      val expectedValue = HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))
+      val expectedValue = HtmlContent(HtmlFormat.escape("reportDateRange.checkYourAnswersLabel.to"))
 
       val result = ReportDateRangeSummary.row(answers)
 
@@ -160,7 +160,7 @@ class ReportDateRangeSummarySpec extends SpecBase {
         .success
         .value
 
-      val expectedValue = HtmlContent(HtmlFormat.escape("1 January 2025 to 2 January 2025"))
+      val expectedValue = HtmlContent(HtmlFormat.escape("reportDateRange.checkYourAnswersLabel.to"))
 
       val result = ReportDateRangeSummary.row(answers)
 
