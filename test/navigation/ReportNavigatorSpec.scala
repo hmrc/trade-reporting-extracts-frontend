@@ -31,6 +31,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+  when(mockAppConfig.additionalEmailEnabled).thenReturn(true)
 
   val navigator = new ReportNavigator(mockAppConfig)
 
@@ -207,9 +208,34 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           .onPageLoad(NormalMode)
       }
 
-      "navigate from ReportNamePage to MaybeAdditionalEmailPage when notifications enabled" in {
-        navigator.nextPage(ReportNamePage, NormalMode, emptyUserAnswers) mustBe routes.MaybeAdditionalEmailController
-          .onPageLoad(NormalMode)
+      "navigate from ReportNamePage" - {
+        "navigate from ReportNamePage to MaybeAdditionalEmailPage when additional emails enabled" in {
+          val mockAppConfigAdditionalEmailEnabled: FrontendAppConfig = mock[FrontendAppConfig]
+          when(mockAppConfigAdditionalEmailEnabled.additionalEmailEnabled).thenReturn(true)
+
+          val navigatorAdditionalEmailEnabled = new ReportNavigator(mockAppConfigAdditionalEmailEnabled)
+
+          navigatorAdditionalEmailEnabled.nextPage(
+            ReportNamePage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe routes.MaybeAdditionalEmailController
+            .onPageLoad(NormalMode)
+        }
+
+        "navigate from ReportNamePage to checkyouranswers when additional emails disabled" in {
+          val mockAppConfigAdditionalEmailDisabled: FrontendAppConfig = mock[FrontendAppConfig]
+          when(mockAppConfigAdditionalEmailDisabled.additionalEmailEnabled).thenReturn(false)
+
+          val navigatorAdditionalEmailEnabled = new ReportNavigator(mockAppConfigAdditionalEmailDisabled)
+
+          navigator.nextPage(
+            MaybeAdditionalEmailPage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe routes.CheckYourAnswersController
+            .onPageLoad()
+        }
       }
 
       "navigate from MaybeAdditionalEmailPage" - {
