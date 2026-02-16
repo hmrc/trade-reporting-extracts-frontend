@@ -162,4 +162,7 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
   def addAdditionalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] =
     connector.addAdditionalEmail(eori, emailAddress)
 
+  def removeAddiotnalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Done] =
+    connector.removeAdditionalEmail(eori, emailAddress)
+
 }

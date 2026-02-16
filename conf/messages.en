@@ -777,3 +777,24 @@ emailAdded.heading2 = What happens next
 emailAdded.message4 = You can use this email to get notifications when your reports are available to download.
 emailAdded.message5 = If this email is not used for 365 days, it will be removed from your account.
 emailAdded.link = Go to homepage
+
+emailRemoved.title = Remove email address
+emailRemoved.heading = Remove email address
+emailRemoved.error.required = Select yes if you want to remove this email address
+emailRemoved.change.hidden = Remove email address
+emailRemoved.message = You will no longer receive notifications to this email address.
+emailRemoved.heading2 = Do you want to remove this email address?
+emailRemoved.yes = Yes, remove this email address
+emailRemoved.no = No, keep this email address
+
+emailRemovedConfirmation.title = Email removed
+emailRemovedConfirmation.heading = Email removed
+emailRemovedConfirmation.heading2 = {0} has been removed from your account
+emailRemovedConfirmation.p1 = Removed on {0} at {1}.
+emailRemovedConfirmation.p2 = To keep a record, you can
+emailRemovedConfirmation.printLink = print this page.
+emailRemovedConfirmation.heading3 = What happens next
+emailRemovedConfirmation.message = This email address will no longer be used to send notifications when your reports are ready to download.
+emailRemovedConfirmation.message1 = You can
+emailRemovedConfirmation.message2 = add another email address in your contact details.
+emailRemovedConfirmation.link = Go to homepage
