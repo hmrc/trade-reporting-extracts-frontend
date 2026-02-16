@@ -35,9 +35,9 @@ import scala.concurrent.Future
 
 class EmailRemovedControllerSpec extends SpecBase with MockitoSugar {
 
-  private val emailAddress = "test@test.com"
-  val formProvider = new EmailRemovedFormProvider()
-  val form: Form[Boolean] = formProvider()
+  private val emailAddress         = "test@test.com"
+  val formProvider                 = new EmailRemovedFormProvider()
+  val form: Form[Boolean]          = formProvider()
   private lazy val onPageLoadRoute =
     controllers.contact.routes.EmailRemovedController.onPageLoad(emailAddress).url
 
@@ -83,11 +83,10 @@ class EmailRemovedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-
     "must redirect to EmailRemovedConfirmationController and call removeAddiotnalEmail when value = true" in {
 
       val mockSessionRepository = mock[SessionRepository]
-      val mockTradeService = mock[TradeReportingExtractsService]
+      val mockTradeService      = mock[TradeReportingExtractsService]
 
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
@@ -124,7 +123,7 @@ class EmailRemovedControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to COntact detils page when value = false" in {
 
       val mockSessionRepository = mock[SessionRepository]
-      val mockTradeService = mock[TradeReportingExtractsService]
+      val mockTradeService      = mock[TradeReportingExtractsService]
 
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(false))

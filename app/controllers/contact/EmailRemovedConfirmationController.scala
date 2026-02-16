@@ -26,15 +26,16 @@ import views.html.contact.EmailRemovedConfirmationView
 import java.time.{Clock, Instant}
 import javax.inject.Inject
 
-class EmailRemovedConfirmationController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: EmailRemovedConfirmationView,
-                                       clock: Clock
-                                     ) extends FrontendBaseController with I18nSupport {
+class EmailRemovedConfirmationController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: EmailRemovedConfirmationView,
+  clock: Clock
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(emailAddress: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>

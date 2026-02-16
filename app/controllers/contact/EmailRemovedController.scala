@@ -30,44 +30,43 @@ import views.html.contact.emailRemovedView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailRemovedController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        identify: IdentifierAction,
-                                        getOrCreate: DataRetrievalOrCreateAction,
-                                        formProvider: EmailRemovedFormProvider,
-                                        tradeReportingExtractsService: TradeReportingExtractsService,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: emailRemovedView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class EmailRemovedController @Inject() (
+  override val messagesApi: MessagesApi,
+  sessionRepository: SessionRepository,
+  identify: IdentifierAction,
+  getOrCreate: DataRetrievalOrCreateAction,
+  formProvider: EmailRemovedFormProvider,
+  tradeReportingExtractsService: TradeReportingExtractsService,
+  val controllerComponents: MessagesControllerComponents,
+  view: emailRemovedView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(emailAddress: String): Action[AnyContent] = (identify andThen getOrCreate) {
-    implicit request =>
+  def onPageLoad(emailAddress: String): Action[AnyContent] = (identify andThen getOrCreate) { implicit request =>
 
-      val preparedForm = request.userAnswers.get(emailRemovedPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+    val preparedForm = request.userAnswers.get(emailRemovedPage) match {
+      case None        => form
+      case Some(value) => form.fill(value)
+    }
 
-      Ok(view(preparedForm, emailAddress))
+    Ok(view(preparedForm, emailAddress))
   }
 
-  def onSubmit(emailAddress: String): Action[AnyContent] = (identify andThen getOrCreate).async {
-    implicit request =>
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, emailAddress))),
-
+  def onSubmit(emailAddress: String): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, emailAddress))),
         value =>
           if (value) {
             for {
               _ <- tradeReportingExtractsService.removeAddiotnalEmail(request.eori, emailAddress)
 
               clearedAnswers <- Future.fromTry(request.userAnswers.remove(emailRemovedPage))
-              _ <- sessionRepository.set(clearedAnswers)
+              _              <- sessionRepository.set(clearedAnswers)
 
             } yield Redirect(
               controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress)
@@ -75,7 +74,7 @@ class EmailRemovedController @Inject()(
           } else {
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.remove(emailRemovedPage))
-              _ <- sessionRepository.set(updatedAnswers)
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(controllers.contact.routes.ContactDetailsController.onPageLoad())
           }
       )

@@ -29,7 +29,7 @@ import java.time.{Clock, Instant, ZoneId}
 class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar {
 
   private val fixedInstant: Instant = Instant.parse("2026-02-16T10:18:36Z")
-  private val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
+  private val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
 
   "EmailRemovedConfirmationController" - {
 
@@ -43,9 +43,8 @@ class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar 
           .build()
 
       running(application) {
-        val request = FakeRequest(GET,
-          controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url
-        )
+        val request =
+          FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
 
         val result = route(application, request).value
         val view   = application.injector.instanceOf[EmailRemovedConfirmationView]
@@ -69,9 +68,7 @@ class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar 
           .build()
 
       running(application) {
-        val request = FakeRequest(GET,
-          controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad("").url
-        )
+        val request = FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad("").url)
 
         val result = route(application, request).value
 
@@ -91,9 +88,8 @@ class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar 
           .build()
 
       running(application) {
-        val request = FakeRequest(GET,
-          controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url
-        )
+        val request =
+          FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
 
         val result = route(application, request).value
 

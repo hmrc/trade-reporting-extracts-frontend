@@ -20,10 +20,10 @@ import forms.additionalEmail.EmailRemovedFormProvider
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 
-class emailRemovedFormProviderSpec extends BooleanFieldBehaviours {
+class EmailRemovedFormProviderSpec extends BooleanFieldBehaviours {
 
   val requiredKey = "emailRemoved.error.required"
-  val invalidKey = "error.boolean"
+  val invalidKey  = "error.boolean"
 
   val form = new EmailRemovedFormProvider()()
 
