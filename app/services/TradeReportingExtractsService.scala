@@ -35,8 +35,8 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
   connector: TradeReportingExtractsConnector
 ) extends Logging {
 
-  def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
-    connector.setupUser(eori)
+  def getOrSetupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
+    connector.getOrSetupUser(eori)
 
   def getAvailableReports(eori: String)(implicit
     hc: HeaderCarrier
@@ -156,6 +156,10 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
       SelectThirdPartyEori(content, values)
     }
 
+  def getAdditionalEmails(eori: String)(implicit hc: HeaderCarrier): Future[Seq[String]] =
+    connector.getAdditionalEmails(eori)
+
   def addAdditionalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] =
     connector.addAdditionalEmail(eori, emailAddress)
+
 }

@@ -46,7 +46,7 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
   implicit ec: ExecutionContext
 ) extends Logging {
 
-  def setupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
+  def getOrSetupUser(eori: String)(implicit hc: HeaderCarrier): Future[UserDetails] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/eori/setup-user")
       .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
@@ -444,6 +444,17 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
               )
             )
         }
+      }
+
+  def getAdditionalEmails(eori: String)(implicit hc: HeaderCarrier): Future[Seq[String]] =
+    httpClient
+      .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-additional-emails")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori))
+      .execute[Seq[String]]
+      .recover { ex =>
+        logger.error(s"Failed to get additional emails: ${ex.getMessage}", ex)
+        Seq.empty
       }
 
   def addAdditionalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Boolean] =

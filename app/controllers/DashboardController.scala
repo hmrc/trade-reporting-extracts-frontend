@@ -40,7 +40,7 @@ class DashboardController @Inject() (
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    tradeReportingExtractsService.setupUser(request.eori).map { userDetails =>
+    tradeReportingExtractsService.getOrSetupUser(request.eori).map { userDetails =>
       Ok(view(request.eori, userDetails, config.guidanceWhatsInTheReportUrl))
     }
   }
