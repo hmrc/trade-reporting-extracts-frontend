@@ -91,6 +91,7 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository            = mock[SessionRepository]
       val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+      when(mockAppConfig.additionalEmailEnabled).thenReturn(true)
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =

@@ -18,19 +18,23 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, ok, post, serverError, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, get, ok, post, serverError, urlEqualTo}
 import exceptions.NoAuthorisedUserFoundException
-import models.ConsentStatus.Granted
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
-import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.ConsentStatus.{Denied, Granted}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel, RequestedThirdPartyReportViewModel, RequestedUserReportViewModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, JsValidationException, UpstreamErrorResponse}
 import com.fasterxml.jackson.core.JsonParseException
+import models.FileType.CSV
+import models.ReportStatus.IN_PROGRESS
+import models.ReportTypeName.IMPORTS_ITEM_REPORT
+import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.apache.pekko.Done
 
 import java.time.*
@@ -45,6 +49,633 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       .build()
 
   "TradeReportingExtractsConnector" - {
+
+    "getOrSetupUser" - {
+
+      val url = "/trade-reporting-extracts/eori/setup-user"
+
+      "must return user details when successful" in {
+
+        val details = Json.toJson(
+          UserDetails(
+            eori = "GB000000000001",
+            additionalEmails = Seq.empty,
+            authorisedUsers = Seq.empty,
+            companyInformation = CompanyInformation(
+              name = "Test Company",
+              consent = Granted
+            ),
+            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.of(2024, 6, 1, 12, 0))
+          )
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(201).withBody(details.toString))
+          )
+
+          val result = connector
+            .getOrSetupUser("GB000000000001")
+            .futureValue
+
+          result mustBe details.as[UserDetails]
+        }
+
+      }
+
+      "must return exception when malformed response" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(201).withBody(responseBody))
+          )
+
+          val result = connector
+            .getOrSetupUser("GB000000000001")
+            .failed
+            .futureValue
+
+          result mustBe an[JsValidationException]
+        }
+      }
+
+      "must return failed future when bad requested returned" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400).withBody("error"))
+          )
+
+          val result = connector
+            .getOrSetupUser("GB000000000001")
+            .failed
+            .futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+
+    }
+
+    "getRequestedReports" - {
+
+      val url = "/trade-reporting-extracts/requested-reports"
+
+      "must return report requests when successful" in {
+
+        val response = Json.toJson(
+          RequestedReportsViewModel(
+            Some(
+              Seq(
+                RequestedUserReportViewModel(
+                  "ref",
+                  "test",
+                  LocalDate
+                    .of(2025, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IMPORTS_ITEM_REPORT,
+                  LocalDate
+                    .of(2024, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  LocalDate
+                    .of(2024, 1, 31)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IN_PROGRESS
+                )
+              )
+            ),
+            Some(
+              Seq(
+                RequestedThirdPartyReportViewModel(
+                  "ref1",
+                  "test1",
+                  LocalDate
+                    .of(2025, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IMPORTS_ITEM_REPORT,
+                  "companyName",
+                  LocalDate
+                    .of(2024, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  LocalDate
+                    .of(2024, 1, 31)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IN_PROGRESS
+                )
+              )
+            )
+          )
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector
+            .getRequestedReports("GB000000000001")
+            .futureValue
+
+          result mustBe response.as[RequestedReportsViewModel]
+        }
+
+      }
+
+      "must return failed future when returned requested reports cannot be parsed" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(responseBody))
+          )
+
+          val result = connector
+            .getRequestedReports("GB000000000001")
+            .failed
+            .failed
+            .futureValue
+
+          result mustBe an[RuntimeException]
+
+        }
+      }
+
+      "must return future successful when no report requests found" in {
+
+        val response = Json.toJson(RequestedReportsViewModel(None, None))
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(204).withBody(response.toString))
+          )
+
+          val result = connector
+            .getRequestedReports("GB000000000001")
+            .futureValue
+
+          result mustBe RequestedReportsViewModel(None, None)
+
+        }
+      }
+
+      "must return failed future when bad request returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400))
+          )
+
+          val result = connector
+            .getRequestedReports(
+              "GB000000000001"
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[IllegalArgumentException]
+        }
+      }
+
+      "must return failed future when unexpected response returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(500))
+          )
+
+          val result = connector
+            .getRequestedReports(
+              "GB000000000001"
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[RuntimeException]
+        }
+      }
+    }
+
+    "getAvailableReports" - {
+
+      val url = "/trade-reporting-extracts/api/available-reports"
+
+      "must return report requests when successful" in {
+
+        val response = Json.toJson(
+          AvailableReportsViewModel(
+            Some(
+              Seq(
+                AvailableUserReportsViewModel(
+                  "ref",
+                  "test",
+                  LocalDate
+                    .of(2025, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IMPORTS_ITEM_REPORT,
+                  Seq(
+                    AvailableReportAction(
+                      "file",
+                      "url",
+                      12345L,
+                      CSV
+                    )
+                  )
+                )
+              )
+            ),
+            Some(
+              Seq(
+                AvailableThirdPartyReportsViewModel(
+                  "ref1",
+                  "test1",
+                  LocalDate
+                    .of(2025, 1, 1)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toInstant,
+                  IMPORTS_ITEM_REPORT,
+                  "companyName",
+                  Seq(
+                    AvailableReportAction(
+                      "file",
+                      "url",
+                      12345L,
+                      CSV
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector
+            .getAvailableReports("GB000000000001")
+            .futureValue
+
+          result mustBe response.as[AvailableReportsViewModel]
+        }
+
+      }
+
+      "must return failed future when returned requested reports cannot be parsed" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(responseBody))
+          )
+
+          val result = connector
+            .getAvailableReports("GB000000000001")
+            .failed
+            .failed
+            .futureValue
+
+          result mustBe an[RuntimeException]
+
+        }
+      }
+
+      "must return future successful when no report requests found" in {
+
+        val response = Json.toJson(AvailableReportsViewModel(None, None))
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector
+            .getAvailableReports("GB000000000001")
+            .futureValue
+
+          result mustBe AvailableReportsViewModel(None, None)
+
+        }
+      }
+
+      "must return failed future when bad request returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400))
+          )
+
+          val result = connector
+            .getAvailableReports(
+              "GB000000000001"
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+
+      "must return failed future when unexpected response returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(500))
+          )
+
+          val result = connector
+            .getAvailableReports(
+              "GB000000000001"
+            )
+            .failed
+            .futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "getNotificationEmail" - {
+
+      val url = "/trade-reporting-extracts/user/notification-email"
+
+      "must return notification email when successful" in {
+
+        val response = Json.toJson(
+          NotificationEmail(
+            "test@test.com",
+            LocalDateTime.of(2024, 6, 1, 12, 0)
+          )
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector.getNotificationEmail("GB000000000001").futureValue
+
+          result mustBe response.as[NotificationEmail]
+        }
+      }
+
+      "must return a failed future when malformed response returned" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(responseBody))
+          )
+
+          val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+
+        }
+      }
+
+      "must return a failed future when bad request returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400))
+          )
+
+          val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "getCompanyInformation" - {
+
+      val url = "/trade-reporting-extracts/company-information"
+
+      "must return company information when successful" in {
+
+        val response = Json.toJson(
+          CompanyInformation(
+            "companyName",
+            ConsentStatus.Granted
+          )
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector.getCompanyInformation("GB000000000001").futureValue
+
+          result mustBe response.as[CompanyInformation]
+        }
+      }
+
+      "must return a failed future when malformed response returned" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(responseBody))
+          )
+
+          val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+
+        }
+      }
+
+      "must return a failed future when bad request returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400))
+          )
+
+          val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "getAuthorisedEoris" - {
+
+      val url = "/trade-reporting-extracts/user/authorised-eoris"
+
+      "must return authorised eoris when successful" in {
+
+        val response = Json.toJson(
+          Seq("EORI1", "EORI2", "EORI3")
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector.getAuthorisedEoris("GB000000000001").futureValue
+
+          result mustBe response.as[Seq[String]]
+        }
+      }
+
+      "must be successful when no authorised eoris" in {
+
+        val response = Json.toJson(
+          Seq("")
+        )
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(response.toString))
+          )
+
+          val result = connector.getAuthorisedEoris("GB000000000001").futureValue
+
+          result mustBe List("")
+        }
+      }
+
+      "must return a failed future when malformed response returned" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            get(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(200).withBody(responseBody))
+          )
+
+          val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+
+        }
+      }
+
+      "must return a failed future when bad request returned" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse.withStatus(400))
+          )
+
+          val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
+
+          result mustBe an[UpstreamErrorResponse]
+        }
+      }
+    }
 
     "createReportRequest" - {
 
@@ -804,6 +1435,29 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
           val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).futureValue
           result mustBe validThirdPartyDetails
+        }
+      }
+
+      "must fail when malformed response recieved" in {
+
+        val responseBody =
+          s"""[{
+             |  "foo": "bar"
+             |}]""".stripMargin
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+              .willReturn(ok(Json.toJson(responseBody).toString()))
+          )
+
+          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
         }
       }
 
