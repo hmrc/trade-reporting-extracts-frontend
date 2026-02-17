@@ -766,7 +766,7 @@ checkEmail.heading = cy: Check email address
 checkEmail.heading2 = cy: Is this email address correct?
 checkEmail.error.required = cy: Select yes if this email address is correct
 
-emailAdded.title = cy: {0} added - Get customs data for import and export declarations
+emailAdded.title = cy: {0} added
 emailAdded.heading = cy: {0} added
 emailAdded.message1 = cy: Added on {0} {1}.
 emailAdded.message2 = cy: To keep a record, you can
