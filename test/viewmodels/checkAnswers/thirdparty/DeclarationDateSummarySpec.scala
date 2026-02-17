@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers.thirdparty
 
 import base.SpecBase
+import models.thirdparty.DataTypes.*
 import models.thirdparty.DeclarationDate
 import models.{CheckMode, UserAnswers}
 import pages.thirdparty.DeclarationDatePage
@@ -64,6 +65,16 @@ class DeclarationDateSummarySpec extends SpecBase {
       val result = DeclarationDateSummary.row(answers)
 
       result mustBe None
+    }
+  }
+
+  "getDataTypesString" - {
+
+    "must return correct keys" in {
+
+      DeclarationDateSummary.getDataTypesString(Some(Set(Import))) mustBe "declarationDate.import"
+      DeclarationDateSummary.getDataTypesString(Some(Set(Export))) mustBe "declarationDate.export"
+      DeclarationDateSummary.getDataTypesString(Some(Set(Import, Export))) mustBe "declarationDate.importExport"
     }
   }
 }

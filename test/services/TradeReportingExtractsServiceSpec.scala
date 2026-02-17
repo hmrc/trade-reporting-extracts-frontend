@@ -20,8 +20,12 @@ import base.SpecBase
 import connectors.TradeReportingExtractsConnector
 import models.AccessType.IMPORTS
 import models.ConsentStatus.Granted
+import models.FileType.CSV
+import models.ReportStatus.IN_PROGRESS
+import models.ReportTypeName.IMPORTS_ITEM_REPORT
+import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
-import models.report.{ReportConfirmation, ReportRequestUserAnswersModel}
+import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel, RequestedThirdPartyReportViewModel, RequestedUserReportViewModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
@@ -51,6 +55,232 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
     when(mockMessages("SelectThirdPartyEori.defaultValue")).thenReturn("Default EORI")
     val service = new TradeReportingExtractsService(clock)(ec, mockConnector)
+
+    "setupUser" - {
+
+      "should return User details when OK" in {
+
+        val companyInformation = CompanyInformation(
+          name = "Test Company",
+          consent = Granted
+        )
+        val userDetails        = UserDetails(
+          eori = "GB1",
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq.empty,
+          companyInformation = companyInformation,
+          notificationEmail = NotificationEmail("foo@bar.com", LocalDateTime.now())
+        )
+
+        when(mockConnector.setupUser(any())(any())).thenReturn(Future.successful(userDetails))
+
+        service.setupUser("GB1").futureValue mustBe userDetails
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.setupUser(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.setupUser("GB1").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "getRequestedReports" - {
+
+      "must return report requests when successful" in {
+
+        val reports = RequestedReportsViewModel(
+          Some(
+            Seq(
+              RequestedUserReportViewModel(
+                "ref",
+                "test",
+                LocalDate
+                  .of(2025, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IMPORTS_ITEM_REPORT,
+                LocalDate
+                  .of(2024, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                LocalDate
+                  .of(2024, 1, 31)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IN_PROGRESS
+              )
+            )
+          ),
+          Some(
+            Seq(
+              RequestedThirdPartyReportViewModel(
+                "ref1",
+                "test1",
+                LocalDate
+                  .of(2025, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IMPORTS_ITEM_REPORT,
+                "companyName",
+                LocalDate
+                  .of(2024, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                LocalDate
+                  .of(2024, 1, 31)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IN_PROGRESS
+              )
+            )
+          )
+        )
+        when(mockConnector.getRequestedReports(any())(any())).thenReturn(Future.successful(reports))
+
+        service.getRequestedReports("GB1").futureValue mustBe reports
+
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.getRequestedReports(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getRequestedReports("GB1").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "getAvailableReports" - {
+
+      "must return report requests when successful" in {
+
+        val reports = AvailableReportsViewModel(
+          Some(
+            Seq(
+              AvailableUserReportsViewModel(
+                "ref",
+                "test",
+                LocalDate
+                  .of(2025, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IMPORTS_ITEM_REPORT,
+                Seq(
+                  AvailableReportAction(
+                    "file",
+                    "url",
+                    12345L,
+                    CSV
+                  )
+                )
+              )
+            )
+          ),
+          Some(
+            Seq(
+              AvailableThirdPartyReportsViewModel(
+                "ref1",
+                "test1",
+                LocalDate
+                  .of(2025, 1, 1)
+                  .atStartOfDay()
+                  .atOffset(ZoneOffset.UTC)
+                  .toInstant,
+                IMPORTS_ITEM_REPORT,
+                "companyName",
+                Seq(
+                  AvailableReportAction(
+                    "file",
+                    "url",
+                    12345L,
+                    CSV
+                  )
+                )
+              )
+            )
+          )
+        )
+
+        when(mockConnector.getAvailableReports(any())(any())).thenReturn(Future.successful(reports))
+
+        service.getAvailableReports("GB1").futureValue mustBe reports
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.getAvailableReports(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAvailableReports("GB1").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "getNotificationEmail" - {
+
+      "must return notification email when successful" in {
+
+        val email = NotificationEmail(
+          "test@test.com",
+          LocalDateTime.of(2024, 6, 1, 12, 0)
+        )
+
+        when(mockConnector.getNotificationEmail(any())(any())).thenReturn(Future.successful(email))
+
+        service.getNotificationEmail("GB1").futureValue mustBe email
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.getNotificationEmail(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getNotificationEmail("GB1").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
+
+    "getAuthorisedEoris" - {
+
+      "must return authorised eoris when successful" in {
+
+        val authorisedEoris = Seq("EORI1", "EORI2", "EORI3")
+
+        when(mockConnector.getAuthorisedEoris(any())(any())).thenReturn(Future.successful(authorisedEoris))
+
+        service.getAuthorisedEoris("GB1").futureValue mustBe authorisedEoris
+      }
+
+      "should fail when connector fails" in {
+
+        when(mockConnector.getAuthorisedEoris(any())(any()))
+          .thenReturn(Future.failed(new RuntimeException("error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAuthorisedEoris("GB1").futureValue
+        }
+        thrown.getMessage must include("error")
+      }
+    }
 
     "createReportRequest" - {
 
@@ -575,6 +805,57 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
         val thrown = intercept[RuntimeException] {
           service.addAdditionalEmail(eori, emailAddress).futureValue
+        }
+        thrown.getMessage must include("connector error")
+      }
+    }
+
+    "getAuthorisedBusinessDetails" - {
+
+      "should return ThirdPartyDetails when connector returns them" in {
+        val thirdPartyDetails = ThirdPartyDetails(
+          Some("ref"),
+          LocalDate.of(2025, 1, 1),
+          None,
+          Set("import"),
+          None,
+          None
+        )
+
+        when(mockConnector.getAuthorisedBusinessDetails(any(), any())(any()))
+          .thenReturn(Future.successful(thirdPartyDetails))
+
+        val result = service.getAuthorisedBusinessDetails("GB1", "GB2").futureValue
+        result mustBe thirdPartyDetails
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.getAuthorisedBusinessDetails("GB1", "GB2")(hc))
+          .thenReturn(Future.failed(new RuntimeException("connector error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAuthorisedBusinessDetails("GB1", "GB2").futureValue
+        }
+        thrown.getMessage must include("connector error")
+      }
+    }
+
+    "selfRemoveThirdPartyAccess" - {
+
+      "should return Done when connector returns them" in {
+
+        when(mockConnector.selfRemoveThirdPartyAccess(any(), any())(any())).thenReturn(Future.successful(Done))
+
+        val result = service.selfRemoveThirdPartyAccess("GB1", "GB2").futureValue
+        result mustBe Done
+      }
+
+      "should fail when connector fails" in {
+        when(mockConnector.selfRemoveThirdPartyAccess("GB1", "GB2")(hc))
+          .thenReturn(Future.failed(new RuntimeException("connector error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.selfRemoveThirdPartyAccess("GB1", "GB2").futureValue
         }
         thrown.getMessage must include("connector error")
       }

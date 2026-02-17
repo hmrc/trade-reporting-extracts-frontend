@@ -18,7 +18,7 @@ object CodeCoverageSettings {
     "testonly",
     "testOnlyDoNotUseInAppConf.*",
     "config",
-    ".*javascript.*",
+    ".*javascript.*"
   )
 
   private val excludedFiles: Seq[String] = Seq(

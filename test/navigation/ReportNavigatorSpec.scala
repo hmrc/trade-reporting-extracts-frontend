@@ -78,6 +78,16 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
             controllers.report.routes.ExportItemReportController.onPageLoad()
         }
 
+        "when ChooseEori is Myauthority and no decision" in {
+          val ua = emptyUserAnswers
+            .set(ChooseEoriPage, ChooseEori.Myauthority)
+            .success
+            .value
+
+          navigator.nextPage(DecisionPage, NormalMode, ua) mustBe
+            controllers.report.routes.SelectThirdPartyEoriController.onPageLoad(NormalMode)
+        }
+
         "when ChooseEoriPage is missing" in {
           val ua = emptyUserAnswers.set(DecisionPage, Decision.Import).success.value
 
@@ -192,6 +202,14 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           navigator.nextPage(ReportDateRangePage, NormalMode, ua) mustBe routes.ReportNameController.onPageLoad(
             NormalMode
           )
+        }
+
+        "when no ansewr to reportDateRangePage to journey recovery" in {
+          navigator.nextPage(
+            ReportDateRangePage,
+            NormalMode,
+            emptyUserAnswers
+          ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
       }
 

@@ -56,6 +56,23 @@ class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(NewAdditionalEmailPage, "foo@bar.com").get)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, newAdditionalEmailRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[NewAdditionalEmailView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill("foo@bar.com"))(request, messages(application)).toString
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
@@ -64,6 +81,33 @@ class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, newAdditionalEmailRoute)
+            .withFormUrlEncodedBody(("value", "test@example.com"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
+          .onPageLoad()
+          .url
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted when no previous user answers" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = None)
           .overrides(
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
