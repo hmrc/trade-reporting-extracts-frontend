@@ -38,7 +38,11 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     case CustomRequestStartDatePage =>
       navigateTo(controllers.report.routes.CustomRequestEndDateController.onPageLoad(NormalMode))
     case CustomRequestEndDatePage   => navigateTo(controllers.report.routes.ReportNameController.onPageLoad(NormalMode))
-    case ReportNamePage             => navigateTo(controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode))
+    case ReportNamePage             =>
+      navigateBasedOnAdditionalEmailFlag(
+        controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode),
+        controllers.report.routes.CheckYourAnswersController.onPageLoad()
+      )
     case MaybeAdditionalEmailPage   =>
       conditionalNavigate(
         hasAdditionalEmailRequest,
@@ -251,4 +255,10 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
   override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ =>
     answers => skipFlag => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
 
+  private def navigateBasedOnAdditionalEmailFlag(
+    ifAdditionalEmailEnabled: => Call,
+    ifAdditionalEmailDisabled: => Call
+  ): UserAnswers => Call = { _ =>
+    if (appConfig.additionalEmailEnabled) ifAdditionalEmailEnabled else ifAdditionalEmailDisabled
+  }
 }
