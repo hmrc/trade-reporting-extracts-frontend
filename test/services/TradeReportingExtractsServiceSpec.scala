@@ -862,7 +862,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "getAdditionalEmails" - {
-      val eori = "GB123456789000"
+      val eori             = "GB123456789000"
       val additionalEmails = Seq("email1@test.com", "email2@test.com")
 
       "should return additional emails when connector succeeds" in {
