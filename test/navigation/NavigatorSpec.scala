@@ -30,6 +30,33 @@ class NavigatorSpec extends SpecBase {
 
   "Navigator" - {
 
+    "all navigation routes" - {
+
+      object TestNavigator extends Navigator
+
+      val page: Page = new Page {}
+
+      val expected = controllers.problem.routes.JourneyRecoveryController.onPageLoad()
+
+      "normalRoutes" in {
+        TestNavigator.normalRoutes(page)(emptyUserAnswers) mustBe expected
+      }
+
+      "checkRoutes" in {
+        TestNavigator.checkRoutes(page)(emptyUserAnswers) mustBe expected
+      }
+
+      "normalRoutesWithFlag" in {
+        TestNavigator.normalRoutesWithFlag(page)(emptyUserAnswers)(true) mustBe expected
+        TestNavigator.normalRoutesWithFlag(page)(emptyUserAnswers)(false) mustBe expected
+      }
+
+      "checkRoutesWithFlag" in {
+        TestNavigator.checkRoutesWithFlag(page)(emptyUserAnswers)(true) mustBe expected
+        TestNavigator.checkRoutesWithFlag(page)(emptyUserAnswers)(false) mustBe expected
+      }
+    }
+
     "in Normal mode" - {
 
       "must go from a page that doesn't exist in the route map to Index" in {

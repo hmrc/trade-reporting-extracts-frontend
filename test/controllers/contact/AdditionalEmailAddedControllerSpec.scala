@@ -58,6 +58,23 @@ class AdditionalEmailAddedControllerSpec extends SpecBase {
       }
     }
 
+    "must redirect to contact details controller if missing email address" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[Clock].toInstance(fixedClock))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(null).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
+      }
+    }
+
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
       val emailAddress = "test@example.com"

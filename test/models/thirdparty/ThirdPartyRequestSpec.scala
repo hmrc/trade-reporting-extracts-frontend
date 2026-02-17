@@ -18,7 +18,7 @@ package models.thirdparty
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import java.time.Instant
 
