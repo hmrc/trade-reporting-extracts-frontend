@@ -60,6 +60,24 @@ class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
+    "must redirect to ContactDetailsController when emailAddress is empty" in {
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[Clock].toInstance(fixedClock))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad("").url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          controllers.contact.routes.ContactDetailsController.onPageLoad().url
+      }
+    }
+
     "must redirect to Journey Recovery for a GET when no existing data is found" in {
 
       val emailAddress = "test@test.com"

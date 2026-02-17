@@ -32,6 +32,6 @@ GET        /check-email-address            controllers.contact.CheckAdditionalEm
 POST       /check-email-address            controllers.contact.CheckAdditionalEmailController.onSubmit()
 GET        /email-added/:emailAddress                    controllers.contact.AdditionalEmailAddedController.onPageLoad(emailAddress: String)
 
-GET        /email-removed/:emailAddress                        controllers.contact.EmailRemovedController.onPageLoad(emailAddress: String)
-POST       /email-removed/:emailAddress                        controllers.contact.EmailRemovedController.onSubmit(emailAddress: String)
-GET        /email-removed-confirmation/:emailAddress                       controllers.contact.EmailRemovedConfirmationController.onPageLoad(emailAddress: String)
+GET        /email-removed                        controllers.contact.EmailRemovedController.onPageLoad(emailAddress: String)
+POST       /email-removed                        controllers.contact.EmailRemovedController.onSubmit(emailAddress: String)
+GET        /email-removed-confirmation                       controllers.contact.EmailRemovedConfirmationController.onPageLoad(emailAddress: String)
