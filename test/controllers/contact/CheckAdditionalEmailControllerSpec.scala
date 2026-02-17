@@ -60,6 +60,23 @@ class CheckAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to  ContactDetails page when user answers doesn't have email address" in {
+
+      val userAnswers = emptyUserAnswers
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, checkAdditionalEmailRoute)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must redirect to AdditionalEmailAddedController when user confirms email (Yes)" in {
 
       val mockSessionRepository     = mock[SessionRepository]

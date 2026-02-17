@@ -42,8 +42,8 @@
                 field = form("value"),
                 legend = LegendViewModel(messages("checkEmail.heading2")).withCssClass("govuk-fieldset__legend--m").asPageHeading(),
                 items = Seq(
-                    RadioItem(value = Some("true"), content = Text(messages("site.yes"))),
-                    RadioItem(value = Some("false"), content = Text(messages("site.no")))
+                    RadioItem(value = Some("true"), content = Text(messages("site.yes")), id = Some("value")),
+                    RadioItem(value = Some("false"), content = Text(messages("site.no")), id = Some("value-no"))
                 )
             )
         )

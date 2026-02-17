@@ -44,14 +44,20 @@ class CheckAdditionalEmailController @Inject() (
 
   val form = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
-    val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")
-    val preparedForm = request.userAnswers.flatMap(_.get(CheckAdditionalEmailPage)) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+  def onPageLoad(): Action[AnyContent] =
+    (identify andThen getData) { implicit request =>
+      request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
+        case None =>
+          Redirect(controllers.contact.routes.ContactDetailsController.onPageLoad())
+
+        case Some(emailAddress) =>
+          val preparedForm = request.userAnswers.flatMap(_.get(CheckAdditionalEmailPage)) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Ok(view(preparedForm, emailAddress))
+      }
     }
-    Ok(view(preparedForm, emailAddress))
-  }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
     val emailAddress = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)).getOrElse("")

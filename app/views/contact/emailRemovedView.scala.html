@@ -40,11 +40,13 @@
                     items = Seq(
                         RadioItem(
                             content = Text(messages("emailRemoved.yes")),
-                            value = Some("true")
+                            value = Some("true"),
+                            id = Some("value")
                         ),
                         RadioItem(
                             content = Text(messages("emailRemoved.no")),
-                            value = Some("false")
+                            value = Some("false"),
+                            id = Some("value-no")
                         )
                 ),
                 legend = LegendViewModel(messages("emailRemoved.heading2")).withCssClass("govuk-fieldset__legend--m")

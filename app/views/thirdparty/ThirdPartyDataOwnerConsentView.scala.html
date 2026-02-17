@@ -38,11 +38,13 @@
                 items = Seq(
                 RadioItem(
                     content = Text(messages("thirdPartyDataOwnerConsent.yes")),
-                    value = Some("true")
+                    value = Some("true"),
+                    id = Some("value")
                     ),
                 RadioItem(
                 content = Text(messages("site.no")),
-                    value = Some("false")
+                    value = Some("false"),
+                    id = Some("value-no")
                     )
                 ),
                 legend = LegendViewModel(messages("thirdPartyDataOwnerConsent.heading")).asPageHeading()
