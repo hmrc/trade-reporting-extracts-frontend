@@ -45,7 +45,7 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
 
   trait Setup {
     val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-    when(mockTradeReportingExtractsService.setupUser(any[String])(any)) thenReturn Future.successful(userDetails)
+    when(mockTradeReportingExtractsService.getOrSetupUser(any[String])(any)) thenReturn Future.successful(userDetails)
   }
 
   "Dashboard Controller" - {

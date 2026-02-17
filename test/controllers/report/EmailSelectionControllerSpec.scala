@@ -18,9 +18,8 @@ package controllers.report
 
 import base.SpecBase
 import forms.report.EmailSelectionFormProvider
-import models.ConsentStatus.Granted
 import models.report.EmailSelection
-import models.{CompanyInformation, NormalMode, NotificationEmail, UserAnswers, UserDetails}
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -35,7 +34,6 @@ import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.report.EmailSelectionView
 
-import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
@@ -46,25 +44,15 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
   private lazy val emailSelectionRoute: String =
     controllers.report.routes.EmailSelectionController.onPageLoad(NormalMode).url
 
-  private val formProvider    = new EmailSelectionFormProvider()
-  private val dynamicEmails   = Seq("user1@example.com", "user2@example.com")
-  private val mockUserDetails = UserDetails(
-    eori = "GB123456789000",
-    additionalEmails = dynamicEmails,
-    authorisedUsers = Seq.empty,
-    companyInformation = CompanyInformation(
-      name = "Test Ltd",
-      consent = Granted
-    ),
-    notificationEmail = NotificationEmail("user@example.com", LocalDateTime.now())
-  )
+  private val formProvider  = new EmailSelectionFormProvider()
+  private val dynamicEmails = Seq("user1@example.com", "user2@example.com")
 
   private val form = formProvider(dynamicEmails)
 
   private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
   implicit val hc: HeaderCarrier                = HeaderCarrier()
-  when(mockTradeReportingExtractsService.setupUser(any())(any()))
-    .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = dynamicEmails)))
+  when(mockTradeReportingExtractsService.getAdditionalEmails(any())(any()))
+    .thenReturn(Future.successful(dynamicEmails))
 
   "EmailSelection Controller" - {
 
@@ -88,8 +76,8 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
         .build()
-      when(mockTradeReportingExtractsService.setupUser(any())(any()))
-        .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = Seq.empty)))
+      when(mockTradeReportingExtractsService.getAdditionalEmails(any())(any()))
+        .thenReturn(Future.successful(Seq.empty))
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)
@@ -109,8 +97,8 @@ class EmailSelectionControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
         .build()
-      when(mockTradeReportingExtractsService.setupUser(any())(any()))
-        .thenReturn(Future.successful(mockUserDetails.copy(additionalEmails = dynamicEmails)))
+      when(mockTradeReportingExtractsService.getAdditionalEmails(any())(any()))
+        .thenReturn(Future.successful(dynamicEmails))
 
       running(application) {
         val request = FakeRequest(GET, emailSelectionRoute)

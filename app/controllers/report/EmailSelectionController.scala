@@ -50,8 +50,8 @@ class EmailSelectionController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
-        val dynamicEmails = userDetails.additionalEmails
+      tradeReportingExtractsService.getAdditionalEmails(request.eori).flatMap { additionalEmails =>
+        val dynamicEmails = additionalEmails
         if dynamicEmails.nonEmpty then
           val form: Form[Set[String]] = formProvider(dynamicEmails)
           val preparedForm            = request.userAnswers.get(EmailSelectionPage) match {
@@ -72,8 +72,8 @@ class EmailSelectionController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      tradeReportingExtractsService.setupUser(request.eori).flatMap { userDetails =>
-        val dynamicEmails           = userDetails.additionalEmails
+      tradeReportingExtractsService.getAdditionalEmails(request.eori).flatMap { additionalEmails =>
+        val dynamicEmails           = additionalEmails
         val form: Form[Set[String]] = formProvider(dynamicEmails)
 
         form

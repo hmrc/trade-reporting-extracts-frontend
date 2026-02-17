@@ -50,7 +50,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
   "TradeReportingExtractsConnector" - {
 
-    "setupUser" - {
+    "getOrSetupUser" - {
 
       val url = "/trade-reporting-extracts/eori/setup-user"
 
@@ -78,7 +78,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
 
           val result = connector
-            .setupUser("GB000000000001")
+            .getOrSetupUser("GB000000000001")
             .futureValue
 
           result mustBe details.as[UserDetails]
@@ -102,7 +102,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
 
           val result = connector
-            .setupUser("GB000000000001")
+            .getOrSetupUser("GB000000000001")
             .failed
             .futureValue
 
@@ -120,7 +120,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
 
           val result = connector
-            .setupUser("GB000000000001")
+            .getOrSetupUser("GB000000000001")
             .failed
             .futureValue
 
@@ -1514,6 +1514,82 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
           val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
           result mustBe an[JsonParseException]
+        }
+      }
+    }
+
+    "getAdditionalEmails" - {
+      val url  = "/trade-reporting-extracts/get-additional-emails"
+      val eori = "GB123456789000"
+
+      "must return list of additional emails when API returns status 200" in {
+        val expectedEmails = Seq("email1@example.com", "email2@example.com")
+        val responseBody   = Json.toJson(expectedEmails).toString()
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+              .willReturn(ok(responseBody))
+          )
+
+          val result = connector.getAdditionalEmails(eori).futureValue
+          result mustBe expectedEmails
+        }
+      }
+
+      "must return empty list when API returns empty array" in {
+        val responseBody = "[]"
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+              .willReturn(ok(responseBody))
+          )
+
+          val result = connector.getAdditionalEmails(eori).futureValue
+          result mustBe Seq.empty
+        }
+      }
+
+      "must return empty list when the API call throws an exception" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
+          )
+
+          val result = connector.getAdditionalEmails(eori).futureValue
+          result mustBe Seq.empty
+        }
+      }
+
+      "must return empty list when API returns server error" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(url))
+              .willReturn(serverError())
+          )
+
+          val result = connector.getAdditionalEmails(eori).futureValue
+          result mustBe Seq.empty
         }
       }
     }

@@ -56,7 +56,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
     when(mockMessages("SelectThirdPartyEori.defaultValue")).thenReturn("Default EORI")
     val service = new TradeReportingExtractsService(clock)(ec, mockConnector)
 
-    "setupUser" - {
+    "getOrSetupUser" - {
 
       "should return User details when OK" in {
 
@@ -72,18 +72,18 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           notificationEmail = NotificationEmail("foo@bar.com", LocalDateTime.now())
         )
 
-        when(mockConnector.setupUser(any())(any())).thenReturn(Future.successful(userDetails))
+        when(mockConnector.getOrSetupUser(any())(any())).thenReturn(Future.successful(userDetails))
 
-        service.setupUser("GB1").futureValue mustBe userDetails
+        service.getOrSetupUser("GB1").futureValue mustBe userDetails
       }
 
       "should fail when connector fails" in {
 
-        when(mockConnector.setupUser(any())(any()))
+        when(mockConnector.getOrSetupUser(any())(any()))
           .thenReturn(Future.failed(new RuntimeException("error")))
 
         val thrown = intercept[RuntimeException] {
-          service.setupUser("GB1").futureValue
+          service.getOrSetupUser("GB1").futureValue
         }
         thrown.getMessage must include("error")
       }
@@ -860,5 +860,45 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         thrown.getMessage must include("connector error")
       }
     }
+
+    "getAdditionalEmails" - {
+      val eori             = "GB123456789000"
+      val additionalEmails = Seq("email1@test.com", "email2@test.com")
+
+      "should return additional emails when connector succeeds" in {
+        reset(mockConnector)
+        when(mockConnector.getAdditionalEmails(eori)(hc))
+          .thenReturn(Future.successful(additionalEmails))
+
+        val result = service.getAdditionalEmails(eori).futureValue
+
+        result mustBe additionalEmails
+        verify(mockConnector).getAdditionalEmails(eori)(hc)
+      }
+
+      "should return empty sequence when connector returns empty" in {
+        reset(mockConnector)
+        when(mockConnector.getAdditionalEmails(eori)(hc))
+          .thenReturn(Future.successful(Seq.empty))
+
+        val result = service.getAdditionalEmails(eori).futureValue
+
+        result mustBe Seq.empty
+        verify(mockConnector).getAdditionalEmails(eori)(hc)
+      }
+
+      "should fail when connector fails" in {
+        reset(mockConnector)
+        when(mockConnector.getAdditionalEmails(eori)(hc))
+          .thenReturn(Future.failed(new RuntimeException("connector error")))
+
+        val thrown = intercept[RuntimeException] {
+          service.getAdditionalEmails(eori).futureValue
+        }
+        thrown.getMessage must include("connector error")
+        verify(mockConnector).getAdditionalEmails(eori)(hc)
+      }
+    }
+
   }
 }
