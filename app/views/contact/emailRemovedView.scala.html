@@ -24,27 +24,32 @@
 
 @(form: Form[_], emailAddress: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("checkEmail.title"))) {
+@layout(pageTitle = title(form, messages("emailRemoved.title"))) {
 
-    @formHelper(action = controllers.contact.routes.CheckAdditionalEmailController.onSubmit()) {
+    @formHelper(action = controllers.contact.routes.EmailRemovedController.onSubmit(emailAddress), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
-
-        <h1 class="govuk-heading-xl">@messages("checkEmail.heading")</h1>
-        
-        <p class="govuk-body">@emailAddress</p>
-
+<h1 class="govuk-heading-l">@messages("emailRemoved.heading")</h1>
+<p class="govuk-body">@emailAddress</p>
+<p class="govuk-body">@messages("emailRemoved.message")</p>
         @govukRadios(
             RadiosViewModel(
                 field = form("value"),
-                legend = LegendViewModel(messages("checkEmail.heading2")).withCssClass("govuk-fieldset__legend--m").asPageHeading(),
-                items = Seq(
-                    RadioItem(value = Some("true"), content = Text(messages("site.yes")), id = Some("value")),
-                    RadioItem(value = Some("false"), content = Text(messages("site.no")), id = Some("value-no"))
-                )
+                    items = Seq(
+                        RadioItem(
+                            content = Text(messages("emailRemoved.yes")),
+                            value = Some("true"),
+                            id = Some("value")
+                        ),
+                        RadioItem(
+                            content = Text(messages("emailRemoved.no")),
+                            value = Some("false"),
+                            id = Some("value-no")
+                        )
+                ),
+                legend = LegendViewModel(messages("emailRemoved.heading2")).withCssClass("govuk-fieldset__legend--m")
             )
         )
 

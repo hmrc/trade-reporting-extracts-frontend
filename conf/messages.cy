@@ -753,6 +753,7 @@ thirdPartyUpdatedConfirmation.link2 = Ewch i’r hafan
 additionalEmail.title = cy: Secondary email addresses
 additionalEmail.body = cy: These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
 additionalEmail.button.add = cy: Add another email address
+additionalEmail.remove = cy: Remove
 
 newAdditionalEmail.title = cy: What email address do you want to add?
 newAdditionalEmail.heading = cy: What email address do you want to add?
@@ -777,3 +778,24 @@ emailAdded.heading2 = cy: What happens next
 emailAdded.message4 = cy: You can use this email to get notifications when your reports are available to download.
 emailAdded.message5 = cy: If this email is not used for 365 days, it will be removed from your account.
 emailAdded.link = cy: Go to homepage
+
+emailRemoved.title = cy: Remove email address
+emailRemoved.heading = cy: Remove email address
+emailRemoved.error.required = cy: Select yes if you want to remove this email address
+emailRemoved.change.hidden = cy: Remove email address
+emailRemoved.message = cy: You will no longer receive notifications to this email address.
+emailRemoved.heading2 = cy: Do you want to remove this email address?
+emailRemoved.yes = cy: Yes, remove this email address
+emailRemoved.no = cy: No, keep this email address
+
+emailRemovedConfirmation.title = cy: Email removed
+emailRemovedConfirmation.heading = cy: Email removed
+emailRemovedConfirmation.heading2 = cy: {0} has been removed from your account
+emailRemovedConfirmation.p1 = cy: Removed on {0} at {1}.
+emailRemovedConfirmation.p2 = cy: To keep a record, you can
+emailRemovedConfirmation.printLink = cy: print this page.
+emailRemovedConfirmation.heading3 = cy: What happens next
+emailRemovedConfirmation.message = cy: This email address will no longer be used to send notifications when your reports are ready to download.
+emailRemovedConfirmation.message1 = cy: You can
+emailRemovedConfirmation.message2 = cy: add another email address in your contact details.
+emailRemovedConfirmation.link = cy: Go to homepage

@@ -468,4 +468,24 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         logger.error(s"Failed to add additional email: ${ex.getMessage}", ex)
         false
       }
+
+  def removeAdditionalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient
+      .delete(url"${frontendAppConfig.tradeReportingExtractsApi}/remove-additional-email")
+      .setHeader("Authorization" -> s"${frontendAppConfig.internalAuthToken}")
+      .withBody(Json.obj("eori" -> eori, "emailAddress" -> emailAddress))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case NO_CONTENT => Future.successful(Done)
+          case _          =>
+            logger.error(s"Failed to remove additional email ${response.status} - ${response.body}")
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/remove-additional-email",
+                response.status
+              )
+            )
+        }
+      }
 }
