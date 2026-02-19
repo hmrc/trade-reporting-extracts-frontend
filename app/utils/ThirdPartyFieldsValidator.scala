@@ -44,13 +44,13 @@ object ThirdPartyFieldsValidator {
 
   private def validateThirdPartyReference(userAnswers: UserAnswers): Boolean = {
     val hasDataOwnerConsent = userAnswers.get(ThirdPartyDataOwnerConsentPage)
-    
+
     hasDataOwnerConsent match {
       case Some(false) =>
         true
-      case Some(true) =>
+      case Some(true)  =>
         true
-      case None =>
+      case None        =>
         false
     }
   }
@@ -68,14 +68,14 @@ object ThirdPartyFieldsValidator {
 
   private def validateDataTheyCanView(userAnswers: UserAnswers): Boolean = {
     val declarationDate = userAnswers.get(DeclarationDatePage)
-    
+
     declarationDate match {
-      case Some(DeclarationDate.CustomDateRange) =>
+      case Some(DeclarationDate.CustomDateRange)  =>
         val hasDataStartDate = userAnswers.get(DataStartDatePage).isDefined
         hasDataStartDate
       case Some(DeclarationDate.AllAvailableData) =>
         true
-      case None =>
+      case None                                   =>
         true
     }
   }

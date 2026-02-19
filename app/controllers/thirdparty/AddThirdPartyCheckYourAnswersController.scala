@@ -63,11 +63,12 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
     andThen requireData
     andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
 
-    val userAnswers = request.userAnswers
+    val userAnswers      = request.userAnswers
     val validationResult = ThirdPartyFieldsValidator.validateMandatoryFields(userAnswers)
     if (!validationResult) {
       for {
-        updatedAnswers                   <- Future.successful(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(userAnswers))
+        updatedAnswers                   <-
+          Future.successful(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(userAnswers))
         updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
         _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
       } yield Redirect(controllers.thirdparty.routes.AddThirdPartyController.onPageLoad())
