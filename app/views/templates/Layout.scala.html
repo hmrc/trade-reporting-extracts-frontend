@@ -73,13 +73,7 @@
 }
 
     @defaultBeforeContentBlock = {
-            @if(appConfig.languageTranslationEnabled) {
-                @hmrcLanguageSelect(LanguageSelect(
-                    if (messages.lang.code == "cy") Cy else En,
-                    (En, routes.LanguageSwitchController.switchToLanguage("en").url),
-                    (Cy, routes.LanguageSwitchController.switchToLanguage("cy").url)
-            ))
-        }
+
 
         @if(breadcrumbContribution.nonEmpty) {
             @govukBreadcrumbs(Breadcrumbs(
