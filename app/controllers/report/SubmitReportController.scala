@@ -17,7 +17,7 @@
 package controllers.report
 
 import controllers.actions.*
-import models.AlreadySubmittedFlag
+import models.{AlreadySubmittedFlag, SectionNavigation}
 import models.report.{ReportRequestSection, SubmissionMeta}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
@@ -66,12 +66,10 @@ class SubmitReportController @Inject() (
         } yield Redirect(controllers.report.routes.RequestConfirmationController.onPageLoad())
 
       case None =>
-        println(
-          "==============================Failed to build report request from user answers================================="
-        )
-        Future.successful(
+        val cleanedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+        sessionRepository.set(cleanedAnswers) map { _ =>
           Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
-        )
+    }
     }
   }
 
