@@ -30,6 +30,7 @@ import services.{AuditService, ThirdPartyService, TradeReportingExtractsService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats.dateTimeFormat
+import utils.ThirdPartyFieldsValidator
 import utils.json.OptionalLocalDateReads.*
 import viewmodels.checkAnswers.thirdparty.*
 import viewmodels.govuk.all.SummaryListViewModel
@@ -62,14 +63,22 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
     andThen requireData
     andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
 
-    val userAnsewrs = request.userAnswers
-
-    for {
-      companyInfo     <- tradeReportingExtractsService.getCompanyInformation(userAnsewrs.get(EoriNumberPage).get)
-      maybeCompanyName = resolveDisplayName(companyInfo)
-      rows             = rowGenerator(userAnsewrs, maybeCompanyName)
-      list             = SummaryListViewModel(rows = rows.flatten)
-    } yield Ok(view(list))
+    val userAnswers = request.userAnswers
+    val validationResult = ThirdPartyFieldsValidator.validateMandatoryFields(userAnswers)
+    if (!validationResult) {
+      for {
+        updatedAnswers                   <- Future.successful(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(userAnswers))
+        updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
+        _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
+      } yield Redirect(controllers.thirdparty.routes.AddThirdPartyController.onPageLoad())
+    } else {
+      for {
+        companyInfo     <- tradeReportingExtractsService.getCompanyInformation(userAnswers.get(EoriNumberPage).get)
+        maybeCompanyName = resolveDisplayName(companyInfo)
+        rows             = rowGenerator(userAnswers, maybeCompanyName)
+        list             = SummaryListViewModel(rows = rows.flatten)
+      } yield Ok(view(list))
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify
