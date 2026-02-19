@@ -52,16 +52,18 @@ class SubmitReportControllerSpec extends SpecBase {
 
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(
-          ReportRequestUserAnswersModel(
-            eori = "GB123456789000",
-            dataType = "exports",
-            whichEori = Some("GB987654321000"),
-            eoriRole = Set("declarant"),
-            reportType = Set("summary"),
-            reportStartDate = "2025-01-01",
-            reportEndDate = "2025-12-31",
-            reportName = "Test Report",
-            additionalEmail = Some(Set("notify@example.com"))
+          Some(
+            ReportRequestUserAnswersModel(
+              eori = "GB123456789000",
+              dataType = "exports",
+              whichEori = "GB987654321000",
+              eoriRole = Set("declarant"),
+              reportType = Set("summary"),
+              reportStartDate = "2025-01-01",
+              reportEndDate = "2025-12-31",
+              reportName = "Test Report",
+              additionalEmail = Some(Set("notify@example.com"))
+            )
           )
         )
 
@@ -107,16 +109,18 @@ class SubmitReportControllerSpec extends SpecBase {
 
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(
-          ReportRequestUserAnswersModel(
-            eori = "GB123456789000",
-            dataType = "exports",
-            whichEori = Some("GB987654321000"),
-            eoriRole = Set("declarant"),
-            reportType = Set("summary"),
-            reportStartDate = "2025-01-01",
-            reportEndDate = "2025-12-31",
-            reportName = "Test Report",
-            additionalEmail = Some(Set("notify@example.com"))
+          Some(
+            ReportRequestUserAnswersModel(
+              eori = "GB123456789000",
+              dataType = "exports",
+              whichEori = "GB987654321000",
+              eoriRole = Set("declarant"),
+              reportType = Set("summary"),
+              reportStartDate = "2025-01-01",
+              reportEndDate = "2025-12-31",
+              reportName = "Test Report",
+              additionalEmail = Some(Set("notify@example.com"))
+            )
           )
         )
 
@@ -163,6 +167,23 @@ class SubmitReportControllerSpec extends SpecBase {
 
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.failed(new RuntimeException("Service error")))
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(
+          Some(
+            ReportRequestUserAnswersModel(
+              eori = "GB123456789000",
+              dataType = "exports",
+              whichEori = "GB987654321000",
+              eoriRole = Set("declarant"),
+              reportType = Set("summary"),
+              reportStartDate = "2025-01-01",
+              reportEndDate = "2025-12-31",
+              reportName = "Test Report",
+              additionalEmail = Some(Set("notify@example.com"))
+            )
+          )
+        )
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
