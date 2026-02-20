@@ -240,12 +240,49 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
 
     }
 
-    "should set EORI role based on data type if user is third party" in {
+    "should only get baseEmails if no aditional email exists in NewEmailNotificationPage" in {
       val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
       val reportRequestDataService = new ReportRequestDataService(fixedClock)
-      when(appConfig.thirdPartyEnabled).thenReturn(true)
+
+      val userAnswers = emptyUserAnswers
+        .set(DecisionPage, Decision.Import)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myeori)
+        .get
+        .set(EoriRolePage, Set(EoriRole.Importer))
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth)
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set(EmailSelection.AddNewEmailValue, "baseemail@email.com"))
+        .get
+
+      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori").get
+
+      result.eori mustBe "eori"
+      result.dataType mustBe "import"
+      result.whichEori mustBe "eori"
+      result.eoriRole mustBe Set("importer")
+      result.reportType mustBe Set("importItem")
+      result.reportStartDate mustBe "2025-04-01"
+      result.reportEndDate mustBe "2025-04-30"
+      result.reportName mustBe "MyReport"
+      result.additionalEmail mustBe Some(Set("baseemail@email.com"))
+
+    }
+
+    "should set EORI role to IMPORT based on data type if user is third party" in {
+      val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      val reportRequestDataService = new ReportRequestDataService(fixedClock)
       val userAnswers              = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
         .get
@@ -280,6 +317,258 @@ class ReportRequestDataServiceSpec extends SpecBase with MockitoSugar with Scala
       result.reportName mustBe "MyReport"
       result.additionalEmail mustBe Some(Set("example2@email.com", "example@email.com"))
 
+    }
+
+    "should set EORI role to EXPORT based on data type if user is third party" in {
+      val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      val reportRequestDataService = new ReportRequestDataService(fixedClock)
+      val userAnswers              = emptyUserAnswers
+        .set(DecisionPage, Decision.Export)
+        .get
+        .set(ChooseEoriPage, ChooseEori.Myauthority)
+        .get
+        .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+        .get
+        .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+        .get
+        .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+        .get
+        .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+        .get
+        .set(ReportNamePage, "MyReport")
+        .get
+        .set(MaybeAdditionalEmailPage, true)
+        .get
+        .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+        .get
+        .set(NewEmailNotificationPage, "example@email.com")
+        .get
+
+      val result = reportRequestDataService.buildReportRequest(userAnswers, "eori").get
+
+      result.dataType mustBe "export"
+
+    }
+
+    "Handle missing answers" - {
+      "Result must be none if DecisionPage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if ChooseEoriPage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if SelectThirdPartyEoriPage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if ReportTypeImportPage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if CustomRequestStartDatePage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if CustomRequestEndDatePage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(ReportNamePage, "MyReport")
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
+
+      "Result must be none if ReportNamePage is missing" in {
+        val fixedInstant = Instant.parse("2025-05-20T00:00:00Z")
+        val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+        val reportRequestDataService = new ReportRequestDataService(fixedClock)
+        val userAnswers              = emptyUserAnswers
+          .set(DecisionPage, Decision.Export)
+          .get
+          .set(ChooseEoriPage, ChooseEori.Myauthority)
+          .get
+          .set(SelectThirdPartyEoriPage, "thirdPartyEori")
+          .get
+          .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem))
+          .get
+          .set(CustomRequestStartDatePage, LocalDate.of(2022, 1, 1))
+          .get
+          .set(CustomRequestEndDatePage, LocalDate.of(2022, 2, 1))
+          .get
+          .set(MaybeAdditionalEmailPage, true)
+          .get
+          .set(EmailSelectionPage, Set("example2@email.com", EmailSelection.AddNewEmailValue))
+          .get
+          .set(NewEmailNotificationPage, "example@email.com")
+          .get
+
+        val result = reportRequestDataService.buildReportRequest(userAnswers, "eori")
+
+        result mustBe None
+
+      }
     }
 
   }

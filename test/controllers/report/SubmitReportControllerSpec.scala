@@ -89,6 +89,38 @@ class SubmitReportControllerSpec extends SpecBase {
       }
     }
 
+    "must redirect to report request issue page when buildReportRequest returns None" in {
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+
+      val userAnswers = emptyUserAnswers
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(None)
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must create SubmissionMeta with correct values and save to session repository" in {
       val mockSessionRepository             = mock[SessionRepository]
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]

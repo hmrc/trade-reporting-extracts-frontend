@@ -69,7 +69,7 @@ class SubmitReportController @Inject() (
         val cleanedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
         sessionRepository.set(cleanedAnswers) map { _ =>
           Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
-    }
+        }
     }
   }
 
