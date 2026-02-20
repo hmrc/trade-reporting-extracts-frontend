@@ -703,7 +703,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               ReportRequestUserAnswersModel(
                 eori = "eori",
                 dataType = "import",
-                whichEori = Some("eori"),
+                whichEori = "eori",
                 eoriRole = Set("declarant"),
                 reportType = Set("importHeader"),
                 reportStartDate = "2025-04-16",
@@ -747,7 +747,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               ReportRequestUserAnswersModel(
                 eori = "eori",
                 dataType = "import",
-                whichEori = Some("eori"),
+                whichEori = "eori",
                 eoriRole = Set("declarant"),
                 reportType = Set("importHeader", "importItem"),
                 reportStartDate = "2025-04-16",
@@ -785,7 +785,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               ReportRequestUserAnswersModel(
                 eori = "eori",
                 dataType = "import",
-                whichEori = Some("eori"),
+                whichEori = "eori",
                 eoriRole = Set("declarant"),
                 reportType = Set("importHeader"),
                 reportStartDate = "2025-04-16",
@@ -816,7 +816,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               ReportRequestUserAnswersModel(
                 eori = "eori",
                 dataType = "import",
-                whichEori = Some("eori"),
+                whichEori = "eori",
                 eoriRole = Set("declarant"),
                 reportType = Set("importHeader"),
                 reportStartDate = "2025-04-16",
