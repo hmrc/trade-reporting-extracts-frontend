@@ -78,13 +78,12 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
 
   private def getReportDates(userAnswers: UserAnswers): Option[(String, String)] = {
     val currentDate: LocalDate = LocalDate.now(clock)
-    
-    def retrieveReportDates = {
+
+    def retrieveReportDates =
       (userAnswers.get(CustomRequestStartDatePage), userAnswers.get(CustomRequestEndDatePage)) match {
         case (Some(startDate), Some(endDate)) => Some(startDate.toString, endDate.toString)
-        case _ => None
+        case _                                => None
       }
-    }
 
     (userAnswers.get(SelectThirdPartyEoriPage).isDefined, userAnswers.get(ReportDateRangePage)) match {
       case (false, Some(ReportDateRange.LastFullCalendarMonth)) =>
@@ -92,17 +91,17 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
         Some(startEndDate._1.toString, startEndDate._2.toString)
       case (false, Some(ReportDateRange.CustomDateRange))       =>
         retrieveReportDates
-      case (true, _) =>
+      case (true, _)                                            =>
         retrieveReportDates
-      case (_, _)                                           =>
+      case (_, _)                                               =>
         None
     }
   }
 
   private def getEori(userAnswers: UserAnswers, eori: String): Option[String] =
     userAnswers.get(ChooseEoriPage) match {
-      case Some(ChooseEori.Myeori) => Some(eori)
+      case Some(ChooseEori.Myeori)      => Some(eori)
       case Some(ChooseEori.Myauthority) => userAnswers.get(SelectThirdPartyEoriPage)
-      case _ => None
+      case _                            => None
     }
 }
