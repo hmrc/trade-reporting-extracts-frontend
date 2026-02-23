@@ -27,7 +27,8 @@
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @content = {
-<p class="govuk-hint">@messages("eoriNumber.hint")</p>
+<p class="govuk-body">@messages("eoriNumber.hint")</p>
+<p class="govuk-hint">@messages("eoriNumber.example")</p>
 }
 
 @layout(pageTitle = title(form, messages("eoriNumber.title"))) {
