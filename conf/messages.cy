@@ -761,6 +761,7 @@ newAdditionalEmail.message = cy: We will only use this email to contact the pers
 newAdditionalEmail.error.required = cy: Enter the email address you want to add
 newAdditionalEmail.error.invalidFormat = cy: Enter a new email address in the correct format, like name@example.com
 newAdditionalEmail.error.length = cy: Enter a new email address not greater than 100 characters
+newAdditionalEmail.error.alreadyAdded = cy: Enter an email address that is not already added
 
 checkEmail.title = cy: Check email address
 checkEmail.heading = cy: Check email address

@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 class NewAdditionalEmailFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(existingEmails: Seq[String] = Seq.empty): Form[String] =
     Form(
       "value" -> text("newAdditionalEmail.error.required")
         .verifying(
@@ -32,6 +32,10 @@ class NewAdditionalEmailFormProvider @Inject() extends Mappings {
         )
         .verifying(
           regexp(StringFieldRegex.emailRegex, "newAdditionalEmail.error.invalidFormat")
+        )
+        .verifying(
+          "newAdditionalEmail.error.alreadyAdded",
+          email => !existingEmails.contains(email.toLowerCase.trim)
         )
     )
 }
