@@ -17,7 +17,7 @@
 package controllers.report
 
 import controllers.BaseController
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{BelowReportRequestLimitAction, DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.ChooseEoriFormProvider
 import models.Mode
 import models.report.{ChooseEori, ReportDateRange, ReportRequestSection}
@@ -40,6 +40,7 @@ class ChooseEoriController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
+  belowReportRequestLimitAction: BelowReportRequestLimitAction,
   formProvider: ChooseEoriFormProvider,
   reportRequestSection: ReportRequestSection,
   view: ChooseEoriView,
@@ -50,7 +51,7 @@ class ChooseEoriController @Inject() (
   private val form: Form[ChooseEori] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData) { implicit request =>
+    (identify andThen getData andThen requireData andThen belowReportRequestLimitAction) { implicit request =>
       val preparedForm = request.userAnswers.get(ChooseEoriPage).fold(form)(form.fill)
 
       Ok(view(preparedForm, mode, request.eori))

@@ -17,8 +17,11 @@
 package controllers.report
 
 import base.SpecBase
+import controllers.actions.BelowReportRequestLimitAction
+import controllers.problem.routes.TooManySubmissionsController
 import forms.report.ChooseEoriFormProvider
 import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
+import models.requests.DataRequest
 import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
@@ -28,16 +31,30 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.report.*
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.Results.Redirect
+import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.report.ChooseEoriView
 
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
+
+  val mockPassLimitAction: BelowReportRequestLimitAction & MockitoSugar = new BelowReportRequestLimitAction
+    with MockitoSugar {
+    override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+      Future.successful(
+        Right(
+          DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
+        )
+      )
+
+    override protected def executionContext: ExecutionContext = global
+  }
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report/eoriRole")
 
@@ -50,7 +67,11 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, chooseEoriRoute)
@@ -71,7 +92,11 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = UserAnswers(userAnswersId).set(ChooseEoriPage, ChooseEori.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, chooseEoriRoute)
@@ -318,6 +343,27 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to TooManySubmissionsController for a GET when submission limit is reached" in {
+      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
+        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
+
+        override protected def executionContext = global
+      }
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, chooseEoriRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
       }
     }
   }
