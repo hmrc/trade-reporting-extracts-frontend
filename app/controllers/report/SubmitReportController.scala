@@ -17,7 +17,7 @@
 package controllers.report
 
 import controllers.actions.*
-import models.AlreadySubmittedFlag
+import models.{AlreadySubmittedFlag, SectionNavigation}
 import models.report.{ReportRequestSection, SubmissionMeta}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
@@ -30,7 +30,7 @@ import utils.ReportHelpers
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubmitReportController @Inject() (
   override val messagesApi: MessagesApi,
@@ -46,28 +46,31 @@ class SubmitReportController @Inject() (
     extends FrontendBaseController {
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    for {
-      notificationEmail   <- tradeReportingExtractsService.getNotificationEmail(request.eori)
-      reportConfirmations <- tradeReportingExtractsService.createReportRequest(
-                               reportRequestDataService.buildReportRequest(request.userAnswers, request.eori)
-                             )
+    reportRequestDataService.buildReportRequest(request.userAnswers, request.eori) match {
+      case Some(reportRequest) =>
+        for {
+          notificationEmail     <- tradeReportingExtractsService.getNotificationEmail(request.eori)
+          reportConfirmations   <- tradeReportingExtractsService.createReportRequest(reportRequest)
+          updatedAnswers         = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+          submissionMetaModel    = SubmissionMeta(
+                                     reportConfirmations = reportConfirmations,
+                                     notificationEmail = notificationEmail.address,
+                                     submittedAt = Instant.now(clock),
+                                     isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+                                   )
+          updatedAnswersWithFlag = updatedAnswers.set(AlreadySubmittedFlag(), true).get
+          userAnswersWithMeta    = updatedAnswersWithFlag.copy(
+                                     submissionMeta = Some(Json.toJson(submissionMetaModel).as[JsObject])
+                                   )
+          _                     <- sessionRepository.set(userAnswersWithMeta)
+        } yield Redirect(controllers.report.routes.RequestConfirmationController.onPageLoad())
 
-      updatedAnswers      = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
-      submissionMetaModel = SubmissionMeta(
-                              reportConfirmations = reportConfirmations,
-                              notificationEmail = notificationEmail.address,
-                              submittedAt = Instant.now(clock),
-                              isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
-                            )
-
-      updatedAnswersWithFlag = updatedAnswers.set(AlreadySubmittedFlag(), true).get
-      userAnswersWithMeta    = updatedAnswersWithFlag.copy(
-                                 submissionMeta = Some(Json.toJson(submissionMetaModel).as[JsObject])
-                               )
-      _                     <- sessionRepository.set(userAnswersWithMeta)
-
-      redirectResult = Redirect(controllers.report.routes.RequestConfirmationController.onPageLoad())
-    } yield redirectResult
+      case None =>
+        val cleanedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+        sessionRepository.set(cleanedAnswers) map { _ =>
+          Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
+        }
+    }
   }
 
 }
