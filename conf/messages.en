@@ -373,6 +373,7 @@ eoriNumber.error.notFound = Enter a real EORI number
 eoriNumber.error.cannotBeOwnEori = You cannot give access to your own EORI number
 eoriNumber.change.hidden = EORI number you want to give access to
 eoriNumber.hint = You can only enter an EORI number starting GB. To give third-party access to a XI EORI number, enter the corresponding GB EORI.
+eoriNumber.example = For example, GB123456123456.
 
 noPermission.title = You do not have permission to access this service
 noPermission.heading = You do not have permission to access this service
@@ -387,7 +388,7 @@ addThirdParty.cannotAdd.intro = You cannot add a third party if you are only:
 addThirdParty.cannotAdd.declarant = a declarant, like a customs agent who submits customs declarations on behalf of someone else
 addThirdParty.cannotAdd.thirdParty = a third party, like a consultancy firm or accountant acting on behalf of someone else
 addThirdParty.beforeYouStart = Before you start
-addThirdParty.beforeYouStart.detail = You'll need an EORI number starting GB for the business you want to give third-party access to. To give third-party access to a XI EORI, enter the corresponding GB EORI in the form. Ensure you are already logged in with the relevant Government Gateway ID for that specific GB EORI. You can choose whether to give access to import data, export data, or both. After you add them, you can change or remove their access at any time.
+addThirdParty.beforeYouStart.detail = You''ll need an EORI number starting GB for the business you want to give third-party access to. You can choose whether to give access to import data, export data, or both. After you add them, you can change or remove their access at any time.
 addThirdParty.subscription.p1 = Your third party must
 addThirdParty.subscription.cds = subscribe to CDS (opens in new tab)
 addThirdParty.subscription.p2 = before they can access the data.
