@@ -81,4 +81,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val thirdPartyAddedEventName: String       = configuration.get[String]("auditing.third-party-added-event-name")
   val thirdPartyUpdatedEventName: String     = configuration.get[String]("auditing.third-party-updated-event-name")
 
+  val additionalEmailLimit: Int = configuration.get[Int]("additional-email-limit")
+
 }

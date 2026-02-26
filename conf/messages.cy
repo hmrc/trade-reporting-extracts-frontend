@@ -754,6 +754,7 @@ additionalEmail.title = cy: Secondary email addresses
 additionalEmail.body = cy: These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
 additionalEmail.button.add = cy: Add another email address
 additionalEmail.remove = cy: Remove
+additionalEmail.limitReached =cy: You have reached your additional email limit.
 
 newAdditionalEmail.title = cy: What email address do you want to add?
 newAdditionalEmail.heading = cy: What email address do you want to add?
