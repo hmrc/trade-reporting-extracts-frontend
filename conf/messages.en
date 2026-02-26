@@ -754,6 +754,7 @@ additionalEmail.title = Secondary email addresses
 additionalEmail.body = These email addresses are only used to send you notifications. If they are not used for 365 days, they will be removed from your account.
 additionalEmail.button.add = Add another email address
 additionalEmail.remove = Remove
+additionalEmail.limitReached = You have reached your additional email limit.
 
 newAdditionalEmail.title = What email address do you want to add?
 newAdditionalEmail.heading = What email address do you want to add?

@@ -16,6 +16,7 @@
 
 package controllers.contact
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.additionalEmail.NewAdditionalEmailFormProvider
 import pages.additionalEmail.NewAdditionalEmailPage
@@ -32,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NewAdditionalEmailController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
+  config: FrontendAppConfig,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   formProvider: NewAdditionalEmailFormProvider,
