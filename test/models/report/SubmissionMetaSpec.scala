@@ -48,14 +48,14 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
     "must serialise to JSON" in {
       val model = SubmissionMeta(
         reportConfirmations = Seq(ReportConfirmation("reportName", "importItem", "RE0000001")),
-        notificationEmail = "test@example.com",
         submittedAt = Instant.now(fixedClock),
-        isMoreThanOneReport = true
+        isMoreThanOneReport = true,
+        allEmails = Seq("test@example.com", "additional@example.com")
       )
 
       val json: JsValue = Json.toJson(model)
 
-      (json \ "notificationEmail").as[String] mustEqual "test@example.com"
+      (json \ "allEmails").as[Seq[String]] mustEqual Seq("test@example.com", "additional@example.com")
       (json \ "submittedAt").as[String] mustEqual "2025-05-05T00:00:00Z"
 
       val confirmations = (json \ "reportConfirmations").as[Seq[ReportConfirmation]]
@@ -74,7 +74,7 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
             "reportReference" -> "RE0000001"
           )
         ),
-        "notificationEmail"   -> "test@example.com",
+        "allEmails"           -> Seq("test@example.com", "additional@example.com"),
         // New field name aligned to model: submittedAt (ISO-8601)
         "submittedAt"         -> "2025-05-05T00:00:00Z",
         "isMoreThanOneReport" -> true
@@ -84,7 +84,7 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
       result mustBe a[JsSuccess[_]]
 
       val meta = result.get
-      meta.notificationEmail mustEqual "test@example.com"
+      meta.allEmails mustEqual Seq("test@example.com", "additional@example.com")
       meta.submittedAt mustEqual Instant.parse("2025-05-05T00:00:00Z")
 
       meta.reportConfirmations must have size 1
@@ -109,7 +109,7 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
             "reportReference" -> "RE0000003"
           )
         ),
-        "notificationEmail"   -> "test@example.com",
+        "allEmails"           -> Seq("test@example.com", "extra1@example.com", "extra2@example.com"),
         "submittedAt"         -> "2025-05-05T12:34:56Z",
         "isMoreThanOneReport" -> true
       )
@@ -119,6 +119,7 @@ class SubmissionMetaSpec extends AnyFreeSpec with Matchers {
 
       val meta = result.get
       meta.submittedAt mustEqual Instant.parse("2025-05-05T12:34:56Z")
+      meta.allEmails mustEqual Seq("test@example.com", "extra1@example.com", "extra2@example.com")
       meta.reportConfirmations.map(_.reportReference) must contain allOf ("RE0000002", "RE0000003")
     }
   }

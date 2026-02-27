@@ -48,9 +48,9 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .toJson(
           SubmissionMeta(
             reportConfirmations = Seq(ReportConfirmation("MyReport", "exportItem", "RE00000001")),
-            notificationEmail = notificationEmail,
             submittedAt = Instant.now(fixedClock),
-            isMoreThanOneReport = false
+            isMoreThanOneReport = false,
+            allEmails = Seq(notificationEmail) ++ selectedEmails
           )
         )
         .as[JsObject]
@@ -81,11 +81,10 @@ class RequestConfirmationControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          Some(emailString),
+          Seq(notificationEmail) ++ selectedEmails,
           false,
           Seq(ReportConfirmation("MyReport", "reportTypeImport.exportItem", "RE00000001")),
           surveyUrl,
-          notificationEmail,
           expectedDate,
           expectedTime
         )(request, messages(application)).toString
@@ -94,7 +93,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
         contentAsString(result) must include("RE00000001")
         contentAsString(result) must include(notificationEmail)
         contentAsString(result) must include(
-          messages(application)("requestConfirmation.single.processingRequest", notificationEmail)
+          "We’re processing your request"
         )
 
       }
@@ -114,9 +113,9 @@ class RequestConfirmationControllerSpec extends SpecBase {
               ReportConfirmation("MyReport", "importHeader", "RE00000002"),
               ReportConfirmation("MyReport", "importTaxLine", "RE00000003")
             ),
-            notificationEmail = notificationEmail,
             submittedAt = Instant.now(fixedClock),
-            isMoreThanOneReport = true
+            isMoreThanOneReport = true,
+            allEmails = Seq(notificationEmail) ++ selectedEmails
           )
         )
         .as[JsObject]
@@ -147,7 +146,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          Some(emailString),
+          Seq(notificationEmail) ++ selectedEmails,
           true,
           Seq(
             ReportConfirmation("MyReport", "reportTypeImport.importItem", "RE00000001"),
@@ -155,7 +154,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
             ReportConfirmation("MyReport", "reportTypeImport.importTaxLine", "RE00000003")
           ),
           surveyUrl,
-          notificationEmail,
           expectedDate,
           expectedTime
         )(request, messages(application)).toString
@@ -169,7 +167,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
         contentAsString(result) must include("Import tax line")
         contentAsString(result) must include(notificationEmail)
         contentAsString(result) must include(
-          messages(application)("requestConfirmation.plural.processingRequest", notificationEmail)
+          "We’re processing your request"
         )
       }
     }
@@ -184,9 +182,9 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .toJson(
           SubmissionMeta(
             reportConfirmations = Seq(ReportConfirmation("MyReport", "importTaxLine", "RE00000001")),
-            notificationEmail = notificationEmail,
             submittedAt = Instant.now(fixedClock),
-            isMoreThanOneReport = true
+            isMoreThanOneReport = true,
+            allEmails = Seq(notificationEmail) ++ selectedEmails
           )
         )
         .as[JsObject]
@@ -210,7 +208,7 @@ class RequestConfirmationControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) must include(
-          messages(application)("requestConfirmation.plural.processingRequest", notificationEmail)
+          "We’re processing your request"
         )
       }
     }
