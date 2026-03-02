@@ -22,7 +22,7 @@
         govukPanel: GovukPanel
 )
 
-@(additionalEmailList : Option[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, notificationEmail: String, date: String, time: String)(implicit request: Request[_], messages: Messages)
+@(allEmails: Seq[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, date: String, time: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
@@ -65,14 +65,17 @@
     <h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
 
     @if(isMoreThanOneReport) {
-        <p class="govuk-body">@messages("requestConfirmation.plural.processingRequest", notificationEmail)</p>
+        <p class="govuk-body">@messages("requestConfirmation.plural.processingRequest")</p>
         } else {
-        <p class="govuk-body">@messages("requestConfirmation.single.processingRequest", notificationEmail)</p>
+        <p class="govuk-body">@messages("requestConfirmation.single.processingRequest")</p>
     }
-
-
-    @if(!additionalEmailList.isEmpty) {
-    <p class="govuk-body">@messages("requestConfirmation.additionalEmail", additionalEmailList.get)</p>
+    
+    @if(allEmails.nonEmpty) {
+    <ul class="govuk-list govuk-list--bullet">
+        @allEmails.map { email =>
+        <li>@email</li>
+        }
+    </ul>
     }
 
     @if(isMoreThanOneReport) {

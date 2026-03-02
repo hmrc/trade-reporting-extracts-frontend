@@ -22,9 +22,9 @@ import java.time.Instant
 
 case class SubmissionMeta(
   reportConfirmations: Seq[ReportConfirmation],
-  notificationEmail: String,
   submittedAt: Instant,
-  isMoreThanOneReport: Boolean
+  isMoreThanOneReport: Boolean,
+  allEmails: Seq[String] = Seq.empty
 )
 
 object SubmissionMeta {
