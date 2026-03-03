@@ -57,7 +57,7 @@ class BusinessDetailsController @Inject (clock: Clock = Clock.systemUTC())(
       calculatedDateValue = computeCalculatedDateValue(thirdPartyDetails, status)
       rows                = rowGenerator(thirdPartyDetails, maybeCompanyName, traderEori)
       list                = SummaryListViewModel(rows = rows.flatten)
-    } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Upcoming))).recover {
+    } yield Ok(view(list, calculatedDateValue.getOrElse(""), status == UserActiveStatus.Pending))).recover {
       case _: NoAuthorisedUserFoundException =>
         Redirect(controllers.problem.routes.NoThirdPartyAccessController.onPageLoad())
     }
