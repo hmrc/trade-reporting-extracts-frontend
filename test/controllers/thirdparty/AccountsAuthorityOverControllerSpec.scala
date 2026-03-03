@@ -64,7 +64,7 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
       val mockService = mock[TradeReportingExtractsService]
       val accounts    = Seq(
         AccountAuthorityOverViewModel("GB123456789000", Some("Business Name"), Some(UserActiveStatus.Active)),
-        AccountAuthorityOverViewModel("GB987654321000", Some("Another Business Name"), Some(UserActiveStatus.Upcoming))
+        AccountAuthorityOverViewModel("GB987654321000", Some("Another Business Name"), Some(UserActiveStatus.Pending))
       )
       when(mockService.getAccountsAuthorityOver(any())(any()))
         .thenReturn(Future.successful(accounts))

@@ -593,7 +593,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
             eori = "EORITAUTHEST2",
             businessInfo = None,
             referenceName = None,
-            status = UserActiveStatus.Upcoming
+            status = UserActiveStatus.Pending
           )
         )
       }
@@ -691,7 +691,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
       "should return accounts from connector" in {
         val accounts = Seq(
           AccountAuthorityOverViewModel("GB111", Some("Business One"), Some(UserActiveStatus.Active)),
-          AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Upcoming))
+          AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Pending))
         )
 
         when(mockConnector.getAccountsAuthorityOver(eori))

@@ -81,7 +81,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
           eori = "GB987654321000",
           businessInfo = Some("Another Business Name"),
           referenceName = Some("Another Reference Name"),
-          UserActiveStatus.Upcoming
+          UserActiveStatus.Pending
         )
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))

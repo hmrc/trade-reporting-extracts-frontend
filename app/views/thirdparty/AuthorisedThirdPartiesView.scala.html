@@ -50,15 +50,6 @@
         @layout(pageTitle = titleNoForm(messages("authorisedThirdParties.title")), isFullWidth = true) {
             <h1 class="govuk-heading-xl">@messages("authorisedThirdParties.heading")</h1>
             <p class="govuk-body">@messages("authorisedThirdParties.message1")</p>
-            @if(!editThirdParty) {
-                <p class="govuk-body">
-                    @messages("authorisedThirdParties.message2")
-                    <a href="@controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url"
-                       class="govuk-link govuk-link--no-visited-state">
-                        @messages("authorisedThirdParties.link1")
-                    </a>.
-                </p>
-            }
             @authorisedThirdPartiesContent
         }
     }
