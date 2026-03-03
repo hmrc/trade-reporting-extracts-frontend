@@ -64,12 +64,8 @@
 
     <h2 class="govuk-heading-m">@messages("requestConfirmation.whatHappensNext")</h2>
 
-    @if(isMoreThanOneReport) {
-        <p class="govuk-body">@messages("requestConfirmation.plural.processingRequest")</p>
-        } else {
-        <p class="govuk-body">@messages("requestConfirmation.single.processingRequest")</p>
-    }
-    
+    <p class="govuk-body">@messages("requestConfirmation.processingRequest")</p>
+
     @if(allEmails.nonEmpty) {
     <ul class="govuk-list govuk-list--bullet">
         @allEmails.map { email =>
