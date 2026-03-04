@@ -98,7 +98,13 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                     calculateMaxEndDate(startDate),
                     ReportHelpers.isMoreThanOneReport(request.userAnswers),
                     maybeThirdPartyRequest = true,
-                    Some(thirdPartyStartEndDateStringGen(calculateMaxEndDate(startDate), details.dataStartDate, details.dataEndDate))
+                    Some(
+                      thirdPartyStartEndDateStringGen(
+                        calculateMaxEndDate(startDate),
+                        details.dataStartDate,
+                        details.dataEndDate
+                      )
+                    )
                   )
                 )
               }
@@ -141,7 +147,13 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                         calculateMaxEndDate(startDate), // hint text
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest,
-                        Some(thirdPartyStartEndDateStringGen(calculateMaxEndDate(startDate), details.dataStartDate, details.dataEndDate))
+                        Some(
+                          thirdPartyStartEndDateStringGen(
+                            calculateMaxEndDate(startDate),
+                            details.dataStartDate,
+                            details.dataEndDate
+                          )
+                        )
                       )
                     )
                   case None          =>
@@ -178,7 +190,7 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
   )(implicit messages: Messages): String =
     (dataStartDate, dataEndDate) match {
       case (Some(_), Some(_)) =>
-       messages("customRequestEndDate.thirdParty.message2")
+        messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.to")
           + " " + DateTimeFormats.dateFormatter(dataEndDate.get)
@@ -187,7 +199,8 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
         messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.onwards") + " " + messages(
-            "customRequestEndDate.thirdParty.message3", endDateHint
+            "customRequestEndDate.thirdParty.message3",
+            endDateHint
           )
       case (_, _)             =>
         messages("customRequestEndDate.thirdParty.message3", endDateHint)

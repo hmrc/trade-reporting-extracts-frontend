@@ -42,9 +42,9 @@ object UserActiveStatus {
 
   implicit val userActiveStatusFormat: Format[UserActiveStatus] = new Format[UserActiveStatus] {
     override def reads(json: JsValue): JsResult[UserActiveStatus] = json match {
-      case JsString("Active")   => JsSuccess(Active)
+      case JsString("Active")  => JsSuccess(Active)
       case JsString("Pending") => JsSuccess(Pending)
-      case _                    => JsError("Unknown UserActiveStatus")
+      case _                   => JsError("Unknown UserActiveStatus")
     }
 
     override def writes(status: UserActiveStatus): JsValue = JsString(status.displayName)

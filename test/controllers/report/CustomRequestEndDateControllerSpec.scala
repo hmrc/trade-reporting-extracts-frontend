@@ -143,7 +143,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a start date of 1 January 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(
           getRequest,
@@ -188,7 +188,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You have access to data from 1 January 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(
           getRequest,
@@ -237,7 +237,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 to 1 February 2025. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You have access to data from 1 January 2025 to 1 February 2025. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(
           getRequest,
@@ -455,7 +455,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You entered a start date of 1 January 2025. You have access to data from 1 January 2025 onwards. The end date must be within your access period, no more than 31 days after your start date, and at least 2 days before today."
+            "You have access to data from 1 January 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(request, messages(application)).toString
       }
