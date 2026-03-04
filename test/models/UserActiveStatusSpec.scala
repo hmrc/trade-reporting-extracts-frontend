@@ -48,7 +48,7 @@ class UserActiveStatusSpec extends SpecBase {
 
       status mustEqual UserActiveStatus.Pending
       status.cssClass mustEqual "govuk-tag--blue"
-      status.displayName mustEqual "Upcoming"
+      status.displayName mustEqual "Pending"
     }
 
     "return upcoming when reportDataStart is after cutoffDate" in {
@@ -59,19 +59,19 @@ class UserActiveStatusSpec extends SpecBase {
 
       status mustEqual UserActiveStatus.Pending
       status.cssClass mustEqual "govuk-tag--blue"
-      status.displayName mustEqual "Upcoming"
+      status.displayName mustEqual "Pending"
     }
   }
 
   "UserActiveStatus JSON format" - {
     "serialize to JsString" in {
       UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Active) mustEqual JsString("Active")
-      UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Pending) mustEqual JsString("Upcoming")
+      UserActiveStatus.userActiveStatusFormat.writes(UserActiveStatus.Pending) mustEqual JsString("Pending")
     }
 
     "deserialize from JsString" in {
       UserActiveStatus.userActiveStatusFormat.reads(JsString("Active")) mustEqual JsSuccess(UserActiveStatus.Active)
-      UserActiveStatus.userActiveStatusFormat.reads(JsString("Upcoming")) mustEqual JsSuccess(UserActiveStatus.Pending)
+      UserActiveStatus.userActiveStatusFormat.reads(JsString("Pending")) mustEqual JsSuccess(UserActiveStatus.Pending)
     }
 
     "fail to deserialize unknown value" in {

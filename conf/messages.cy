@@ -531,7 +531,7 @@ thirdPartyAddedConfirmation.feedbackDuration = (mae’n cymryd 30 eiliad)
 BusinessInfo.checkYourAnswersLabel = Gwybodaeth busnes
 
 thirdPartyStatus.active = Ar waith
-thirdPartyStatus.pending = cy: Pending
+thirdPartyStatus.pending = Wrthi’n aros
 
 authorisedThirdParties.title = Rheoli pa drydydd parti a all gael mynediad at eich data
 authorisedThirdParties.heading = Rheoli pa drydydd parti a all gael mynediad at eich data
@@ -540,7 +540,7 @@ authorisedThirdParties.view = Gweld
 authorisedThirdParties.view.hidden = Gweld manylion {0}
 authorisedThirdParties.remove = Tynnu
 authorisedThirdParties.edit = Golygu
-authorisedThirdParties.edit.hidden = Golygu manylion {0}
+authorisedThirdParties.edit.hidden = Golygu {0} manylion
 authorisedThirdParties.remove.hidden = Tynnu {0} fel trydydd parti
 authorisedThirdParties.noThirdParties.title = Nid ydych wedi ychwanegu unrhyw drydydd parti
 authorisedThirdParties.noThirdParties.heading = Nid ydych wedi ychwanegu unrhyw drydydd parti

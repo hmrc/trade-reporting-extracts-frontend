@@ -82,8 +82,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        content.contains("Give data access") mustBe true
-        content.contains("View data access") mustBe true
+        content.contains("Give access to your data") mustBe true
+        content.contains("View your data access") mustBe true
       }
     }
 
@@ -103,8 +103,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         val content = contentAsString(result)
-        content.contains("Give data access") mustBe false
-        content.contains("View data access") mustBe false
+        content.contains("Give access to your data") mustBe false
+        content.contains("View your data access") mustBe false
       }
     }
   }
