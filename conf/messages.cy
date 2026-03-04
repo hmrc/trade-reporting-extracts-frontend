@@ -799,3 +799,9 @@ emailRemovedConfirmation.message = Ni fydd y cyfeiriad e-bost hwn yn cael ei dde
 emailRemovedConfirmation.message1 = Gallwch
 emailRemovedConfirmation.message2 = ychwanegu cyfeiriad e-bost arall yn eich manylion cyswllt.
 emailRemovedConfirmation.link = Ewch i’r hafan
+
+thirdPartyNavIssue.title = Roedd problem wrth ychwanegu eich trydydd parti.
+thirdPartyNavIssue.h1 = Roedd problem wrth ychwanegu eich trydydd parti.
+thirdPartyNavIssue.message1 = Doedd dim modd ychwanegu’r trydydd parti oherwydd i chi gael at y dudalen mewn ffordd annisgwyl.
+thirdPartyNavIssue.message2 =Er mwyn ychwanegu trydydd parti, {0}
+thirdPartyNavIssue.link = dechreuwch arni eto.

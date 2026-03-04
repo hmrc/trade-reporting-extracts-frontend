@@ -24,17 +24,17 @@ import views.html.problem.ThirdPartyIssueView
 
 import javax.inject.Inject
 
-class ThirdPartyIssueController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ThirdPartyIssueView
-                                     ) extends FrontendBaseController with I18nSupport {
+class ThirdPartyIssueController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: ThirdPartyIssueView
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
-      Ok(view())
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Ok(view())
   }
 }
