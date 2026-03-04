@@ -799,3 +799,10 @@ emailRemovedConfirmation.message = cy: This email address will no longer be used
 emailRemovedConfirmation.message1 = cy: You can
 emailRemovedConfirmation.message2 = cy: add another email address in your contact details.
 emailRemovedConfirmation.link = cy: Go to homepage
+
+thirdPartyNavIssue.title = Roedd problem wrth ychwanegu eich trydydd parti.
+thirdPartyNavIssue.h1 = Roedd problem wrth ychwanegu eich trydydd parti.
+thirdPartyNavIssue.message1 = Doedd dim modd ychwanegu’r trydydd parti oherwydd i chi gael at y dudalen mewn ffordd annisgwyl.
+thirdPartyNavIssue.message2 =Er mwyn ychwanegu trydydd parti, {0}
+thirdPartyNavIssue.link = dechreuwch arni eto.
+

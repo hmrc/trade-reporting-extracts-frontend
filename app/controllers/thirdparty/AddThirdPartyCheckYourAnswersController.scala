@@ -71,7 +71,7 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
           Future.successful(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(userAnswers))
         updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
         _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-      } yield Redirect(controllers.thirdparty.routes.AddThirdPartyController.onPageLoad())
+      } yield Redirect(controllers.problem.routes.ThirdPartyIssueController.onPageLoad())
     } else {
       for {
         companyInfo     <- tradeReportingExtractsService.getCompanyInformation(userAnswers.get(EoriNumberPage).get)

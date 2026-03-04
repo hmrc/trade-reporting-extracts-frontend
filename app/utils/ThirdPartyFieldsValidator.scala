@@ -47,7 +47,7 @@ object ThirdPartyFieldsValidator {
 
     hasDataOwnerConsent match {
       case Some(false) =>
-        true
+        false
       case Some(true)  =>
         true
       case None        =>
