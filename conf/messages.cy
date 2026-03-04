@@ -96,8 +96,8 @@ unsupportedAffinityGroup.bullet2 = a mewngofnodi gan ddefnyddio’r manylion cyw
 reportGuidance.title = Gofyn am gael adroddiad CDS
 reportGuidance.heading = Gofyn am gael adroddiad CDS
 reportGuidance.instructions.title = Cyn i chi ddechrau
-reportGuidance.message = Byddwn yn anfon e-bost at {0} pan fydd eich adroddiad yn barod. Gallwch wneud cais am hyd at 25 o adroddiadau bob dydd. Bydd y rhan fwyaf o’r adroddiadau yn barod o fewn 15 munud, ond gall gymryd hyd at 72 awr.
-reportGuidance.intro = Pan fyddwch yn gofyn am gael adroddiad, gallwch wneud y canlynol:
+reportGuidance.limit.message = Gallwch ofyn am gael hyd at {0} o adroddiadau bob dydd.
+reportGuidance.message = Bydd y rhan fwyaf o’r adroddiadau yn barod o fewn 15 munud, ond gall gymryd hyd at 72 awr. Byddwn yn anfon e-bost at {0} pan fydd eich adroddiad yn barod.reportGuidance.intro = Pan fyddwch yn gofyn am gael adroddiad, gallwch wneud y canlynol:
 reportGuidance.bullet0 = cael data am rif EORI sy’n dechrau gyda GB
 reportGuidance.bullet1 = dim ond cael data am y 4 blynedd ddiwethaf, hyd at 2 ddiwrnod cyn dyddiad heddiw
 reportGuidance.bullet2 = cynnwys data o hyd at 31 diwrnod mewn un adroddiad
