@@ -40,7 +40,6 @@ class DecisionController @Inject() (
   view: DecisionView,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
-  belowReportRequestLimitAction: BelowReportRequestLimitAction,
   formProvider: DecisionFormProvider,
   navigator: ReportNavigator,
   reportRequestSection: ReportRequestSection,
@@ -53,13 +52,13 @@ class DecisionController @Inject() (
   private val form: Form[Decision] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData andThen belowReportRequestLimitAction) { implicit request =>
+    (identify andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(DecisionPage).fold(form)(form.fill)
       Ok(view(preparedForm, mode))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen getData andThen requireData andThen belowReportRequestLimitAction).async { implicit request =>
+    (identify andThen getData andThen requireData).async { implicit request =>
       form
         .bindFromRequest()
         .fold(

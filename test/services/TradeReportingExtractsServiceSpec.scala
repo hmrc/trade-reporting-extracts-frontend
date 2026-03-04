@@ -294,7 +294,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
             ReportRequestUserAnswersModel(
               eori = "eori",
               dataType = "import",
-              whichEori = Some("eori"),
+              whichEori = "eori",
               eoriRole = Set("declarant"),
               reportType = Set("importHeader"),
               reportStartDate = "2025-04-16",
@@ -321,7 +321,7 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           ReportRequestUserAnswersModel(
             eori = "eori",
             dataType = "import",
-            whichEori = Some("eori"),
+            whichEori = "eori",
             eoriRole = Set("declarant"),
             reportType = Set("importHeader"),
             reportStartDate = "2025-04-16",

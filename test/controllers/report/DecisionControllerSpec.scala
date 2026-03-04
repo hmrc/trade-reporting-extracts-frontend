@@ -20,7 +20,6 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.actions.BelowReportRequestLimitAction
 import controllers.problem.routes
-import controllers.problem.routes.TooManySubmissionsController
 import forms.report.DecisionFormProvider
 import models.report.{ChooseEori, Decision, ReportTypeImport}
 import models.requests.DataRequest
@@ -33,7 +32,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportTypeImportPage}
 import play.api.data.Form
 import play.api.inject.bind
-import play.api.mvc.Results.Redirect
 import play.api.mvc.{Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -311,50 +309,6 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to TooManySubmissionsController for a GET when submission limit is reached" in {
-      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
-        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
-          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
-
-        override protected def executionContext = global
-      }
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, decisionRoute)
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
-      }
-    }
-
-    "must redirect to TooManySubmissionsController for a POST when submission limit is reached" in {
-      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
-        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
-          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
-
-        override protected def executionContext = global
-      }
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, decisionRoute)
-          .withFormUrlEncodedBody(("value", Decision.values.head.toString))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
       }
     }
 
