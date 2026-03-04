@@ -761,6 +761,7 @@ newAdditionalEmail.message = We will only use this email to contact the person w
 newAdditionalEmail.error.required = Enter the email address you want to add
 newAdditionalEmail.error.invalidFormat = Enter a new email address in the correct format, like name@example.com
 newAdditionalEmail.error.length = Enter a new email address not greater than 100 characters
+newAdditionalEmail.error.alreadyAdded = Enter an email address that is not already added
 
 checkEmail.title = Check email address
 checkEmail.heading = Check email address

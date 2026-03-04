@@ -761,6 +761,7 @@ newAdditionalEmail.message = Dim ond i gysylltu â’r person dan sylw pan fydd 
 newAdditionalEmail.error.required = Nodwch y cyfeiriad e-bost yr hoffech ei ychwanegu
 newAdditionalEmail.error.invalidFormat = Nodwch gyfeiriad e-bost newydd yn y fformat cywir, er enghraifft enw@enghraifft.com
 newAdditionalEmail.error.length = Nodwch gyfeiriad e-bost newydd sydd ddim mwy na 100 o gymeriadau
+newAdditionalEmail.error.alreadyAdded = Nodwch gyfeiriad e-bost nad yw wedi’i ychwanegu eisoes
 
 checkEmail.title = Gwirio’r cyfeiriad e-bost
 checkEmail.heading = Gwirio’r cyfeiriad e-bost

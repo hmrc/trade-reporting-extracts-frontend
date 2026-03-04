@@ -22,6 +22,7 @@ import pages.additionalEmail.NewAdditionalEmailPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contact.NewAdditionalEmailView
 
@@ -35,41 +36,45 @@ class NewAdditionalEmailController @Inject() (
   getData: DataRetrievalAction,
   formProvider: NewAdditionalEmailFormProvider,
   val controllerComponents: MessagesControllerComponents,
-  view: NewAdditionalEmailView
+  view: NewAdditionalEmailView,
+  tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
+    tradeReportingExtractsService.getAdditionalEmails(request.eori).map { existingEmails =>
+      val form         = formProvider(existingEmails)
+      val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) { implicit request =>
-
-    val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+      Ok(view(preparedForm))
     }
-
-    Ok(view(preparedForm))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
-        value =>
-          request.userAnswers match {
-            case Some(userAnswers) =>
-              for {
-                updatedAnswers <- Future.fromTry(userAnswers.set(NewAdditionalEmailPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
-            case None              =>
-              for {
-                userAnswers <- Future.fromTry(models.UserAnswers(request.userId).set(NewAdditionalEmailPage, value))
-                _           <- sessionRepository.set(userAnswers)
-              } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
-          }
-      )
+    tradeReportingExtractsService.getAdditionalEmails(request.eori).flatMap { existingEmails =>
+      val form = formProvider(existingEmails)
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+          value =>
+            request.userAnswers match {
+              case Some(userAnswers) =>
+                for {
+                  updatedAnswers <- Future.fromTry(userAnswers.set(NewAdditionalEmailPage, value))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
+              case None              =>
+                for {
+                  userAnswers <- Future.fromTry(models.UserAnswers(request.userId).set(NewAdditionalEmailPage, value))
+                  _           <- sessionRepository.set(userAnswers)
+                } yield Redirect(controllers.contact.routes.CheckAdditionalEmailController.onPageLoad())
+            }
+        )
+    }
   }
 }
