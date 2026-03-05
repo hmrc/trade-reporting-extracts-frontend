@@ -37,13 +37,9 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
         </p>
     } else {
         <p class="govuk-body govuk-!-margin-bottom-0">
-            @messages("customRequestEndDate.message1", startDate)
+            @messages("customRequestEndDate.message1", startDate, endDateHint)
         </p>
     }
-}
-
-@hint = {
-    <p class="govuk-hint">@messages("customRequestEndDate.hint", endDateHint)</p>
 }
 
 @pageHeading = {
@@ -74,7 +70,6 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
             DateViewModel(
                 field  = form("value")
             )
-            .withHint(HintViewModel(HtmlContent(hint)))
         )
 
         @govukButton(

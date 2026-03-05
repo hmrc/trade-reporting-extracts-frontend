@@ -78,7 +78,7 @@ class ThirdPartyDetailsController @Inject() (
         view(
           list,
           calculatedDateValue.getOrElse(""),
-          status == UserActiveStatus.Upcoming,
+          status == UserActiveStatus.Pending,
           hasChangesFlag,
           thirdPartyEori
         )
