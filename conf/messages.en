@@ -800,8 +800,8 @@ emailRemovedConfirmation.message1 = You can
 emailRemovedConfirmation.message2 = add another email address in your contact details.
 emailRemovedConfirmation.link = Go to homepage
 
-thirdPartyNavIssue.title = There was a problem adding your third party.
-thirdPartyNavIssue.h1 = There was a problem adding your third party.
+thirdPartyNavIssue.title = There was a problem adding your third party
+thirdPartyNavIssue.h1 = There was a problem adding your third party
 thirdPartyNavIssue.message1 = A third party could not be added because the page was accessed in an unexpected way.
 thirdPartyNavIssue.message2 = To add a third party, {0}.
 thirdPartyNavIssue.link = start again
