@@ -178,9 +178,9 @@ class SubmitReportControllerSpec extends SpecBase {
           .toJson(
             SubmissionMeta(
               reportConfirmations = reportConfirmations,
-              notificationEmail = notificationEmail.address,
               submittedAt = fixedInstant,
-              isMoreThanOneReport = false
+              isMoreThanOneReport = false,
+              allEmails = Seq(notificationEmail.address)
             )
           )
           .as[JsObject]
@@ -233,6 +233,88 @@ class SubmitReportControllerSpec extends SpecBase {
           ex mustBe a[RuntimeException]
           ex.getMessage mustEqual "Service error"
         }
+      }
+    }
+
+    "must collect and store additional emails in SubmissionMeta" in {
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+
+      val notificationEmail   = NotificationEmail("primary@example.com", LocalDateTime.now())
+      val reportConfirmations = Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
+
+      val fixedInstant = Instant.parse("2025-06-01T12:00:00Z")
+      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+
+      val userAnswers = emptyUserAnswers
+        .set(
+          pages.report.EmailSelectionPage,
+          Set("existing@example.com", models.report.EmailSelection.AddNewEmailValue)
+        )
+        .success
+        .value
+        .set(pages.report.NewEmailNotificationPage, "new@example.com")
+        .success
+        .value
+
+      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+        .thenReturn(Future.successful(notificationEmail))
+
+      when(mockTradeReportingExtractsService.createReportRequest(any())(any()))
+        .thenReturn(Future.successful(reportConfirmations))
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(
+          Some(
+            ReportRequestUserAnswersModel(
+              eori = "GB123456789000",
+              dataType = "exports",
+              whichEori = "GB987654321000",
+              eoriRole = Set("declarant"),
+              reportType = Set("summary"),
+              reportStartDate = "2025-01-01",
+              reportEndDate = "2025-12-31",
+              reportName = "Test Report",
+              additionalEmail = None
+            )
+          )
+        )
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+          inject.bind[Clock].toInstance(fixedClock)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val expectedEmails         = Seq("primary@example.com", "existing@example.com", "new@example.com")
+        val expectedSubmissionMeta = Json
+          .toJson(
+            SubmissionMeta(
+              reportConfirmations = reportConfirmations,
+              submittedAt = fixedInstant,
+              isMoreThanOneReport = false,
+              allEmails = expectedEmails
+            )
+          )
+          .as[JsObject]
+
+        verify(mockSessionRepository).set(argThat { userAnswers =>
+          userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
+          userAnswers.get(AlreadySubmittedFlag()).contains(true)
+        })
       }
     }
   }

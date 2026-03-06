@@ -18,7 +18,8 @@ package controllers.report
 
 import controllers.actions.*
 import models.{AlreadySubmittedFlag, SectionNavigation}
-import models.report.{ReportRequestSection, SubmissionMeta}
+import models.report.{EmailSelection, ReportRequestSection, SubmissionMeta}
+import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Redirect
@@ -52,11 +53,13 @@ class SubmitReportController @Inject() (
           notificationEmail     <- tradeReportingExtractsService.getNotificationEmail(request.eori)
           reportConfirmations   <- tradeReportingExtractsService.createReportRequest(reportRequest)
           updatedAnswers         = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+          additionalEmails       = collectAdditionalEmails(request.userAnswers)
+          allEmails              = notificationEmail.address +: additionalEmails
           submissionMetaModel    = SubmissionMeta(
                                      reportConfirmations = reportConfirmations,
-                                     notificationEmail = notificationEmail.address,
                                      submittedAt = Instant.now(clock),
-                                     isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers)
+                                     isMoreThanOneReport = ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                                     allEmails = allEmails
                                    )
           updatedAnswersWithFlag = updatedAnswers.set(AlreadySubmittedFlag(), true).get
           userAnswersWithMeta    = updatedAnswersWithFlag.copy(
@@ -71,6 +74,28 @@ class SubmitReportController @Inject() (
           Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
         }
     }
+  }
+
+  private def collectAdditionalEmails(userAnswers: models.UserAnswers): Seq[String] = {
+    val emails = userAnswers.get(EmailSelectionPage).toSeq.flatMap { selectedStrings =>
+      selectedStrings.flatMap {
+        case EmailSelection.AddNewEmailValue =>
+          // This is the "AddNewEmail" option - get the new email from NewEmailNotificationPage
+          userAnswers
+            .get(NewEmailNotificationPage)
+            .map(_.trim)
+            .filter(_.nonEmpty)
+        case emailString                     =>
+          // This is an existing email address
+          val trimmedEmail = emailString.trim
+          if (trimmedEmail.nonEmpty && trimmedEmail != EmailSelection.AddNewEmailValue) {
+            Some(trimmedEmail)
+          } else {
+            None
+          }
+      }
+    }
+    emails
   }
 
 }
