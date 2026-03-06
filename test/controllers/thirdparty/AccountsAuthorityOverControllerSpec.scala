@@ -55,7 +55,7 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementsByClass("govuk-heading-xl").text() must include(
-          "You do not have third-party access to any businesses"
+          "Businesses you have third-party access to"
         )
       }
     }
