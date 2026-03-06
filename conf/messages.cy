@@ -751,9 +751,10 @@ thirdPartyUpdatedConfirmation.link1 = reoli pa drydydd parti sydd â mynediad at
 thirdPartyUpdatedConfirmation.link2 = Ewch i’r hafan
 
 additionalEmail.title = Cyfeiriadau e-bost eilaidd
-additionalEmail.body = Dim ond i anfon hysbysiadau atoch y byddwn yn defnyddio’r cyfeiriadau e-bost hyn. Os nad ydynt yn cael eu defnyddio am 356 diwrnod, cânt eu tynnu o’ch cyfrif.
+additionalEmail.body = Gallwch ychwanegu hyd at 5 cyfeiriad e-bost ychwanegol. Dim ond i anfon hysbysiadau atoch y byddwn yn defnyddio’r cyfeiriadau e-bost hyn. Os nad ydynt yn cael eu defnyddio am 365 diwrnod, cânt eu tynnu o’ch cyfrif.
 additionalEmail.button.add = Ychwanegu cyfeiriad e-bost arall
 additionalEmail.remove = Dileu
+additionalEmail.limitReached = Nid oes modd i chi nodi rhagor o e-byst ychwanegol.
 
 newAdditionalEmail.title = Pa gyfeiriad e-bost yr hoffech ei ychwanegu?
 newAdditionalEmail.heading = Pa gyfeiriad e-bost yr hoffech ei ychwanegu?
