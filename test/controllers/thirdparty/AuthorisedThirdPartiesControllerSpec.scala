@@ -64,7 +64,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         ).toString
 
         val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include("You have not added any third parties yet")
+        document.getElementsByClass("govuk-heading-xl").text() must include("You have not added any third parties")
       }
     }
 
