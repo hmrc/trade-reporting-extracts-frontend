@@ -16,3 +16,4 @@ GET        /report-failed/:reportName/:reportRef                       controlle
 
 
 GET        /navigation-error                      controllers.problem.ReportRequestIssueController.onPageLoad()
+GET        /navigation-error-add-a-third-party                      controllers.problem.ThirdPartyIssueController.onPageLoad()

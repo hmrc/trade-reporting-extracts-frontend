@@ -20,11 +20,11 @@ layout: templates.Layout
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("reportNavIssue.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("thirdPartyNavIssue.title")), showBackLink = false) {
 
-<h1 class="govuk-heading-xl">@messages("reportNavIssue.h1")</h1>
+<h1 class="govuk-heading-xl">@messages("thirdPartyNavIssue.h1")</h1>
 <div class="govuk-body">
- <p>@messages("reportNavIssue.message1")</p>
- <p>@Html(messages("reportNavIssue.message2", s"""<a href="${controllers.report.routes.ReportGuidanceController.onPageLoad().url}"
-                                                     class="govuk-link govuk-link--no-visited-state">${messages("reportNavIssue.link")}</a>"""))</p>
- }
+    <p>@messages("thirdPartyNavIssue.message1")</p>
+    <p>@Html(messages("thirdPartyNavIssue.message2", s"""<a href="${controllers.thirdparty.routes.AddThirdPartyController.onPageLoad().url}"
+                                                        class="govuk-link govuk-link--no-visited-state">${messages("thirdPartyNavIssue.link")}</a>"""))</p>
+    }
