@@ -18,9 +18,8 @@ package controllers.contact
 
 import base.SpecBase
 import forms.additionalEmail.NewAdditionalEmailFormProvider
-import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.additionalEmail.NewAdditionalEmailPage
 import play.api.inject.bind
@@ -85,6 +84,36 @@ class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(formWithExistingEmails)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to the contact details page when user has reached additional email limit of 5" in {
+      val existingEmails            = Seq(
+        "existing1@example.com",
+        "existing2@example.com",
+        "existing3@example.com",
+        "existing4@example.com",
+        "existing5@example.com"
+      )
+      val mockTradeReportingService = mock[TradeReportingExtractsService]
+
+      when(mockTradeReportingService.getAdditionalEmails(any())(any()))
+        .thenReturn(Future.successful(existingEmails))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController
+          .onPageLoad()
+          .url
       }
     }
 
