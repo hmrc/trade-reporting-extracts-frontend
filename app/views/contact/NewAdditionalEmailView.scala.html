@@ -21,6 +21,7 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
+    govukLabel: GovukLabel,
     govukButton: GovukButton
 )
 
@@ -29,8 +30,11 @@
     <p class="govuk-body">@messages("newAdditionalEmail.message")</p>
 }
 @heading = {
-    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("newAdditionalEmail.heading")</h1>
+    @govukLabel(
+        LabelViewModel(messages("newAdditionalEmail.heading")).forAttr("value").asPageHeading()
+    )
 }
+
 @layout(pageTitle = title(form, messages("newAdditionalEmail.title"))) {
 
     @formHelper(action = controllers.contact.routes.NewAdditionalEmailController.onSubmit()) {
