@@ -62,12 +62,14 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         "value.year"  -> validAnswer.getYear.toString
       )
 
+  private val startDate = LocalDate.of(2024, 1, 1)
+
   "ThirdPartyAccessEndDate Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, LocalDate.of(2024, 1, 1)).success.value)
+        Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, startDate).success.value)
       ).build()
 
       running(application) {
@@ -76,7 +78,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", "1 2 2024")(
+        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", "1 1 2025")(
           getRequest,
           messages(application)
         ).toString
@@ -86,7 +88,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId)
-        .set(ThirdPartyAccessStartDatePage, LocalDate.of(2024, 1, 1))
+        .set(ThirdPartyAccessStartDatePage, startDate)
         .success
         .value
         .set(ThirdPartyAccessEndDatePage, Some(validAnswer))
@@ -101,7 +103,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 January 2024", "1 2 2024")(
+        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 January 2024", "1 1 2025")(
           getRequest,
           messages(application)
         ).toString
@@ -118,7 +120,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(userAnswers =
           Some(
             emptyUserAnswers
-              .set(ThirdPartyAccessStartDatePage, LocalDate.of(2024, 1, 1))
+              .set(ThirdPartyAccessStartDatePage, startDate)
               .success
               .value
           )
@@ -142,7 +144,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
-            .set(ThirdPartyAccessStartDatePage, LocalDate.of(2024, 1, 1))
+            .set(ThirdPartyAccessStartDatePage, startDate)
             .success
             .value
         )
@@ -160,7 +162,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", "1 2 2024")(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", "1 1 2025")(
           request,
           messages(application)
         ).toString

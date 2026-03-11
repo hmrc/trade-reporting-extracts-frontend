@@ -59,7 +59,7 @@ class ThirdPartyAccessEndDateController @Inject() (
       case None        => form
       case Some(value) => form.fill(value)
     }
-    val dateFormatted: String = getStartDatePlusOneMonth(request)
+    val dateFormatted: String = getStartDatePlusOneYear(request)
     Ok(
       view(
         preparedForm,
@@ -72,7 +72,7 @@ class ThirdPartyAccessEndDateController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val dateFormatted: String         = getStartDatePlusOneMonth(request)
+      val dateFormatted: String         = getStartDatePlusOneYear(request)
       val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
       form
@@ -99,8 +99,8 @@ class ThirdPartyAccessEndDateController @Inject() (
         )
   }
 
-  private def getStartDatePlusOneMonth(request: DataRequest[AnyContent]) = {
-    val startDatePlusOneMonth: LocalDate = request.userAnswers.get(ThirdPartyAccessStartDatePage).get.plusMonths(1)
+  private def getStartDatePlusOneYear(request: DataRequest[AnyContent]) = {
+    val startDatePlusOneMonth: LocalDate = request.userAnswers.get(ThirdPartyAccessStartDatePage).get.plusYears(1)
     val dateFormatted: String            = startDatePlusOneMonth.format(DateTimeFormats.dateTimeHintFormat)
     dateFormatted
   }
