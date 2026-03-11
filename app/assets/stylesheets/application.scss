@@ -133,10 +133,6 @@ $tre-mobile-breakpoint: 640px;
     display: none !important;
   }
 
-  p:contains("To keep a record, you can print this page"){
-    display: none !important;
-  }
-
   p.govuk-body:has(> a.govuk-link[href="/request-customs-declaration-data/requested-reports"]),
   p.govuk-body:has(> a.govuk-link[href="dashboard"]) {
    display: none !important;
