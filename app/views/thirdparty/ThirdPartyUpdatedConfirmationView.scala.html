@@ -36,7 +36,7 @@ govukPanel: GovukPanel
 
 
     <p class="govuk-body">@messages("thirdPartyUpdatedConfirmation.message1", date, time)</p>
-    <p class="govuk-body">@messages("thirdPartyUpdatedConfirmation.message2")
+    <p class="govuk-body js-visible">@messages("thirdPartyUpdatedConfirmation.message2")
         <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("thirdPartyUpdatedConfirmation.print.link")</a>
     </p>
     <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
