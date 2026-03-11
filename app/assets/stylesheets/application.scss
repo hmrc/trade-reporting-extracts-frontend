@@ -117,7 +117,14 @@ $tre-mobile-breakpoint: 640px;
     visibility: hidden !important;
   }
 
+  h2.govuk-heading-l:last-of-type
+  {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
   p:has(a[onclick*="print"]),
+  p:has(a[href*="dashboard"]),
   p:has(a[href="#print"]),
   p:has(a[href*="/feedback/"]),
   p:has(a[id="print-page"]),
@@ -133,6 +140,11 @@ $tre-mobile-breakpoint: 640px;
   p.govuk-body:has(> a.govuk-link[href="/request-customs-declaration-data/requested-reports"]),
   p.govuk-body:has(> a.govuk-link[href="dashboard"]) {
    display: none !important;
+  }
+
+  p:has(a[href*="manage-third-parties"]) {
+    display: none !important;
+    visibility: hidden !important;
   }
 
   .hmrc-report-technical-issue{
