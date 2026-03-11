@@ -74,3 +74,69 @@ $tre-mobile-breakpoint: 640px;
      overflow-wrap: anywhere;
  }
 
+@media print {
+  .print-hidden,
+  .govuk-\!-display-none-print {
+    display: none !important;
+  }
+
+  .govuk-back-link,
+  a.govuk-back-link,
+  .govuk-back-link.js-visible,
+  a[class*="govuk-back-link"],
+  a[class*="back-link"],
+  [class*="back-link"],
+  .govuk-phase-banner,
+  .js-visible {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .govuk-header,
+  .govuk-footer,
+  .hmrc-header,
+  .hmrc-footer,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  .govuk-button,
+  .govuk-button-group,
+  button {
+    display: none !important;
+  }
+
+  a[href*="signOut"],
+  .govuk-link[href*="feedback"],
+  .govuk-link[href*="survey"],
+  a[onclick*="print"],
+  a[href="#print"],
+  a[href="#"][class*="back"]{
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  p:has(a[onclick*="print"]),
+  p:has(a[href="#print"]),
+  p:has(a[href*="/feedback/"]),
+  p:has(a[id="print-page"]),
+  script,
+  .govuk-skip-link {
+    display: none !important;
+  }
+
+  p:contains("To keep a record, you can print this page"){
+    display: none !important;
+  }
+
+  p.govuk-body:has(> a.govuk-link[href="/request-customs-declaration-data/requested-reports"]),
+  p.govuk-body:has(> a.govuk-link[href="dashboard"]) {
+   display: none !important;
+  }
+
+  .hmrc-report-technical-issue{
+    display: none !important;
+  }
+}
+
