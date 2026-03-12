@@ -30,6 +30,7 @@ import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import utils.DateTimeFormats
 import views.html.thirdparty.ThirdPartyAccessEndDateView
 
 import java.time.{LocalDate, ZoneOffset}
@@ -64,6 +65,8 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
 
   private val startDate = LocalDate.of(2024, 1, 1)
 
+  private val endDateHint = LocalDate.now().plusYears(1).format(DateTimeFormats.dateTimeHintFormat)
+
   "ThirdPartyAccessEndDate Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -78,7 +81,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", "1 1 2025")(
+        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", endDateHint)(
           getRequest,
           messages(application)
         ).toString
@@ -87,8 +90,10 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(ThirdPartyAccessStartDatePage, startDate)
+      val futureStartdate   = LocalDate.now().plusMonths(1)
+      val futureEndDateHint = futureStartdate.plusYears(1).format(DateTimeFormats.dateTimeHintFormat)
+      val userAnswers       = UserAnswers(userAnswersId)
+        .set(ThirdPartyAccessStartDatePage, futureStartdate)
         .success
         .value
         .set(ThirdPartyAccessEndDatePage, Some(validAnswer))
@@ -103,7 +108,12 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 January 2024", "1 1 2025")(
+        contentAsString(result) mustEqual view(
+          form.fill(Some(validAnswer)),
+          NormalMode,
+          DateTimeFormats.dateFormatter(futureStartdate),
+          futureEndDateHint
+        )(
           getRequest,
           messages(application)
         ).toString
@@ -162,7 +172,7 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", "1 1 2025")(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", endDateHint)(
           request,
           messages(application)
         ).toString
