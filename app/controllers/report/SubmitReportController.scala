@@ -18,10 +18,11 @@ package controllers.report
 
 import controllers.actions.*
 import models.report.ChooseEori.{Myauthority, Myeori}
-import models.{AlreadySubmittedFlag, SectionNavigation}
-import models.report.{EmailSelection, ReportRequestSection, SubmissionMeta}
+import models.report.EmailSelection
+import models.AlreadySubmittedFlag
+import models.report.{ReportRequestSection, SubmissionMeta}
 import models.requests.DataRequest
-import pages.report.{NewEmailNotificationPage, EmailSelectionPage, ChooseEoriPage, SelectThirdPartyEoriPage}
+import pages.report.{ChooseEoriPage, EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Redirect
@@ -73,8 +74,7 @@ class SubmitReportController @Inject() (
           notificationEmail     <- tradeReportingExtractsService.getNotificationEmail(request.eori)
           reportConfirmations   <- tradeReportingExtractsService.createReportRequest(reportRequest)
           updatedAnswers         = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
-          additionalEmails       = collectAdditionalEmails(request.userAnswers)
-          allEmails              = notificationEmail.address +: additionalEmails
+          allEmails              = collectAllEmails(request.userAnswers, notificationEmail.address)
           submissionMetaModel    = SubmissionMeta(
                                      reportConfirmations = reportConfirmations,
                                      submittedAt = Instant.now(clock),
@@ -95,24 +95,21 @@ class SubmitReportController @Inject() (
         }
     }
 
-  private def collectAdditionalEmails(userAnswers: models.UserAnswers): Seq[String] = {
-    val emails = userAnswers.get(EmailSelectionPage).toSeq.flatMap { selectedStrings =>
-      selectedStrings.flatMap {
-        case EmailSelection.AddNewEmailValue =>
-          userAnswers
-            .get(NewEmailNotificationPage)
-            .map(_.trim)
-            .filter(_.nonEmpty)
-        case emailString                     =>
-          val trimmedEmail = emailString.trim
-          if (trimmedEmail.nonEmpty && trimmedEmail != EmailSelection.AddNewEmailValue) {
-            Some(trimmedEmail)
-          } else {
-            None
-          }
-      }
-    }
-    emails
-  }
+  private def collectAllEmails(userAnswers: models.UserAnswers, primaryEmail: String): Seq[String] = {
+    val primary = Seq(primaryEmail)
 
+    val additionalEmails = userAnswers.get(EmailSelectionPage) match {
+      case Some(selectedEmails) =>
+        selectedEmails.toSeq.flatMap {
+          case EmailSelection.AddNewEmailValue                   =>
+            userAnswers.get(NewEmailNotificationPage).toSeq
+          case email if email != EmailSelection.AddNewEmailValue =>
+            Seq(email)
+        }
+      case None                 =>
+        Seq.empty
+    }
+
+    primary ++ additionalEmails
+  }
 }

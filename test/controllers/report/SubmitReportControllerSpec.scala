@@ -255,6 +255,9 @@ class SubmitReportControllerSpec extends SpecBase {
       val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
 
       val userAnswers = emptyUserAnswers
+        .set(ChooseEoriPage, Myeori)
+        .success
+        .value
         .set(
           pages.report.EmailSelectionPage,
           Set("existing@example.com", models.report.EmailSelection.AddNewEmailValue)
