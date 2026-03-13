@@ -30,9 +30,6 @@
 @hint = {
     <p class="govuk-hint">@messages("eoriRole.hint")</p>
 }
-@contentText = {
-    <p class="govuk-body">@messages("eoriRole.message")</p>
-}
 
 @layout(pageTitle = title(form, messages("eoriRole.title")),
         showSignOut = true
@@ -44,7 +41,6 @@
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
         @heading
-        @contentText
         @govukCheckboxes(
             CheckboxesViewModel(
                 form   = form,

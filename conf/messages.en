@@ -136,8 +136,7 @@ eoriRole.importer = Importer
 eoriRole.checkYourAnswersLabel = Your role in the report
 eoriRole.error.required = Select your role in the report
 eoriRole.change.hidden = your role in the report
-eoriRole.message = If you select more than one role, all the data will be in one report.
-eoriRole.hint = Select all that apply.
+eoriRole.hint = If you select more than one role, all the data will be in one report.
 
 reportDateRange.pluralReport.title = What date range do you want the reports to cover?
 reportDateRange.singleReport.title = What date range do you want the report to cover?
@@ -324,7 +323,7 @@ availableReports.table.businessInfo = Business name
 availableReports.table.reportType = Type of report
 availableReports.table.expiryDate = Expiry date
 availableReports.table.referenceNumber = Reference number
-availableReports.table.action = Action
+availableReports.table.action = Download
 availableReports.table.unknownCompany = Not applicable
 
 requestedReports.title = Reports in progress
