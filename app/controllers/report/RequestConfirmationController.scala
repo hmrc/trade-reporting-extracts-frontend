@@ -45,12 +45,11 @@ class RequestConfirmationController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-    val additionalEmailList = fetchUpdatedData(request)
-    val surveyUrl           = config.exitSurveyUrl
+    val surveyUrl = config.exitSurveyUrl
 
     val submissionMeta = request.userAnswers.submissionMeta
       .map(_.as[SubmissionMeta])
-      .getOrElse(SubmissionMeta(Seq.empty, "", Instant.now(), false))
+      .getOrElse(SubmissionMeta(Seq.empty, Instant.now(), false))
 
     val isMoreThanOneReport = submissionMeta.isMoreThanOneReport
 
@@ -59,11 +58,10 @@ class RequestConfirmationController @Inject() (
     Future.successful(
       Ok(
         view(
-          additionalEmailList,
+          submissionMeta.allEmails,
           isMoreThanOneReport,
           transformReportConfirmations(submissionMeta.reportConfirmations),
           surveyUrl,
-          submissionMeta.notificationEmail,
           submittedDate,
           submittedTime
         )
@@ -83,21 +81,5 @@ class RequestConfirmationController @Inject() (
         case _               => ""
       }
       rc.copy(reportType = newType)
-    }
-
-  private def fetchUpdatedData(request: DataRequest[AnyContent]): Option[String] =
-    request.userAnswers.get(EmailSelectionPage).toSeq.flatMap { selected =>
-      selected.map {
-        case EmailSelection.AddNewEmailValue =>
-          request.userAnswers
-            .get(NewEmailNotificationPage)
-            .map(HtmlFormat.escape(_).toString)
-            .getOrElse("")
-        case email                           =>
-          HtmlFormat.escape(email).toString
-      }
-    } match {
-      case Nil    => None
-      case emails => Some(emails.mkString(", "))
     }
 }
