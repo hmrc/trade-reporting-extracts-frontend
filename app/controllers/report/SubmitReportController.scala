@@ -17,17 +17,20 @@
 package controllers.report
 
 import controllers.actions.*
+import models.report.ChooseEori.{Myauthority, Myeori}
 import models.{AlreadySubmittedFlag, SectionNavigation}
 import models.report.{EmailSelection, ReportRequestSection, SubmissionMeta}
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import models.requests.DataRequest
+import pages.report.{NewEmailNotificationPage, EmailSelectionPage, ChooseEoriPage, SelectThirdPartyEoriPage}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{ReportRequestDataService, TradeReportingExtractsService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReportHelpers
+import utils.{ErrorHandlers, ReportHelpers}
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
@@ -47,6 +50,23 @@ class SubmitReportController @Inject() (
     extends FrontendBaseController {
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+    (request.userAnswers.get(ChooseEoriPage), request.userAnswers.get(SelectThirdPartyEoriPage)) match {
+      case (Some(Myeori), _)                     => SubmitReportRequest(request)
+      case (Some(Myauthority), Some(traderEori)) =>
+        tradeReportingExtractsService
+          .getAuthorisedBusinessDetails(request.eori, traderEori)
+          .flatMap(_ => SubmitReportRequest(request))
+          .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository, traderEori))
+      case (_, _)                                =>
+        sessionRepository.set(
+          ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+        ) map { _ =>
+          Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
+        }
+    }
+  }
+
+  private def SubmitReportRequest(request: DataRequest[AnyContent])(implicit hc: HeaderCarrier) =
     reportRequestDataService.buildReportRequest(request.userAnswers, request.eori) match {
       case Some(reportRequest) =>
         for {
@@ -74,19 +94,16 @@ class SubmitReportController @Inject() (
           Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
         }
     }
-  }
 
   private def collectAdditionalEmails(userAnswers: models.UserAnswers): Seq[String] = {
     val emails = userAnswers.get(EmailSelectionPage).toSeq.flatMap { selectedStrings =>
       selectedStrings.flatMap {
         case EmailSelection.AddNewEmailValue =>
-          // This is the "AddNewEmail" option - get the new email from NewEmailNotificationPage
           userAnswers
             .get(NewEmailNotificationPage)
             .map(_.trim)
             .filter(_.nonEmpty)
         case emailString                     =>
-          // This is an existing email address
           val trimmedEmail = emailString.trim
           if (trimmedEmail.nonEmpty && trimmedEmail != EmailSelection.AddNewEmailValue) {
             Some(trimmedEmail)

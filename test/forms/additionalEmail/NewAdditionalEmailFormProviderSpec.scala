@@ -25,9 +25,11 @@ class NewAdditionalEmailFormProviderSpec extends StringFieldBehaviours {
   val requiredKey     = "newAdditionalEmail.error.required"
   val lengthKey       = "newAdditionalEmail.error.length"
   val invalidEmailKey = "newAdditionalEmail.error.invalidFormat"
+  val duplicateKey    = "newAdditionalEmail.error.alreadyAdded"
   val maxLength       = 100
 
-  val form = new NewAdditionalEmailFormProvider()()
+  val formProvider = new NewAdditionalEmailFormProvider()
+  val form         = formProvider()
 
   ".value" - {
 
@@ -59,6 +61,66 @@ class NewAdditionalEmailFormProviderSpec extends StringFieldBehaviours {
         val result = form.bind(Map(fieldName -> email)).apply(fieldName)
         result.errors.exists(_.message == invalidEmailKey) mustBe true
       }
+    }
+
+    "must not bind duplicate emails when existing emails are provided" in {
+      val existingEmails   = Seq("existing1@example.com", "existing2@test.org")
+      val formWithExisting = formProvider(existingEmails)
+
+      existingEmails.foreach { email =>
+        val result = formWithExisting.bind(Map(fieldName -> email))
+        result.hasErrors mustBe true
+        result.errors.head.message mustEqual duplicateKey
+      }
+    }
+
+    "must not bind duplicate emails with different case" in {
+      val existingEmails   = Seq("existing@example.com", "test@domain.org")
+      val formWithExisting = formProvider(existingEmails)
+
+      val testEmails = Seq("EXISTING@EXAMPLE.COM", "Test@Domain.Org")
+
+      testEmails.foreach { email =>
+        val result = formWithExisting.bind(Map(fieldName -> email))
+        result.hasErrors mustBe true
+        result.errors.head.message mustEqual duplicateKey
+      }
+    }
+
+    "must bind emails successfully when no existing emails are provided" in {
+      val formWithEmptyList = formProvider(Seq.empty)
+
+      val testEmails = Seq("test@example.com", "user@test.org", "any@email.co.uk")
+
+      testEmails.foreach { email =>
+        val result = formWithEmptyList.bind(Map(fieldName -> email))
+        result.hasErrors mustBe false
+        result.get mustEqual email
+      }
+    }
+
+    "must validate email format even with existing emails" in {
+      val existingEmails   = Seq("existing@example.com")
+      val formWithExisting = formProvider(existingEmails)
+
+      val invalidEmails = Seq("invalid", "@domain.com", "user@", "user..name@domain.com")
+
+      invalidEmails.foreach { email =>
+        val result = formWithExisting.bind(Map(fieldName -> email))
+        result.hasErrors mustBe true
+        result.errors.exists(_.message == invalidEmailKey) mustBe true
+      }
+    }
+
+    "must enforce length limits even with existing emails" in {
+      val existingEmails   = Seq("existing@example.com")
+      val formWithExisting = formProvider(existingEmails)
+
+      val tooLongEmail = "a" * 90 + "@example.com" // Creates an email longer than 100 characters
+
+      val result = formWithExisting.bind(Map(fieldName -> tooLongEmail))
+      result.hasErrors mustBe true
+      result.errors.exists(_.message == lengthKey) mustBe true
     }
   }
 }

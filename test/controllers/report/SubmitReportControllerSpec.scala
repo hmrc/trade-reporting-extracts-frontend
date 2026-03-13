@@ -17,19 +17,24 @@
 package controllers.report
 
 import base.SpecBase
+import exceptions.NoAuthorisedUserFoundException
+import models.report.ChooseEori.{Myauthority, Myeori}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, SubmissionMeta}
-import models.{AlreadySubmittedFlag, NotificationEmail}
+import models.{AlreadySubmittedFlag, NotificationEmail, ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.report.{ChooseEoriPage, SelectThirdPartyEoriPage}
 import play.api.inject
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 
-import java.time.{Clock, Instant, LocalDateTime, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneOffset}
 import scala.concurrent.Future
 
 class SubmitReportControllerSpec extends SpecBase {
@@ -41,7 +46,7 @@ class SubmitReportControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportRequestDataService      = mock[ReportRequestDataService]
 
-      val userAnswers       = emptyUserAnswers
+      val userAnswers       = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
       val notificationEmail = NotificationEmail("test@example.com", LocalDateTime.now())
 
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
@@ -94,7 +99,7 @@ class SubmitReportControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportRequestDataService      = mock[ReportRequestDataService]
 
-      val userAnswers = emptyUserAnswers
+      val userAnswers = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
 
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(None)
@@ -126,7 +131,7 @@ class SubmitReportControllerSpec extends SpecBase {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       val mockReportRequestDataService      = mock[ReportRequestDataService]
 
-      val userAnswers         = emptyUserAnswers
+      val userAnswers         = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
       val notificationEmail   = NotificationEmail("test@example.com", LocalDateTime.now())
       val reportConfirmations = Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
 
@@ -200,6 +205,8 @@ class SubmitReportControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.failed(new RuntimeException("Service error")))
 
+      val userAnswers = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
+
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(
           Some(
@@ -217,7 +224,7 @@ class SubmitReportControllerSpec extends SpecBase {
           )
         )
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           inject.bind[SessionRepository].toInstance(mockSessionRepository),
           inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
@@ -315,6 +322,137 @@ class SubmitReportControllerSpec extends SpecBase {
           userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
           userAnswers.get(AlreadySubmittedFlag()).contains(true)
         })
+      }
+    }
+  }
+
+  "removal of third party access handling scenarions" - {
+
+    "when third party journey and a trader eori selected must submit report when third party access still available" in {
+
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+
+      val userAnswers = emptyUserAnswers
+        .set(ChooseEoriPage, Myauthority)
+        .success
+        .value
+        .set(SelectThirdPartyEoriPage, "foo")
+        .success
+        .value
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(None)
+
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(ThirdPartyDetails(None, LocalDate.now(), None, Set("imports"), None, None)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+          .onPageLoad()
+          .url
+      }
+    }
+
+    "when third party journey and trader eori selected must handle failure if third party access removed" in {
+
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+      val userAnswersCaptor                 = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val userAnswers = emptyUserAnswers
+        .set(ChooseEoriPage, Myauthority)
+        .success
+        .value
+        .set(SelectThirdPartyEoriPage, "foo")
+        .success
+        .value
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(None)
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found")))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ChooseEoriPage) mustBe None
+        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
+        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+          .onPageLoad("foo")
+          .url
+      }
+    }
+
+    "in any other scenario, remove all user answers and reset the journey" in {
+
+      val mockSessionRepository             = mock[SessionRepository]
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val mockReportRequestDataService      = mock[ReportRequestDataService]
+      val userAnswersCaptor                 = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      val userAnswers = emptyUserAnswers
+        .set(ChooseEoriPage, Myauthority)
+        .success
+        .value
+
+      when(mockReportRequestDataService.buildReportRequest(any(), any()))
+        .thenReturn(None)
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found")))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          inject.bind[SessionRepository].toInstance(mockSessionRepository),
+          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ChooseEoriPage) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+          .onPageLoad()
+          .url
       }
     }
   }
