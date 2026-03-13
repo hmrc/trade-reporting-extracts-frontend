@@ -21,6 +21,7 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
+    govukLabel: GovukLabel,
     govukButton: GovukButton
 )
 
@@ -28,7 +29,14 @@
 
 @content = {
 <p class="govuk-body">@messages("eoriNumber.hint")</p>
+}
+@hint = {
 <p class="govuk-hint">@messages("eoriNumber.example")</p>
+}
+@heading = {
+@govukLabel(
+LabelViewModel(messages("eoriNumber.heading")).forAttr("value").asPageHeading()
+)
 }
 
 @layout(pageTitle = title(form, messages("eoriNumber.title"))) {
@@ -38,13 +46,14 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-
+        @heading
+        @content
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("eoriNumber.heading")).asPageHeading()
+                label = Label()
             )
-            .withWidth(TwoThirds).withHint(HintViewModel(HtmlContent(content)))
+            .withWidth(TwoThirds).withHint(HintViewModel(HtmlContent(hint)))
         )
 
         @govukButton(
