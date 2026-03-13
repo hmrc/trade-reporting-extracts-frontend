@@ -17,7 +17,6 @@
 package controllers.contact
 
 import base.SpecBase
-import controllers.routes
 import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
@@ -62,6 +61,49 @@ class ContactDetailsControllerSpec extends SpecBase {
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must return OK and render the correct view for a GET request when user has reached additional email limit of 5" in new Setup {
+
+      private val existingEmails = Seq(
+        "existing1@example.com",
+        "existing2@example.com",
+        "existing3@example.com",
+        "existing4@example.com",
+        "existing5@example.com"
+      )
+
+      running(application) {
+
+        val userDetails = UserDetails(
+          eori = eori,
+          additionalEmails = existingEmails,
+          authorisedUsers = Seq.empty,
+          companyInformation = companyInformation,
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now())
+        )
+
+        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+          .thenReturn(Future.successful(userDetails))
+
+        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+        val result  = route(application, request).value
+
+        val view = application.injector.instanceOf[ContactDetailsView]
+
+        status(result) mustEqual OK
+        val body = contentAsString(result)
+        val msgs = messages(application)
+        body mustEqual view(companyInformation, eori, "notify@example.com", existingEmails)(
+          request,
+          msgs
+        ).toString
+
+        body must include(msgs("additionalEmail.limitReached"))
+        val addUrl = controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url
+        body must not include addUrl
+
       }
     }
   }

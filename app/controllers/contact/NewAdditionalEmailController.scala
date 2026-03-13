@@ -16,6 +16,7 @@
 
 package controllers.contact
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.additionalEmail.NewAdditionalEmailFormProvider
 import pages.additionalEmail.NewAdditionalEmailPage
@@ -32,6 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NewAdditionalEmailController @Inject() (
   override val messagesApi: MessagesApi,
   sessionRepository: SessionRepository,
+  config: FrontendAppConfig,
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   formProvider: NewAdditionalEmailFormProvider,
@@ -42,17 +44,22 @@ class NewAdditionalEmailController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
-    tradeReportingExtractsService.getAdditionalEmails(request.eori).map { existingEmails =>
-      val form         = formProvider(existingEmails)
-      val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
-        case None        => form
-        case Some(value) => form.fill(value)
-      }
+  def onPageLoad(): Action[AnyContent] =
+    (identify andThen getData).async { implicit request =>
+      tradeReportingExtractsService.getAdditionalEmails(request.eori).map { existingEmails =>
+        if (existingEmails.size >= config.additionalEmailLimit) {
+          Redirect(controllers.contact.routes.ContactDetailsController.onPageLoad())
+        } else {
+          val form         = formProvider(existingEmails)
+          val preparedForm = request.userAnswers.flatMap(_.get(NewAdditionalEmailPage)) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
 
-      Ok(view(preparedForm))
+          Ok(view(preparedForm))
+        }
+      }
     }
-  }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData).async { implicit request =>
     tradeReportingExtractsService.getAdditionalEmails(request.eori).flatMap { existingEmails =>

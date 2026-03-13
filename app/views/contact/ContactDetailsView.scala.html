@@ -62,12 +62,17 @@
             }
         </dl>
     }
-    <p>
-        @govukButton(
+
+        @if(additionalEmails.size < appConfig.additionalEmailLimit) {
+        <p>
+            @govukButton(
             ButtonViewModel(messages("additionalEmail.button.add"))
-                .asLink(controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
-        )
-    </p>
+            .asLink(controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
+            )
+        </p>
+        }else{
+            <p class="govuk-body">@messages("additionalEmail.limitReached")</p>
+        }
     </div>
     }
 }
