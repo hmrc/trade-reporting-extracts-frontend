@@ -22,7 +22,7 @@
 @(list: SummaryList, calculatedDateValue: String, status: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("businessDetails.title"))){
-    <h1 class="govuk-heading-l">@messages("businessDetails.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages("businessDetails.heading")</h1>
     @if(status && calculatedDateValue != "") {
         <p class="govuk-body" >
             @messages("businessDetails.activeDate",calculatedDateValue)
