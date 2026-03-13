@@ -98,7 +98,13 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                     calculateMaxEndDate(startDate),
                     ReportHelpers.isMoreThanOneReport(request.userAnswers),
                     maybeThirdPartyRequest = true,
-                    Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
+                    Some(
+                      thirdPartyStartEndDateStringGen(
+                        calculateMaxEndDate(startDate),
+                        details.dataStartDate,
+                        details.dataEndDate
+                      )
+                    )
                   )
                 )
               }
@@ -141,7 +147,13 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
                         calculateMaxEndDate(startDate), // hint text
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest,
-                        Some(thirdPartyStartEndDateStringGen(startDate, details.dataStartDate, details.dataEndDate))
+                        Some(
+                          thirdPartyStartEndDateStringGen(
+                            calculateMaxEndDate(startDate),
+                            details.dataStartDate,
+                            details.dataEndDate
+                          )
+                        )
                       )
                     )
                   case None          =>
@@ -172,27 +184,26 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
   }
 
   private def thirdPartyStartEndDateStringGen(
-    startDate: LocalDate,
+    endDateHint: String,
     dataStartDate: Option[LocalDate],
     dataEndDate: Option[LocalDate]
   )(implicit messages: Messages): String =
     (dataStartDate, dataEndDate) match {
       case (Some(_), Some(_)) =>
-        messages("customRequestEndDate.thirdParty.message1", DateTimeFormats.dateFormatter(startDate)) +
-          " " + messages("customRequestEndDate.thirdParty.message2")
+        messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.to")
           + " " + DateTimeFormats.dateFormatter(dataEndDate.get)
-          + ". " + messages("customRequestEndDate.thirdParty.message3")
+          + ". " + messages("customRequestEndDate.thirdParty.message3", endDateHint)
       case (Some(_), _)       =>
-        messages("customRequestEndDate.thirdParty.message1", DateTimeFormats.dateFormatter(startDate)) +
-          " " + messages("customRequestEndDate.thirdParty.message2")
+        messages("customRequestEndDate.thirdParty.message2")
           + " " + DateTimeFormats.dateFormatter(dataStartDate.get)
           + " " + messages("customRequestEndDate.thirdParty.onwards") + " " + messages(
-            "customRequestEndDate.thirdParty.message3"
+            "customRequestEndDate.thirdParty.message3",
+            endDateHint
           )
       case (_, _)             =>
-        messages("customRequestEndDate.thirdParty.allDataAccess", DateTimeFormats.dateFormatter(startDate))
+        messages("customRequestEndDate.thirdParty.message3", endDateHint)
     }
 
   private def calculateMaxEndDate(startDate: LocalDate): String = {

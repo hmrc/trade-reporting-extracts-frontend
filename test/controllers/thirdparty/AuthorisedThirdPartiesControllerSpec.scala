@@ -81,7 +81,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
           eori = "GB987654321000",
           businessInfo = Some("Another Business Name"),
           referenceName = Some("Another Reference Name"),
-          UserActiveStatus.Upcoming
+          UserActiveStatus.Pending
         )
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
@@ -119,7 +119,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         document.text()                                       must include("GB987654321000")
         document.text()                                       must include("Another Business Name")
         document.text()                                       must include("Another Reference Name")
-        document.getElementsByClass("govuk-tag--blue").text() must include("Upcoming")
+        document.getElementsByClass("govuk-tag--blue").text() must include("Pending")
       }
     }
 

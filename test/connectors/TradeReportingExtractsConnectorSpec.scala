@@ -1248,7 +1248,7 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
       val expectedResponse = Seq(
         AccountAuthorityOverViewModel("GB111", Some("Business One"), Some(UserActiveStatus.Active)),
-        AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Upcoming))
+        AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Pending))
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
