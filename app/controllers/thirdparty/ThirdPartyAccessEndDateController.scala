@@ -59,7 +59,7 @@ class ThirdPartyAccessEndDateController @Inject() (
       case None        => form
       case Some(value) => form.fill(value)
     }
-    val dateFormatted: String = getStartDatePlusOneMonth(request)
+    val dateFormatted: String = getEndDateHint(request)
     Ok(
       view(
         preparedForm,
@@ -72,7 +72,7 @@ class ThirdPartyAccessEndDateController @Inject() (
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val dateFormatted: String         = getStartDatePlusOneMonth(request)
+      val dateFormatted: String         = getEndDateHint(request)
       val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
 
       form
@@ -99,9 +99,16 @@ class ThirdPartyAccessEndDateController @Inject() (
         )
   }
 
-  private def getStartDatePlusOneMonth(request: DataRequest[AnyContent]) = {
-    val startDatePlusOneMonth: LocalDate = request.userAnswers.get(ThirdPartyAccessStartDatePage).get.plusMonths(1)
-    val dateFormatted: String            = startDatePlusOneMonth.format(DateTimeFormats.dateTimeHintFormat)
-    dateFormatted
+  private def getEndDateHint(request: DataRequest[AnyContent]): String = {
+    val today = LocalDate.now()
+
+    val startDate =
+      request.userAnswers
+        .get(ThirdPartyAccessStartDatePage)
+        .getOrElse(throw new IllegalStateException("ThirdPartyAccessStartDatePage is missing"))
+
+    val baseDate = if (startDate.isBefore(today)) today else startDate
+
+    baseDate.plusYears(1).format(DateTimeFormats.dateTimeHintFormat)
   }
 }
