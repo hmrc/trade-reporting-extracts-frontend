@@ -65,8 +65,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val thirdPartyEnabled: Boolean =
     configuration.get[Boolean]("features.third-party")
 
-  val additionalEmailEnabled: Boolean = configuration.get[Boolean]("features.additional-email")
-
   val userAllowListEnabled: Boolean = configuration.get[Boolean]("features.user-allow-list")
   val userAllowListFeature: String  = configuration.get[String]("features.resource-feature")
 
