@@ -25,8 +25,8 @@ import javax.inject.Inject
 
 class CustomRequestStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private val dateFourYearsAgo: LocalDate = LocalDate.now(clock).minusYears(4)
-  private val currentDate: LocalDate      = LocalDate.now(clock)
+  private def dateFourYearsAgo: LocalDate = LocalDate.now(clock).minusYears(4)
+  private def currentDate: LocalDate      = LocalDate.now(clock)
 
   def apply(
     maybeThirdPartyRequest: Boolean,
