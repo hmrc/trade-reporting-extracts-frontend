@@ -136,8 +136,7 @@ eoriRole.importer = Mewnforiwr
 eoriRole.checkYourAnswersLabel = Eich rôl yn yr adroddiad
 eoriRole.error.required = Dewiswch eich rôl yn yr adroddiad
 eoriRole.change.hidden = eich rôl yn yr adroddiad
-eoriRole.message = Os byddwch yn dewis mwy nag un rôl, bydd y data i gyd mewn un adroddiad.
-eoriRole.hint = Dewiswch bob un sy’n berthnasol.
+eoriRole.hint = Os byddwch yn dewis mwy nag un rôl, bydd y data i gyd mewn un adroddiad.
 
 reportDateRange.pluralReport.title = Pa gyfnod hoffech fod yr adroddiadau hyn yn ei gwmpasu?
 reportDateRange.singleReport.title = Pa gyfnod hoffech fod yr adroddiad hwn yn ei gwmpasu?
@@ -322,7 +321,7 @@ availableReports.table.businessInfo = Gwybodaeth busnes
 availableReports.table.reportType = Y math o adroddiad
 availableReports.table.expiryDate = Dyddiad dod i ben
 availableReports.table.referenceNumber = Cyfeirnod
-availableReports.table.action = Camau i’w cymryd
+availableReports.table.action = Lawrlwytho
 availableReports.table.unknownCompany = Ddim yn berthnasol
 
 requestedReports.title = Adroddiadau ar y gweill
