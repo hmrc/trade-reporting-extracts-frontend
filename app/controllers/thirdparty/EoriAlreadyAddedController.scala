@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import pages.thirdparty.EoriAlreadyAddedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -35,7 +36,9 @@ class EoriAlreadyAddedController @Inject() (
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val alreadyAddedEori = request.flash.get("alreadyAddedEori")
-    Ok(view(alreadyAddedEori.get))
+    request.userAnswers.get(EoriAlreadyAddedPage) match {
+      case Some(eori) => Ok(view(eori))
+      case None       => Redirect(controllers.problem.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 }
