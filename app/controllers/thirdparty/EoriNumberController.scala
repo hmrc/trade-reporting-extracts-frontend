@@ -50,17 +50,25 @@ class EoriNumberController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-    val userEori           = request.eori
-    val form: Form[String] = formProvider(userEori)
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (identify andThen getData andThen requireData).async { implicit request =>
+      val userEori = request.eori
+      val form     = formProvider(userEori)
 
-    val preparedForm = request.userAnswers.get(EoriNumberPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
+      val preparedForm =
+        request.userAnswers.get(EoriNumberPage).fold(form)(form.fill)
+
+      request.userAnswers.get(EoriAlreadyAddedPage) match {
+        case Some(_) =>
+          for {
+            cleanedAnswers <- Future.fromTry(request.userAnswers.remove(EoriAlreadyAddedPage))
+            _              <- sessionRepository.set(cleanedAnswers)
+          } yield Ok(view(preparedForm, mode))
+
+        case None =>
+          Future.successful(Ok(view(preparedForm, mode)))
+      }
     }
-
-    Ok(view(preparedForm, mode))
-  }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
@@ -86,10 +94,10 @@ class EoriNumberController @Inject() (
           eori =>
             tradeReportingExtractsService.getAuthorisedEoris(userEori).flatMap { authorisedEoris =>
               if (authorisedEoris.contains(eori)) {
-                Future.successful(
-                  Redirect(controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad())
-                    .flashing("alreadyAddedEori" -> eori)
-                )
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(EoriAlreadyAddedPage, eori))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad())
               } else {
                 tradeReportingExtractsService.getCompanyInformation(eori).flatMap { companyInfo =>
                   if (companyInfo.name.isEmpty) {

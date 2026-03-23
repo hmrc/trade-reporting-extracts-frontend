@@ -306,5 +306,53 @@ class EoriNumberControllerSpec extends SpecBase with MockitoSugar {
         capturedUserAnswers.get(DataStartDatePage) mustBe Some(LocalDate.now().minusDays(10))
       }
     }
+
+    "if the user enters eori number that has third party access already, redirect user to EoriNumberLreadyAdded Page" in {
+      val eori = "GB123456123491"
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+      val companyInfo                       = CompanyInformation(name = "Test", consent = Denied)
+
+      when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
+        .thenReturn(Future.successful(companyInfo))
+
+      when(mockTradeReportingExtractsService.getAuthorisedEoris(any())(any()))
+        .thenReturn(Future.successful(Seq("GB123456123491")))
+
+      val userAnswers = UserAnswers(userAnswersId)
+        .set(EoriNumberPage, eori)
+        .success
+        .value
+        .set(EoriAlreadyAddedPage, eori)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, eoriNumberRoute)
+            .withFormUrlEncodedBody(("value", eori))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.thirdparty.routes.EoriAlreadyAddedController
+          .onPageLoad()
+          .url
+      }
+    }
   }
 }
