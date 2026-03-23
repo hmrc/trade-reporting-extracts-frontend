@@ -21,22 +21,21 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
+    govukLabel: GovukLabel,
     govukButton: GovukButton
 )
 
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
+@heading = {
+    @govukLabel(
+    LabelViewModel(if(isMoreThanOneReport) messages("reportName.pluralReport.heading")
+                    else messages("reportName.singleReport.heading")
+                ).forAttr("value").asPageHeading()
+            )
+    }
 
-@pageHeading = {
-    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
-        @if(isMoreThanOneReport) {
-            @messages("reportName.pluralReport.heading")
-        } else {
-            @messages("reportName.singleReport.heading")
-        }
-    </h1>
-}
-@labelContent = {
+@guidanceContent = {
     <p class="govuk-body">
         @messages("reportName.hint")
     </p>
@@ -50,8 +49,8 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-        @pageHeading
-        @labelContent
+        @heading
+        @guidanceContent
         @govukInput(
             InputViewModel(
                 field = form("value"),
