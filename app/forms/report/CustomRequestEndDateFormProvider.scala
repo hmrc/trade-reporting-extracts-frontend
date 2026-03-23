@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private val currentDate: LocalDate = LocalDate.now(clock)
+  private def currentDate: LocalDate = LocalDate.now(clock)
 
   def apply(startDate: LocalDate, maybeThirdPartyRequest: Boolean, thirdPartyDataEndDate: Option[LocalDate])(implicit
     messages: Messages
