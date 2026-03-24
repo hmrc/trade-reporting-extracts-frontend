@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package forms.helper
+package pages.thirdparty
 
-import play.api.data.validation.{Constraint, Valid}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-object StopOnFirstFail {
+case object EoriAlreadyAddedPage extends QuestionPage[String] {
 
-  def apply[T](constraints: Constraint[T]*): Constraint[T] = Constraint { field =>
-    constraints.toList dropWhile (_(field) == Valid) match {
-      case Nil             => Valid
-      case constraint :: _ => constraint(field)
-    }
-  }
+  override def toString: String = "eoriAlreadyAdded"
+
+  override def path: JsPath = JsPath \ "addThirdParty" \ toString
 }

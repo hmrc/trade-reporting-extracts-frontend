@@ -17,6 +17,7 @@
 package controllers.thirdparty
 
 import base.SpecBase
+import pages.thirdparty.EoriAlreadyAddedPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.thirdparty.EoriAlreadyAddedView
@@ -29,11 +30,12 @@ class EoriAlreadyAddedControllerSpec extends SpecBase {
 
       val eori = "GB123456789000"
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val userAnswers = emptyUserAnswers.set(EoriAlreadyAddedPage, eori).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad().url)
-          .withFlash("alreadyAddedEori" -> eori)
 
         val result = route(application, request).value
 
