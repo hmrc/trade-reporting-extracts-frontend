@@ -92,7 +92,7 @@ class RemoveThirdPartyController @Inject() (
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.remove(RemoveThirdPartyPage))
                 _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(controllers.routes.DashboardController.onPageLoad())
+              } yield Redirect(controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad())
             }
         )
     }
