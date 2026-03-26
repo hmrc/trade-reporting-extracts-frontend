@@ -250,5 +250,5 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
 
   override val checkRoutesWithFlag: Page => UserAnswers => Boolean => Call = _ =>
     answers => skipFlag => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
-  
+
 }
