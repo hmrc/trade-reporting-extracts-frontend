@@ -15,5 +15,11 @@ GET        /no-data-found/:reportName/:reportRef/:reportStartDate/:reportEndDate
 GET        /report-failed/:reportName/:reportRef                       controllers.problem.ReportFailedController.onPageLoad(reportName: String, reportRef: String)
 
 
-GET        /navigation-error                      controllers.problem.ReportRequestIssueController.onPageLoad()
+GET        /navigation-error-request-report                      controllers.problem.ReportRequestIssueController.onPageLoad()
 GET        /navigation-error-add-a-third-party                      controllers.problem.ThirdPartyIssueController.onPageLoad()
+
+GET        /error-request-report                       controllers.problem.ReportRequestGeneralProblemController.onPageLoad()
+
+GET        /error-add-a-third-party                       controllers.problem.AddThirdPartyGeneralProblemController.onPageLoad()
+
+GET        /error-edit-a-third-party                       controllers.problem.EditThirdPartyGeneralProblemController.onPageLoad()
