@@ -17,7 +17,6 @@
 package controllers.report
 
 import base.SpecBase
-import config.FrontendAppConfig
 import forms.report.ReportNameFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -89,17 +88,14 @@ class ReportNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository            = mock[SessionRepository]
-      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-      when(mockAppConfig.additionalEmailEnabled).thenReturn(true)
+      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[FrontendAppConfig].toInstance(mockAppConfig)
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
