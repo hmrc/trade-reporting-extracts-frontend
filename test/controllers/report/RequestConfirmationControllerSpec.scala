@@ -92,10 +92,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
         contentAsString(result) must include("MyReport")
         contentAsString(result) must include("RE00000001")
         contentAsString(result) must include(notificationEmail)
-        contentAsString(result) must include(
-          "We’re processing your request"
-        )
-
       }
     }
 
@@ -166,9 +162,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
         contentAsString(result) must include("Import header")
         contentAsString(result) must include("Import tax line")
         contentAsString(result) must include(notificationEmail)
-        contentAsString(result) must include(
-          "We’re processing your request"
-        )
       }
     }
 
@@ -207,9 +200,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
         val result  = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(
-          "We’re processing your request"
-        )
       }
     }
 

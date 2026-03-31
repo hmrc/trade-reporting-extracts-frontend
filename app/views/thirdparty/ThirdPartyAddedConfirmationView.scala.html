@@ -32,19 +32,19 @@
 
      <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message1", date)</p>
 
+    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message3", eori)</p>
+
+    <h2 class="govuk-heading-m">@messages("thirdPartyAddedConfirmation.heading2")</h2>
+
+    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message4")
+        <a class="govuk-link"  href="@controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url">@messages("thirdPartyAddedConfirmation.link1")</a>.
+    </p>
+
     <p class="govuk-body js-visible">@messages("thirdPartyAddedConfirmation.message2")
         <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("thirdPartyAddedConfirmation.print.link")</a>.
     </p>
 
     <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
-
-    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message3", eori)</p>
-
-    <h2 class="govuk-heading-l">@messages("thirdPartyAddedConfirmation.heading2")</h2>
-
-    <p class="govuk-body">@messages("thirdPartyAddedConfirmation.message4")
-        <a class="govuk-link"  href="@controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url">@messages("thirdPartyAddedConfirmation.link1")</a>.
-    </p>
 
     <p class="govuk-body">
         <a class="govuk-link"  href="@controllers.routes.DashboardController.onPageLoad().url">@messages("thirdPartyAddedConfirmation.link2")</a>
