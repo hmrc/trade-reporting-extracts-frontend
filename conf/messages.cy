@@ -66,7 +66,9 @@ dashboard.thirdPartyAccess.authorisedAccounts = Busnesau y mae gennych fynediad 
 
 dashboard.support.heading = Cymorth
 dashboard.support.fieldsInReport = Beth yw ystyr y meysydd yn fy adroddiad? (yn agor tab newydd)
-dashboard.support.reportTypes = Beth yw’r gwahanol fathau o adroddiadau?
+dashboard.support.contact1 = Os oes gennych unrhyw gwestiynau,
+dashboard.support.contactLink = cysylltwch â CThEF
+dashboard.support.contact2 = i gael cymorth
 
 contactDetails.title = Eich manylion cyswllt
 contactDetails.heading = Eich manylion cyswllt
@@ -320,6 +322,9 @@ availableReports.table.expiryDate = Dyddiad dod i ben
 availableReports.table.referenceNumber = Cyfeirnod
 availableReports.table.action = Lawrlwytho
 availableReports.table.unknownCompany = Ddim yn berthnasol
+availableReports.contact1 = Os oes gennych unrhyw gwestiynau,
+availableReports.contactLink = cysylltwch â CThEF
+availableReports.contact2 = i gael cymorth.
 
 requestedReports.title = Adroddiadau ar y gweill
 requestedReports.heading = Adroddiadau ar y gweill

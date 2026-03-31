@@ -42,6 +42,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val cdsSubscribeUrl: String             = configuration.get[String]("urls.cdsSubscribeUrl")
   val guidanceWhatsInTheReportUrl: String =
     configuration.get[String]("urls.guidanceWhatsInTheReportUrl")
+  val importsExportsContctUrl: String     =
+    configuration.get[String]("urls.importsExportsContactUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").toString
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/trade-reporting-extracts-frontend"
