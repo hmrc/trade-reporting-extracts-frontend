@@ -35,7 +35,7 @@ import services.TradeReportingExtractsService
 import utils.DateTimeFormats
 import views.html.report.CustomRequestEndDateView
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate, ZoneId, ZoneOffset}
 import scala.concurrent.Future
 
 class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
@@ -194,6 +194,157 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           getRequest,
           messages(application)
         ).toString
+      }
+    }
+
+    "must use data end date as max end date when third party data end date is before T-2" in {
+      val today       = LocalDate.of(2026, 1, 8)
+      val clock       = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+      val startDate   = LocalDate.of(2026, 1, 1)
+      val dataEndDate = Some(LocalDate.of(2026, 1, 2))
+      val details     = thirdPartyDetails.copy(
+        dataStartDate = Some(startDate),
+        dataEndDate = dataEndDate
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(details))
+
+      val form = formProvider(startDate, true, dataEndDate)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(SelectThirdPartyEoriPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, startDate)
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[Clock].toInstance(clock)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+        val view   = application.injector.instanceOf[CustomRequestEndDateView]
+        status(result) mustEqual OK
+        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 2 1 2026.")
+      }
+    }
+
+    "must use T-2 as max end date when third party data end date is after T-2" in {
+      val today       = LocalDate.of(2026, 1, 8)
+      val clock       = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+      val startDate   = LocalDate.of(2026, 1, 1)
+      val dataEndDate = Some(LocalDate.of(2026, 1, 10))
+      val details     = thirdPartyDetails.copy(
+        dataStartDate = Some(startDate),
+        dataEndDate = dataEndDate
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(details))
+
+      val form = formProvider(startDate, true, dataEndDate)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(SelectThirdPartyEoriPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, startDate)
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[Clock].toInstance(clock)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+        val view   = application.injector.instanceOf[CustomRequestEndDateView]
+        status(result) mustEqual OK
+        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
+      }
+    }
+
+    "must use start date as max end date when third party data end date is before start date" in {
+      val today       = LocalDate.of(2026, 1, 8)
+      val clock       = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+      val startDate   = LocalDate.of(2026, 1, 1)
+      val dataEndDate = Some(LocalDate.of(2025, 12, 31))
+      val details     = thirdPartyDetails.copy(
+        dataStartDate = Some(LocalDate.of(2025, 1, 1)),
+        dataEndDate = dataEndDate
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(details))
+
+      val form = formProvider(startDate, true, dataEndDate)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(SelectThirdPartyEoriPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, startDate)
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[Clock].toInstance(clock)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+        val view   = application.injector.instanceOf[CustomRequestEndDateView]
+        status(result) mustEqual OK
+        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 1 1 2026.")
+      }
+    }
+
+    "must use start date + 30 days or T-2, whichever is earlier, when third party data end date is not present" in {
+      val today     = LocalDate.of(2026, 1, 8)
+      val clock     = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+      val startDate = LocalDate.of(2026, 1, 1)
+      val details   = thirdPartyDetails.copy(
+        dataStartDate = Some(startDate),
+        dataEndDate = None
+      )
+
+      when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
+        .thenReturn(Future.successful(details))
+
+      val form = formProvider(startDate, true, None)
+
+      val application = applicationBuilder(userAnswers =
+        Some(
+          emptyUserAnswers
+            .set(SelectThirdPartyEoriPage, "traderEori")
+            .get
+            .set(CustomRequestStartDatePage, startDate)
+            .get
+        )
+      )
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[Clock].toInstance(clock)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+        val view   = application.injector.instanceOf[CustomRequestEndDateView]
+        status(result) mustEqual OK
+        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
       }
     }
 

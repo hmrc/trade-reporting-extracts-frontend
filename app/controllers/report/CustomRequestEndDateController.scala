@@ -88,19 +88,20 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
             tradeReportingExtractsService
               .getAuthorisedBusinessDetails(request.eori, thirdPartyEori)
               .map { details =>
-                val form         = formProvider(startDate, maybeThirdPartyRequest = true, details.dataEndDate)
-                val preparedForm = request.userAnswers.get(CustomRequestEndDatePage).fold(form)(form.fill)
+                val form           = formProvider(startDate, maybeThirdPartyRequest = true, details.dataEndDate)
+                val preparedForm   = request.userAnswers.get(CustomRequestEndDatePage).fold(form)(form.fill)
+                val maxEndDateHint = calculateMaxEndDate(startDate, details.dataEndDate, isThirdParty = true)
                 Ok(
                   view(
                     preparedForm,
                     mode,
                     DateTimeFormats.dateFormatter(startDate),
-                    calculateMaxEndDate(startDate),
+                    maxEndDateHint,
                     ReportHelpers.isMoreThanOneReport(request.userAnswers),
                     maybeThirdPartyRequest = true,
                     Some(
                       thirdPartyStartEndDateStringGen(
-                        calculateMaxEndDate(startDate),
+                        maxEndDateHint,
                         details.dataStartDate,
                         details.dataEndDate
                       )
@@ -139,17 +140,18 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
               formWithErrors => {
                 val viewResult = maybeDetails match {
                   case Some(details) =>
+                    val maxEndDateHint = calculateMaxEndDate(startDate, details.dataEndDate, isThirdParty = true)
                     BadRequest(
                       view(
                         formWithErrors,
                         mode,
-                        DateTimeFormats.dateFormatter(startDate), // start date
-                        calculateMaxEndDate(startDate), // hint text
+                        DateTimeFormats.dateFormatter(startDate),
+                        maxEndDateHint,
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest,
                         Some(
                           thirdPartyStartEndDateStringGen(
-                            calculateMaxEndDate(startDate),
+                            maxEndDateHint,
                             details.dataStartDate,
                             details.dataEndDate
                           )
@@ -206,22 +208,30 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
         messages("customRequestEndDate.thirdParty.message3", endDateHint)
     }
 
-  private def calculateMaxEndDate(startDate: LocalDate): String = {
-    val ComparisonBufferDays = minReportingLagDays + 1
-    val today                = LocalDate.now(clock)
-    val startPlusMax         = startDate.plusDays(maxReportRequestDays)
-    val baselineEndDate      = startDate.plusDays(maxReportRequestDays - 1)
-    val latestAllowedDate    = today.minusDays(ComparisonBufferDays)
+  private def calculateMaxEndDate(
+    startDate: LocalDate,
+    dataEndDate: Option[LocalDate] = None,
+    isThirdParty: Boolean = false
+  ): String =
+    if (isThirdParty) {
+      val maxEndDate = DateTimeFormats.calculateThirdPartyMaxEndDate(startDate, dataEndDate, clock)
+      maxEndDate.format(dateTimeHintFormat)
+    } else {
+      val ComparisonBufferDays = minReportingLagDays + 1
+      val today                = LocalDate.now(clock)
+      val startPlusMax         = startDate.plusDays(maxReportRequestDays)
+      val baselineEndDate      = startDate.plusDays(maxReportRequestDays - 1)
+      val latestAllowedDate    = today.minusDays(ComparisonBufferDays)
 
-    val chosenDate =
-      if (startPlusMax.isAfter(today)) {
-        latestAllowedDate
-      } else {
-        val daysDiff = ChronoUnit.DAYS.between(baselineEndDate, today).abs
-        if (daysDiff < ComparisonBufferDays) latestAllowedDate
-        else baselineEndDate
-      }
+      val chosenDate =
+        if (startPlusMax.isAfter(today)) {
+          latestAllowedDate
+        } else {
+          val daysDiff = ChronoUnit.DAYS.between(baselineEndDate, today).abs
+          if (daysDiff < ComparisonBufferDays) latestAllowedDate
+          else baselineEndDate
+        }
 
-    chosenDate.format(dateTimeHintFormat)
-  }
+      chosenDate.format(dateTimeHintFormat)
+    }
 }
