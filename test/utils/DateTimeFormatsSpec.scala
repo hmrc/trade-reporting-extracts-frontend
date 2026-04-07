@@ -23,7 +23,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.test.Helpers.stubMessages
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneId, ZoneOffset}
 
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
@@ -259,6 +259,42 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
         status = UserActiveStatus.Active
       )
       result mustBe None
+    }
+  }
+
+  "DateTimeFormats.calculateThirdPartyMaxEndDate" - {
+
+    val today     = LocalDate.of(2026, 1, 8)
+    val clock     = Clock.fixed(today.atStartOfDay(ZoneId.systemDefault()).toInstant, ZoneId.systemDefault())
+    val startDate = LocalDate.of(2026, 1, 1)
+
+    "should return dataEndDate if dataEndDate is before T-2 and after or equal to startDate" in {
+      val dataEndDate = Some(LocalDate.of(2026, 1, 2))
+      val result      = DateTimeFormats.calculateThirdPartyMaxEndDate(startDate, dataEndDate, clock)
+      result mustEqual LocalDate.of(2026, 1, 2)
+    }
+
+    "should return startDate if dataEndDate is before startDate" in {
+      val dataEndDate = Some(LocalDate.of(2025, 12, 31))
+      val result      = DateTimeFormats.calculateThirdPartyMaxEndDate(startDate, dataEndDate, clock)
+      result mustEqual startDate
+    }
+
+    "should return T-2 if dataEndDate is after T-2" in {
+      val dataEndDate = Some(LocalDate.of(2026, 1, 10))
+      val result      = DateTimeFormats.calculateThirdPartyMaxEndDate(startDate, dataEndDate, clock)
+      result mustEqual LocalDate.of(2026, 1, 6)
+    }
+
+    "should return the earlier of startDate+30 or T-2 if dataEndDate is not present" in {
+      val result = DateTimeFormats.calculateThirdPartyMaxEndDate(startDate, None, clock)
+      result mustEqual LocalDate.of(2026, 1, 6)
+    }
+
+    "should return startDate+30 if it is before T-2 and dataEndDate is not present" in {
+      val earlyStartDate = LocalDate.of(2025, 12, 1)
+      val result         = DateTimeFormats.calculateThirdPartyMaxEndDate(earlyStartDate, None, clock)
+      result mustEqual LocalDate.of(2025, 12, 31)
     }
   }
 }

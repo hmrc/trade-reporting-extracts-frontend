@@ -136,6 +136,22 @@ object DateTimeFormats {
       )
     }
 
+  def calculateThirdPartyMaxEndDate(
+    startDate: LocalDate,
+    dataEndDate: Option[LocalDate],
+    clock: Clock
+  ): LocalDate = {
+    val maxReportEndDate = startDate.plusDays(Constants.maxReportRequestDays - 1)
+    val tMinus2          = LocalDate.now(clock).minusDays(2)
+    val t2Date           = if (maxReportEndDate.isAfter(tMinus2)) tMinus2 else maxReportEndDate
+
+    dataEndDate match {
+      case Some(end) if end.isBefore(t2Date) =>
+        if (end.isBefore(startDate)) startDate else end
+      case _                                 => t2Date
+    }
+  }
+
   def instantToDateString(instant: Instant, clock: Clock)(implicit messages: Messages): String = {
     val zoned = instant.atZone(clock.getZone)
     val fmt   = dateTimeFormat()(messages.lang)
