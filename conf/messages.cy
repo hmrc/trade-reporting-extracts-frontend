@@ -234,7 +234,6 @@ requestConfirmation.reportReference = Cyfeirnod
 requestConfirmation.single.details = Rydych wedi gofyn am adroddiad am {0}, o’r enw {1}. Y cyfeirnod yw {2}.
 requestConfirmation.whatHappensNext = Yr hyn sy’n digwydd nesaf
 requestConfirmation.processingRequest = Rydym wrthi’n prosesu’ch cais. Bydd y rhan fwyaf o’r adroddiadau yn barod o fewn 15 munud, ond gall gymryd hyd at 72 awr. Pan fydd eich adroddiadau yn barod i’w lawrlwytho, byddwn yn anfon e-bost i’r cyfeiriad canlynol:
-requestConfirmation.additionalEmail = Byddwn hefyd yn anfon e-bost i {0}.
 requestConfirmation.youCan = Gallwch
 requestConfirmation.single.status = wirio statws yr adroddiad rydych wedi gofyn amdano
 requestConfirmation.plural.status = wirio statws yr adroddiadau rydych wedi gofyn amdanynt
@@ -804,3 +803,21 @@ thirdPartyNavIssue.h1 = Roedd problem wrth ychwanegu eich trydydd parti
 thirdPartyNavIssue.message1 = Doedd dim modd ychwanegu’r trydydd parti oherwydd i chi gael at y dudalen mewn ffordd annisgwyl.
 thirdPartyNavIssue.message2 =Er mwyn ychwanegu trydydd parti, {0}.
 thirdPartyNavIssue.link = dechreuwch arni eto
+
+reportRequestGeneralProblem.title = Roedd problem wrth ofyn am eich adroddiad
+reportRequestGeneralProblem.heading = Roedd problem wrth ofyn am eich adroddiad
+reportRequestGeneralProblem.message1 = Nid oedd modd i ni ofyn am eich adroddiad.
+reportRequestGeneralProblem.message2 = Er mwyn gofyn am adroddiad newydd,
+reportRequestGeneralProblem.link = dechreuwch arni eto.
+
+addThirdPartyGeneralProblem.title = Roedd problem wrth ychwanegu eich trydydd parti
+addThirdPartyGeneralProblem.heading = Roedd problem wrth ychwanegu eich trydydd parti
+addThirdPartyGeneralProblem.message1 = Nid oedd modd i ni ychwanegu eich trydydd parti.
+addThirdPartyGeneralProblem.message2 = Er mwyn ychwanegu trydydd parti,
+addThirdPartyGeneralProblem.link = dechreuwch arni eto.
+
+editThirdPartyGeneralProblem.title = Roedd problem wrth olygu eich trydydd parti
+editThirdPartyGeneralProblem.heading = Roedd problem wrth olygu eich trydydd parti
+editThirdPartyGeneralProblem.message1 = Nid oedd modd i ni olygu eich trydydd parti.
+editThirdPartyGeneralProblem.message2 = Er mwyn golygu eich trydydd parti,
+editThirdPartyGeneralProblem.link = dechreuwch arni eto.

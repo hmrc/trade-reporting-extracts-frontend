@@ -803,3 +803,21 @@ thirdPartyNavIssue.h1 = There was a problem adding your third party
 thirdPartyNavIssue.message1 = A third party could not be added because the page was accessed in an unexpected way.
 thirdPartyNavIssue.message2 = To add a third party, {0}.
 thirdPartyNavIssue.link = start again
+
+reportRequestGeneralProblem.title = There was a problem requesting your report
+reportRequestGeneralProblem.heading = There was a problem requesting your report
+reportRequestGeneralProblem.message1 = We could not request your report.
+reportRequestGeneralProblem.message2 = To request a new report,
+reportRequestGeneralProblem.link = start again.
+
+addThirdPartyGeneralProblem.title = There was a problem adding your third party
+addThirdPartyGeneralProblem.heading = There was a problem adding your third party
+addThirdPartyGeneralProblem.message1 = We could not add your third party.
+addThirdPartyGeneralProblem.message2 = To add a third party,
+addThirdPartyGeneralProblem.link = start again.
+
+editThirdPartyGeneralProblem.title = There was a problem editing your third party
+editThirdPartyGeneralProblem.heading = There was a problem editing your third party
+editThirdPartyGeneralProblem.message1 = We could not edit your third party.
+editThirdPartyGeneralProblem.message2 = To edit your third party,
+editThirdPartyGeneralProblem.link = start again.
