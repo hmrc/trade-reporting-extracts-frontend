@@ -58,7 +58,7 @@
       )
     },
         caption = Some(messages("requestedReports.myReports")),
-        captionClasses = "govuk-table__caption--l"
+        captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
       ))
     </div>
   }
@@ -95,7 +95,7 @@
       )
       },
       caption = Some(messages("requestedReports.thirdPartyReports")),
-      captionClasses = "govuk-table__caption--l"
+      captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
     ))
   </div>
 }

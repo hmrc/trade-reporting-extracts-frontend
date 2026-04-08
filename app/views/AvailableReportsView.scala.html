@@ -62,7 +62,7 @@ guidanceUrl: String
         )
     },
       caption = Some(messages("availableReports.myReports")),
-      captionClasses = "govuk-table__caption--l"
+      captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
     ))
   </div>
 }
@@ -100,7 +100,7 @@ guidanceUrl: String
         )
     },
         caption = Some(messages("availableReports.thirdPartyReports")),
-        captionClasses = "govuk-table__caption--l"
+        captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
         ))
     </div>
   }
