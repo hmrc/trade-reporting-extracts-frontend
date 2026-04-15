@@ -20,10 +20,11 @@ import base.SpecBase
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
+import pages.thirdparty.{EoriNumberPage, ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
@@ -88,6 +89,32 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to general problem screen and clear user answers if no third party access start date is found on a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, getRequest).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EoriNumberPage) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val futureStartdate   = LocalDate.now().plusMonths(1)
@@ -146,6 +173,32 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to general problem screen and clear user answers if no third party access start date is found on a POST" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EoriNumberPage) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
       }
     }
 

@@ -36,6 +36,7 @@ import base.SpecBase
 import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -153,6 +154,31 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
       }
     }
 
+    "must redirect to edit third party general problem page if EditThirdPartyAccessStartDatePage is missing on GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       val mockTradeService      = mock[TradeReportingExtractsService]
@@ -188,6 +214,31 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         val result = route(application, postRequest(validDate)).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to edit third party general problem page if EditThirdPartyAccessStartDatePage is missing on POST" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val result = route(application, postRequest(LocalDate.now().plusDays(1))).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
       }
     }
 

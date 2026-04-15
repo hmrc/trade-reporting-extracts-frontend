@@ -21,7 +21,7 @@ import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.Mode
 import models.requests.DataRequest
 import navigation.EditThirdPartyNavigator
-import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
+import pages.editThirdParty.{EditDeclarationDatePage, EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -50,79 +50,100 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val form = formProvider(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get)
+      request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) match {
+        case None            =>
+          val updatedAnswers = request.userAnswers.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)).get
+          sessionRepository.set(updatedAnswers).map { _ =>
+            Redirect(controllers.problem.routes.EditThirdPartyGeneralProblemController.onPageLoad())
+          }
+        case Some(startDate) =>
+          val form = formProvider(startDate)
 
-      val preparedForm = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
-        case Some(d) if d == LocalDate.MAX => form
-        case Some(d)                       => form.fill(Some(d))
-        case None                          => form
+          val preparedForm = request.userAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) match {
+            case Some(d) if d == LocalDate.MAX => form
+            case Some(d)                       => form.fill(Some(d))
+            case None                          => form
+          }
+
+          val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, startDate)
+          Future.successful(
+            Ok(
+              view(
+                preparedForm,
+                dateFormatter(startDate),
+                thirdPartyEori,
+                dateFormatted
+              )
+            )
+          )
       }
-
-      val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, request)
-      Ok(
-        view(
-          preparedForm,
-          dateFormatter(request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get),
-          thirdPartyEori,
-          dateFormatted
-        )
-      )
   }
 
   def onSubmit(thirdPartyEori: String): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      val startDate     = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get
-      val form          = formProvider(startDate)
-      val dateFormatted = getStartDatePlusOneMonth(thirdPartyEori, request)
+      request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) match {
+        case Some(startDate) =>
+          tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap {
+            thirdPartyDetails =>
 
-      tradeReportingExtractsService.getThirdPartyDetails(request.eori, thirdPartyEori).flatMap { thirdPartyDetails =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors =>
-              Future.successful(
-                BadRequest(view(formWithErrors, dateFormatter(startDate), thirdPartyEori, dateFormatted))
-              ),
-            value => {
-              val updatedAnswersF =
-                if (startDate == thirdPartyDetails.accessStartDate && value == thirdPartyDetails.accessEndDate) {
-                  Future.fromTry(
-                    request.userAnswers
-                      .remove(EditThirdPartyAccessStartDatePage(thirdPartyEori))
-                      .flatMap(_.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)))
-                  )
-                } else {
-                  value match {
-                    case Some(endDate)                                   =>
-                      Future.fromTry(request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), endDate))
-                    case None if thirdPartyDetails.accessEndDate.isEmpty =>
-                      // case if user selects 'No End Date' and there was no end date previously, user answer not persisted
-                      Future.fromTry(request.userAnswers.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)))
-                    case None                                            =>
-                      // case if user selects 'No End Date' and there was an end date previously, set to LocalDate.MAX to indicate no end date to discern if page was answered
-                      Future.fromTry(
-                        request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), LocalDate.MAX)
-                      )
+              val form          = formProvider(startDate)
+              val dateFormatted = getStartDatePlusOneMonth(thirdPartyEori, startDate)
+
+              form
+                .bindFromRequest()
+                .fold(
+                  formWithErrors =>
+                    Future.successful(
+                      BadRequest(view(formWithErrors, dateFormatter(startDate), thirdPartyEori, dateFormatted))
+                    ),
+                  value => {
+                    val updatedAnswersF =
+                      if (startDate == thirdPartyDetails.accessStartDate && value == thirdPartyDetails.accessEndDate) {
+                        Future.fromTry(
+                          request.userAnswers
+                            .remove(EditThirdPartyAccessStartDatePage(thirdPartyEori))
+                            .flatMap(_.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)))
+                        )
+                      } else {
+                        value match {
+                          case Some(endDate)                                   =>
+                            Future.fromTry(
+                              request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), endDate)
+                            )
+                          case None if thirdPartyDetails.accessEndDate.isEmpty =>
+                            // case if user selects 'No End Date' and there was no end date previously, user answer not persisted
+                            Future.fromTry(request.userAnswers.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)))
+                          case None                                            =>
+                            // case if user selects 'No End Date' and there was an end date previously, set to LocalDate.MAX to indicate no end date to discern if page was answered
+                            Future.fromTry(
+                              request.userAnswers.set(EditThirdPartyAccessEndDatePage(thirdPartyEori), LocalDate.MAX)
+                            )
+                        }
+                      }
+                    updatedAnswersF.flatMap { updatedAnswers =>
+                      sessionRepository.set(updatedAnswers).map { _ =>
+                        Redirect(
+                          navigator
+                            .nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)
+                        )
+                      }
+                    }
                   }
-                }
-              updatedAnswersF.flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).map { _ =>
-                  Redirect(
-                    navigator.nextPage(EditThirdPartyAccessEndDatePage(thirdPartyEori), userAnswers = updatedAnswers)
-                  )
-                }
-              }
-            }
-          )
+                )
+          }
+        case None            =>
+          val updatedAnswers = request.userAnswers.remove(EditThirdPartyAccessEndDatePage(thirdPartyEori)).get
+          sessionRepository.set(updatedAnswers).map { _ =>
+            Redirect(controllers.problem.routes.EditThirdPartyGeneralProblemController.onPageLoad())
+          }
       }
     }
 
-  private def getStartDatePlusOneMonth(thirdPartyEori: String, request: DataRequest[AnyContent]): String = {
-    val startDate = request.userAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)).get
-    val today     = LocalDate.now(clock)
-    val baseDate  = if (startDate.isBefore(today)) today else startDate
+  private def getStartDatePlusOneMonth(thirdPartyEori: String, startDate: LocalDate): String = {
+    val today    = LocalDate.now(clock)
+    val baseDate = if (startDate.isBefore(today)) today else startDate
     baseDate.plusMonths(1).format(DateTimeFormats.dateTimeHintFormat)
   }
 }

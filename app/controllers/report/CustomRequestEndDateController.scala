@@ -34,6 +34,8 @@ import utils.DateTimeFormats.dateTimeHintFormat
 import utils.{Constants, DateTimeFormats, ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestEndDateView
 import models.AlreadySubmittedFlag
+import models.requests.DataRequest
+
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -117,72 +119,91 @@ class CustomRequestEndDateController @Inject (clock: Clock = Clock.systemUTC())(
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val maybeThirdPartyRequest                                                     = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
-      val startDate: LocalDate                                                       = request.userAnswers.get(CustomRequestStartDatePage).get
-      val formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])] = if (maybeThirdPartyRequest) {
-        tradeReportingExtractsService
-          .getAuthorisedBusinessDetails(
-            request.eori,
-            request.userAnswers.get(SelectThirdPartyEoriPage).get
-          )
-          .map { details =>
-            (formProvider(startDate, maybeThirdPartyRequest, details.dataEndDate), Some(details))
-          }
-      } else {
-        Future.successful((formProvider(startDate, false, None), None))
-      }
+      val maybeThirdPartyRequest: Option[String] = request.userAnswers.get(SelectThirdPartyEoriPage)
+      val maybeStartDate: Option[LocalDate]      = request.userAnswers.get(CustomRequestStartDatePage)
 
-      formAndDetailsFuture
-        .flatMap { case (form, maybeDetails) =>
-          form
-            .bindFromRequest()
-            .fold(
-              formWithErrors => {
-                val viewResult = maybeDetails match {
-                  case Some(details) =>
-                    val maxEndDateHint = calculateMaxEndDate(startDate, details.dataEndDate, isThirdParty = true)
-                    BadRequest(
-                      view(
-                        formWithErrors,
-                        mode,
-                        DateTimeFormats.dateFormatter(startDate),
-                        maxEndDateHint,
-                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                        maybeThirdPartyRequest,
-                        Some(
-                          thirdPartyStartEndDateStringGen(
-                            maxEndDateHint,
-                            details.dataStartDate,
-                            details.dataEndDate
+      def submissionHandler(
+        request: DataRequest[AnyContent],
+        formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])],
+        startDate: LocalDate
+      ): Future[play.api.mvc.Result] =
+        formAndDetailsFuture
+          .flatMap { case (form, maybeDetails) =>
+            form
+              .bindFromRequest()
+              .fold(
+                formWithErrors => {
+                  val viewResult = maybeDetails match {
+                    case Some(details) =>
+                      val maxEndDateHint = calculateMaxEndDate(startDate, details.dataEndDate, isThirdParty = true)
+                      BadRequest(
+                        view(
+                          formWithErrors,
+                          mode,
+                          DateTimeFormats.dateFormatter(startDate),
+                          maxEndDateHint,
+                          ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                          maybeThirdPartyRequest.isDefined,
+                          Some(
+                            thirdPartyStartEndDateStringGen(
+                              maxEndDateHint,
+                              details.dataStartDate,
+                              details.dataEndDate
+                            )
                           )
                         )
                       )
-                    )
-                  case None          =>
-                    BadRequest(
-                      view(
-                        formWithErrors,
-                        mode,
-                        DateTimeFormats.dateFormatter(startDate),
-                        calculateMaxEndDate(startDate),
-                        ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                        maybeThirdPartyRequest,
-                        None
+                    case None          =>
+                      BadRequest(
+                        view(
+                          formWithErrors,
+                          mode,
+                          DateTimeFormats.dateFormatter(startDate),
+                          calculateMaxEndDate(startDate),
+                          ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                          maybeThirdPartyRequest.isDefined,
+                          None
+                        )
                       )
-                    )
-                }
-                Future.successful(viewResult)
-              },
-              value =>
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestEndDatePage, value))
-                  redirectUrl     = reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers).url
-                  answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
-                  _              <- sessionRepository.set(answersWithNav)
-                } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, answersWithNav))
+                  }
+                  Future.successful(viewResult)
+                },
+                value =>
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers.set(CustomRequestEndDatePage, value))
+                    redirectUrl     = reportNavigator.nextPage(CustomRequestEndDatePage, mode, updatedAnswers).url
+                    answersWithNav  = reportRequestSection.saveNavigation(updatedAnswers, redirectUrl)
+                    _              <- sessionRepository.set(answersWithNav)
+                  } yield Redirect(reportNavigator.nextPage(CustomRequestEndDatePage, mode, answersWithNav))
+              )
+          }
+          .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
+
+      maybeStartDate match {
+        case Some(startDate) =>
+          val formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])] =
+            maybeThirdPartyRequest match {
+              case Some(traderEori) =>
+                tradeReportingExtractsService
+                  .getAuthorisedBusinessDetails(
+                    request.eori,
+                    traderEori
+                  )
+                  .map { details =>
+                    (formProvider(startDate, maybeThirdPartyRequest.isDefined, details.dataEndDate), Some(details))
+                  }
+              case None             => Future.successful((formProvider(startDate, false, None), None))
+            }
+
+          submissionHandler(request, formAndDetailsFuture, startDate)
+        case None            =>
+          val updatedAnswers = ReportRequestSection.removeAllReportRequestAnswersAndNavigation(request.userAnswers)
+          sessionRepository
+            .set(updatedAnswers)
+            .flatMap(_ =>
+              Future.successful(Redirect(controllers.problem.routes.ReportRequestGeneralProblemController.onPageLoad()))
             )
-        }
-        .recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
+      }
   }
 
   private def thirdPartyStartEndDateStringGen(

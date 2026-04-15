@@ -18,7 +18,8 @@ package controllers.thirdparty
 
 import base.SpecBase
 import models.thirdparty.*
-import models.{CompanyInformation, ConsentStatus}
+import models.{AlreadyAddedThirdPartyFlag, CompanyInformation, ConsentStatus, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -27,6 +28,7 @@ import pages.thirdparty.*
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import services.{AuditService, ThirdPartyService, TradeReportingExtractsService}
 import viewmodels.checkAnswers.thirdparty.{BusinessInfoSummary, DataTheyCanViewSummary, DataTypesSummary, DeclarationDateSummary, EoriNumberSummary, ThirdPartyAccessPeriodSummary, ThirdPartyDataOwnerConsentSummary, ThirdPartyReferenceSummary}
 import viewmodels.govuk.all.SummaryListViewModel
@@ -207,6 +209,51 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
       }
     }
 
+    "Clear user answers, set already submitted flag if eori number page missing and redirect to general problem page for a GET" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(ThirdPartyDataOwnerConsentPage, true)
+        .success
+        .value
+        .set(ThirdPartyReferencePage, "ref")
+        .success
+        .value
+        .set(ThirdPartyAccessStartDatePage, LocalDate.of(2025, 1, 1))
+        .success
+        .value
+        .set(DataTypesPage, Set(DataTypes.Import))
+        .success
+        .value
+        .set(DeclarationDatePage, DeclarationDate.AllAvailableData)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
+      }
+    }
+
     "must redirect to confirmation page for a POST" in {
       val userAnswers = emptyUserAnswers
         .set(ThirdPartyDataOwnerConsentPage, true)
@@ -273,6 +320,95 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
+          .onPageLoad()
+          .url
+      }
+    }
+
+    "Clear user answers, set already submitted flag if eori number page missing and redirect to general problem page for a POST" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(ThirdPartyDataOwnerConsentPage, true)
+        .success
+        .value
+        .set(ThirdPartyReferencePage, "ref")
+        .success
+        .value
+        .set(DataTypesPage, Set(DataTypes.Import))
+        .success
+        .value
+        .set(DeclarationDatePage, DeclarationDate.AllAvailableData)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+        capturedAnswers.get(ThirdPartyReferencePage) mustBe None
+        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+          .onPageLoad()
+          .url
+      }
+    }
+
+    "Clear user answers, set already submitted flag if any other page missing and redirect to  problem page for a POST" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val userAnswers = emptyUserAnswers
+        .set(ThirdPartyDataOwnerConsentPage, true)
+        .success
+        .value
+        .set(EoriNumberPage, "GB123456789000")
+        .success
+        .value
+        .set(ThirdPartyReferencePage, "ref")
+        .success
+        .value
+        .set(DataTypesPage, Set(DataTypes.Import))
+        .success
+        .value
+        .set(DeclarationDatePage, DeclarationDate.AllAvailableData)
+        .success
+        .value
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+        capturedAnswers.get(ThirdPartyReferencePage) mustBe None
+        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+        redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController
           .onPageLoad()
           .url
       }

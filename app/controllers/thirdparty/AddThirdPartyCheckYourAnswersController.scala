@@ -22,6 +22,7 @@ import models.thirdparty.*
 import models.{AlreadyAddedThirdPartyFlag, CompanyInformation, ConsentStatus, UserAnswers}
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.*
+import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -56,7 +57,8 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
   clock: Clock
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify
     andThen getData
@@ -65,113 +67,168 @@ class AddThirdPartyCheckYourAnswersController @Inject() (
 
     val userAnswers      = request.userAnswers
     val validationResult = ThirdPartyFieldsValidator.validateMandatoryFields(userAnswers)
-    if (!validationResult) {
-      for {
-        updatedAnswers                   <-
-          Future.successful(AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(userAnswers))
-        updatedAnswersWithSubmissionFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
-        _                                <- sessionRepository.set(updatedAnswersWithSubmissionFlag)
-      } yield Redirect(controllers.problem.routes.ThirdPartyIssueController.onPageLoad())
-    } else {
-      for {
-        companyInfo     <- tradeReportingExtractsService.getCompanyInformation(userAnswers.get(EoriNumberPage).get)
-        maybeCompanyName = resolveDisplayName(companyInfo)
-        rows             = rowGenerator(userAnswers, maybeCompanyName)
-        list             = SummaryListViewModel(rows = rows.flatten)
-      } yield Ok(view(list))
+    request.userAnswers.get(EoriNumberPage) match {
+      case Some(eoriNumber) =>
+        if (!validationResult) {
+          redirectOnProblem(userAnswers).flatMap(_ =>
+            Future.successful(Redirect(controllers.problem.routes.ThirdPartyIssueController.onPageLoad()))
+          )
+        } else {
+          for {
+            companyInfo     <- tradeReportingExtractsService.getCompanyInformation(eoriNumber)
+            maybeCompanyName = resolveDisplayName(companyInfo)
+            rows             = rowGenerator(userAnswers, maybeCompanyName)
+            list             = SummaryListViewModel(rows = rows.flatten)
+          } yield Ok(view(list))
+        }
+      case None             =>
+        redirectOnProblem(userAnswers).flatMap(_ =>
+          Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+        )
     }
+
   }
 
   def onSubmit(): Action[AnyContent] = (identify
     andThen getData
     andThen requireData
     andThen preventBackNavigationAfterAddThirdPartyAction).async { implicit request =>
-    for {
-      thirdPartyAddedConfirmation <- tradeReportingExtractsService.createThirdPartyAddRequest(
-                                       thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
-                                     )
+    val userAnswers      = request.userAnswers
+    val validationResult = ThirdPartyFieldsValidator.validateMandatoryFields(userAnswers)
+    request.userAnswers.get(EoriNumberPage) match {
+      case Some(eoriNumber) =>
+        if (!validationResult) {
+          redirectOnProblem(userAnswers).flatMap(_ =>
+            Future.successful(Redirect(controllers.problem.routes.ThirdPartyIssueController.onPageLoad()))
+          )
+        } else {
+          for {
+            thirdPartyAddedConfirmation <-
+              tradeReportingExtractsService.createThirdPartyAddRequest(
+                thirdPartyService.buildThirdPartyAddRequest(request.userAnswers, request.eori)
+              )
+            companyInfo                 <- tradeReportingExtractsService.getCompanyInformation(eoriNumber)
+            maybeCompanyName             = resolveDisplayName(companyInfo)
+            _                           <- buildThirdPartyAddedAuditEvent(request, maybeCompanyName) match {
+                                             case Some(event) => auditService.auditThirdPartyAdded(event)
+                                             case None        => Future.successful(logger.warn(s"Could not build audit event for third party addition"))
+                                           }
+            updatedAnswers               = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+            updatedAnswersWithFlag      <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
 
-      companyInfo            <- tradeReportingExtractsService.getCompanyInformation(request.userAnswers.get(EoriNumberPage).get)
-      maybeCompanyName        = resolveDisplayName(companyInfo)
-      _                      <- auditService.auditThirdPartyAdded(buildThirdPartyAddedAuditEvent(request, maybeCompanyName))
-      updatedAnswers          = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
-      updatedAnswersWithFlag <- Future.fromTry(updatedAnswers.set(AlreadyAddedThirdPartyFlag(), true))
+            submittedDate  = LocalDate.now(clock).format(dateTimeFormat()(messagesApi.preferred(request).lang))
+            submissionMeta = ThirdPartySubmissionMeta(
+                               thirdPartyEori = thirdPartyAddedConfirmation.thirdPartyEori,
+                               companyName = maybeCompanyName,
+                               submittedDate = LocalDate.now(clock)
+                             )
 
-      submittedDate  = LocalDate.now(clock).format(dateTimeFormat()(messagesApi.preferred(request).lang))
-      submissionMeta = ThirdPartySubmissionMeta(
-                         thirdPartyEori = thirdPartyAddedConfirmation.thirdPartyEori,
-                         companyName = maybeCompanyName,
-                         submittedDate = LocalDate.now(clock)
-                       )
+            userAnswersWithMeta =
+              updatedAnswersWithFlag.copy(submissionMeta = Some(Json.toJson(submissionMeta).as[JsObject]))
+            _                  <- sessionRepository.set(userAnswersWithMeta)
 
-      userAnswersWithMeta = updatedAnswersWithFlag.copy(submissionMeta = Some(Json.toJson(submissionMeta).as[JsObject]))
-      _                  <- sessionRepository.set(userAnswersWithMeta)
-
-    } yield Redirect(navigator.nextPage(AddThirdPartyCheckYourAnswersPage, userAnswers = request.userAnswers))
+          } yield Redirect(navigator.nextPage(AddThirdPartyCheckYourAnswersPage, userAnswers = request.userAnswers))
+        }
+      case None             =>
+        redirectOnProblem(userAnswers).flatMap(_ =>
+          Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+        )
+    }
   }
 
-  private def rowGenerator(answers: UserAnswers, maybeBusinessInfo: Option[String])(implicit
-    messages: Messages
-  ): Seq[Option[SummaryListRow]] =
-    Seq(
-      ThirdPartyDataOwnerConsentSummary.row(answers),
-      EoriNumberSummary.checkYourAnswersRow(answers),
-      if (maybeBusinessInfo.isDefined) {
-        BusinessInfoSummary.row(maybeBusinessInfo.get)
-      } else {
-        ThirdPartyReferenceSummary.checkYourAnswersRow(answers)
-      },
-      ThirdPartyAccessPeriodSummary.checkYourAnswersRow(answers),
-      DataTypesSummary.checkYourAnswersRow(answers),
-      DeclarationDateSummary.row(answers),
-      DataTheyCanViewSummary.checkYourAnswersRow(answers)
-    )
+  private def redirectOnProblem(userAnswers: UserAnswers): Future[Boolean] = {
+    val updatedAnswers = AddThirdPartySection
+      .removeAllAddThirdPartyAnswersAndNavigation(userAnswers)
+      .set(AlreadyAddedThirdPartyFlag(), true)
+      .get
+    sessionRepository.set(updatedAnswers)
+  }
+}
 
-  private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] =
-    companyInfo.consent match {
-      case ConsentStatus.Denied => None
-      case _                    => Some(companyInfo.name)
+private def rowGenerator(answers: UserAnswers, maybeBusinessInfo: Option[String])(implicit
+  messages: Messages
+): Seq[Option[SummaryListRow]] =
+  Seq(
+    ThirdPartyDataOwnerConsentSummary.row(answers),
+    EoriNumberSummary.checkYourAnswersRow(answers),
+    maybeBusinessInfo match {
+      case Some(businessInfo) => BusinessInfoSummary.row(businessInfo)
+      case None               => ThirdPartyReferenceSummary.checkYourAnswersRow(answers)
+    },
+    ThirdPartyAccessPeriodSummary.checkYourAnswersRow(answers),
+    DataTypesSummary.checkYourAnswersRow(answers),
+    DeclarationDateSummary.row(answers),
+    DataTheyCanViewSummary.checkYourAnswersRow(answers)
+  )
+
+private def resolveDisplayName(companyInfo: CompanyInformation): Option[String] =
+  companyInfo.consent match {
+    case ConsentStatus.Denied => None
+    case _                    => Some(companyInfo.name)
+  }
+
+private def buildThirdPartyAddedAuditEvent(
+  request: DataRequest[AnyContent],
+  maybeCompanyName: Option[String]
+): Option[ThirdPartyAddedEvent] = {
+
+  val userAnswers = request.userAnswers
+
+  for {
+    isImporterExporterForDataToShare <- userAnswers.get(ThirdPartyDataOwnerConsentPage)
+    confirmEori                      <- userAnswers.get(ConfirmEoriPage)
+    declarationDate                  <- userAnswers.get(DeclarationDatePage)
+    thirdPartyEori                   <- userAnswers.get(EoriNumberPage)
+    thirdPartyAccessStart            <- userAnswers.get(ThirdPartyAccessStartDatePage)
+    dataTypes                        <- userAnswers.get(DataTypesPage)
+  } yield {
+    val thirdPartyEoriAccessGiven = confirmEori match {
+      case ConfirmEori.Yes => true
+      case ConfirmEori.No  => false
     }
 
-  private def buildThirdPartyAddedAuditEvent(
-    request: DataRequest[AnyContent],
-    maybeCompanyName: Option[String]
-  ): ThirdPartyAddedEvent = {
-    val userAnswers = request.userAnswers
+    val thirdPartyGivenAccessAllData = declarationDate match {
+      case DeclarationDate.AllAvailableData => true
+      case DeclarationDate.CustomDateRange  => false
+    }
+
+    val thirdPartyAccessStartStr =
+      thirdPartyAccessStart.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+
+    val thirdPartyAccessEndStr = userAnswers.get(ThirdPartyAccessEndDatePage) match {
+      case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+      case _                   => "indefinite"
+    }
+
+    val dataAccessTypeStr = dataTypes match {
+      case set if set.contains(DataTypes.Export) && set.contains(DataTypes.Import) => "import, export"
+      case set if set.contains(DataTypes.Export)                                   => "export"
+      case _                                                                       => "import"
+    }
+
+    val thirdPartyDataStartStr = userAnswers.get(DataStartDatePage) match {
+      case None            => "all available data"
+      case Some(startDate) => startDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+    }
+
+    val thirdPartyDataEndStr = userAnswers.get(DataEndDatePage) match {
+      case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
+      case _                   => "all available data"
+    }
 
     ThirdPartyAddedEvent(
-      IsImporterExporterForDataToShare = userAnswers.get(ThirdPartyDataOwnerConsentPage).get,
-      thirdPartyEoriAccessGiven = userAnswers.get(ConfirmEoriPage).get match {
-        case ConfirmEori.Yes => true
-        case ConfirmEori.No  => false
-      },
-      thirdPartyGivenAccessAllData = userAnswers.get(DeclarationDatePage).get match {
-        case DeclarationDate.AllAvailableData => true
-        case DeclarationDate.CustomDateRange  => false
-      },
+      IsImporterExporterForDataToShare = isImporterExporterForDataToShare,
+      thirdPartyEoriAccessGiven = thirdPartyEoriAccessGiven,
+      thirdPartyGivenAccessAllData = thirdPartyGivenAccessAllData,
       requesterEori = request.eori,
-      thirdPartyEori = userAnswers.get(EoriNumberPage).get,
+      thirdPartyEori = thirdPartyEori,
       thirdPartyBusinessInformation = maybeCompanyName,
       thirdPartyReferenceName = userAnswers.get(ThirdPartyReferencePage),
-      thirdPartyAccessStart =
-        userAnswers.get(ThirdPartyAccessStartDatePage).get.atStartOfDay().toInstant(ZoneOffset.UTC).toString,
-      thirdPartyAccessEnd = userAnswers.get(ThirdPartyAccessEndDatePage) match {
-        case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-        case _                   => "indefinite"
-      },
-      dataAccessType = userAnswers.get(DataTypesPage).get match {
-        case set if set.contains(DataTypes.Export) && set.contains(DataTypes.Import) => "import, export"
-        case set if set.contains(DataTypes.Export)                                   => "export"
-        case _                                                                       => "import"
-      },
-      thirdPartyDataStart = userAnswers.get(DataStartDatePage) match {
-        case None            => "all available data"
-        case Some(startDate) => startDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-      },
-      thirdPartyDataEnd = userAnswers.get(DataEndDatePage) match {
-        case Some(Some(endDate)) => endDate.atStartOfDay().toInstant(ZoneOffset.UTC).toString
-        case _                   => "all available data"
-      }
+      thirdPartyAccessStart = thirdPartyAccessStartStr,
+      thirdPartyAccessEnd = thirdPartyAccessEndStr,
+      dataAccessType = dataAccessTypeStr,
+      thirdPartyDataStart = thirdPartyDataStartStr,
+      thirdPartyDataEnd = thirdPartyDataEndStr
     )
   }
 }

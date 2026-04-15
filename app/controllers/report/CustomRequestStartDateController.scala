@@ -54,65 +54,66 @@ class CustomRequestStartDateController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
+      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage)
 
-      if (maybeThirdPartyRequest) {
-        (for {
-          details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
-                           request.eori,
-                           request.userAnswers.get(SelectThirdPartyEoriPage).get
-                         )
-          form         = formProvider(maybeThirdPartyRequest, details.dataStartDate, details.dataEndDate)
-          preparedForm = request.userAnswers.get(CustomRequestStartDatePage) match {
-                           case None        => form
-                           case Some(value) => form.fill(value)
-                         }
-          rangeString  = startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
-        } yield Ok(
-          view(
-            preparedForm,
-            mode,
-            ReportHelpers.isMoreThanOneReport(request.userAnswers),
-            maybeThirdPartyRequest,
-            rangeString
-          )
-        )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
-      } else {
-        val form         = formProvider(false, None, None)
-        val preparedForm = request.userAnswers.get(CustomRequestStartDatePage) match {
-          case None        => form
-          case Some(value) => form.fill(value)
-        }
-        Future.successful(
-          Ok(
+      def createPreparedForm(form: Form[LocalDate]) = request.userAnswers.get(CustomRequestStartDatePage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+
+      maybeThirdPartyRequest match {
+        case Some(traderEori) =>
+          (for {
+            details     <- tradeReportingExtractsService.getAuthorisedBusinessDetails(
+                             request.eori,
+                             traderEori
+                           )
+            form         = formProvider(maybeThirdPartyRequest.isDefined, details.dataStartDate, details.dataEndDate)
+            preparedForm = createPreparedForm(form)
+            rangeString  = startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
+          } yield Ok(
             view(
               preparedForm,
               mode,
               ReportHelpers.isMoreThanOneReport(request.userAnswers),
-              maybeThirdPartyRequest,
-              None
+              maybeThirdPartyRequest.isDefined,
+              rangeString
+            )
+          )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
+        case None             =>
+          val form         = formProvider(false, None, None)
+          val preparedForm = createPreparedForm(form)
+          Future.successful(
+            Ok(
+              view(
+                preparedForm,
+                mode,
+                ReportHelpers.isMoreThanOneReport(request.userAnswers),
+                maybeThirdPartyRequest.isDefined,
+                None
+              )
             )
           )
-        )
       }
+
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
 
-      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage).isDefined
+      val maybeThirdPartyRequest = request.userAnswers.get(SelectThirdPartyEoriPage)
 
-      val formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])] = if (maybeThirdPartyRequest) {
-        tradeReportingExtractsService
-          .getAuthorisedBusinessDetails(
-            request.eori,
-            request.userAnswers.get(SelectThirdPartyEoriPage).get
-          )
-          .map { details =>
-            (formProvider(maybeThirdPartyRequest = true, details.dataStartDate, details.dataEndDate), Some(details))
-          }
-      } else {
-        Future.successful((formProvider(maybeThirdPartyRequest = false, None, None), None))
+      val formAndDetailsFuture: Future[(Form[LocalDate], Option[ThirdPartyDetails])] = maybeThirdPartyRequest match {
+        case Some(traderEori) =>
+          tradeReportingExtractsService
+            .getAuthorisedBusinessDetails(
+              request.eori,
+              traderEori
+            )
+            .map { details =>
+              (formProvider(maybeThirdPartyRequest = true, details.dataStartDate, details.dataEndDate), Some(details))
+            }
+        case None             => Future.successful((formProvider(maybeThirdPartyRequest = false, None, None), None))
       }
 
       formAndDetailsFuture
@@ -128,7 +129,7 @@ class CustomRequestStartDateController @Inject() (
                         formWithErrors,
                         mode,
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                        maybeThirdPartyRequest,
+                        maybeThirdPartyRequest.isDefined,
                         startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
                       )
                     )
@@ -138,7 +139,7 @@ class CustomRequestStartDateController @Inject() (
                         formWithErrors,
                         mode,
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
-                        maybeThirdPartyRequest,
+                        maybeThirdPartyRequest.isDefined,
                         None
                       )
                     )
@@ -175,20 +176,20 @@ class CustomRequestStartDateController @Inject() (
     messages: Messages
   ): Option[String] =
     (startDate, endDate) match {
-      case (Some(_), None)    =>
+      case (Some(startDate), None)          =>
         Some(
           messages("customRequestStartDate.message2.thirdParty")
-            + " " + DateTimeFormats.dateFormatter(startDate.get) + " " + messages(
+            + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
               "customRequestStartDate.thirdParty.onwards"
             )
         )
-      case (Some(_), Some(_)) =>
+      case (Some(startDate), Some(endDate)) =>
         Some(
           messages("customRequestStartDate.message2.thirdParty")
-            + " " + DateTimeFormats.dateFormatter(startDate.get) + " " + messages(
+            + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
               "customRequestStartDate.thirdParty.to"
-            ) + " " + DateTimeFormats.dateFormatter(endDate.get) + "."
+            ) + " " + DateTimeFormats.dateFormatter(endDate) + "."
         )
-      case (_, _)             => None
+      case (_, _)                           => None
     }
 }
