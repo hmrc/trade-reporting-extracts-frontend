@@ -81,9 +81,7 @@ unauthorisedCdsEnrolment.p1 = I ddefnyddio’r gwasanaeth hwn, mae’n rhaid i c
 unauthorisedCdsEnrolment.p2 = Mae’n bosibl y bydd yn rhaid i chi wneud y canlynol:
 unauthorisedCdsEnrolment.bullet1.link = tanysgrifio i’r CDS (yn agor tab newydd)
 unauthorisedCdsEnrolment.bullet1 = os nad ydych eisoes wedi gwneud hynny
-unauthorisedCdsEnrolment.bullet2 = aros hyd at 5 diwrnod os ydych newydd danysgrifio – efallai fod eich mynediad yn dal i fod wrthi’n diweddaru
-unauthorisedCdsEnrolment.bullet3.link = allgofnodi
-unauthorisedCdsEnrolment.bullet3 = a mewngofnodi gan ddefnyddio’r manylion cywir os oes gennych fwy nag un cyfrif
+unauthorisedCdsEnrolment.bullet2 = aros hyd at 5 diwrnod os ydych wedi tanysgrifio’n ddiweddar, oherwydd ei bod hi’n bosibl bod eich mynediad yn diweddaru o hyd
 
 unsupportedAffinityGroup.title = Rydych wedi defnyddio Dynodydd Defnyddiwr (ID) asiant ar gyfer Porth y Llywodraeth i fewngofnodi
 unsupportedAffinityGroup.heading = Rydych wedi defnyddio Dynodydd Defnyddiwr (ID) asiant ar gyfer Porth y Llywodraeth i fewngofnodi
