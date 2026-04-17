@@ -51,62 +51,80 @@ class ThirdPartyAccessEndDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      request.userAnswers.get(ThirdPartyAccessStartDatePage) match {
+        case Some(startDate) =>
+          val form: Form[Option[LocalDate]] = formProvider(startDate)
 
-    val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
+          val preparedForm          = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          val dateFormatted: String = getEndDateHint(startDate)
+          Future.successful(
+            Ok(
+              view(
+                preparedForm,
+                mode,
+                DateTimeFormats.dateFormatter(startDate),
+                dateFormatted
+              )
+            )
+          )
+        case None            =>
+          val updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+          sessionRepository
+            .set(updatedAnswers)
+            .flatMap(_ =>
+              Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+            )
+      }
 
-    val preparedForm          = request.userAnswers.get(ThirdPartyAccessEndDatePage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-    val dateFormatted: String = getEndDateHint(request)
-    Ok(
-      view(
-        preparedForm,
-        mode,
-        DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
-        dateFormatted
-      )
-    )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      val dateFormatted: String         = getEndDateHint(request)
-      val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(ThirdPartyAccessStartDatePage).get)
+      request.userAnswers.get(ThirdPartyAccessStartDatePage) match {
+        case Some(startDate) =>
+          val dateFormatted: String         = getEndDateHint(startDate)
+          val form: Form[Option[LocalDate]] = formProvider(startDate)
 
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(
-              BadRequest(
-                view(
-                  formWithErrors,
-                  mode,
-                  DateTimeFormats.dateFormatter(request.userAnswers.get(ThirdPartyAccessStartDatePage).get),
-                  dateFormatted
-                )
-              )
-            ),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessEndDatePage, value))
-              redirectUrl     = thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers).url
-              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
-        )
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(
+                  BadRequest(
+                    view(
+                      formWithErrors,
+                      mode,
+                      DateTimeFormats.dateFormatter(startDate),
+                      dateFormatted
+                    )
+                  )
+                ),
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(ThirdPartyAccessEndDatePage, value))
+                  redirectUrl     = thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers).url
+                  answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(thirdPartyNavigator.nextPage(ThirdPartyAccessEndDatePage, mode, updatedAnswers))
+            )
+        case None            =>
+          val updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+          sessionRepository
+            .set(updatedAnswers)
+            .flatMap(_ =>
+              Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+            )
+      }
+
   }
 
-  private def getEndDateHint(request: DataRequest[AnyContent]): String = {
-    val today = LocalDate.now()
-
-    val startDate =
-      request.userAnswers
-        .get(ThirdPartyAccessStartDatePage)
-        .getOrElse(throw new IllegalStateException("ThirdPartyAccessStartDatePage is missing"))
-
+  private def getEndDateHint(startDate: LocalDate): String = {
+    val today    = LocalDate.now()
     val baseDate = if (startDate.isBefore(today)) today else startDate
 
     baseDate.plusYears(1).format(DateTimeFormats.dateTimeHintFormat)

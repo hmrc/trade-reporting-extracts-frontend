@@ -23,6 +23,7 @@ import models.{NormalMode, ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.mockito.ArgumentCaptor
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Messages
@@ -701,6 +702,39 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
           .onPageLoad(testEori)
+          .url
+      }
+    }
+
+    "must redirect to Report Issue Controller when no request start date is found for POST onsubmit request" in {
+
+      val testEori    = "GB123456789012"
+      val userAnswers = emptyUserAnswers
+        .set(SelectThirdPartyEoriPage, testEori)
+        .success
+        .value
+
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+      running(application) {
+        val endDate = startDate.plusDays(10)
+        val result  = route(application, postRequest(endDate)).value
+
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
+        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestGeneralProblemController
+          .onPageLoad()
           .url
       }
     }

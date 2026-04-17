@@ -50,43 +50,62 @@ class DataEndDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      request.userAnswers.get(DataStartDatePage) match {
+        case Some(startDate) =>
+          val form: Form[Option[LocalDate]] = formProvider(startDate)
+          val preparedForm                  = request.userAnswers.get(DataEndDatePage) match {
+            case None        => form
+            case Some(value) => form.fill(value)
+          }
+          Future.successful(Ok(view(preparedForm, mode, DateTimeFormats.dateFormatter(startDate))))
 
-    val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(DataStartDatePage).get)
-
-    val preparedForm = request.userAnswers.get(DataEndDatePage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-
-    Ok(view(preparedForm, mode, DateTimeFormats.dateFormatter(request.userAnswers.get(DataStartDatePage).get)))
+        case None =>
+          val updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+          sessionRepository
+            .set(updatedAnswers)
+            .flatMap(_ =>
+              Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+            )
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
+      request.userAnswers.get(DataStartDatePage) match {
+        case Some(startDate) =>
+          val form: Form[Option[LocalDate]] = formProvider(startDate)
 
-      val form: Form[Option[LocalDate]] = formProvider(request.userAnswers.get(DataStartDatePage).get)
+          form
+            .bindFromRequest()
+            .fold(
+              formWithErrors =>
+                Future.successful(
+                  BadRequest(
+                    view(
+                      formWithErrors,
+                      mode,
+                      DateTimeFormats.dateFormatter(startDate)
+                    )
+                  )
+                ),
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(DataEndDatePage, value))
+                  redirectUrl     = thirdPartyNavigator.nextPage(DataEndDatePage, mode, updatedAnswers).url
+                  answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(thirdPartyNavigator.nextPage(DataEndDatePage, mode, updatedAnswers))
+            )
+        case None            =>
+          val updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
+          sessionRepository
+            .set(updatedAnswers)
+            .flatMap(_ =>
+              Future.successful(Redirect(controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad()))
+            )
+      }
 
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(
-              BadRequest(
-                view(
-                  formWithErrors,
-                  mode,
-                  DateTimeFormats.dateFormatter(request.userAnswers.get(DataStartDatePage).get)
-                )
-              )
-            ),
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(DataEndDatePage, value))
-              redirectUrl     = thirdPartyNavigator.nextPage(DataEndDatePage, mode, updatedAnswers).url
-              answersWithNav  = addThirdPartySection.saveNavigation(updatedAnswers, redirectUrl)
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(thirdPartyNavigator.nextPage(DataEndDatePage, mode, updatedAnswers))
-        )
   }
 }
