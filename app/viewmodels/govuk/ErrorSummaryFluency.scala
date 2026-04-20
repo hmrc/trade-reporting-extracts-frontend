@@ -33,8 +33,19 @@ trait ErrorSummaryFluency {
     )(implicit messages: Messages): ErrorSummary = {
 
       val errors = form.errors.map { error =>
+
+        val errorLink = error.args match {
+          case a if a.contains("day")      => s"${error.key}.day"
+          case a if a.contains("month")    => s"${error.key}.month"
+          case a if a.contains("year")     => s"${error.key}.year"
+          case a if a.contains("diwrnod")  => s"${error.key}.day"
+          case a if a.contains("mis")      => s"${error.key}.month"
+          case a if a.contains("blwyddyn") => s"${error.key}.year"
+          case _                           => error.key
+        }
+
         ErrorLink(
-          href = Some(s"#${errorLinkOverrides.getOrElse(error.key, error.key)}"),
+          href = Some(s"#${errorLinkOverrides.getOrElse(errorLink, errorLink)}"),
           content = Text(messages(error.message, error.args: _*))
         )
       }
