@@ -378,7 +378,7 @@ noPermission.p1.linkText = ofyn am gael adroddiad o’r Gwasanaeth Datganiadau T
 
 addThirdParty.title = Ychwanegu trydydd parti
 addThirdParty.heading = Ychwanegu trydydd parti
-addThirdParty.eligibility = Dim ond mewnforwyr ac allforwyr sy’n gallu rhoi mynediad at ddata datganiadau tollau i drydydd parti, oherwydd nhw biau’r data.
+addThirdParty.eligibility = Rhywun sydd wedi’i awdurdodi i weithredu ar ran y mewnforiwr/allforiwr, fel cwmni ymgynghori neu gyfrifydd, yw trydydd parti. Dim ond mewnforwyr ac allforwyr sy’n gallu rhoi mynediad at ddata datganiadau tollau i drydydd parti, oherwydd nhw biau’r data.
 addThirdParty.cannotAdd.intro = Ni allwch ychwanegu trydydd parti os mai:
 addThirdParty.cannotAdd.declarant = dim ond datganydd ydych, fel asiant tollau sy’n cyflwyno datganiadau tollau ar ran rhywun arall
 addThirdParty.cannotAdd.thirdParty = dim ond trydydd parti ydych, fel ffỳrm ymgynghori neu gyfrifydd sy’n gweithredu ar ran rhywun arall
