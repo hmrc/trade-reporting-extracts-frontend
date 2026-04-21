@@ -81,9 +81,7 @@ unauthorisedCdsEnrolment.p1 = To use this service, you must have an active CDS s
 unauthorisedCdsEnrolment.p2 = You may need to:
 unauthorisedCdsEnrolment.bullet1.link = subscribe to CDS (opens in new tab)
 unauthorisedCdsEnrolment.bullet1 = if you have not already
-unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed - your access may still be updating
-unauthorisedCdsEnrolment.bullet3.link = sign out
-unauthorisedCdsEnrolment.bullet3 = and sign in with the correct details if you have more than one account
+unauthorisedCdsEnrolment.bullet2 = wait up to 5 days if you have just subscribed, as your access may still be updating
 
 unsupportedAffinityGroup.title = You have used an agent Government Gateway user ID to sign in
 unsupportedAffinityGroup.heading = You have used an agent Government Gateway user ID to sign in
