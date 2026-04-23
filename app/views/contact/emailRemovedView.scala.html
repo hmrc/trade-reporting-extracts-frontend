@@ -19,10 +19,15 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukInsetText : GovukInsetText
 )
 
 @(form: Form[_], emailAddress: String)(implicit request: Request[_], messages: Messages)
+
+@contentSubHeading = {
+<h2 class= "govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("emailRemoved.heading2")</h2>
+}
 
 @layout(pageTitle = title(form, messages("emailRemoved.title"))) {
 
@@ -31,27 +36,20 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-<h1 class="govuk-heading-l">@messages("emailRemoved.heading")</h1>
-<p class="govuk-body">@emailAddress</p>
-<p class="govuk-body">@messages("emailRemoved.message")</p>
-        @govukRadios(
-            RadiosViewModel(
-                field = form("value"),
-                    items = Seq(
-                        RadioItem(
-                            content = Text(messages("emailRemoved.yes")),
-                            value = Some("true"),
-                            id = Some("value")
-                        ),
-                        RadioItem(
-                            content = Text(messages("emailRemoved.no")),
-                            value = Some("false"),
-                            id = Some("value-no")
-                        )
-                ),
-                legend = LegendViewModel(messages("emailRemoved.heading2")).withCssClass("govuk-fieldset__legend--m")
-            )
+    <h1 class="govuk-heading-xl">@messages("emailRemoved.heading")</h1>
+
+    @govukInsetText(InsetText(
+        content = emailAddress
+    ))
+
+    <p class="govuk-body">@messages("emailRemoved.message")</p>
+
+    @govukRadios(
+        RadiosViewModel.yesNo(
+            field = form("value"),
+            legend = LegendViewModel(HtmlContent(contentSubHeading))
         )
+    )
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
