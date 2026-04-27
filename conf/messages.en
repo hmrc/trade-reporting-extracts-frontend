@@ -785,8 +785,6 @@ emailRemoved.error.required = Select yes if you want to remove this email addres
 emailRemoved.change.hidden = Remove email address
 emailRemoved.message = You will no longer receive notifications to this email address.
 emailRemoved.heading2 = Do you want to remove this email address?
-emailRemoved.yes = Yes, remove this email address
-emailRemoved.no = No, keep this email address
 
 emailRemovedConfirmation.title = Email removed
 emailRemovedConfirmation.heading = Email removed

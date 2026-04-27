@@ -785,8 +785,6 @@ emailRemoved.error.required = Dewiswch ‘Iawn’ os ydych chi am dynnu’r cyfe
 emailRemoved.change.hidden = Dileu cyfeiriad e-bost
 emailRemoved.message = Ni fyddwch yn cael hysbysiadau i’r cyfeiriad e-bost hwn mwyach.
 emailRemoved.heading2 = A ydych chi am dynnu’r cyfeiriad e-bost hwn?
-emailRemoved.yes = Iawn, tynnu’r cyfeiriad e-bost hwn
-emailRemoved.no = Na, cadw’r cyfeiriad e-bost hwn
 
 emailRemovedConfirmation.title = Tynnwyd y cyfeiriad e-bost
 emailRemovedConfirmation.heading = Tynnwyd y cyfeiriad e-bost

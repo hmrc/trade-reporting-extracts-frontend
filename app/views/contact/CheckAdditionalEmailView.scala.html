@@ -19,10 +19,15 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukInsetText : GovukInsetText
 )
 
 @(form: Form[_], emailAddress: String)(implicit request: Request[_], messages: Messages)
+
+@contentSubHeading = {
+<h2 class= "govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("checkEmail.heading2")</h2>
+}
 
 @layout(pageTitle = title(form, messages("checkEmail.title"))) {
 
@@ -34,17 +39,15 @@
 
 
         <h1 class="govuk-heading-xl">@messages("checkEmail.heading")</h1>
-        
-        <p class="govuk-body">@emailAddress</p>
+
+        @govukInsetText(InsetText(
+            content = emailAddress
+        ))
 
         @govukRadios(
-            RadiosViewModel(
+            RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("checkEmail.heading2")).withCssClass("govuk-fieldset__legend--m").asPageHeading(),
-                items = Seq(
-                    RadioItem(value = Some("true"), content = Text(messages("site.yes")), id = Some("value")),
-                    RadioItem(value = Some("false"), content = Text(messages("site.no")), id = Some("value-no"))
-                )
+                legend = LegendViewModel(HtmlContent(contentSubHeading))
             )
         )
 
