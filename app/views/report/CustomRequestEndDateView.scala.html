@@ -32,11 +32,11 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
 
 @legendContent = {
     @if(maybeThirdPartyRequest) {
-        <p class="govuk-body govuk-!-margin-bottom-0">
+        <p class="govuk-body govuk-!-margin-bottom-4">
             @thirdPartyString
         </p>
     } else {
-        <p class="govuk-body govuk-!-margin-bottom-0">
+        <p class="govuk-body govuk-!-margin-bottom-4">
             @messages("customRequestEndDate.message1", startDate, endDateHint)
         </p>
     }

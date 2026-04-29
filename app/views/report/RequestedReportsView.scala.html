@@ -157,9 +157,11 @@
 
 @if(maybeUserReports && !maybeThirdPartyReports) {
   @userReportsContent
+    <br>
 }
 
 @if(!maybeUserReports && maybeThirdPartyReports) {
   @thirdPartyReportsContent
+    <br>
 }
 }
