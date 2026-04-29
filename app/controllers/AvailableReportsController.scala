@@ -42,7 +42,15 @@ class AvailableReportsController @Inject() (
       availableReports      <- tradeReportingExtractsService.getAvailableReports(request.eori)
       maybeUserReports       = availableReports.availableUserReports.exists(_.nonEmpty)
       maybeThirdPartyReports = availableReports.availableThirdPartyReports.exists(_.nonEmpty)
-    } yield Ok(view(availableReports, maybeUserReports, maybeThirdPartyReports, config.guidanceWhatsInTheReportUrl))
+    } yield Ok(
+      view(
+        availableReports,
+        maybeUserReports,
+        maybeThirdPartyReports,
+        config.guidanceWhatsInTheReportUrl,
+        config.importsExportsContctUrl
+      )
+    )
   }
 
   def auditDownloadFile(file: String, fileName: String, reportReference: String): Action[AnyContent] = Action.async {

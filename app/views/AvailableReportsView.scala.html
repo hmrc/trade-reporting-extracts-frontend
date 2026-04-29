@@ -28,12 +28,26 @@
 @(availableReports: AvailableReportsViewModel,
 maybeUserReports: Boolean,
 maybeThirdPartyReports: Boolean,
-guidanceUrl: String
+guidanceUrl: String,
+contactUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
+<div>
+    @if(maybeUserReports ^ maybeThirdPartyReports) {
+    <h2 class="govuk-heading-l govuk-table__caption--l">
+        @messages("availableReports.myReports")
+    </h2>
+    }
+    <p class="govuk-body">
+        @messages("availableReports.contact1")
+        <a class="govuk-link" href="@contactUrl">
+            @messages("availableReports.contactLink")
+        </a>
+        @messages("availableReports.contact2")
+    </p>
   <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("availableReports.myReports")" aria-describedby="available-user-reports-scroll-hint">
-    <div id="available-user-reports-scroll-hint" class="govuk-visually-hidden">@messages("availableReports.scrollHint")</div>
+    <div id="available-user-reports-scroll-hint" class="govuk-visually-hidden">@messages("availableReports.myReports")</div>
     @govukTable(Table(
       head = Some(Seq(
         HeadCell(content = Text(messages("availableReports.table.reportName"))),
@@ -60,14 +74,26 @@ guidanceUrl: String
                 )
             )
         )
-    },
-      caption = Some(messages("availableReports.myReports")),
-      captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
+    }
     ))
   </div>
+</div>
 }
 
 @thirdPartyReportsContent = {
+<div>
+    @if(maybeUserReports ^ maybeThirdPartyReports) {
+    <h2 class="govuk-heading-l govuk-table__caption--l">
+        @messages("availableReports.thirdPartyReports")
+    </h2>
+    }
+    <p class="govuk-body">
+        @messages("availableReports.contact1")
+        <a class="govuk-link" href="@contactUrl">
+            @messages("availableReports.contactLink")
+        </a>
+        @messages("availableReports.contact2")
+    </p>
   <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("availableReports.thirdPartyReports")" aria-describedby="available-third-party-reports-scroll-hint">
     <div id="available-third-party-reports-scroll-hint" class="govuk-visually-hidden">@messages("availableReports.thirdPartyReports")</div>
     @govukTable(Table(
@@ -98,11 +124,10 @@ guidanceUrl: String
                 )
             )
         )
-    },
-        caption = Some(messages("availableReports.thirdPartyReports")),
-        captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
+    }
         ))
     </div>
+</div>
   }
 
 @titleContent = @{

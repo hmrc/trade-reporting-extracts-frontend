@@ -26,7 +26,7 @@
         govukButton: GovukButton
 )
 
-@(eori: String, userDetails: UserDetails, guidanceUrl: String)(implicit request: Request[_], messages: Messages)
+@(eori: String, userDetails: UserDetails, guidanceUrl: String, contactUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = messages("service.name") + " - " + messages("site.govuk"),
@@ -90,7 +90,19 @@
                 text = Messages("dashboard.support.fieldsInReport"),
                 openInNewTab = true,
                 href = guidanceUrl
-            ))
+            )),
+        content = Some(Html(
+        s"""
+        <p class="govuk-body">
+            ${messages("dashboard.support.contact1")}
+            <a class="govuk-link" href="$contactUrl">
+                ${messages("dashboard.support.contactLink")}
+            </a>
+            ${messages("dashboard.support.contact2")}
+        </p>
+        """
+        ))
+
         )
 </div>
 }
