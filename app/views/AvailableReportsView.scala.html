@@ -28,7 +28,8 @@
 @(availableReports: AvailableReportsViewModel,
 maybeUserReports: Boolean,
 maybeThirdPartyReports: Boolean,
-guidanceUrl: String
+guidanceUrl: String,
+contactUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @userReportsContent = {
@@ -40,7 +41,7 @@ guidanceUrl: String
     }
     <p class="govuk-body">
         @messages("availableReports.contact1")
-        <a class="govuk-link" href="$contactUrl">
+        <a class="govuk-link" href="@contactUrl">
             @messages("availableReports.contactLink")
         </a>
         @messages("availableReports.contact2")
@@ -88,7 +89,7 @@ guidanceUrl: String
     }
     <p class="govuk-body">
         @messages("availableReports.contact1")
-        <a class="govuk-link" href="$contactUrl">
+        <a class="govuk-link" href="@contactUrl">
             @messages("availableReports.contactLink")
         </a>
         @messages("availableReports.contact2")

@@ -63,7 +63,13 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val config  = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, false, config.guidanceWhatsInTheReportUrl)(
+        contentAsString(result) mustEqual view(
+          reports,
+          false,
+          false,
+          config.guidanceWhatsInTheReportUrl,
+          config.importsExportsContctUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -126,7 +132,13 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, true, config.guidanceWhatsInTheReportUrl)(
+        contentAsString(result) mustEqual view(
+          reports,
+          true,
+          true,
+          config.guidanceWhatsInTheReportUrl,
+          config.importsExportsContctUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -191,7 +203,13 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, false, config.guidanceWhatsInTheReportUrl)(
+        contentAsString(result) mustEqual view(
+          reports,
+          true,
+          false,
+          config.guidanceWhatsInTheReportUrl,
+          config.importsExportsContctUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -260,7 +278,13 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         val config   = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, true, config.guidanceWhatsInTheReportUrl)(
+        contentAsString(result) mustEqual view(
+          reports,
+          false,
+          true,
+          config.guidanceWhatsInTheReportUrl,
+          config.importsExportsContctUrl
+        )(
           request,
           messages(application)
         ).toString
