@@ -634,9 +634,12 @@ noDataFound.message4 = using a different date range.
 
 reportFailed.title = There was a problem with {0} {1}
 reportFailed.heading = There was a problem with {0} {1}
-reportFailed.message1 = We could not produce this report.
-reportFailed.message2 = You can
+reportFailed.message1 = We could not produce this report. This could be due to technical difficulties
+reportFailed.message2 = To get your data,
 reportFailed.linkText = request a new report
+reportFailed.message3.pre = If this problem continues,
+reportFailed.message3.link = contact HMRC
+reportFailed.message3.post = for support.
 
 reportNavIssue.title = There was a problem with your requested report
 reportNavIssue.h1 = There was a problem with your requested report

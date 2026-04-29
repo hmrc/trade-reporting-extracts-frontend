@@ -17,6 +17,7 @@
 package controllers.problem
 
 import base.SpecBase
+import config.FrontendAppConfig
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -31,6 +32,7 @@ class ReportFailedControllerSpec extends SpecBase {
       val reportRef  = "REF123"
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val config      = application.injector.instanceOf[FrontendAppConfig]
 
       running(application) {
         val request =
@@ -41,7 +43,10 @@ class ReportFailedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ReportFailedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reportName, reportRef)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(reportName, reportRef, config.importsExportsContctUrl)(
+          request,
+          messages(application)
+        ).toString
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementsByClass("govuk-heading-xl").text() must include(

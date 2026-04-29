@@ -18,18 +18,23 @@
         layout: templates.Layout
 )
 
-@(reportName: String, reportRef: String)(implicit request: Request[_], messages: Messages)
+@(reportName: String, reportRef: String, contactUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("reportFailed.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("reportFailed.heading", reportName, reportRef)</h1>
     <div class="govuk-body">
      <p>@messages("reportFailed.message1")</p>
-     <p>@messages("reportFailed.message2")
-      <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url"
-         class="govuk-link govuk-link--no-visited-state">
-          @messages("reportFailed.linkText").
-      </a>
+
+     <p class="govuk-body">
+      @messages("reportFailed.message2")
+      <a href="@controllers.report.routes.ReportGuidanceController.onPageLoad().url" class="govuk-link govuk-link--no-visited-state">@messages("reportFailed.linkText")</a>.
+     </p>
+
+     <p class="govuk-body">
+      @messages("reportFailed.message3.pre")
+      <a href="@contactUrl" class="govuk-link govuk-link--no-visited-state">@messages("reportFailed.message3.link")</a>
+      @messages("reportFailed.message3.post")
      </p>
 
      }

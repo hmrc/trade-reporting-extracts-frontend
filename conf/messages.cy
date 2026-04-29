@@ -634,9 +634,12 @@ noDataFound.message4 = gan ddefnyddio cyfnod gwahanol.
 
 reportFailed.title = Roedd problem wrth wneud {0} {1}
 reportFailed.heading = Roedd problem wrth wneud {0} {1}
-reportFailed.message1 = Nid oedd modd i ni greu’r adroddiad hwn.
-reportFailed.message2 = Gallwch
-reportFailed.linkText = ofyn am gael adroddiad newydd
+reportFailed.message1 = Nid oedd modd i ni greu’r adroddiad hwn. Gallai hyn fod oherwydd anawsterau technegol
+reportFailed.message2 = I gael eich data,
+reportFailed.linkText = gofynnwch am gael adroddiad newydd
+reportFailed.message3.pre = Os yw’r broblem hon yn parhau,
+reportFailed.message3.link = cysylltwch â CThEF
+reportFailed.message3.post = i gael cymorth.
 
 reportNavIssue.title = Roedd problem gyda’r adroddiad rydych wedi gofyn amdano
 reportNavIssue.h1 = Roedd problem gyda’r adroddiad rydych wedi gofyn amdano
