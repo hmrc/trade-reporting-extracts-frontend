@@ -44,7 +44,7 @@ govukPanel: GovukPanel
 
 <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
 
-<h2 class="govuk-heading-m">@messages("emailRemovedConfirmation.heading3")</h2>
+<h2 class="govuk-heading-l">@messages("emailRemovedConfirmation.heading3")</h2>
 <p class="govuk-body">@messages("emailRemovedConfirmation.message")</p>
 <p class="govuk-body">@messages("emailRemovedConfirmation.message1")
     <a class="govuk-link" href="@controllers.contact.routes.ContactDetailsController.onPageLoad().url">

@@ -47,8 +47,10 @@
         )
     )
 ))
+}
 
-
+@contentSubHeading = {
+    <h2 class= "govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("confirmEori.heading2")</h2>
 }
 
 @layout(pageTitle = title(form, messages("confirmEori.title"))) {
@@ -62,7 +64,7 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("confirmEori.heading2")).withCssClass("govuk-fieldset__legend--m"),
+                legend = LegendViewModel(HtmlContent(contentSubHeading)),
                 items  = ConfirmEori.options
             )
         )
