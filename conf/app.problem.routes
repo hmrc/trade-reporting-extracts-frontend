@@ -23,3 +23,5 @@ GET        /error-request-report                       controllers.problem.Repor
 GET        /error-add-a-third-party                       controllers.problem.AddThirdPartyGeneralProblemController.onPageLoad()
 
 GET        /error-edit-a-third-party                       controllers.problem.EditThirdPartyGeneralProblemController.onPageLoad()
+
+GET        /edit-third-party-submission-error/:thirdPartyEori                       controllers.problem.EditThirdPartySubmissionProblemController.onPageLoad(thirdPartyEori: String)
