@@ -16,7 +16,9 @@
 
 package controllers.problem
 
-import controllers.actions._
+import config.FrontendAppConfig
+import controllers.actions.*
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,12 +30,13 @@ class ReportFailedController @Inject() (
   identify: IdentifierAction,
   getData: DataRetrievalAction,
   val controllerComponents: MessagesControllerComponents,
-  view: ReportFailedView
+  view: ReportFailedView,
+  config: FrontendAppConfig
 ) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(reportName: String, reportRef: String): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      Ok(view(reportName, reportRef))
+      Ok(view(reportName, reportRef, config.importsExportsContctUrl))
   }
 }
