@@ -20,7 +20,7 @@
 
 @(reportName: String, reportRef: String, contactUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("reportFailed.title"))) {
+@layout(pageTitle = titleNoForm(messages("reportFailed.title", reportName, reportRef))) {
 
     <h1 class="govuk-heading-xl">@messages("reportFailed.heading", reportName, reportRef)</h1>
     <div class="govuk-body">
