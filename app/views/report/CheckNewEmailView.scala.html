@@ -19,19 +19,14 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukInsetText : GovukInsetText
 )
 
 @(form: Form[_], mode: Mode, lastEnteredEmail: String)(implicit request: Request[_], messages: Messages)
 
 @contentSubHeading = {
 <h2 class= "govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("checkNewEmail.heading2")</h2>
-}
-
-
-@content = {
-    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("checkNewEmail.heading")</h1>
-    <p class="govuk-body">@lastEnteredEmail</p>
 }
 
 
@@ -43,7 +38,11 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @content
+        <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("checkNewEmail.heading")</h1>
+
+        @govukInsetText(InsetText(
+            content = lastEnteredEmail
+        ))
 
         @govukRadios(
             RadiosViewModel.yesNo(
