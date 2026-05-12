@@ -64,7 +64,6 @@ The following feature switches are set in `application.conf`:
 | welsh-translation  | Enables Welsh language translation support.                        |
 | third-party        | Enables or disables all third-party related features (such as adding a third party or providing access to reports). When set to false, users cannot access any third-party functionality. |
 | notifications      | Enables or disables all email notification features, such as adding additional emails to a report request. By default, users can only receive reports at the default company email associated with the EORI. |
-| user-allow-list    | Restricts access to users in an allow list if set to true.         |
 
 ## Helpful Commands
 
