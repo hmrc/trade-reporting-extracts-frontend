@@ -18,7 +18,6 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.UserAllowListConnector
 import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.*
@@ -37,7 +36,6 @@ trait IdentifierAction
 
 class AuthenticatedIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
-  userAllowListConnector: UserAllowListConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
@@ -76,17 +74,7 @@ class AuthenticatedIdentifierAction @Inject() (
 
     maybeEnrolment match {
       case Some(enrolment) if enrolment.value.nonEmpty =>
-        if (config.userAllowListEnabled) {
-          userAllowListConnector.check(config.userAllowListFeature, enrolment.value).flatMap {
-            case true  =>
-              block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
-            case false =>
-              logger.info(s"EORI ${enrolment.value} is not allowed access. Redirecting.")
-              Future.successful(Redirect(controllers.problem.routes.NoPermissionController.onPageLoad()))
-          }
-        } else {
-          block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
-        }
+        block(IdentifierRequest(request, internalId, enrolment.value, affinityGroup, credentialRole))
       case Some(_)                                     =>
         throw InternalError("EORI is empty")
       case None                                        =>
