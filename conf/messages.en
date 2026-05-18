@@ -831,3 +831,9 @@ editThirdPartyGeneralProblem.heading = There was a problem editing your third pa
 editThirdPartyGeneralProblem.message1 = We could not edit your third party.
 editThirdPartyGeneralProblem.message2 = To edit your third party,
 editThirdPartyGeneralProblem.link = start again.
+
+editThirdPartySubmissionProblem.title = There has been a problem editing your third party details
+editThirdPartySubmissionProblem.heading = There has been a problem editing your third party details
+editThirdPartySubmissionProblem.message1 = Your changes have not been submitted to your third party details. This could be because of a problem within the service.
+editThirdPartySubmissionProblem.message2 = To complete this action, you can
+editThirdPartySubmissionProblem.message2.link = edit your third party details again

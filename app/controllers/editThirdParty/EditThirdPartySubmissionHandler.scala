@@ -30,9 +30,10 @@ import services.{AuditService, TradeReportingExtractsService}
 import utils.UserAnswerHelper
 import utils.DateTimeFormats.localDateToInstant
 import utils.json.OptionalLocalDateReads.*
+
 import scala.collection.mutable.ListBuffer
 import java.time.{LocalDate, ZoneOffset}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import java.time.Instant
 
 class EditThirdPartySubmissionHandler @Inject (
@@ -84,10 +85,16 @@ class EditThirdPartySubmissionHandler @Inject (
           updatedAnswers = userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers)
           _             <- sessionRepository.set(updatedAnswers)
         } yield Redirect(controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController.onPageLoad()))
-          .recover { case ex =>
-            logger.error(s"Error submitting edit third party: ${ex.getMessage}", ex)
-            // TODO RECOVER SOMEWHERE BETTER?
-            Redirect(controllers.routes.DashboardController.onPageLoad())
+          .recoverWith { case ex =>
+            sessionRepository
+              .set(userAnswerHelper.removeEditThirdPartyAnswersForEori(thirdPartyEori, request.userAnswers))
+              .flatMap(_ =>
+                Future.successful(
+                  Redirect(
+                    controllers.problem.routes.EditThirdPartySubmissionProblemController.onPageLoad(thirdPartyEori)
+                  )
+                )
+              )
           }
       }
     }

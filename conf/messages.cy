@@ -831,3 +831,9 @@ editThirdPartyGeneralProblem.heading = Roedd problem wrth olygu eich trydydd par
 editThirdPartyGeneralProblem.message1 = Nid oedd modd i ni olygu eich trydydd parti.
 editThirdPartyGeneralProblem.message2 = Er mwyn golygu eich trydydd parti,
 editThirdPartyGeneralProblem.link = dechreuwch arni eto.
+
+editThirdPartySubmissionProblem.title = Mae problem wedi codi wrth olygu eich manylion ynghylch trydydd parti
+editThirdPartySubmissionProblem.heading = Mae problem wedi codi wrth olygu eich manylion ynghylch trydydd parti
+editThirdPartySubmissionProblem.message1 = Nid yw’ch newidiadau wedi’u cyflwyno i’ch manylion ynghylch trydydd parti. Gallai hyn fod o ganlyniad i broblem o fewn y gwasanaeth.
+editThirdPartySubmissionProblem.message2 = I gwblhau’r weithred hon, gallwch
+editThirdPartySubmissionProblem.message2.link = olygu eich manylion ynghylch trydydd parti eto

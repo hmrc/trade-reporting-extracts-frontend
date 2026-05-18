@@ -18,7 +18,7 @@ package controllers.editThirdParty
 
 import base.SpecBase
 import controllers.routes
-import models.ThirdPartyDetails
+import models.{ThirdPartyDetails, UserAnswers}
 import models.thirdparty.*
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -33,6 +33,7 @@ import play.api.inject.bind
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import services.{AuditService, TradeReportingExtractsService}
 
 import java.time.{LocalDate, ZoneOffset}
@@ -214,8 +215,13 @@ class EditThirdPartySubmissionHandlerSpec
       }
     }
 
-    "must redirect to Dashboard when service fails" in {
-      val mockService = mock[TradeReportingExtractsService]
+    "must redirect to editThirdPartySubmissionError page and clean up edit user answers when service fails" in {
+      val mockService           = mock[TradeReportingExtractsService]
+      val mockSessionRepository = mock[SessionRepository]
+
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+      when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.failed(new RuntimeException("boom")))
@@ -240,9 +246,15 @@ class EditThirdPartySubmissionHandlerSpec
         .set(EditThirdPartyAccessEndDatePage(thirdPartyEori), endDate)
         .success
         .value
+        .set(EditThirdPartyReferencePage("anotherThirdPartyEori"), "updatedRef")
+        .success
+        .value
 
       val application = applicationBuilder(Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockService))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockService),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
         .build()
 
       running(application) {
@@ -251,7 +263,13 @@ class EditThirdPartySubmissionHandlerSpec
         val result = controller.submit(thirdPartyEori)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.DashboardController.onPageLoad().url
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
+        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+        capturedAnswers.get(EditThirdPartyReferencePage("anotherThirdPartyEori")) mustBe Some("updatedRef")
+        redirectLocation(result).value mustBe controllers.problem.routes.EditThirdPartySubmissionProblemController
+          .onPageLoad(thirdPartyEori)
+          .url
       }
     }
 
@@ -302,7 +320,8 @@ class EditThirdPartySubmissionHandlerSpec
       running(application) {
         val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
+        val result: Future[Result] =
+          controller.submit(thirdPartyEori)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
 
