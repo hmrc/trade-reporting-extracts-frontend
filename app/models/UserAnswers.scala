@@ -16,9 +16,13 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import queries.{Gettable, Settable}
+import uk.gov.hmrc.crypto.Sensitive.SensitiveString
+import uk.gov.hmrc.crypto.json.JsonEncryption
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import uk.gov.hmrc.crypto.Sensitive.*
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
@@ -75,6 +79,7 @@ final case class UserAnswers(
       page.cleanup(None, updatedAnswers)
     }
   }
+
 }
 
 object UserAnswers {
@@ -104,4 +109,44 @@ object UserAnswers {
   }
 
   implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)
+
+  def encryptedFormat(implicit crypto: Encrypter with Decrypter): OFormat[UserAnswers] = {
+
+    import play.api.libs.functional.syntax._
+
+    implicit val sensitiveFormat: Format[SensitiveString] =
+      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
+
+    val encryptedReads: Reads[UserAnswers] =
+      (
+        (__ \ "_id").read[String] and
+          (__ \ "data").read[SensitiveString] and
+          (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat) and
+          (__ \ "submissionMeta").readNullable[SensitiveString]
+      )((id, data, lastUpdated, submissionMeta) =>
+        UserAnswers(
+          id,
+          Json.parse(data.decryptedValue).as[JsObject],
+          lastUpdated,
+          submissionMeta.map(meta => Json.parse(meta.decryptedValue).as[JsObject])
+        )
+      )
+
+    val encryptedWrites: OWrites[UserAnswers] =
+      (
+        (__ \ "_id").write[String] and
+          (__ \ "data").write[SensitiveString] and
+          (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat) and
+          (__ \ "submissionMeta").writeNullable[SensitiveString]
+      )(ua =>
+        (
+          ua.id,
+          SensitiveString(Json.stringify(ua.data)),
+          ua.lastUpdated,
+          ua.submissionMeta.map(meta => SensitiveString(Json.stringify(Json.toJson(meta))))
+        )
+      )
+
+    OFormat(encryptedReads orElse reads, encryptedWrites)
+  }
 }

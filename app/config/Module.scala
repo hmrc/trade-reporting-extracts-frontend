@@ -19,12 +19,16 @@ package config
 import com.google.inject.AbstractModule
 import controllers.actions.*
 import navigation.{Navigation, Navigator}
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import java.time.{Clock, ZoneOffset}
 
 class Module extends AbstractModule {
 
   override def configure(): Unit = {
+
+    bind(classOf[Encrypter]).toProvider(classOf[CryptoProvider])
+    bind(classOf[Decrypter]).toProvider(classOf[CryptoProvider])
     bind(classOf[DataRetrievalOrCreateAction]).to(classOf[DataRetrievalOrCreateActionImpl]).asEagerSingleton()
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()

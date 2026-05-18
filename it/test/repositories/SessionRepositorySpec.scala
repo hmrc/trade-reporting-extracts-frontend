@@ -27,14 +27,20 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
+import play.api.Configuration
 import play.api.libs.json.Json
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
+import java.security.SecureRandom
 import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
+import java.util.Base64
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 class SessionRepositorySpec
   extends AnyFreeSpec
@@ -53,11 +59,22 @@ class SessionRepositorySpec
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
 
+  private val aesKey = {
+    val aesKey = new Array[Byte](32)
+    new SecureRandom().nextBytes(aesKey)
+    Base64.getEncoder.encodeToString(aesKey)
+  }
+
+  private val configuration = Configuration("crypto.key" -> aesKey)
+
+  private implicit val crypto: Encrypter with Decrypter =
+    SymmetricCryptoFactory.aesGcmCryptoFromConfig("crypto", configuration.underlying)
+
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig      = mockAppConfig,
     clock          = stubClock
-  )(scala.concurrent.ExecutionContext.Implicits.global)
+  )
 
   ".set" - {
 
