@@ -36,6 +36,9 @@ class ContactDetailsControllerSpec extends SpecBase {
 
   "ContactDetailsController" - {
 
+    val manageEmailGuideUrl: String =
+      "https://www.gov.uk/guidance/manage-your-email-address-for-the-customs-declaration-service"
+
     "must return OK and render the correct view for a GET request" in new Setup {
 
       running(application) {
@@ -57,7 +60,13 @@ class ContactDetailsControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ContactDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(companyInformation, eori, "notify@example.com", Seq("test@example.com"))(
+        contentAsString(result) mustEqual view(
+          companyInformation,
+          eori,
+          "notify@example.com",
+          Seq("test@example.com"),
+          manageEmailGuideUrl
+        )(
           request,
           messages(application)
         ).toString
@@ -95,7 +104,7 @@ class ContactDetailsControllerSpec extends SpecBase {
         status(result) mustEqual OK
         val body = contentAsString(result)
         val msgs = messages(application)
-        body mustEqual view(companyInformation, eori, "notify@example.com", existingEmails)(
+        body mustEqual view(companyInformation, eori, "notify@example.com", existingEmails, manageEmailGuideUrl)(
           request,
           msgs
         ).toString

@@ -16,6 +16,7 @@
 
 package controllers.contact
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import play.api.i18n.MessagesApi
@@ -31,6 +32,7 @@ class ContactDetailsController @Inject() (
   identify: IdentifierAction,
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
+  config: FrontendAppConfig,
   view: ContactDetailsView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -41,7 +43,8 @@ class ContactDetailsController @Inject() (
           userDetails.companyInformation,
           userDetails.eori,
           userDetails.notificationEmail.address,
-          userDetails.additionalEmails
+          userDetails.additionalEmails,
+          config.manageEmailGuideUrl
         )
       )
     }
