@@ -20,7 +20,7 @@
         layout: templates.Layout,
         formHelper: FormWithCSRF)
 
-@(companyInformation: CompanyInformation, eori: String, emailAddress: String, additionalEmails: Seq[String])(implicit request: Request[_], messages: Messages)
+@(companyInformation: CompanyInformation, eori: String, emailAddress: String, additionalEmails: Seq[String], guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactDetails.title"))) {
 
@@ -40,6 +40,12 @@
       <dd class="govuk-summary-list__value">@emailAddress </dd>
      </div>
     </dl>
+    <p class="govuk-body">@messages("contactDetails.p2")</p>
+
+    <p class="govuk-body">@messages("contactDetails.p2")
+        <a class="govuk-link" href="@guidanceUrl" rel="noreferrer noopener" target="_blank">@messages("contactDetails.p2.link")</a>
+        @messages("contactDetails.p2.link")
+    </p>
 
     <h2 class="govuk-heading-l">@messages("additionalEmail.title")</h2>
     <div class="govuk-body">
