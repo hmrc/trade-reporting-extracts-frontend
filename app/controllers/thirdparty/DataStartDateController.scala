@@ -51,9 +51,6 @@ class DataStartDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val currentDate: LocalDate               = LocalDate.now()
-  private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
 
     val form: Form[LocalDate] = formProvider()
@@ -63,7 +60,7 @@ class DataStartDateController @Inject() (
       case Some(value) => form.fill(value)
     }
 
-    Ok(view(preparedForm, mode, currentDateFormatted))
+    Ok(view(preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -74,7 +71,7 @@ class DataStartDateController @Inject() (
       form
         .bindFromRequest()
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, currentDateFormatted))),
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             request.userAnswers.get(DataEndDatePage) match {
               case Some(Some(endDate)) if value.isAfter(endDate) && value != endDate =>

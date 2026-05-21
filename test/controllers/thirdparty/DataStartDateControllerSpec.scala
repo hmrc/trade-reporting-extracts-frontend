@@ -47,8 +47,6 @@ class DataStartDateControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val currentDate: String = LocalDate.now.format(DateTimeFormats.dateTimeHintFormat)
-
   val validAnswer = LocalDate.now(ZoneOffset.UTC)
 
   lazy val thirdPartyAccessStartDateRoute =
@@ -79,7 +77,7 @@ class DataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DataStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, currentDate)(
+        contentAsString(result) mustEqual view(form, NormalMode)(
           getRequest(),
           messages(application)
         ).toString
@@ -98,7 +96,7 @@ class DataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, currentDate)(
+        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(
           getRequest(),
           messages(application)
         ).toString
@@ -276,7 +274,7 @@ class DataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, currentDate)(
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(
           request,
           messages(application)
         ).toString

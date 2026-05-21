@@ -51,9 +51,6 @@ class EditDataStartDateController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val currentDate: LocalDate               = LocalDate.now()
-  private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
-
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       tradeReportingExtractsService
@@ -68,7 +65,7 @@ class EditDataStartDateController @Inject() (
               }
             case Some(value) => form.fill(value)
           }
-          Future.successful(Ok(view(preparedForm, thirdPartyEori, currentDateFormatted)))
+          Future.successful(Ok(view(preparedForm, thirdPartyEori)))
         }
   }
 
@@ -81,7 +78,7 @@ class EditDataStartDateController @Inject() (
         form
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(view(formWithErrors, thirdPartyEori, currentDateFormatted))),
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, thirdPartyEori))),
             value =>
               dataEndDate match {
                 case Some(endDate) if value.isAfter(endDate) && value != endDate =>

@@ -77,7 +77,7 @@ class CustomRequestStartDateController @Inject() (
               mode,
               ReportHelpers.isMoreThanOneReport(request.userAnswers),
               maybeThirdPartyRequest.isDefined,
-              rangeString
+              Some(rangeString)
             )
           )).recoverWith(ErrorHandlers.handleNoAuthorisedUserFoundException(request, sessionRepository))
         case None             =>
@@ -130,7 +130,7 @@ class CustomRequestStartDateController @Inject() (
                         mode,
                         ReportHelpers.isMoreThanOneReport(request.userAnswers),
                         maybeThirdPartyRequest.isDefined,
-                        startEndDateStringGenerator(details.dataStartDate, details.dataEndDate)
+                        Some(startEndDateStringGenerator(details.dataStartDate, details.dataEndDate))
                       )
                     )
                   case None          =>
@@ -174,22 +174,22 @@ class CustomRequestStartDateController @Inject() (
 
   private def startEndDateStringGenerator(startDate: Option[LocalDate], endDate: Option[LocalDate])(implicit
     messages: Messages
-  ): Option[String] =
+  ): String =
     (startDate, endDate) match {
       case (Some(startDate), None)          =>
-        Some(
-          messages("customRequestStartDate.message2.thirdParty")
-            + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
-              "customRequestStartDate.thirdParty.onwards"
+        messages("customRequestStartDate.message2.thirdParty")
+          + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
+            messages("customRequestStartDate.thirdParty.onwards") + " " + messages(
+              "customRequestStartDate.message2.thirdParty2"
             )
-        )
+          )
       case (Some(startDate), Some(endDate)) =>
-        Some(
-          messages("customRequestStartDate.message2.thirdParty")
-            + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
-              "customRequestStartDate.thirdParty.to"
-            ) + " " + DateTimeFormats.dateFormatter(endDate) + "."
-        )
-      case (_, _)                           => None
+        messages("customRequestStartDate.message2.thirdParty")
+          + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
+            "customRequestStartDate.thirdParty.to"
+          ) + " " + DateTimeFormats.dateFormatter(endDate) + "." + " " + messages(
+            "customRequestStartDate.message2.thirdParty2"
+          )
+      case (_, _)                           => messages("customRequestStartDate.message2.thirdParty.allAccess")
     }
 }

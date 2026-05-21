@@ -49,7 +49,6 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   private val currentLocalDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
-  val currentDate: String                 = currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
 
   private def thirdPartyDetails(dataStart: Option[LocalDate], dataEnd: Option[LocalDate]) =
     ThirdPartyDetails(
@@ -101,7 +100,7 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[EditDataStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, thirdPartyEori, currentDate)(
+        contentAsString(result) mustEqual view(form, thirdPartyEori)(
           getRequest(),
           messages(application)
         ).toString
@@ -129,7 +128,7 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(fixedValidAnswer), thirdPartyEori, currentDate)(
+        contentAsString(result) mustEqual view(form.fill(fixedValidAnswer), thirdPartyEori)(
           getRequest(),
           messages(application)
         ).toString
@@ -155,7 +154,7 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(serviceStart), thirdPartyEori, currentDate)(
+        contentAsString(result) mustEqual view(form.fill(serviceStart), thirdPartyEori)(
           getRequest(),
           messages(application)
         ).toString
@@ -397,7 +396,7 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, thirdPartyEori, currentDate)(
+        contentAsString(result) mustEqual view(boundForm, thirdPartyEori)(
           request,
           messages(application)
         ).toString
@@ -445,7 +444,7 @@ class EditDataStartDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
         status(result) mustEqual OK
         val view   = application.injector.instanceOf[EditDataStartDateView]
-        contentAsString(result) mustEqual view(form.fill(userStart), thirdPartyEori, currentDate)(
+        contentAsString(result) mustEqual view(form.fill(userStart), thirdPartyEori)(
           getRequest(),
           messages(application)
         ).toString
