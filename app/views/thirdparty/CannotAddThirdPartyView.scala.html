@@ -29,10 +29,10 @@
     <p class="govuk-body">@messages("cannotAddThirdParty.message2")</p>
     <p class="govuk-body">@messages("cannotAddThirdParty.message3")</p>
 
-    <p class="govuk-body">
-        @govukButton(
-                ButtonViewModel(messages("cannotAddThirdParty.link")).asSecondaryButton()
-        .asLink(routes.DashboardController.onPageLoad().url))
-    </p>
+<p class="govuk-body">
+    <a href="@routes.DashboardController.onPageLoad().url" class="govuk-link">
+        @messages("cannotAddThirdParty.link")
+    </a>
+</p>
 
 }

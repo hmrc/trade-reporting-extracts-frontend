@@ -102,8 +102,8 @@
 
 
 @layout(
-  pageTitle = titleNoForm(messages("requestedReports.title")),
-  isFullWidth = true
+    pageTitle = titleNoForm(messages("requestedReports.title")),
+    isFullWidth = maybeUserReports || maybeThirdPartyReports
 ) {
 
   @if(maybeUserReports || maybeThirdPartyReports) {
