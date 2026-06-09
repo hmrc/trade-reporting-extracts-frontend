@@ -22,10 +22,10 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, date: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @contentHint = {
-    <p class="govuk-hint">@messages("dataStartDate.hint", date)</p>
+    <p class="govuk-hint">@messages("dataStartDate.hint")</p>
 }
 @guidanceContent = {
     <p class="govuk-body govuk-!-margin-bottom-0">@messages("dataStartDate.message")</p>

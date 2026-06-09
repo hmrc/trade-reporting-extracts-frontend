@@ -114,7 +114,13 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CustomRequestStartDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, false, true, None)(
+        contentAsString(result) mustEqual view(
+          form,
+          NormalMode,
+          false,
+          true,
+          Some("Your report can start from any date within 4 years from today’s date.")
+        )(
           getRequest,
           messages(application)
         ).toString
@@ -144,7 +150,9 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           false,
           true,
-          Some("You have access to data from 1 January 2025 onwards.")
+          Some(
+            "You have access to data from 1 January 2025 onwards. Your report can start from any date within this access period."
+          )
         )(
           getRequest,
           messages(application)
@@ -180,7 +188,9 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           false,
           true,
-          Some("You have access to data from 1 January 2025 to 1 March 2025.")
+          Some(
+            "You have access to data from 1 January 2025 to 1 March 2025. Your report can start from any date within this access period."
+          )
         )(
           getRequest,
           messages(application)
@@ -385,7 +395,9 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           NormalMode,
           false,
           true,
-          Some("You have access to data from 1 January 2025 to 1 March 2025.")
+          Some(
+            "You have access to data from 1 January 2025 to 1 March 2025. Your report can start from any date within this access period."
+          )
         )(
           request,
           messages(application)
