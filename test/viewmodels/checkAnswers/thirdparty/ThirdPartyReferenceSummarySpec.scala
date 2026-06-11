@@ -67,34 +67,11 @@ class ThirdPartyReferenceSummarySpec extends SpecBase {
   }
 
   ".detailsRow" - {
-    "must return summary list row when given a reference" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(Some("ref"), false, "thirdPartyEori")
+    "return the summary row with change action" in {
+      val reference      = Some("ref")
+      val thirdPartyEori = "thirdPartyEori"
 
-      result mustBe Some(
-        SummaryListRowViewModel(
-          key = "thirdPartyReference.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlFormat.escape("ref").toString)
-        )
-      )
-    }
-
-    "must return summary list row with N/A when no reference is given" in {
-      val result = ThirdPartyReferenceSummary.detailsRow(None, false, "thirdPartyEori")
-
-      result mustBe Some(
-        SummaryListRowViewModel(
-          key = "thirdPartyReference.checkYourAnswersLabel",
-          value = ValueViewModel("site.notApplicable")
-        )
-      )
-    }
-
-    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
-      val reference           = Some("ref")
-      val isThirdPartyEnabled = true
-      val thirdPartyEori      = "thirdPartyEori"
-
-      val result = ThirdPartyReferenceSummary.detailsRow(reference, isThirdPartyEnabled, thirdPartyEori)
+      val result = ThirdPartyReferenceSummary.detailsRow(reference, thirdPartyEori)
 
       result mustBe Some(
         SummaryListRowViewModel(

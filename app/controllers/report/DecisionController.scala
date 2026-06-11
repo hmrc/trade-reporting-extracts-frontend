@@ -27,7 +27,6 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.report.DecisionView
-import config.FrontendAppConfig
 import play.api.data.Form
 
 import javax.inject.Inject
@@ -44,8 +43,7 @@ class DecisionController @Inject() (
   navigator: ReportNavigator,
   reportRequestSection: ReportRequestSection,
   override val messagesApi: MessagesApi,
-  val controllerComponents: MessagesControllerComponents,
-  appConfig: FrontendAppConfig
+  val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
@@ -67,16 +65,11 @@ class DecisionController @Inject() (
             def createAnswersTry: Try[UserAnswers] =
               for {
                 withDecision   <- request.userAnswers.set(DecisionPage, value)
-                withThirdParty <- if (!appConfig.thirdPartyEnabled) {
-                                    withDecision.set(ChooseEoriPage, ChooseEori.Myeori)
-                                  } else {
-                                    Success(withDecision)
-                                  }
                 withExportType <- value match {
                                     case Decision.Export =>
-                                      withThirdParty.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
+                                      withDecision.set(ReportTypeImportPage, Set(ReportTypeImport.ExportItem))
                                     case _               =>
-                                      scala.util.Success(withThirdParty)
+                                      scala.util.Success(withDecision)
                                   }
                 redirectUrl     = navigator.nextPage(DecisionPage, mode, withExportType).url
                 answersWithNav  = reportRequestSection.saveNavigation(withExportType, redirectUrl)

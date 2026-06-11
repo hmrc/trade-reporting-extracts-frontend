@@ -29,10 +29,7 @@ import java.time.LocalDate
 
 class ReportNavigatorSpec extends SpecBase with MockitoSugar {
 
-  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
-
-  val navigator = new ReportNavigator(mockAppConfig)
+  val navigator = new ReportNavigator
 
   "ReportNavigator" - {
 
@@ -173,8 +170,7 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
             .onPageLoad(NormalMode)
         }
 
-        "when choose eori not answered and third party flag enabled to journey recovery" in {
-          when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+        "when choose eori not answered  to journey recovery" in {
           navigator.nextPage(
             ReportTypeImportPage,
             NormalMode,
@@ -182,11 +178,6 @@ class ReportNavigatorSpec extends SpecBase with MockitoSugar {
           ) mustBe controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
 
-        "when choose eori not answered and third party flag disabled to report date range" in {
-          when(mockAppConfig.thirdPartyEnabled).thenReturn(false)
-          navigator.nextPage(ReportTypeImportPage, NormalMode, emptyUserAnswers) mustBe routes.ReportDateRangeController
-            .onPageLoad(NormalMode)
-        }
       }
 
       "navigate from ReportDateRangePage" - {

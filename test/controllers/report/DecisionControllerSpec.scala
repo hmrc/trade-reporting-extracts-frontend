@@ -113,26 +113,26 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-      val mockSessionRepository            = mock[SessionRepository]
-      val ua                               = emptyUserAnswers
+      val mockSessionRepository = mock[SessionRepository]
+      val ua                    = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
         .success
         .value
         .set(ChooseEoriPage, ChooseEori.Myeori)
         .success
         .value
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application                      =
+
+      val application =
         applicationBuilder(userAnswers = Some(ua))
           .overrides(
             bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[FrontendAppConfig].toInstance(mockAppConfig)
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
-      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+
       running(application) {
         val request =
           FakeRequest(POST, decisionRoute)
@@ -147,26 +147,26 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to ReportTypeImportPage when ChooseEori is Myauthority and Decision is Import" in {
 
-      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-      val mockSessionRepository            = mock[SessionRepository]
-      val ua                               = emptyUserAnswers
+      val mockSessionRepository = mock[SessionRepository]
+      val ua                    = emptyUserAnswers
         .set(DecisionPage, Decision.Import)
         .success
         .value
         .set(ChooseEoriPage, ChooseEori.Myauthority)
         .success
         .value
+
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application                      =
+
+      val application =
         applicationBuilder(userAnswers = Some(ua))
           .overrides(
             bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
             bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyImport)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[FrontendAppConfig].toInstance(mockAppConfig)
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
-      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
+
       running(application) {
         val request =
           FakeRequest(POST, decisionRoute)
@@ -180,12 +180,10 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to export-item-report and set a user answer export to ReportTypeImportPage when thirdParty and Decision is Export" in {
-      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-      val mockSessionRepository            = mock[SessionRepository]
-      val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
-      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
 
       val ua = emptyUserAnswers
         .set(ChooseEoriPage, ChooseEori.Myauthority)
@@ -196,8 +194,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         .overrides(
           bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
           bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyExport)),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
+          bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
 
@@ -218,12 +215,10 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must cleanup correctly when change of answers from export to import" in {
-      val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
-      val mockSessionRepository            = mock[SessionRepository]
-      val userAnswersCaptor                = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val mockSessionRepository = mock[SessionRepository]
+      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
-      when(mockAppConfig.thirdPartyEnabled).thenReturn(true)
 
       val ua = emptyUserAnswers
         .set(ChooseEoriPage, ChooseEori.Myauthority)
@@ -237,8 +232,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
         .overrides(
           bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
           bind[Navigator].toInstance(new FakeNavigator(onwardRouteThirdPartyExport)),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockAppConfig)
+          bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
 

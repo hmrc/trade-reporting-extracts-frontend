@@ -59,7 +59,7 @@ class DataTypesSummarySpec extends SpecBase {
   ".detailsRow" - {
     "must return summary list row when given single data type" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports"), false, "thirdPartyEori").get
+      val result = DataTypesSummary.detailsRow(Set("imports"), "thirdPartyEori").get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
@@ -67,20 +67,20 @@ class DataTypesSummarySpec extends SpecBase {
 
     "must return summary list row when given multiple data types" in {
 
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false, "thirdPartyEori").get
+      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), "thirdPartyEori").get
 
       result.key.content.asHtml.body   must include("thirdPartyDetails.dataTypes.label")
       result.value.content.asHtml.body must include(messages("dataTypes.import"))
       result.value.content.asHtml.body must include(messages("dataTypes.export"))
     }
 
-    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+    "must return the summary row with change action" in {
 
       val dataTypes           = Set("imports", "exports")
       val isThirdPartyEnabled = true
       val thirdPartyEori      = "thirdPartyEori"
 
-      val result = DataTypesSummary.detailsRow(dataTypes, isThirdPartyEnabled, thirdPartyEori).get
+      val result = DataTypesSummary.detailsRow(dataTypes, thirdPartyEori).get
 
       result mustBe
         SummaryListRowViewModel(
@@ -94,16 +94,6 @@ class DataTypesSummarySpec extends SpecBase {
                 .url
             ).withVisuallyHiddenText(messages("dataTypes.change.hidden"))
           )
-        )
-    }
-
-    "when tpEnabledAndNotBusinessDetailsRow false, return the summary row without change action" in {
-      val result = DataTypesSummary.detailsRow(Set("imports", "exports"), false, "thirdPartyEori").get
-
-      result mustBe
-        SummaryListRowViewModel(
-          key = "thirdPartyDetails.dataTypes.label",
-          value = ValueViewModel(HtmlContent("dataTypes.import,<br>dataTypes.export"))
         )
     }
 

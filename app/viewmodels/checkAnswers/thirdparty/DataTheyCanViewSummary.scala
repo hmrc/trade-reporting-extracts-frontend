@@ -70,7 +70,6 @@ object DataTheyCanViewSummary {
     startDateOpt: Option[LocalDate],
     endDateOpt: Option[LocalDate],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean,
     thirdPartyEori: Option[String]
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
@@ -97,7 +96,7 @@ object DataTheyCanViewSummary {
         ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
     }
 
-    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
+    if (thirdPartyEori.isDefined) {
       Some(
         SummaryListRowViewModel(
           key = keyMessage,
@@ -123,7 +122,6 @@ object DataTheyCanViewSummary {
 
   def detailsRow(
     thirdPartyDetails: ThirdPartyDetails,
-    isThirdPartyEnabled: Boolean,
     thirdPartyEori: String,
     answers: UserAnswers
   )(implicit
@@ -145,7 +143,6 @@ object DataTheyCanViewSummary {
             .getOrElse(thirdPartyDetails.dataEndDate)
       },
       "dataTheyCanView.checkYourAnswersLabel",
-      isThirdPartyEnabled,
       Some(thirdPartyEori)
     )
 
@@ -154,7 +151,6 @@ object DataTheyCanViewSummary {
       thirdPartyDetails.dataStartDate,
       thirdPartyDetails.dataEndDate,
       "businessDetails.dataRange.label",
-      false,
       None
     )
 }

@@ -85,7 +85,7 @@ class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
       } yield Redirect(controllers.problem.routes.ReportRequestIssueController.onPageLoad())
     } else {
       val rows: Seq[Option[SummaryListRow]] = Seq(
-        if (appConfig.thirdPartyEnabled) ChooseEoriSummary.row(request.userAnswers, request.eori) else None,
+        ChooseEoriSummary.row(request.userAnswers, request.eori),
         if (showDecisionSummary) DecisionSummary.row(request.userAnswers) else None,
         EoriRoleSummary.row(request.userAnswers),
         ReportTypeImportSummary.row(request.userAnswers),

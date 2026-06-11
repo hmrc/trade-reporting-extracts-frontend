@@ -110,11 +110,17 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
             messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad("thirdPartyEori").url
+            ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
           )
         )
       )
@@ -132,7 +138,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         dataTypes = Set("import")
       )
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -141,27 +147,6 @@ class DataTheyCanViewSummarySpec extends SpecBase {
               startDate.format(dateTimeFormat()),
               endDate.format(dateTimeFormat())
             )
-          )
-        )
-      )
-    }
-
-    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
-      val startDate         = LocalDate.of(2025, 6, 1)
-      val thirdPartyDetails = ThirdPartyDetails(
-        dataStartDate = Some(startDate),
-        dataEndDate = None,
-        referenceName = None,
-        accessStartDate = startDate,
-        accessEndDate = None,
-        dataTypes = Set("import")
-      )
-
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers) shouldBe Some(
-        SummaryListRowViewModel(
-          key = "dataTheyCanView.checkYourAnswersLabel",
-          value = ValueViewModel(
-            messages("dataTheyCanView.ongoing.answerLabel", startDate.format(dateTimeFormat()))
           ),
           actions = Seq(
             ActionItemViewModel(
@@ -188,10 +173,16 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(EditDeclarationDatePage("thirdPartyEori"), DeclarationDate.AllAvailableData)
         .get
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", answers) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", answers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
-          value = ValueViewModel(messages("thirdPartyDetails.dataRange.allData"))
+          value = ValueViewModel(messages("thirdPartyDetails.dataRange.allData")),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad("thirdPartyEori").url
+            ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
+          )
         )
       )
     }
@@ -215,7 +206,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(EditDataEndDatePage("thirdPartyEori"), Some(editedEnd))
         .get
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", answers) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", answers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(
@@ -224,6 +215,12 @@ class DataTheyCanViewSummarySpec extends SpecBase {
               editedStart.format(dateTimeFormat()),
               editedEnd.format(dateTimeFormat())
             )
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditDeclarationDateController.onPageLoad("thirdPartyEori").url
+            ).withVisuallyHiddenText(messages("dataTheyCanView.change.hidden"))
           )
         )
       )
@@ -246,7 +243,7 @@ class DataTheyCanViewSummarySpec extends SpecBase {
         .set(EditDataEndDatePage("thirdPartyEori"), Some(editedEnd))
         .get
 
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", answers) shouldBe Some(
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", answers) shouldBe Some(
         SummaryListRowViewModel(
           key = "dataTheyCanView.checkYourAnswersLabel",
           value = ValueViewModel(

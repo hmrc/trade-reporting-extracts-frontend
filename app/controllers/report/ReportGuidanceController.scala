@@ -45,12 +45,7 @@ class ReportGuidanceController @Inject() (
     val JourneyRecoveryUrl   = controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     val checkYourAnswersUrl  = controllers.report.routes.CheckYourAnswersController.onPageLoad().url
     val alreadySubmittedFlag = request.userAnswers.get(AlreadySubmittedFlag()).getOrElse(false)
-    val redirectUrl          =
-      if (appConfig.thirdPartyEnabled) {
-        controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
-      } else {
-        controllers.report.routes.DecisionController.onPageLoad(NormalMode).url
-      }
+    val redirectUrl          = controllers.report.routes.ChooseEoriController.onPageLoad(NormalMode).url
     request.userAnswers.get(ReportRequestSection().sectionNavigation).getOrElse(initialPage.url) match {
       case url if url == JourneyRecoveryUrl || (url == checkYourAnswersUrl && alreadySubmittedFlag) =>
         for {

@@ -67,7 +67,6 @@ object ThirdPartyAccessPeriodSummary {
 
   def detailsRow(
     thirdPartyDetails: ThirdPartyDetails,
-    isThirdPartyEnabled: Boolean,
     thirdPartyEori: String,
     answers: UserAnswers
   )(implicit
@@ -82,7 +81,6 @@ object ThirdPartyAccessPeriodSummary {
           .get(EditThirdPartyAccessEndDatePage(thirdPartyEori))
           .orElse(thirdPartyDetails.accessEndDate),
         "thirdPartyAccessPeriod.checkYourAnswersLabel",
-        isThirdPartyEnabled,
         Some(thirdPartyEori)
       )
     )
@@ -93,7 +91,6 @@ object ThirdPartyAccessPeriodSummary {
         thirdPartyDetails.accessStartDate,
         thirdPartyDetails.accessEndDate,
         "thirdPartyAccessPeriod.checkYourAnswersLabel",
-        false,
         None
       )
     )
@@ -102,7 +99,6 @@ object ThirdPartyAccessPeriodSummary {
     startDate: LocalDate,
     maybeEndDate: Option[LocalDate],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean,
     thirdPartyEori: Option[String]
   )(implicit messages: Messages): SummaryListRow = {
 
@@ -133,7 +129,7 @@ object ThirdPartyAccessPeriodSummary {
         )
     }
 
-    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
+    if (thirdPartyEori.isDefined) {
       SummaryListRowViewModel(
         key = keyMessage,
         value = value,

@@ -101,7 +101,6 @@ class ThirdPartyDetailsController @Inject() (
             BusinessInfoSummary.row(maybeBusinessInfo.get),
             ThirdPartyReferenceSummary.detailsRow(
               answers.get(EditThirdPartyReferencePage(thirdPartyEori)).orElse(thirdPartyDetails.referenceName),
-              config.editThirdPartyEnabled,
               thirdPartyEori
             )
           )
@@ -111,23 +110,21 @@ class ThirdPartyDetailsController @Inject() (
           Seq(
             ThirdPartyReferenceSummary.detailsRow(
               answers.get(EditThirdPartyReferencePage(thirdPartyEori)).orElse(thirdPartyDetails.referenceName),
-              config.editThirdPartyEnabled,
               thirdPartyEori
             )
           )
       }
     ) ++ Seq(
       ThirdPartyAccessPeriodSummary
-        .detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers),
+        .detailsRow(thirdPartyDetails, thirdPartyEori, answers),
       DataTypesSummary.detailsRow(
         answers
           .get(EditThirdPartyDataTypesPage(thirdPartyEori))
           .map(_.map(_.toString))
           .getOrElse(thirdPartyDetails.dataTypes),
-        config.editThirdPartyEnabled,
         thirdPartyEori
       ),
-      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, config.editThirdPartyEnabled, thirdPartyEori, answers)
+      DataTheyCanViewSummary.detailsRow(thirdPartyDetails, thirdPartyEori, answers)
     )
 
     val hasChangesFlag = detectChanges(thirdPartyDetails, answers, thirdPartyEori)

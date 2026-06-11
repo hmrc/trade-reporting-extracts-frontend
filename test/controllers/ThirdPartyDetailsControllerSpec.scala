@@ -71,7 +71,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -83,7 +82,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
 
         val result = route(application, request).value
 
@@ -91,20 +91,23 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
+            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
             ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
-            DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get
           )
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -129,7 +132,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -141,7 +143,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
 
         val result = route(application, request).value
 
@@ -149,21 +152,24 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
+            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false, "thirdPartyEori")(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
-            DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get
           )
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -188,7 +194,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -200,7 +205,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
 
         val result = route(application, request).value
 
@@ -208,21 +214,24 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
+            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
             BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), true, "eori")(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, true, "eori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
-            DataTypesSummary.detailsRow(Set("import"), true, "eori")(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, true, "eori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get
           )
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -247,7 +256,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -259,7 +267,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
 
         val result = route(application, request).value
 
@@ -267,14 +276,14 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), false, "thirdPartyEori")(messages(application)).get,
+            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
-            DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get
           )
         )
@@ -305,7 +314,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(false)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -317,7 +325,8 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("eori").url)
+        val request =
+          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
 
         val result = route(application, request).value
 
@@ -325,20 +334,23 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         val list = SummaryListViewModel(
           Seq(
-            EoriNumberSummary.detailsRow("eori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(None, false, "thirdPartyEori")(messages(application)).get,
+            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+            ThirdPartyReferenceSummary.detailsRow(None, "thirdPartyEori")(messages(application)).get,
             ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get,
-            DataTypesSummary.detailsRow(Set("import"), false, "thirdPartyEori")(messages(application)).get,
+            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
             DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)(messages(application))
+              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
               .get
           )
         )
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -359,7 +371,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val modifiedUserAnswers = UserAnswers("id")
@@ -407,7 +418,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val modifiedUserAnswers = UserAnswers("id")
@@ -453,7 +463,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val modifiedUserAnswers = UserAnswers("id")
@@ -499,7 +508,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val modifiedUserAnswers = UserAnswers("id")
@@ -545,7 +553,6 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      when(mockFrontendAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
       val modifiedUserAnswers = UserAnswers("id")

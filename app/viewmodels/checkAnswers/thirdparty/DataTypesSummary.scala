@@ -57,7 +57,6 @@ object DataTypesSummary {
   private def buildRow(
     dataTypes: Set[String],
     keyMessage: String,
-    tpEnabledAndNotBusinessDetailsRow: Boolean,
     thirdPartyEori: Option[String]
   )(implicit messages: Messages): Option[SummaryListRow] = {
 
@@ -74,7 +73,7 @@ object DataTypesSummary {
       )
     )
 
-    if (tpEnabledAndNotBusinessDetailsRow && thirdPartyEori.isDefined) {
+    if (thirdPartyEori.isDefined) {
       Some(
         SummaryListRowViewModel(
           key = keyMessage,
@@ -99,11 +98,11 @@ object DataTypesSummary {
 
   }
 
-  def detailsRow(dataTypes: Set[String], isThirdPartyEnabled: Boolean, thirdPartyEori: String)(implicit
+  def detailsRow(dataTypes: Set[String], thirdPartyEori: String)(implicit
     messages: Messages
   ): Option[SummaryListRow] =
-    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label", isThirdPartyEnabled, Some(thirdPartyEori))
+    buildRow(dataTypes, "thirdPartyDetails.dataTypes.label", Some(thirdPartyEori))
 
   def businessDetailsRow(dataTypes: Set[String])(implicit messages: Messages): Option[SummaryListRow] =
-    buildRow(dataTypes, "businessDetails.dataTypes.label", false, None)
+    buildRow(dataTypes, "businessDetails.dataTypes.label", None)
 }
