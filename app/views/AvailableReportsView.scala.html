@@ -140,7 +140,8 @@ contactUrl: String
 
     @layout(
     pageTitle = titleNoForm(messages(titleContent)),
-    isFullWidth = true) {
+    isFullWidth = maybeUserReports || maybeThirdPartyReports
+) {
 
    @if(maybeUserReports || maybeThirdPartyReports) {
        <h1 class="govuk-heading-xl">@messages("availableReports.heading")</h1>
