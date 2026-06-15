@@ -87,25 +87,5 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must not show the third party card when thirdPartyEnabled is false" in new Setup {
-      val application: Application = applicationBuilder()
-        .configure(
-          "features.notifications" -> false,
-          "features.third-party"   -> false
-        )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.DashboardController.onPageLoad().url)
-        val result  = route(application, request).value
-
-        val content = contentAsString(result)
-        content.contains("Give access to your data") mustBe false
-        content.contains("View your data access") mustBe false
-      }
-    }
   }
 }

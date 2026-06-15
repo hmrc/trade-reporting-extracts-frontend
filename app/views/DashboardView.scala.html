@@ -51,7 +51,6 @@
                 href = controllers.routes.AvailableReportsController.onPageLoad().url)
             )
         )
-        @if(appConfig.thirdPartyEnabled) {
             @Card(
                 id = "give-data-access-card",
                 heading = Messages("dashboard.thirdPartyAccess.heading"),
@@ -73,7 +72,6 @@
                     href = controllers.thirdparty.routes.AccountsAuthorityOverController.onPageLoad().url)
                 )
             )
-        }
         @Card(
             id = "account-card",
             heading = Messages("dashboard.account.heading"),

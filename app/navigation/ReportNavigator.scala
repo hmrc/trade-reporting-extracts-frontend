@@ -16,7 +16,6 @@
 
 package navigation
 
-import config.FrontendAppConfig
 import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
@@ -26,7 +25,7 @@ import play.api.mvc.Call
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator {
+class ReportNavigator extends Navigator {
 
   override val normalRoutes: Page => UserAnswers => Call = {
     case ChooseEoriPage             => chooseEoriRoutes(NormalMode)
@@ -120,11 +119,10 @@ class ReportNavigator @Inject() (appConfig: FrontendAppConfig) extends Navigator
     mode match {
       case NormalMode =>
         answers.get(ChooseEoriPage) match {
-          case Some(ChooseEori.Myeori)          => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
-          case Some(ChooseEori.Myauthority)     =>
+          case Some(ChooseEori.Myeori)      => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          case Some(ChooseEori.Myauthority) =>
             controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode)
-          case _ if appConfig.thirdPartyEnabled => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
-          case _                                => controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode)
+          case _                            => controllers.problem.routes.JourneyRecoveryController.onPageLoad()
         }
 
       case CheckMode =>

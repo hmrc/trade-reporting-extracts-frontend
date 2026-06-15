@@ -41,6 +41,6 @@ class AuthorisedThirdPartiesController @Inject() (
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     for {
       authorisedThirdParties <- tradeReportingExtractsService.getAuthorisedThirdParties(request.eori)
-    } yield Ok(view(authorisedThirdParties, config.editThirdPartyEnabled))
+    } yield Ok(view(authorisedThirdParties))
   }
 }

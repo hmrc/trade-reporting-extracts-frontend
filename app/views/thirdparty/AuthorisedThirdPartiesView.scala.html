@@ -24,7 +24,7 @@
   govukTag: GovukTag,
 )
 
-@(authorisedThirdParties: Seq[AuthorisedThirdPartiesViewModel], editThirdParty: Boolean)(implicit request: Request[_], messages: Messages)
+@(authorisedThirdParties: Seq[AuthorisedThirdPartiesViewModel])(implicit request: Request[_], messages: Messages)
 
 @mainContent = {
     @if(authorisedThirdParties.isEmpty) {
@@ -68,7 +68,6 @@
       )),
       rows = authorisedThirdParties.map { tp =>
         val actionsHtml =
-          if appConfig.editThirdPartyEnabled then
             s"""<ul class="govuk-summary-list__actions-list">
                |  <li class="govuk-summary-list__actions-list-item">
                |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
@@ -83,22 +82,6 @@
                |   </a>
                |  </li>
                |</ul>""".stripMargin
-          else
-            s"""<ul class="govuk-summary-list__actions-list">
-               |  <li class="govuk-summary-list__actions-list-item">
-               |   <a href="${controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
-               |    ${messages("authorisedThirdParties.view")}
-               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.view.hidden", tp.eori)}</span>
-               |   </a>
-               |  </li>
-               |  <li class="govuk-summary-list__actions-list-item">
-               |   <a href="${controllers.thirdparty.routes.RemoveThirdPartyController.onPageLoad(tp.eori).url}" class="govuk-link third-party-action-link">
-               |    ${messages("authorisedThirdParties.remove")}
-               |    <span class="govuk-visually-hidden">${messages("authorisedThirdParties.remove.hidden", tp.eori)}</span>
-               |   </a>
-               |  </li>
-               |</ul>""".stripMargin
-
         Seq(
           TableRow(content = Text(tp.eori)),
           TableRow(content = Text(tp.businessInfo.getOrElse(messages("authorisedThirdParties.businessInfo.notAvailable")))),

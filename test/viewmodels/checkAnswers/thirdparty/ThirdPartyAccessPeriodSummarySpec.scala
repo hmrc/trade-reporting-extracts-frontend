@@ -110,7 +110,7 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
       )
 
       val result =
-        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(
@@ -121,6 +121,14 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
               startDate.format(dateTimeFormat()),
               endDate.format(dateTimeFormat())
             )
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditThirdPartyAccessStartDateController
+                .onPageLoad("thirdPartyEori")
+                .url
+            ).withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
           )
         )
       )
@@ -138,19 +146,27 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
       )
 
       val result =
-        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, false, "thirdPartyEori", emptyUserAnswers)
+        ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(
           key = "thirdPartyAccessPeriod.checkYourAnswersLabel",
           value = ValueViewModel(
             messages("thirdPartyAccessPeriod.ongoing.answerLabel", startDate.format(dateTimeFormat()))
+          ),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              controllers.editThirdParty.routes.EditThirdPartyAccessStartDateController
+                .onPageLoad("thirdPartyEori")
+                .url
+            ).withVisuallyHiddenText(messages("thirdPartyAccessPeriod.change.hidden"))
           )
         )
       )
     }
 
-    "when tpEnabledAndNotBusinessDetailsRow true, return the summary row with change action" in {
+    "return the summary row with change action, if accessEndDate = localDate.max, be ongoing" in {
       val startDate         = LocalDate.of(2025, 6, 1)
       val endDate           = LocalDate.of(2026, 6, 1)
       val thirdPartyDetails = ThirdPartyDetails(
@@ -158,11 +174,11 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
         dataEndDate = None,
         referenceName = None,
         accessStartDate = startDate,
-        accessEndDate = None,
+        accessEndDate = Some(LocalDate.MAX),
         dataTypes = Set("import")
       )
       val thirdPartyEori    = "thirdPartyEori"
-      val result            = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, true, "thirdPartyEori", emptyUserAnswers)
+      val result            = ThirdPartyAccessPeriodSummary.detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)
 
       result shouldBe Some(
         SummaryListRowViewModel(

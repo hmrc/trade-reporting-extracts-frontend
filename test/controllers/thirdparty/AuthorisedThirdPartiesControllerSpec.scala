@@ -42,7 +42,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(Seq.empty[AuthorisedThirdPartiesViewModel]))
-      when(mockAppConfig.editThirdPartyEnabled).thenReturn(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -58,7 +57,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty, true)(
+        contentAsString(result) mustEqual view(Seq.empty)(
           request,
           messages(application)
         ).toString
@@ -86,7 +85,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(thirdParty))
-      when(mockAppConfig.editThirdPartyEnabled).thenReturn(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -102,7 +100,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(thirdParty, true)(
+        contentAsString(result) mustEqual view(thirdParty)(
           request,
           messages(application)
         ).toString
@@ -133,7 +131,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       )
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(Seq(thirdParty)))
-      when(mockAppConfig.editThirdPartyEnabled).thenReturn(true)
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -149,7 +146,7 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq(thirdParty), true)(
+        contentAsString(result) mustEqual view(Seq(thirdParty))(
           request,
           messages(application)
         ).toString
@@ -181,7 +178,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(thirdParty))
-      when(mockAppConfig.editThirdPartyEnabled).thenReturn(true)
       when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
@@ -203,47 +199,6 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
         val doc = Jsoup.parse(contentAsString(result))
         doc.text() must include(messages(application)("authorisedThirdParties.edit"))
-        doc.text() must include(messages(application)("authorisedThirdParties.remove"))
-      }
-    }
-
-    "must show view action when editThirdPartyEnabled is false" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockSessionRepository             = mock[SessionRepository]
-
-      val thirdParty = Seq(
-        AuthorisedThirdPartiesViewModel(
-          eori = "GB123456789000",
-          businessInfo = Some("Business Name"),
-          referenceName = Some("Reference Name"),
-          UserActiveStatus.Active
-        )
-      )
-
-      when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
-        .thenReturn(Future.successful(thirdParty))
-      when(mockAppConfig.editThirdPartyEnabled).thenReturn(false)
-      when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[FrontendAppConfig].toInstance(mockAppConfig)
-          )
-          .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result  = route(application, request).value
-
-        status(result) mustEqual OK
-
-        val doc = Jsoup.parse(contentAsString(result))
-        doc.text() must include(messages(application)("authorisedThirdParties.view"))
         doc.text() must include(messages(application)("authorisedThirdParties.remove"))
       }
     }

@@ -52,32 +52,6 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
   "ReportGuidanceController" - {
 
-    "must return OK and correct view for initial page load when thirdPartyEnabled = false" in {
-      val mockService = mock[TradeReportingExtractsService]
-      when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
-      when(mockService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now())))
-
-      val application = appBuilder(Some(emptyUserAnswers), mockService).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ReportGuidanceView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          NormalMode,
-          "25",
-          routes.DecisionController.onPageLoad(NormalMode).url,
-          "test@email.com"
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
-    }
-
     "must return OK and correct view for initial page load when thirdPartyEnabled = true" in {
       val mockService = mock[TradeReportingExtractsService]
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
@@ -137,7 +111,7 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           NormalMode,
           "25",
-          routes.DecisionController.onPageLoad(NormalMode).url,
+          routes.ChooseEoriController.onPageLoad(NormalMode).url,
           "test@email.com"
         )(
           request,
@@ -182,7 +156,7 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           NormalMode,
           "25",
-          routes.DecisionController.onPageLoad(NormalMode).url,
+          routes.ChooseEoriController.onPageLoad(NormalMode).url,
           "test@email.com"
         )(
           request,
