@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class EditDataStartDateFormProvider @Inject() extends Mappings {
 
-  private val currentDate: LocalDate        = LocalDate.now()
+  private def currentDate: LocalDate        = LocalDate.now()
   private val minimumAllowedDate: LocalDate = currentDate.minusYears(thirdPartyDataAccessLookBackYears)
 
   def apply()(implicit messages: Messages): Form[LocalDate] =
