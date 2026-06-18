@@ -47,7 +47,6 @@ class ThirdPartyDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyDetailsView,
   tradeReportingExtractsService: TradeReportingExtractsService,
-  config: FrontendAppConfig,
   userAnswerHelper: UserAnswerHelper,
   sessionRepository: SessionRepository,
   getData: DataRetrievalAction,

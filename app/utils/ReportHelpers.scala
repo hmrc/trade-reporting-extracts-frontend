@@ -18,9 +18,6 @@ package utils
 
 import models.{ReportStatus, UserAnswers}
 import pages.report.ReportTypeImportPage
-import play.api.i18n.Messages
-
-import java.time.LocalDate
 
 case class ReportStatusDisplayData(
   key: String,

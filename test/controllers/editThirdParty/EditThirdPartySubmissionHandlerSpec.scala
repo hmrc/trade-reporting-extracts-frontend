@@ -17,9 +17,8 @@
 package controllers.editThirdParty
 
 import base.SpecBase
-import controllers.routes
-import models.{ThirdPartyDetails, UserAnswers}
 import models.thirdparty.*
+import models.{ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*

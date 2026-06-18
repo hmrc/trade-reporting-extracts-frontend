@@ -36,7 +36,7 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAccessSelfRemovedView,
   clock: Clock
-)(implicit ec: ExecutionContext)
+)
     extends FrontendBaseController
     with I18nSupport {
 

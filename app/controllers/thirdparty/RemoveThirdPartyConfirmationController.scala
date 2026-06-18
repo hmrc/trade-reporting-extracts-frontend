@@ -36,7 +36,7 @@ class RemoveThirdPartyConfirmationController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: RemoveThirdPartyConfirmationView,
   clock: Clock
-)(implicit ec: ExecutionContext)
+)
     extends FrontendBaseController
     with I18nSupport {
 

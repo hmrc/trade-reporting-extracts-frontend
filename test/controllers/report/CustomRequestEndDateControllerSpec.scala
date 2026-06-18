@@ -211,8 +211,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val form = formProvider(startDate, true, dataEndDate)
-
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
@@ -230,7 +228,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, getRequest).value
-        val view   = application.injector.instanceOf[CustomRequestEndDateView]
         status(result) mustEqual OK
         contentAsString(result) must include("Based on your start date, the latest end date you can enter is 2 1 2026.")
       }
@@ -249,8 +246,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val form = formProvider(startDate, true, dataEndDate)
-
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
@@ -268,7 +263,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, getRequest).value
-        val view   = application.injector.instanceOf[CustomRequestEndDateView]
         status(result) mustEqual OK
         contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
       }
@@ -287,8 +281,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val form = formProvider(startDate, true, dataEndDate)
-
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
@@ -306,7 +298,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, getRequest).value
-        val view   = application.injector.instanceOf[CustomRequestEndDateView]
         status(result) mustEqual OK
         contentAsString(result) must include("Based on your start date, the latest end date you can enter is 1 1 2026.")
       }
@@ -324,8 +315,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val form = formProvider(startDate, true, None)
-
       val application = applicationBuilder(userAnswers =
         Some(
           emptyUserAnswers
@@ -343,7 +332,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, getRequest).value
-        val view   = application.injector.instanceOf[CustomRequestEndDateView]
         status(result) mustEqual OK
         contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
       }
@@ -358,8 +346,6 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
               .copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)), dataEndDate = Some(LocalDate.of(2025, 2, 1)))
           )
         )
-
-      val form = formProvider(LocalDate.of(2025, 1, 1), true, Some(LocalDate.of(2025, 2, 1)))
 
       val application = applicationBuilder(userAnswers =
         Some(

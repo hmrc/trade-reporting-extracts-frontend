@@ -37,7 +37,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
   frontendAppConfig: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView
-)(implicit ec: ExecutionContext)
+)
     extends BaseController
     with I18nSupport {
 

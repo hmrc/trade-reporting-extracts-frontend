@@ -22,8 +22,6 @@ import play.api.libs.json.{Json, OFormat}
 import utils.{DateTimeFormats, ReportHelpers}
 
 import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 case class RequestedThirdPartyReportViewModel(
   referenceNumber: String,

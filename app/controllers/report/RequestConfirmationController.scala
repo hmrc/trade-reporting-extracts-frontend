@@ -18,14 +18,11 @@ package controllers.report
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import models.report.{EmailSelection, ReportConfirmation, SubmissionMeta}
-import models.requests.DataRequest
-import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
+import models.report.{ReportConfirmation, SubmissionMeta}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{DateTimeFormats, ReportHelpers}
+import utils.DateTimeFormats
 import views.html.report.RequestConfirmationView
 
 import java.time.{Clock, Instant}

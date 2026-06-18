@@ -19,7 +19,6 @@ package controllers.thirdparty
 import controllers.actions.*
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.Mode
-import models.requests.DataRequest
 import models.thirdparty.AddThirdPartySection
 import navigation.ThirdPartyNavigator
 import pages.thirdparty.{ThirdPartyAccessEndDatePage, ThirdPartyAccessStartDatePage}
