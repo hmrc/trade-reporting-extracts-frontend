@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 class DataStartDateFormProvider @Inject() extends Mappings {
 
-  private val currentDate: LocalDate        = LocalDate.now()
+  private def currentDate: LocalDate        = LocalDate.now()
   private val dateMinusFourYears: LocalDate = currentDate.minusYears(4)
 
   def apply()(implicit messages: Messages): Form[LocalDate] =

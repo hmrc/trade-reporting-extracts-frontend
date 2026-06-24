@@ -49,7 +49,7 @@ class EditThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.syst
     extends FrontendBaseController
     with I18nSupport {
 
-  val currentDate: LocalDate               = LocalDate.now(clock.getZone())
+  def currentDate: LocalDate               = LocalDate.now(clock.getZone())
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
 
   def onPageLoad(thirdPartyEori: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {

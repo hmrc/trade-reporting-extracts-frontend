@@ -77,7 +77,7 @@ class ReportRequestDataService @Inject (clock: Clock = Clock.systemUTC()) {
     }
 
   private def getReportDates(userAnswers: UserAnswers): Option[(String, String)] = {
-    val currentDate: LocalDate = LocalDate.now(clock)
+    def currentDate: LocalDate = LocalDate.now(clock)
 
     def retrieveReportDates =
       (userAnswers.get(CustomRequestStartDatePage), userAnswers.get(CustomRequestEndDatePage)) match {

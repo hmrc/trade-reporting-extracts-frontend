@@ -51,7 +51,7 @@ class ThirdPartyAccessStartDateController @Inject (clock: Clock = Clock.systemUT
     extends FrontendBaseController
     with I18nSupport {
 
-  val currentDate: LocalDate               = LocalDate.now(clock.getZone)
+  def currentDate: LocalDate               = LocalDate.now(clock.getZone)
   private val currentDateFormatted: String = currentDate.format(DateTimeFormats.dateTimeHintFormat)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
