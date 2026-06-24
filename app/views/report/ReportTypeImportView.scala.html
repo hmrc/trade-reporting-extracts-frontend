@@ -26,14 +26,13 @@
 @(form: Form[_], mode: Mode, guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @content = {
+<h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("reportTypeImport.heading")</h1>
 <p class="govuk-body govuk-!-margin-bottom-0">@messages("reportTypeImport.message1.start")
     <a class="govuk-link" href="@guidanceUrl" rel="noreferrer noopener" target="_blank">@messages("reportTypeImport.message1.link")</a>
     @messages("reportTypeImport.message1.end")
 </p>
 }
-@heading = {
-<h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("reportTypeImport.heading")</h1>
-}
+
 @hint = {
 <p class="govuk-hint">@messages("reportTypeImport.hint")</p>
 }
@@ -45,12 +44,12 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
-        @heading
-        @content
+
         @govukCheckboxes(
             CheckboxesViewModel(
                 form   = form,
                 name   = "value",
+                legend = LegendViewModel(HtmlContent(content)),
                 items  = ReportTypeImport.checkboxItems
             ).withHint(HintViewModel(HtmlContent(hint)))
         )

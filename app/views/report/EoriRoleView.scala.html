@@ -24,9 +24,6 @@
 
 @(form: Form[_], mode: Mode, isImporter: Boolean)(implicit request: Request[_], messages: Messages)
 
-@heading = {
-    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("eoriRole.heading")</h1>
-}
 @hint = {
     <p class="govuk-hint">@messages("eoriRole.hint")</p>
 }
@@ -40,13 +37,13 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
-        @heading
         @govukCheckboxes(
             CheckboxesViewModel(
                 form   = form,
                 name   = "value",
+                legend = LegendViewModel(messages("eoriRole.heading")).asPageHeading(),
                 items  = EoriRole.checkboxItems(isImporter)
-            ).withHint(HintViewModel(HtmlContent(hint)))
+            ).withHint(HintViewModel(messages("eoriRole.hint")))
         )
 
         @govukButton(
