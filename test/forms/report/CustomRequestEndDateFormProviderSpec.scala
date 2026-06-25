@@ -23,7 +23,7 @@ import play.api.test.Helpers.stubMessages
 import utils.Constants.maxReportRequestDays
 import utils.DateTimeFormats.dateTimeFormat
 
-import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate, ZoneOffset}
 
 class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
 

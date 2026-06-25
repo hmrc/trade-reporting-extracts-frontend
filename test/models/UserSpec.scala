@@ -20,8 +20,7 @@ import models.AccessType.EXPORTS
 import org.scalatest.freespec.AnyFreeSpec
 import play.api.libs.json.*
 
-import java.time.{Instant, LocalDate, LocalDateTime, ZoneOffset}
-import scala.util.{Failure, Success}
+import java.time.{Instant, LocalDate, ZoneOffset}
 
 class UserSpec extends AnyFreeSpec {
 

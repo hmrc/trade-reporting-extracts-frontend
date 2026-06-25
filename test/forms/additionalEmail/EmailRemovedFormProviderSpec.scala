@@ -16,7 +16,6 @@
 
 package forms.additionalEmail
 
-import forms.additionalEmail.EmailRemovedFormProvider
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
 

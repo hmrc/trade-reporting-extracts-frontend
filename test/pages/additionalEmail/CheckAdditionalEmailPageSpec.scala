@@ -17,7 +17,7 @@
 package pages.additionalEmail
 
 import base.SpecBase
-import play.api.libs.json.{JsPath, JsString}
+import play.api.libs.json.JsPath
 
 class CheckAdditionalEmailPageSpec extends SpecBase {
 

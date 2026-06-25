@@ -18,10 +18,8 @@ package controllers.report
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.report.{EmailSelection, ReportConfirmation, SubmissionMeta}
+import models.report.{ReportConfirmation, SubmissionMeta}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
-import play.api.i18n.Messages
-import play.api.i18n.Messages.implicitMessagesProviderToMessages
 import play.api.inject
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
@@ -41,7 +39,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
     "return OK and render the correct view when submissionMeta and EmailSelectionPage are defined when export" in {
       val newEmail          = "new.email@example.com"
       val selectedEmails    = Seq("email1@example.com", "email2@example.com", newEmail)
-      val emailString       = selectedEmails.mkString(", ")
       val notificationEmail = "notify@example.com"
 
       val submissionMetaJson: JsObject = Json
@@ -102,7 +99,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
     "return OK and render the correct view when submissionMeta and EmailSelectionPage are defined when import" in {
       val newEmail          = "new.email@example.com"
       val selectedEmails    = Seq("email1@example.com", "email2@example.com", newEmail)
-      val emailString       = selectedEmails.mkString(", ")
       val notificationEmail = "notify@example.com"
 
       val submissionMetaJson: JsObject = Json
@@ -175,7 +171,6 @@ class RequestConfirmationControllerSpec extends SpecBase {
     "return OK and render plural message when isMoreThanOneReport is true" in {
       val newEmail          = "new.email@example.com"
       val selectedEmails    = Seq("email1@example.com", "email2@example.com", newEmail)
-      val emailString       = selectedEmails.mkString(", ")
       val notificationEmail = "notify@example.com"
 
       val submissionMetaJson: JsObject = Json

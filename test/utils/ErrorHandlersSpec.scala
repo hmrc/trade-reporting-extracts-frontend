@@ -90,7 +90,6 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
       "must set AlreadySubmittedFlag to true in session" in {
         reset(mockSessionRepository)
-        val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
 
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
@@ -104,7 +103,6 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
       "must clear report request answers and navigation" in {
         reset(mockSessionRepository)
-        val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
 
         when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
 
@@ -117,8 +115,6 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       }
 
       "must handle session repository failure gracefully" in {
-        val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
-
         when(mockSessionRepository.set(any[UserAnswers]()))
           .thenReturn(Future.failed(new RuntimeException("Session save failed")))
 
@@ -130,8 +126,6 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       }
 
       "must only handle NoAuthorisedUserFoundException" in {
-        val userAnswers = emptyUserAnswers
-
         val handler        = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val otherException = new RuntimeException("Different exception")
 
@@ -139,8 +133,6 @@ class ErrorHandlersSpec extends SpecBase with MockitoSugar with ScalaFutures {
       }
 
       "must be defined for NoAuthorisedUserFoundException" in {
-        val userAnswers = emptyUserAnswers
-
         val handler         = ErrorHandlers.handleNoAuthorisedUserFoundException(dataRequest, mockSessionRepository)
         val targetException = new NoAuthorisedUserFoundException("Target exception")
 

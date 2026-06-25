@@ -34,7 +34,7 @@ class ReportGuidanceController @Inject() (
   view: ReportGuidanceView,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-tradeReportingExtractsService: TradeReportingExtractsService
+  tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends BaseController {
 

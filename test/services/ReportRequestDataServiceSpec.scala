@@ -19,12 +19,11 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import models.EoriRole
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
-import org.mockito.Mockito.when
+import models.report.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import pages.report.{ChooseEoriPage, CustomRequestEndDatePage, CustomRequestStartDatePage, DecisionPage, EmailSelectionPage, EoriRolePage, MaybeAdditionalEmailPage, NewEmailNotificationPage, ReportDateRangePage, ReportNamePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
+import pages.report.*
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 

@@ -31,7 +31,8 @@ class AuthorisedThirdPartiesController @Inject() (
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
   view: AuthorisedThirdPartiesView,
-  tradeReportingExtractsService: TradeReportingExtractsService)(implicit ec: ExecutionContext)
+  tradeReportingExtractsService: TradeReportingExtractsService
+)(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport {
 

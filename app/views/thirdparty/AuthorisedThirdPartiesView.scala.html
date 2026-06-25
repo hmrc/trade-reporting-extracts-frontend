@@ -14,14 +14,11 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
 @import models.thirdparty.AuthorisedThirdPartiesViewModel
 
 @this(
-  appConfig: FrontendAppConfig,
   layout: templates.Layout,
   govukTable: GovukTable,
-  govukTag: GovukTag,
 )
 
 @(authorisedThirdParties: Seq[AuthorisedThirdPartiesViewModel])(implicit request: Request[_], messages: Messages)

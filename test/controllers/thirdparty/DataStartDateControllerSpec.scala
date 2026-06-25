@@ -31,7 +31,6 @@ import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.thirdparty.DataStartDateView
 
