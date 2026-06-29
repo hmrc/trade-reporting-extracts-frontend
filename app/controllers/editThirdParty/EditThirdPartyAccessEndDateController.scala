@@ -19,9 +19,8 @@ package controllers.editThirdParty
 import controllers.actions.*
 import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.Mode
-import models.requests.DataRequest
 import navigation.EditThirdPartyNavigator
-import pages.editThirdParty.{EditDeclarationDatePage, EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
+import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -67,7 +66,7 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
             case None                          => form
           }
 
-          val dateFormatted: String = getStartDatePlusOneMonth(thirdPartyEori, startDate)
+          val dateFormatted: String = getStartDatePlusOneMonth(startDate)
           Future.successful(
             Ok(
               view(
@@ -89,7 +88,7 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
             thirdPartyDetails =>
 
               val form          = formProvider(startDate)
-              val dateFormatted = getStartDatePlusOneMonth(thirdPartyEori, startDate)
+              val dateFormatted = getStartDatePlusOneMonth(startDate)
 
               form
                 .bindFromRequest()
@@ -141,7 +140,7 @@ class EditThirdPartyAccessEndDateController @Inject (clock: Clock = Clock.system
       }
     }
 
-  private def getStartDatePlusOneMonth(thirdPartyEori: String, startDate: LocalDate): String = {
+  private def getStartDatePlusOneMonth(startDate: LocalDate): String = {
     val today    = LocalDate.now(clock)
     val baseDate = if (startDate.isBefore(today)) today else startDate
     baseDate.plusMonths(1).format(DateTimeFormats.dateTimeHintFormat)

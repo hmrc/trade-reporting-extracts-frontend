@@ -17,21 +17,21 @@
 package controllers.report
 
 import controllers.BaseController
-import controllers.actions.{BelowReportRequestLimitAction, DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.report.DecisionFormProvider
+import models.report.{Decision, ReportRequestSection, ReportTypeImport}
 import models.{Mode, UserAnswers}
-import models.report.{ChooseEori, Decision, ReportRequestSection, ReportTypeImport}
 import navigation.ReportNavigator
-import pages.report.{ChooseEoriPage, DecisionPage, EoriRolePage, ReportTypeImportPage}
+import pages.report.{DecisionPage, EoriRolePage, ReportTypeImportPage}
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.report.DecisionView
-import play.api.data.Form
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Try}
+import scala.util.Try
 
 class DecisionController @Inject() (
   identify: IdentifierAction,

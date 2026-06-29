@@ -17,10 +17,9 @@
 package controllers.report
 
 import controllers.actions.*
-import models.report.ChooseEori.{Myauthority, Myeori}
-import models.report.EmailSelection
 import models.AlreadySubmittedFlag
-import models.report.{ReportRequestSection, SubmissionMeta}
+import models.report.ChooseEori.{Myauthority, Myeori}
+import models.report.{EmailSelection, ReportRequestSection, SubmissionMeta}
 import models.requests.DataRequest
 import pages.report.{ChooseEoriPage, EmailSelectionPage, NewEmailNotificationPage, SelectThirdPartyEoriPage}
 import play.api.i18n.MessagesApi
@@ -35,7 +34,7 @@ import utils.{ErrorHandlers, ReportHelpers}
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class SubmitReportController @Inject() (
   override val messagesApi: MessagesApi,

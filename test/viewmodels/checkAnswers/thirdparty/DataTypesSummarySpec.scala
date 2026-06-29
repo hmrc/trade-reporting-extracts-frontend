@@ -76,9 +76,8 @@ class DataTypesSummarySpec extends SpecBase {
 
     "must return the summary row with change action" in {
 
-      val dataTypes           = Set("imports", "exports")
-      val isThirdPartyEnabled = true
-      val thirdPartyEori      = "thirdPartyEori"
+      val dataTypes      = Set("imports", "exports")
+      val thirdPartyEori = "thirdPartyEori"
 
       val result = DataTypesSummary.detailsRow(dataTypes, thirdPartyEori).get
 

@@ -16,7 +16,6 @@
 
 package controllers.thirdparty
 
-import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.thirdparty.DataTypes.*
@@ -47,7 +46,6 @@ class ThirdPartyDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyDetailsView,
   tradeReportingExtractsService: TradeReportingExtractsService,
-  config: FrontendAppConfig,
   userAnswerHelper: UserAnswerHelper,
   sessionRepository: SessionRepository,
   getData: DataRetrievalAction,

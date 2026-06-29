@@ -26,7 +26,7 @@ import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
 
 import java.time.{Clock, Instant}
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ThirdPartyAccessSelfRemovedController @Inject() (
   override val messagesApi: MessagesApi,
@@ -36,8 +36,7 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAccessSelfRemovedView,
   clock: Clock
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController
+) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] =

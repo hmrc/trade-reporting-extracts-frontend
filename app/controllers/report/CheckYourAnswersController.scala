@@ -17,7 +17,6 @@
 package controllers.report
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import models.AlreadySubmittedFlag
@@ -35,7 +34,7 @@ import views.html.report.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourAnswersController @Inject() (appConfig: FrontendAppConfig)(
+class CheckYourAnswersController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
   getData: DataRetrievalAction,

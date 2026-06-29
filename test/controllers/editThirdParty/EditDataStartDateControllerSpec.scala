@@ -32,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
-import utils.DateTimeFormats
 import utils.json.OptionalLocalDateReads.*
 import views.html.editThirdParty.EditDataStartDateView
 

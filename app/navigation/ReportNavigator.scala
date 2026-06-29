@@ -16,13 +16,13 @@
 
 package navigation
 
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
+import models.report.*
 import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import pages.report.*
 import play.api.mvc.Call
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Singleton
 
 @Singleton
 class ReportNavigator extends Navigator {

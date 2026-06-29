@@ -74,7 +74,7 @@ class BelowReportRequestLimitActionSpec extends SpecBase with MockitoSugar with 
       val result = action.callRefine(dataRequest).futureValue
 
       result mustBe a[Left[_, _]]
-      val redirect = result.left.get
+      val redirect = result.swap.getOrElse(fail("Expected a redirect (Left) but got Right"))
       redirect.header.status mustBe SEE_OTHER
       redirect.header
         .headers("Location") mustBe controllers.problem.routes.TooManySubmissionsController.onPageLoad().url

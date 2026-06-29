@@ -21,6 +21,7 @@ import exceptions.NoAuthorisedUserFoundException
 import models.report.ChooseEori.{Myauthority, Myeori}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, SubmissionMeta}
 import models.{AlreadySubmittedFlag, NotificationEmail, ThirdPartyDetails, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -30,11 +31,9 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
 import services.{ReportRequestDataService, TradeReportingExtractsService}
 
-import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneOffset}
+import java.time.*
 import scala.concurrent.Future
 
 class SubmitReportControllerSpec extends SpecBase {

@@ -17,25 +17,25 @@
 package connectors
 
 import base.SpecBase
+import com.fasterxml.jackson.core.JsonParseException
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, get, ok, post, serverError, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import exceptions.NoAuthorisedUserFoundException
-import models.ConsentStatus.{Denied, Granted}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
-import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel, RequestedThirdPartyReportViewModel, RequestedUserReportViewModel}
+import models.ConsentStatus.Granted
+import models.FileType.CSV
+import models.ReportStatus.IN_PROGRESS
+import models.ReportTypeName.IMPORTS_ITEM_REPORT
+import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
+import models.report.*
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
+import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import uk.gov.hmrc.http.{HeaderCarrier, JsValidationException, UpstreamErrorResponse}
-import com.fasterxml.jackson.core.JsonParseException
-import models.FileType.CSV
-import models.ReportStatus.IN_PROGRESS
-import models.ReportTypeName.IMPORTS_ITEM_REPORT
-import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
-import org.apache.pekko.Done
 
 import java.time.*
 

@@ -22,7 +22,7 @@ import models.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.additionalEmail.{CheckAdditionalEmailPage, NewAdditionalEmailPage}
+import pages.additionalEmail.NewAdditionalEmailPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

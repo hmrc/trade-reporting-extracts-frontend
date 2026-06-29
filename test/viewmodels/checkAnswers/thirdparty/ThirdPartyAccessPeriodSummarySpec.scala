@@ -168,7 +168,6 @@ class ThirdPartyAccessPeriodSummarySpec extends SpecBase {
 
     "return the summary row with change action, if accessEndDate = localDate.max, be ongoing" in {
       val startDate         = LocalDate.of(2025, 6, 1)
-      val endDate           = LocalDate.of(2026, 6, 1)
       val thirdPartyDetails = ThirdPartyDetails(
         dataStartDate = None,
         dataEndDate = None,

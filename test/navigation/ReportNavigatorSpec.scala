@@ -17,11 +17,9 @@
 package navigation
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.report.routes
-import models.report.{ChooseEori, Decision, EmailSelection, ReportDateRange, ReportTypeImport}
+import models.report.*
 import models.{CheckMode, EoriRole, NormalMode}
-import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import pages.report.*
 

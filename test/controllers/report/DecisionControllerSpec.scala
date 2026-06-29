@@ -17,7 +17,6 @@
 package controllers.report
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.actions.BelowReportRequestLimitAction
 import controllers.problem.routes
 import forms.report.DecisionFormProvider

@@ -20,22 +20,15 @@ import forms.behaviours.DateBehaviours
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 
-import java.time.{LocalDate, ZoneOffset}
+import java.time.LocalDate
 
 class ThirdPartyAccessEndDateFormProviderSpec extends DateBehaviours {
 
   private implicit val messages: Messages = stubMessages()
 
-  private val currentDate: LocalDate = LocalDate.now(ZoneOffset.UTC)
-  private val form                   = new ThirdPartyAccessEndDateFormProvider()(LocalDate.now)
+  private val form = new ThirdPartyAccessEndDateFormProvider()(LocalDate.now)
 
   ".value" - {
-
-    val validData = datesBetween(
-      min = LocalDate.now,
-      max = LocalDate.now.plusYears(5)
-    )
-
     behave like optionalDateField(form, "value")
 
   }

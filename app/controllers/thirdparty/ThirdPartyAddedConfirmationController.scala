@@ -27,7 +27,7 @@ import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.LocalDate
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ThirdPartyAddedConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
@@ -37,8 +37,7 @@ class ThirdPartyAddedConfirmationController @Inject() (
   frontendAppConfig: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: ThirdPartyAddedConfirmationView
-)(implicit ec: ExecutionContext)
-    extends BaseController
+) extends BaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>

@@ -16,15 +16,14 @@
 
 package controllers.report
 
-import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.{DataRetrievalOrCreateAction, IdentifierAction}
 import models.report.ReportRequestSection
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.report.ReportGuidanceView
 import models.{AlreadySubmittedFlag, NormalMode}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
+import views.html.report.ReportGuidanceView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +34,6 @@ class ReportGuidanceController @Inject() (
   view: ReportGuidanceView,
   sessionRepository: SessionRepository,
   val controllerComponents: MessagesControllerComponents,
-  appConfig: FrontendAppConfig,
   tradeReportingExtractsService: TradeReportingExtractsService
 )(implicit ec: ExecutionContext)
     extends BaseController {
