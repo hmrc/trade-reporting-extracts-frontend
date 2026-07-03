@@ -40,9 +40,10 @@
 
         <h1 class="govuk-heading-xl">@messages("checkEmail.heading")</h1>
 
-        @govukInsetText(InsetText(
-            content = emailAddress
-        ))
+            @govukInsetText(InsetText(
+                content = emailAddress,
+                classes = "text-overflow"
+            ))
 
         @govukRadios(
             RadiosViewModel.yesNo(

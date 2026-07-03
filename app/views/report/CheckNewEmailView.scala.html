@@ -41,7 +41,8 @@
         <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("checkNewEmail.heading")</h1>
 
         @govukInsetText(InsetText(
-            content = lastEnteredEmail
+            content = lastEnteredEmail,
+            classes = "text-overflow"
         ))
 
         @govukRadios(
