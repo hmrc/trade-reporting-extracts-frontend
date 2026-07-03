@@ -65,7 +65,7 @@ contactUrl: String
             content = HtmlContent(
                 data.action.map { action =>
                     s"""<div>
-                        |  <a href=${controllers.routes.AvailableReportsController.auditDownloadFile(action.fileURL,action.fileName,data.referenceNumber)} class="govuk-link">
+                        |  <a href="${controllers.routes.AvailableReportsController.auditDownloadFile(action.fileURL, action.fileName, data.referenceNumber).url}" class="govuk-link">
                         |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
                         |  </a>
                         |</div>""".stripMargin
@@ -73,7 +73,9 @@ contactUrl: String
                 )
             )
         )
-    }
+    },
+    caption = Some(messages("availableReports.myReports")),
+    captionClasses = "govuk-visually-hidden"
     ))
   </div>
 </div>
@@ -123,7 +125,9 @@ contactUrl: String
                 )
             )
         )
-    }
+    },
+    caption = Some(messages("availableReports.thirdPartyReports")),
+    captionClasses = "govuk-visually-hidden"
         ))
     </div>
 </div>
