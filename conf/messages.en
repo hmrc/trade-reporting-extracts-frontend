@@ -12,6 +12,7 @@ site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
 site.notApplicable = Not applicable
+site.warning = Warning
 
 date.day = Day
 date.month = Month
