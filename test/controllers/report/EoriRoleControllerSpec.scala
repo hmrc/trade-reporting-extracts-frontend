@@ -88,9 +88,9 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
-        contentAsString(result).contains("Importer") mustBe true
-        contentAsString(result).contains("Exporter") mustBe false
-        contentAsString(result).contains("Declarant") mustBe true
+        contentAsString(result).contains("importer") mustBe true
+        contentAsString(result).contains("exporter") mustBe false
+        contentAsString(result).contains("declarant") mustBe true
 
       }
 
@@ -112,9 +112,9 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
           request,
           messages(application)
         ).toString
-        contentAsString(result).contains("Importer") mustBe false
-        contentAsString(result).contains("Exporter") mustBe true
-        contentAsString(result).contains("Declarant") mustBe true
+        contentAsString(result).contains("importer") mustBe false
+        contentAsString(result).contains("exporter") mustBe true
+        contentAsString(result).contains("declarant") mustBe true
 
       }
 
