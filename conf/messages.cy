@@ -142,7 +142,7 @@ eoriRole.importer = Data lle mae fy EORI wedi’i restru fel y mewnforiwr
 eoriRole.checkYourAnswersLabel = Data rydych chi am ei wneud cais amdano
 eoriRole.error.required = Dewiswch pa ddata rydych chi am ei wneud cais amdano
 eoriRole.change.hidden = y data rydych chi am ei wneud cais amdano
-eoriRole.hint = Os byddwch yn dewis mwy nag un, bydd yr holl ddata a ddewisir yn yr un adroddiad
+eoriRole.hint = Os byddwch yn dewis mwy nag un, bydd yr holl ddata a ddewisir yn yr un adroddiad.
 
 reportDateRange.pluralReport.title = Pa gyfnod hoffech fod yr adroddiadau hyn yn ei gwmpasu?
 reportDateRange.singleReport.title = Pa gyfnod hoffech fod yr adroddiad hwn yn ei gwmpasu?
