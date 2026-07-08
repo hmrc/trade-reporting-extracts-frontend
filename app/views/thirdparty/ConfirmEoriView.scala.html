@@ -31,7 +31,7 @@
 @content = {
     <h1 class="govuk-heading-xl">@messages("confirmEori.heading")</h1>
     @govukWarningText(WarningText(
-    iconFallbackText = Some("Warning"),
+    iconFallbackText = Some(messages("site.warning")),
     content = messages("confirmEori.warning")
     ))
 

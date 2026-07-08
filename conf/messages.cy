@@ -12,6 +12,7 @@ site.startAgain = Dechrau eto
 site.signIn = Fewngofnodi
 site.govuk = GOV.UK
 site.notApplicable = Ddim yn berthnasol
+site.warning = Rhybudd
 
 date.day = Diwrnod
 date.month = Mis
