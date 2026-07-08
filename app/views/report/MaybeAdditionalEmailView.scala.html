@@ -27,11 +27,11 @@
 
 @legendContent = {
     @if(isMoreThanOneReport) {
-        <p class="govuk-body">
+        <p class="govuk-body text-overflow">
             @messages("maybeAdditionalEmail.message1.plural", email)
         </p>
     } else {
-        <p class="govuk-body">
+        <p class="govuk-body text-overflow">
             @messages("maybeAdditionalEmail.message1.single", email)
         </p>
     }

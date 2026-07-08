@@ -68,6 +68,9 @@ trait CheckboxFluency {
 
     def withHint(hint: Hint): Checkboxes =
       checkboxes copy (hint = Some(hint))
+
+    def withCssClass(cssClass: String): Checkboxes =
+      checkboxes copy (classes = s"${checkboxes.classes} $cssClass".trim)
   }
 
   object CheckboxItemViewModel {
