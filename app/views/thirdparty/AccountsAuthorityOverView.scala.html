@@ -25,7 +25,7 @@
 
 @mainContent = {
 @if(accountsAuthorityOver.isEmpty) {
-    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = true) {
+    @layout(pageTitle = titleNoForm(messages("accountsAuthorityOver.noBusinesses.title")), isFullWidth = false) {
         <h1 class="govuk-heading-xl">@messages("accountsAuthorityOver.noBusinesses.heading")</h1>
         <p class="govuk-body">
         @messages("accountsAuthorityOver.noBusinesses.message")

@@ -25,7 +25,7 @@
 
 @mainContent = {
     @if(authorisedThirdParties.isEmpty) {
-        @layout(pageTitle = messages("authorisedThirdParties.noThirdParties.title"), isFullWidth = true) {
+        @layout(pageTitle = messages("authorisedThirdParties.noThirdParties.title"), isFullWidth = false) {
             <h1 class="govuk-heading-xl">@messages("authorisedThirdParties.noThirdParties.heading")</h1>
             <p class="govuk-body">
                 @messages("authorisedThirdParties.noThirdParties.message1")
