@@ -37,7 +37,14 @@ contactUrl: String
     <h2 class="govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.myReports")
     </h2>
+    } else if (maybeUserReports && maybeThirdPartyReports) {
+    <noscript>
+        <h2 class="govuk-heading-l govuk-table__caption--l">
+            @messages("availableReports.myReports")
+        </h2>
+    </noscript>
     }
+
     <p class="govuk-body">
         @messages("availableReports.contact1")
         <a class="govuk-link" href="@contactUrl">
@@ -84,11 +91,19 @@ contactUrl: String
 
 @thirdPartyReportsContent = {
 <div>
+
     @if(maybeUserReports ^ maybeThirdPartyReports) {
     <h2 class="govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.thirdPartyReports")
     </h2>
+    } else if (maybeUserReports && maybeThirdPartyReports) {
+    <noscript>
+        <h2 class="govuk-heading-l govuk-table__caption--l">
+            @messages("availableReports.thirdPartyReports")
+        </h2>
+    </noscript>
     }
+
     <p class="govuk-body">
         @messages("availableReports.contact1")
         <a class="govuk-link" href="@contactUrl">
