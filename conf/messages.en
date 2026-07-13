@@ -595,7 +595,7 @@ accountsAuthorityOver.businessInfo = Business name
 accountsAuthorityOver.status = Status
 accountsAuthorityOver.action = Action
 accountsAuthorityOver.view = View
-accountsAuthorityOver.view.hidden = View {0} details
+accountsAuthorityOver.view.hidden = {0} details
 accountsAuthorityOver.remove = Remove
 accountsAuthorityOver.remove.hidden = {0} as a third party
 

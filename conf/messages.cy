@@ -595,7 +595,7 @@ accountsAuthorityOver.businessInfo = Enw’r busnes
 accountsAuthorityOver.status = Statws
 accountsAuthorityOver.action = Camau i’w cymryd
 accountsAuthorityOver.view = Gweld
-accountsAuthorityOver.view.hidden = Gweld manylion {0}
+accountsAuthorityOver.view.hidden = manylion {0}
 accountsAuthorityOver.remove = Tynnu
 accountsAuthorityOver.remove.hidden = {0} fel trydydd parti
 
