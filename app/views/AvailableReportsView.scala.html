@@ -34,7 +34,7 @@ contactUrl: String
 @userReportsContent = {
 <div>
     @if(maybeUserReports ^ maybeThirdPartyReports) {
-    <h2 class="govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-desktop govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.myReports")
     </h2>
     } else if (maybeUserReports && maybeThirdPartyReports) {
@@ -43,7 +43,7 @@ contactUrl: String
             @messages("availableReports.myReports")
         </h2>
     </noscript>
-    <h2 class="only-mobile js-visible govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.myReports")
     </h2>
     }
@@ -96,7 +96,7 @@ contactUrl: String
 <div>
 
     @if(maybeUserReports ^ maybeThirdPartyReports) {
-    <h2 class="govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-desktop govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.thirdPartyReports")
     </h2>
     } else if (maybeUserReports && maybeThirdPartyReports) {
@@ -105,7 +105,7 @@ contactUrl: String
             @messages("availableReports.thirdPartyReports")
         </h2>
     </noscript>
-    <h2 class="only-mobile js-visible govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
         @messages("availableReports.thirdPartyReports")
     </h2>
     }

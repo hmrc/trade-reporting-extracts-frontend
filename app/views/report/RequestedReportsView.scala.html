@@ -33,11 +33,11 @@
 
     @if(maybeUserReports && maybeThirdPartyReports) {
     <noscript>
-        <h2 class="govuk-heading-l govuk-table__caption--l">
+        <h2 class="only-desktop onlygovuk-heading-l govuk-table__caption--l">
             @messages("requestedReports.myReports")
         </h2>
     </noscript>
-    <h2 class="only-mobile js-visible govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
         @messages("requestedReports.myReports")
     </h2>
     }
@@ -80,11 +80,11 @@
 
     @if(maybeUserReports && maybeThirdPartyReports) {
     <noscript>
-        <h2 class="govuk-heading-l govuk-table__caption--l">
+        <h2 class="only-desktop govuk-heading-l govuk-table__caption--l">
             @messages("requestedReports.thirdPartyReports")
         </h2>
     </noscript>
-    <h2 class="only-mobile js-visible govuk-heading-l govuk-table__caption--l">
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
         @messages("requestedReports.thirdPartyReports")
     </h2>
     }
