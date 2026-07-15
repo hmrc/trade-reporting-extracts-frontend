@@ -30,6 +30,17 @@
 
 @userReportsContent = {
   @requestedReports.availableUserReports.map { reports =>
+
+    @if(maybeUserReports && maybeThirdPartyReports) {
+    <noscript>
+        <h2 class="only-desktop onlygovuk-heading-l govuk-table__caption--l">
+            @messages("requestedReports.myReports")
+        </h2>
+    </noscript>
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
+        @messages("requestedReports.myReports")
+    </h2>
+    }
     <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("requestedReports.myReports")" aria-describedby="user-reports-scroll-hint">
       <div id="user-reports-scroll-hint" class="govuk-visually-hidden">@messages("requestedReports.myReports")</div>
       @govukTable(Table(
@@ -58,15 +69,27 @@
       )
     },
         caption = Some(messages("requestedReports.myReports")),
-        captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
+        captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l",
+        firstCellIsHeader = true
       ))
     </div>
   }
 }
 
 @thirdPartyReportsContent = {
+
+    @if(maybeUserReports && maybeThirdPartyReports) {
+    <noscript>
+        <h2 class="only-desktop govuk-heading-l govuk-table__caption--l">
+            @messages("requestedReports.thirdPartyReports")
+        </h2>
+    </noscript>
+    <h2 class="only-mobile govuk-heading-l govuk-table__caption--l">
+        @messages("requestedReports.thirdPartyReports")
+    </h2>
+    }
   <div class="tre-table-container" tabindex="0" role="region" aria-label="@messages("requestedReports.thirdPartyReports")" aria-describedby="third-party-reports-scroll-hint">
-    <div id="third-party-reports-scroll-hint" class="govuk-visually-hidden">@messages("requestedReports.scrollHint")</div>
+    <div id="third-party-reports-scroll-hint" class="govuk-visually-hidden">@messages("requestedReports.thirdPartyReports")</div>
     @govukTable(Table(
       head = Some(Seq(
         HeadCell(content = Text(messages("requestedReports.table.reportName"))),
@@ -95,7 +118,8 @@
       )
       },
       caption = Some(messages("requestedReports.thirdPartyReports")),
-      captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l"
+      captionClasses = if (maybeUserReports && maybeThirdPartyReports) "govuk-visually-hidden" else "govuk-table__caption--l",
+      firstCellIsHeader = true
     ))
   </div>
 }

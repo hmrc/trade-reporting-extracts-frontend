@@ -300,7 +300,7 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         val result   = route(application, request).value
         val document = Jsoup.parse(contentAsString(result))
 
-        val statusCell = document.select("td").get(4)
+        val statusCell = document.select("td").get(3)
         val link       = statusCell.select("a")
         link.attr("href") must include(
           controllers.problem.routes.ReportFailedController.onPageLoad("reportName", "referenceNumber").url
@@ -364,7 +364,7 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         val result   = route(application, request).value
         val document = Jsoup.parse(contentAsString(result))
 
-        val statusCell = document.select("td").get(4)
+        val statusCell = document.select("td").get(3)
         val link       = statusCell.select("a")
         link.attr("href") must include(
           controllers.problem.routes.NoDataFoundController

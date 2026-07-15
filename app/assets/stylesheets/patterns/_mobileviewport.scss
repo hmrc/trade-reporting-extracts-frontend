@@ -1,0 +1,7 @@
+  .only-mobile { display: block; }
+  .only-desktop { display: none; }
+
+  @media (min-width: 640px) {
+    .only-mobile { display: none; }
+    .only-desktop { display: block; }
+  }

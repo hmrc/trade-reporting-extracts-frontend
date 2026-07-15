@@ -48,7 +48,7 @@ object DeclarationDateSummary {
             "site.change",
             controllers.thirdparty.routes.DeclarationDateController.onPageLoad(CheckMode).url
           )
-            .withVisuallyHiddenText(messages("declarationDate.change.hidden"))
+            .withVisuallyHiddenText(messages("declarationDate.change.hidden", dataTypes))
         )
       )
     }

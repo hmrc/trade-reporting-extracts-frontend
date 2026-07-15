@@ -55,7 +55,7 @@ class RequestConfirmationController @Inject() (
     Future.successful(
       Ok(
         view(
-          submissionMeta.allEmails,
+          submissionMeta.allEmails.distinct,
           isMoreThanOneReport,
           transformReportConfirmations(submissionMeta.reportConfirmations),
           surveyUrl,
