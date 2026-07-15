@@ -136,17 +136,17 @@ contactUrl: String
         TableRow(content = Text(messages(data.formattedReportType))),
         TableRow(content = Text(messages(data.formattedExpiryDate))),
         TableRow(
-            content = HtmlContent(
-                data.action.map { action =>
-                    s"""<div>
-                        |  <a href="${action.fileURL}" class="govuk-link">
-                        |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
-                        |  </a>
-                        |</div>""".stripMargin
-                    }.mkString
-                )
-            )
+          content = HtmlContent(
+            data.action.map { action =>
+              s"""<div>
+                  |  <a href="${controllers.routes.AvailableReportsController.auditDownloadFile(action.fileURL, action.fileName, data.referenceNumber).url}" class="govuk-link">
+                  |    ${action.fileName} (${action.fileType}, ${ReportHelpers.formatBytes(action.size)})
+                  |  </a>
+                  |</div>""".stripMargin
+            }.mkString
+          )
         )
+      )
     },
     caption = Some(messages("availableReports.thirdPartyReports")),
     captionClasses = "govuk-visually-hidden",
