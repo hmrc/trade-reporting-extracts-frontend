@@ -10,10 +10,10 @@ POST       /which-eori                                          controllers.repo
 GET        /change-which-eori                                   controllers.report.ChooseEoriController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-which-eori                                   controllers.report.ChooseEoriController.onSubmit(mode: Mode = CheckMode)
 
-GET        /your-role                                           controllers.report.EoriRoleController.onPageLoad(mode: Mode = NormalMode)
-POST       /your-role                                           controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
-GET        /change-your-role                                           controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-your-role                                           controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
+GET        /request-data                                           controllers.report.EoriRoleController.onPageLoad(mode: Mode = NormalMode)
+POST       /request-data                                           controllers.report.EoriRoleController.onSubmit(mode: Mode = NormalMode)
+GET        /change-request-data                                    controllers.report.EoriRoleController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-request-data                                    controllers.report.EoriRoleController.onSubmit(mode: Mode = CheckMode)
 
 GET        /date-range                        controllers.report.ReportDateRangeController.onPageLoad(mode: Mode = NormalMode)
 POST       /date-range                       controllers.report.ReportDateRangeController.onSubmit(mode: Mode = NormalMode)

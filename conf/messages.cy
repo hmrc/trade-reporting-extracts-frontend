@@ -135,15 +135,15 @@ chooseEori.checkYourAnswersLabel = Rhif EORI hoffech ei ddefnyddio
 chooseEori.error.required = Dewiswch y rhif EORI hoffech ei ddefnyddio
 chooseEori.change.hidden = y rhif EORI hoffech ei ddefnyddio
 
-eoriRole.title = Beth yw’ch rôl yn yr adroddiad?
-eoriRole.heading = Beth yw’ch rôl yn yr adroddiad?
-eoriRole.declarant = Datganydd
-eoriRole.exporter = Allforiwr
-eoriRole.importer = Mewnforiwr
-eoriRole.checkYourAnswersLabel = Eich rôl yn yr adroddiad
-eoriRole.error.required = Dewiswch eich rôl yn yr adroddiad
-eoriRole.change.hidden = eich rôl yn yr adroddiad
-eoriRole.hint = Os byddwch yn dewis mwy nag un rôl, bydd y data i gyd mewn un adroddiad.
+eoriRole.title = Pa ddata ydych chi am ei wneud cais amdano?
+eoriRole.heading = Pa ddata ydych chi am ei wneud cais amdano?
+eoriRole.declarant = Data lle mae fy EORI wedi’i restru fel y datganwr
+eoriRole.exporter = Data lle mae fy EORI wedi’i restru fel yr allforiwr
+eoriRole.importer = Data lle mae fy EORI wedi’i restru fel y mewnforiwr
+eoriRole.checkYourAnswersLabel = Data rydych chi am ei wneud cais amdano
+eoriRole.error.required = Dewiswch pa ddata rydych chi am ei wneud cais amdano
+eoriRole.change.hidden = y data rydych chi am ei wneud cais amdano
+eoriRole.hint = Os byddwch yn dewis mwy nag un, bydd yr holl ddata a ddewisir yn yr un adroddiad.
 
 reportDateRange.pluralReport.title = Pa gyfnod hoffech fod yr adroddiadau hyn yn ei gwmpasu?
 reportDateRange.singleReport.title = Pa gyfnod hoffech fod yr adroddiad hwn yn ei gwmpasu?
