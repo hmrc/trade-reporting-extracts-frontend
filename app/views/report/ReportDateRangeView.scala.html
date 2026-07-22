@@ -24,12 +24,6 @@
 
 @(form: Form[_], mode: Mode, hintStrings: (String, String), isMoreThanOneReport: Boolean)(implicit request: Request[_], messages: Messages)
 
-@messageContent = {
-    <p class="govuk-body">
-        @messages("reportDateRange.message")
-    </p>
-}
-
 @pageHeading = {
     <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
         @if(isMoreThanOneReport) {
@@ -56,10 +50,8 @@
         )
     }
 
-    @pageHeading
-    @messageContent
-    @govukRadios(Radios(
-        name = "value",
+    @govukRadios(RadiosViewModel(
+        field = form("value"),
         items = Seq(
             RadioItem(
                 content = messages("reportDateRange.lastFullCalendarMonth"),
@@ -74,9 +66,10 @@
                 id = Some("value_1"),
                 value = Some("CustomDateRange"),
                 checked = form("value").value.contains("CustomDateRange")
-            )
+            )),
+            legend = LegendViewModel(HtmlContent(pageHeading)
         )
-    ))
+    ).withHint(HintViewModel(messages("reportDateRange.hint"))))
 
     @govukButton(ButtonViewModel(messages("site.continue")))
     }
