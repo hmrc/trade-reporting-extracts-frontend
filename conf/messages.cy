@@ -184,7 +184,6 @@ reportName.change.hidden.plural = yr enw ar y set hon o adroddiadau
 reportTypeImport.title = Y math o adroddiad mewnforio
 reportTypeImport.heading = Y math o adroddiad mewnforio
 reportTypeImport.legendHeading = Pa fath o adroddiad mewnforio sydd ei angen arnoch?
-reportTypeImport.heading = Pa fath o adroddiad mewnforio sydd ei angen arnoch?
 reportTypeImport.importHeader = Pennyn mewnforio
 reportTypeImport.hint.importHeader = crynodeb o’r datganiad mewnforio llawn, gan gynnwys gwerth y tollau, swm yr anfoneb a’r costau cludo.
 reportTypeImport.importItem = Eitem mewnforio
