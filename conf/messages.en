@@ -181,8 +181,8 @@ reportName.error.invalidCharacters.plural =  The name you will use to identify t
 reportName.change.hidden = the report name
 reportName.change.hidden.plural = the name for this set of reports
 
-reportTypeImport.title = Report type import
-reportTypeImport.heading = Report type import
+reportTypeImport.title = Import report type
+reportTypeImport.heading = Import report type
 reportTypeImport.legendHeading = Which type of import report do you need?
 reportTypeImport.importHeader = Import header
 reportTypeImport.hint.importHeader = summary of the full import declaration, including customs value, invoice amount and transport costs.
