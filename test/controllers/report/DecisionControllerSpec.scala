@@ -54,7 +54,7 @@ class DecisionControllerSpec extends SpecBase with MockitoSugar {
     override protected def executionContext: ExecutionContext = global
   }
 
-  def onwardRoute                 = Call("GET", "/request-customs-declaration-data/your-role")
+  def onwardRoute                 = Call("GET", "/request-customs-declaration-data/request-data")
   def onwardRouteThirdPartyImport = Call("GET", "/request-customs-declaration-data/import-report-type")
   def onwardRouteThirdPartyExport = Call("GET", "/request-customs-declaration-data/export-item-report")
 
