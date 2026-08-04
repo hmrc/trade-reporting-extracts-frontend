@@ -212,7 +212,7 @@ emailSelection.heading = Drwy ba gyfeiriad e-bost hoffech gael hysbysiadau?
 emailSelection.addNewEmail = Ychwanegu cyfeiriad e-bost newydd
 emailSelection.checkYourAnswersLabel = E-bost hysbysu
 emailSelection.error.required = Dewiswch o leiaf un cyfeiriad e-bost i anfon hysbysiadau iddo
-emailSelection.change.hidden = os hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau
+emailSelection.change.hidden = yr e-bost hysbysu a ychwanegwyd
 emailSelection.hint = Dewiswch bob un sy’n berthnasol.
 
 maybeAdditionalEmail.title = A hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau?
