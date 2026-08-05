@@ -212,7 +212,7 @@ emailSelection.heading = Which email address do you want to receive notification
 emailSelection.addNewEmail = Add a new email address
 emailSelection.checkYourAnswersLabel = Notification email
 emailSelection.error.required = Select at least one email address to receive notifications
-emailSelection.change.hidden = if you want to add another email for notifications
+emailSelection.change.hidden = the notification email added
 emailSelection.hint = Select all that apply.
 
 maybeAdditionalEmail.title = Do you want to add another email for notifications?
