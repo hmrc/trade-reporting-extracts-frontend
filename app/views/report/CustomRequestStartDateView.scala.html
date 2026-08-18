@@ -25,7 +25,8 @@
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, maybeThirdPartyRequest: Boolean, rangeString: Option[String])(implicit request: Request[_], messages: Messages)
 
 
-@legendContent = {
+@content = {
+    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("customRequestStartDate.heading")</h1>
     @if(maybeThirdPartyRequest) {
         <p class="govuk-body govuk-!-margin-bottom-0">
             @rangeString @messages("customRequestStartDate.message1.thirdParty")
@@ -37,38 +38,30 @@
     }
 }
 
-@hint = {
-    <p class="govuk-hint">@messages("customRequestStartDate.hint")</p>
-}
-
-@pageHeading = {
-    <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">
+@legendHeading = {
+    <h2 class="govuk-heading-l govuk-!-margin-top-4 govuk-!-margin-bottom-0">
         @if(isMoreThanOneReport) {
             @messages("customRequestStartDate.pluralReport.heading")
         } else {
             @messages("customRequestStartDate.singleReport.heading")
         }
-    </h1>
+    </h2>
 }
 
-@layout(pageTitle = title(form,
-    if(isMoreThanOneReport) messages("customRequestStartDate.pluralReport.title")
-    else messages("customRequestStartDate.singleReport.title")
-)) {
+@layout(pageTitle = title(form, messages("customRequestStartDate.title"))) {
 
     @formHelper(action = controllers.report.routes.CustomRequestStartDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
-        @pageHeading
-        @legendContent
+        @content
         @govukDateInput(
             DateViewModel(
-                field  = form("value")
+                field  = form("value"),
+                legend = LegendViewModel(HtmlContent(legendHeading)),
             )
-            .withHint(HintViewModel(HtmlContent(hint)))
-        )
+            .withHint(HintViewModel(messages("customRequestStartDate.hint"))))
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
