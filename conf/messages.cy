@@ -391,7 +391,7 @@ eoriNumber.error.invalidEori = Mae’n rhaid i’r rhif EORI yr hoffech roi myne
 eoriNumber.error.notFound = Nid yw’r rhif EORI hwn yn bodoli. Nodwch rif EORI go iawn
 eoriNumber.error.cannotBeOwnEori = Ni allwch roi mynediad at eich rhif EORI eich hun
 eoriNumber.change.hidden = y rhif EORI hoffech roi mynediad ato
-eoriNumber.hint = Dim ond rhif EORI sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er mwyn galluogi trydydd parti i gael mynediad at rif EORI XI, nodwch y rhif EORI GB cyfatebol.
+eoriNumber.hint = Dim ond rhif EORI, 12 digid o hyd, sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er mwyn galluogi trydydd parti i gael mynediad at rif EORI XI, nodwch y rhif EORI GB cyfatebol.
 eoriNumber.example = Er enghraifft, GB123456123456.
 
 noPermission.title = Nid oes gennych ganiatâd i gael at y gwasanaeth hwn
