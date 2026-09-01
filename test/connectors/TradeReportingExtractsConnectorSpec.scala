@@ -28,7 +28,7 @@ import models.ReportTypeName.IMPORTS_ITEM_REPORT
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import models.report.*
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -832,6 +832,57 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
             .futureValue
 
           result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
+        }
+      }
+    }
+
+    "updatePersonalEmailNotificationsPreference" - {
+      val eori = "GB123456789000"
+      val url  = s"/trade-reporting-extracts/user/update-personal-email-notification-preference"
+
+      "Must return Done when response is OK" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            WireMock
+              .post(
+                WireMock.urlEqualTo(url)
+              )
+              .willReturn(aResponse().withStatus(OK))
+          )
+          val result    = connector
+            .updatePersonalEmailNotificationsPreference(
+              UpdateEmailPreference(
+                eori,
+                false
+              )
+            )
+            .futureValue
+          result mustBe Done
+        }
+      }
+
+      "Must return upstream error response when anythign else" in {
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+          server.stubFor(
+            post(urlEqualTo(url))
+              .willReturn(aResponse().withStatus(BAD_REQUEST))
+          )
+
+          val result = connector
+            .updatePersonalEmailNotificationsPreference(
+              UpdateEmailPreference(
+                eori,
+                false
+              )
+            )
+            .failed
+            .futureValue
+          result mustBe an[UpstreamErrorResponse]
         }
       }
     }
