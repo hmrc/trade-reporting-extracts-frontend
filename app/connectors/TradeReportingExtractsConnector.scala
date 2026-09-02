@@ -25,7 +25,7 @@ import javax.inject.Singleton
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserDetails}
 import org.apache.pekko.Done
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -115,6 +115,29 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
       .recover { ex =>
         logger.error(s"Failed to fetch notification email: ${ex.getMessage}", ex)
         throw ex
+      }
+
+  def updatePersonalEmailNotificationsPreference(
+    newPreference: UpdateEmailPreference
+  )(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient
+      .post(url"${frontendAppConfig.tradeReportingExtractsApi}/user/update-personal-email-notification-preference")
+      .withBody(Json.toJson(newPreference))
+      .execute[HttpResponse]
+      .logFailureReason("Trade reporting extracts connector on personalEmailNotificationsPreferenceUpdate")
+      .flatMap { response =>
+        response.status match
+          case OK => Future.successful(Done)
+          case _  =>
+            logger.error(
+              s"Failed to update personal email notification preference: ${response.status} - ${response.body}"
+            )
+            Future.failed(
+              UpstreamErrorResponse(
+                "Unexpected response from /trade-reporting-extracts/user/update-personal-email-notification-preference",
+                response.status
+              )
+            )
       }
 
   def getCompanyInformation(eori: String)(implicit hc: HeaderCarrier): Future[CompanyInformation] =
