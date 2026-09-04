@@ -24,13 +24,8 @@ import play.api.Logging
 import javax.inject.Singleton
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-<<<<<<< Updated upstream
-import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserDetails}
-=======
 import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UserDetails}
->>>>>>> Stashed changes
+import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserDetails}
 import org.apache.pekko.Done
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK, TOO_MANY_REQUESTS}
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
