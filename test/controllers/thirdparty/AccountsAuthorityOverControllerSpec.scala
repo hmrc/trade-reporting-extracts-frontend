@@ -18,7 +18,7 @@ package controllers.thirdparty
 
 import base.SpecBase
 import models.UserActiveStatus
-import models.thirdparty.AccountAuthorityOverViewModel
+import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -29,6 +29,7 @@ import play.api.test.Helpers.*
 import services.TradeReportingExtractsService
 import views.html.thirdparty.AccountsAuthorityOverView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
@@ -61,10 +62,15 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET when accounts exist" in {
-      val mockService = mock[TradeReportingExtractsService]
-      val accounts    = Seq(
-        AccountAuthorityOverViewModel("GB123456789000", Some("Business Name"), Some(UserActiveStatus.Active)),
-        AccountAuthorityOverViewModel("GB987654321000", Some("Another Business Name"), Some(UserActiveStatus.Pending))
+      val mockService       = mock[TradeReportingExtractsService]
+      val accountsViewModel = Seq(
+        AccountAuthorityOverViewModel("eori1", Some("Business Name"), Some(UserActiveStatus.Active)),
+        AccountAuthorityOverViewModel("eori2", Some("Another Business Name"), Some(UserActiveStatus.Pending))
+      )
+
+      val accounts = Seq(
+        EoriBusinessAccessInfo("eori1", Some("Business Name"), Instant.parse("2001-01-01T00:00:00Z"), None),
+        EoriBusinessAccessInfo("eori2", Some("Another Business Name"), Instant.parse("2099-01-01T00:00:00Z"), None)
       )
       when(mockService.getAccountsAuthorityOver(any())(any()))
         .thenReturn(Future.successful(accounts))
@@ -80,15 +86,15 @@ class AccountsAuthorityOverControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AccountsAuthorityOverView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(accounts)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(accountsViewModel)(request, messages(application)).toString
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementsByClass("govuk-heading-xl").text() must include("Businesses you have third-party access to")
-        document.text()                                        must include("GB123456789000")
+        document.text()                                        must include("eori1")
         document.text()                                        must include("Business Name")
         document.getElementsByClass("govuk-tag--green").text() must include("Active")
 
-        document.text()                                       must include("GB987654321000")
+        document.text()                                       must include("eori2")
         document.text()                                       must include("Another Business Name")
         document.getElementsByClass("govuk-tag--blue").text() must include("Pending")
       }

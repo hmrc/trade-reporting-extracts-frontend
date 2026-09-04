@@ -19,7 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EoriBusinessAccessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import play.api.Logging
@@ -136,7 +136,7 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
 
   def getAccountsAuthorityOver(
     eori: String
-  )(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+  )(implicit hc: HeaderCarrier): Future[Seq[EoriBusinessAccessInfo]] =
     connector.getAccountsAuthorityOver(eori)
 
   def removeThirdParty(eori: String, thirdPartyEori: String)(implicit

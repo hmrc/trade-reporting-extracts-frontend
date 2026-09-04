@@ -27,8 +27,13 @@ import models.ReportStatus.IN_PROGRESS
 import models.ReportTypeName.IMPORTS_ITEM_REPORT
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import models.report.*
+<<<<<<< Updated upstream
 import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
+=======
+import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
+>>>>>>> Stashed changes
 import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -1301,9 +1306,13 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val url  = "/trade-reporting-extracts/get-users-by-authorised-eori"
       val eori = "GB123456789000"
 
-      val expectedResponse = Seq(
-        AccountAuthorityOverViewModel("GB111", Some("Business One"), Some(UserActiveStatus.Active)),
-        AccountAuthorityOverViewModel("GB222", None, Some(UserActiveStatus.Pending))
+      val validResponseBody = Seq(
+        EoriBusinessAccessInfo(
+          "eori",
+          None,
+          Instant.parse("2024-01-01T00:00:00Z"),
+          None
+        )
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
@@ -1315,11 +1324,11 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
             WireMock
               .get(urlEqualTo(url))
               .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
-              .willReturn(ok(Json.toJson(expectedResponse).toString()))
+              .willReturn(ok(Json.toJson(validResponseBody).toString()))
           )
 
           val result = connector.getAccountsAuthorityOver(eori).futureValue
-          result mustBe expectedResponse
+          result mustBe validResponseBody
         }
       }
 
@@ -1348,8 +1357,8 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val eori = "GB123456789000"
 
       val expectedResponse = Seq(
-        AccountAuthorityOverViewModel("GB333", Some("Business Three"), None),
-        AccountAuthorityOverViewModel("GB444", Some("Business Four"), None)
+        EoriBusinessInfo("GB333", Some("Business Three")),
+        EoriBusinessInfo("GB444", Some("Business Four"))
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
