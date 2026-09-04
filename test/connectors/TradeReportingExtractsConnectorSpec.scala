@@ -27,13 +27,8 @@ import models.ReportStatus.IN_PROGRESS
 import models.ReportTypeName.IMPORTS_ITEM_REPORT
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import models.report.*
-<<<<<<< Updated upstream
-import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
-=======
 import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
->>>>>>> Stashed changes
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
 import play.api.inject.guice.GuiceApplicationBuilder
