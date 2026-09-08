@@ -26,7 +26,7 @@ import models.ReportTypeName.IMPORTS_ITEM_REPORT
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel, RequestedThirdPartyReportViewModel, RequestedUserReportViewModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -720,8 +720,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
 
       "should transform connector response into SelectThirdPartyEori" in {
         val accounts = Seq(
-          AccountAuthorityOverViewModel("GB111", Some("Business One"), None),
-          AccountAuthorityOverViewModel("GB222", None, None)
+          EoriBusinessInfo("GB111", Some("Business One")),
+          EoriBusinessInfo("GB222", None)
         )
 
         when(mockConnector.getSelectThirdPartyEori(eori))

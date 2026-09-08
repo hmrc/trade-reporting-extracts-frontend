@@ -17,17 +17,21 @@
 package controllers.thirdparty
 
 import controllers.actions.*
+import models.UserActiveStatus
+import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.thirdparty.AccountsAuthorityOverView
 
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AccountsAuthorityOverController @Inject() (
   override val messagesApi: MessagesApi,
+  clock: Clock = Clock.systemUTC(),
   identify: IdentifierAction,
   val controllerComponents: MessagesControllerComponents,
   view: AccountsAuthorityOverView,
@@ -37,8 +41,22 @@ class AccountsAuthorityOverController @Inject() (
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
-    for {
-      accountsAuthorityOver <- tradeReportingExtractsService.getAccountsAuthorityOver(request.eori)
-    } yield Ok(view(accountsAuthorityOver))
+    tradeReportingExtractsService.getAccountsAuthorityOver(request.eori).map { accountsAuthorityOver =>
+      val viewModel = accountsAuthorityOver.map(translateToViewModel)
+      Ok(view(viewModel))
+    }
   }
+
+  private def translateToViewModel(authorisedThirdParty: EoriBusinessAccessInfo): AccountAuthorityOverViewModel =
+    AccountAuthorityOverViewModel(
+      eori = authorisedThirdParty.eori,
+      businessInfo = authorisedThirdParty.businessInfo,
+      status = Some(
+        UserActiveStatus.fromInstants(
+          authorisedThirdParty.accessStart,
+          authorisedThirdParty.reportDataStart,
+          clock
+        )
+      )
+    )
 }

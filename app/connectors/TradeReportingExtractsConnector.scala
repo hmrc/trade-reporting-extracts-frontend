@@ -24,7 +24,7 @@ import play.api.Logging
 import javax.inject.Singleton
 import utils.Constants.eori
 import connectors.ConnectorFailureLogger.FromResultToConnectorFailureLogger
-import models.thirdparty.{AccountAuthorityOverViewModel, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AccountAuthorityOverViewModel, EoriBusinessAccessInfo, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserDetails}
 import org.apache.pekko.Done
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK, TOO_MANY_REQUESTS}
@@ -357,21 +357,21 @@ class TradeReportingExtractsConnector @Inject() (frontendAppConfig: FrontendAppC
         }
       }
 
-  def getAccountsAuthorityOver(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+  def getAccountsAuthorityOver(eori: String)(implicit hc: HeaderCarrier): Future[Seq[EoriBusinessAccessInfo]] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori")
       .withBody(Json.obj("thirdPartyEori" -> eori))
-      .execute[Seq[AccountAuthorityOverViewModel]]
+      .execute[Seq[EoriBusinessAccessInfo]]
       .recover { ex =>
         logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
         throw ex
       }
 
-  def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[Seq[AccountAuthorityOverViewModel]] =
+  def getSelectThirdPartyEori(eori: String)(implicit hc: HeaderCarrier): Future[Seq[EoriBusinessInfo]] =
     httpClient
       .get(url"${frontendAppConfig.tradeReportingExtractsApi}/get-users-by-authorised-eori-date-filtered")
       .withBody(Json.obj("thirdPartyEori" -> eori))
-      .execute[Seq[AccountAuthorityOverViewModel]]
+      .execute[Seq[EoriBusinessInfo]]
       .recover { ex =>
         logger.error(s"Failed to fetch accounts authority over: ${ex.getMessage}", ex)
         throw ex
