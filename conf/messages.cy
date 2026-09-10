@@ -856,3 +856,24 @@ editThirdPartySubmissionProblem.heading = Mae problem wedi codi wrth olygu eich 
 editThirdPartySubmissionProblem.message1 = Nid yw’ch newidiadau wedi’u cyflwyno i’ch manylion ynghylch trydydd parti. Gallai hyn fod o ganlyniad i broblem o fewn y gwasanaeth.
 editThirdPartySubmissionProblem.message2 = I gwblhau’r weithred hon, gallwch
 editThirdPartySubmissionProblem.message2.link = olygu eich manylion ynghylch trydydd parti eto
+
+maybeToggleEmailNotifications.title.disable = cy: Disable email notifications
+maybeToggleEmailNotifications.heading.disable = cy: Disable email notifications
+maybeToggleEmailNotifications.subHeading.disable = cy: Do you want to disable email notifications?
+maybeToggleEmailNotifications.title.enable = cy: Enable email notifications
+maybeToggleEmailNotifications.heading.enable = cy: Enable email notifications
+maybeToggleEmailNotifications.subHeading.enable = cy: Do you want to enable email notifications?
+maybeToggleEmailNotifications.error.required = cy: Select yes if maybeToggleEmailNotifications
+
+toggledEmailNotificationsConfirmation.title.enabled = cy: Email notifications enabled
+toggledEmailNotificationsConfirmation.heading.enabled = cy: Email notifications enabled
+toggledEmailNotificationsConfirmation.title.disabled = cy: Email notifications disabled
+toggledEmailNotificationsConfirmation.heading.disabled = cy: Email notifications disabled
+toggledEmailNotificationsConfirmation.message1.enabled = cy: Email notifications for {0} was enabled on {1}.
+toggledEmailNotificationsConfirmation.message1.disabled = cy: Email notifications for {0} was disabled on {1}.
+toggledEmailNotificationsConfirmation.message2 = cy: To keep a record, you can
+toggledEmailNotificationsConfirmation.message2.link = cy: print this page
+toggledEmailNotificationsConfirmation.subHeading = cy: What happens next
+toggledEmailNotificationsConfirmation.message3 = cy: You can change this at any time by viewing your
+toggledEmailNotificationsConfirmation.message3.link = cy: contact details
+toggledEmailNotificationsConfirmation.homeLink = cy: Go to homepage
