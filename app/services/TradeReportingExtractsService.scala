@@ -20,7 +20,7 @@ import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EoriBusinessAccessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
-import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserActiveStatus, UserDetails}
+import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
@@ -165,4 +165,8 @@ class TradeReportingExtractsService @Inject() (clock: Clock = Clock.systemUTC())
   def removeAddiotnalEmail(eori: String, emailAddress: String)(implicit hc: HeaderCarrier): Future[Done] =
     connector.removeAdditionalEmail(eori, emailAddress)
 
+  def updatePersonalEmailNotificationsPreference(newPreference: UpdateEmailPreference)(implicit
+    hc: HeaderCarrier
+  ): Future[Done] =
+    connector.updatePersonalEmailNotificationsPreference(newPreference)
 }
