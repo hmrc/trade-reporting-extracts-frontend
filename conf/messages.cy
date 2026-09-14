@@ -86,6 +86,11 @@ contactDetails.inactiveEori.message2 = I weld eich manylion wedi’u diweddaru, 
 contactDetails.noEmailFound.message1 = Nid ydym yn gallu dangos eich cyfeiriad e-bost cofrestredig gan nad oes cyfeiriad e-bost wedi’i gadarnhau.
 contactDetails.noEmailFound.message2 = Gallwch
 contactDetails.noEmailFound.link = ddiweddaru’r prif gyfeiriad e-bost yr ydych am ei ddefnyddio
+contactDetails.emailNotifications = cy: Email notifications
+contactDetails.enabled = cy: Enabled
+contactDetails.disabled = cy: Disabled
+contactDetails.enable = cy: Enable
+contactDetails.disable = cy: Disable
 
 unauthorisedCdsEnrolment.title = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
 unauthorisedCdsEnrolment.heading = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
