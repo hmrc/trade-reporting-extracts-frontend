@@ -66,7 +66,8 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               consent = Granted,
               inactiveEori = false
             ),
-            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.of(2024, 6, 1, 12, 0), false)
+            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.of(2024, 6, 1, 12, 0), false),
+            personalEmailNotificationsEnabled = true
           )
         )
 
@@ -966,7 +967,8 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
               consent = Granted,
               false
             ),
-            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false)
+            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false),
+            personalEmailNotificationsEnabled = true
           )
 
           server.stubFor(
@@ -1706,6 +1708,50 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
           result mustBe false
         }
+      }
+    }
+
+    "removeAdditionalEmail" - {
+
+      val url          = "/trade-reporting-extracts/remove-additional-email"
+      val eori         = "GB123456789000"
+      val emailAddress = "test@example.com"
+
+      "must return Done when No content recieved" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+              .willReturn(aResponse().withStatus(NO_CONTENT))
+          )
+
+          val result = connector.removeAdditionalEmail(eori, emailAddress).futureValue
+          result mustBe Done
+        }
+      }
+
+      "must return upstream error when anything else" in {
+
+        val app = application
+        running(app) {
+          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+
+          server.stubFor(
+            WireMock
+              .delete(urlEqualTo(url))
+              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+              .willReturn(aResponse().withStatus(BAD_REQUEST))
+          )
+
+          val result = connector.removeAdditionalEmail(eori, emailAddress).failed.futureValue
+          result mustBe an[UpstreamErrorResponse]
+        }
+
       }
     }
   }

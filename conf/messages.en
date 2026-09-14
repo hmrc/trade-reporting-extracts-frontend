@@ -86,6 +86,11 @@ contactDetails.inactiveEori.message2 = To view your updated details, sign in wit
 contactDetails.noEmailFound.message1 = We are unable to display your registered email address because there is no verified email address.
 contactDetails.noEmailFound.message2 = You can
 contactDetails.noEmailFound.link = update the primary email address you want to use
+contactDetails.emailNotifications = Email notifications
+contactDetails.enabled = Enabled
+contactDetails.disabled = Disabled
+contactDetails.enable = Enable
+contactDetails.disable = Disable
 
 unauthorisedCdsEnrolment.title = Your account is not subscribed to the Customs Declaration Service (CDS)
 unauthorisedCdsEnrolment.heading = Your account is not subscribed to the Customs Declaration Service (CDS)
@@ -855,3 +860,24 @@ editThirdPartySubmissionProblem.heading = There has been a problem editing your 
 editThirdPartySubmissionProblem.message1 = Your changes have not been submitted to your third party details. This could be because of a problem within the service.
 editThirdPartySubmissionProblem.message2 = To complete this action, you can
 editThirdPartySubmissionProblem.message2.link = edit your third party details again
+
+maybeToggleEmailNotifications.title.disable = Disable email notifications
+maybeToggleEmailNotifications.heading.disable = Disable email notifications
+maybeToggleEmailNotifications.subHeading.disable = Do you want to disable email notifications?
+maybeToggleEmailNotifications.title.enable = Enable email notifications
+maybeToggleEmailNotifications.heading.enable = Enable email notifications
+maybeToggleEmailNotifications.subHeading.enable = Do you want to enable email notifications?
+maybeToggleEmailNotifications.error.required = Select yes if maybeToggleEmailNotifications
+
+toggledEmailNotificationsConfirmation.title.enabled = Email notifications enabled
+toggledEmailNotificationsConfirmation.heading.enabled = Email notifications enabled
+toggledEmailNotificationsConfirmation.title.disabled = Email notifications disabled
+toggledEmailNotificationsConfirmation.heading.disabled = Email notifications disabled
+toggledEmailNotificationsConfirmation.message1.enabled = Email notifications for {0} was enabled on {1}.
+toggledEmailNotificationsConfirmation.message1.disabled = Email notifications for {0} was disabled on {1}.
+toggledEmailNotificationsConfirmation.message2 = To keep a record, you can
+toggledEmailNotificationsConfirmation.message2.link = print this page
+toggledEmailNotificationsConfirmation.subHeading = What happens next
+toggledEmailNotificationsConfirmation.message3 = You can change this at any time by viewing your
+toggledEmailNotificationsConfirmation.message3.link = contact details
+toggledEmailNotificationsConfirmation.homeLink = Go to homepage

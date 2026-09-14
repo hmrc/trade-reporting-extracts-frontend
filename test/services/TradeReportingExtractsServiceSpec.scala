@@ -24,7 +24,7 @@ import models.FileType.CSV
 import models.ReportStatus.IN_PROGRESS
 import models.ReportTypeName.IMPORTS_ITEM_REPORT
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
-import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UserActiveStatus, UserDetails}
+import models.{AuditDownloadRequest, AuthorisedUser, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserActiveStatus, UserDetails}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel, RequestedThirdPartyReportViewModel, RequestedUserReportViewModel}
 import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EoriBusinessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import org.apache.pekko.Done
@@ -70,7 +70,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("foo@bar.com", LocalDateTime.now(), false)
+          notificationEmail = NotificationEmail("foo@bar.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockConnector.getOrSetupUser(any())(any())).thenReturn(Future.successful(userDetails))
@@ -378,7 +379,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false)
+          notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
         )
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
         val result             = service.getUserDetails(eori).futureValue
@@ -543,7 +545,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq(authorisedUser),
           companyInformation = CompanyInformation("Company", ConsentStatus.Granted, false),
-          notificationEmail = null
+          notificationEmail = null,
+          personalEmailNotificationsEnabled = true
         )
         val companyInfo    = CompanyInformation("ThirdParty Ltd", ConsentStatus.Granted, false)
 
@@ -582,7 +585,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq(authorisedUser),
           companyInformation = CompanyInformation("Company", ConsentStatus.Granted, false),
-          notificationEmail = null
+          notificationEmail = null,
+          personalEmailNotificationsEnabled = true
         )
         val companyInfo    = CompanyInformation("NoConsent Ltd", ConsentStatus.Denied, false)
 
@@ -608,7 +612,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq.empty,
           companyInformation = CompanyInformation("Company", ConsentStatus.Granted, false),
-          notificationEmail = null
+          notificationEmail = null,
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
@@ -645,7 +650,8 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
           additionalEmails = Seq.empty,
           authorisedUsers = Seq(authorisedUser),
           companyInformation = CompanyInformation("Company", ConsentStatus.Granted, false),
-          notificationEmail = null
+          notificationEmail = null,
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockConnector.getUserDetails(eori)).thenReturn(Future.successful(userDetails))
@@ -900,6 +906,70 @@ class TradeReportingExtractsServiceSpec extends SpecBase with MockitoSugar with 
         }
         thrown.getMessage must include("connector error")
         verify(mockConnector).getAdditionalEmails(eori)(hc)
+      }
+    }
+
+    "removeAdditonalEmail" - {
+
+      val eori  = "GB123456789000"
+      val email = "email1@test.com"
+
+      "return done when connector succeeds" in {
+        reset(mockConnector)
+
+        when(mockConnector.removeAdditionalEmail(eori, email)(hc)).thenReturn(Future.successful(Done))
+
+        val result = service.removeAddiotnalEmail(eori, email).futureValue
+
+        result mustBe Done
+      }
+
+      "fail when connector fails" in {
+
+        reset(mockConnector)
+
+        when(mockConnector.removeAdditionalEmail(eori, email)(hc))
+          .thenReturn(Future.failed(new RuntimeException("boom")))
+
+        val thrown = intercept[RuntimeException] {
+          service.removeAddiotnalEmail(eori, email).futureValue
+        }
+
+        thrown.getMessage must include("boom")
+        verify(mockConnector).removeAdditionalEmail(eori, email)(hc)
+
+      }
+    }
+
+    "updatePersonalEmailNotificationsPreference" - {
+
+      val newPreference = UpdateEmailPreference("GB123456789000", true)
+
+      "return done when connector succeeds" in {
+        reset(mockConnector)
+
+        when(mockConnector.updatePersonalEmailNotificationsPreference(newPreference)(hc))
+          .thenReturn(Future.successful(Done))
+
+        val result = service.updatePersonalEmailNotificationsPreference(newPreference).futureValue
+
+        result mustBe Done
+      }
+
+      "fail when connector fails" in {
+
+        reset(mockConnector)
+
+        when(mockConnector.updatePersonalEmailNotificationsPreference(newPreference)(hc))
+          .thenReturn(Future.failed(new RuntimeException("boom")))
+
+        val thrown = intercept[RuntimeException] {
+          service.updatePersonalEmailNotificationsPreference(newPreference).futureValue
+        }
+
+        thrown.getMessage must include("boom")
+        verify(mockConnector).updatePersonalEmailNotificationsPreference(newPreference)(hc)
+
       }
     }
 
