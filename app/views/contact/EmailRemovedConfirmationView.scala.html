@@ -37,7 +37,7 @@ govukPanel: GovukPanel
 <p class="govuk-body">@messages("emailRemovedConfirmation.p1", date: String, time: String)</p>
 
 <p class="govuk-body js-visible">@messages("emailRemovedConfirmation.p2")
- <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("emailRemovedConfirmation.printLink")</a>
+ <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("emailRemovedConfirmation.printLink")</a>.
 </p>
 
 <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
@@ -46,7 +46,7 @@ govukPanel: GovukPanel
 <p class="govuk-body">@messages("emailRemovedConfirmation.message")</p>
 <p class="govuk-body">@messages("emailRemovedConfirmation.message1")
     <a class="govuk-link" href="@controllers.contact.routes.ContactDetailsController.onPageLoad().url">
-        @messages("emailRemovedConfirmation.message2")</a>
+        @messages("emailRemovedConfirmation.message2")</a>.
 </p>
 <p class="govuk-body">
  <a href="@controllers.routes.IndexController.onPageLoad()" class="govuk-link">@messages("emailRemovedConfirmation.link")</a>
