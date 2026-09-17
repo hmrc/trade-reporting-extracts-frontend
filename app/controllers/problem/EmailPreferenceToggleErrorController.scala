@@ -24,17 +24,17 @@ import views.html.EmailPreferenceToggleErrorView
 
 import javax.inject.Inject
 
-class EmailPreferenceToggleErrorController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: EmailPreferenceToggleErrorView
-                                     ) extends FrontendBaseController with I18nSupport {
+class EmailPreferenceToggleErrorController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: EmailPreferenceToggleErrorView
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
-      Ok(view())
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    Ok(view())
   }
 }
