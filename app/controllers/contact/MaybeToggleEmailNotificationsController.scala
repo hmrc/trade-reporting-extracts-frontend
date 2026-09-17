@@ -18,9 +18,8 @@ package controllers.contact
 
 import controllers.actions.*
 import forms.contact.MaybeToggleEmailNotificationsFormProvider
-import models.{Mode, UpdateEmailPreference}
+import models.UpdateEmailPreference
 import navigation.Navigator
-import pages.contact.MaybeToggleEmailNotificationsPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -47,16 +46,20 @@ class MaybeToggleEmailNotificationsController @Inject() (
     extends FrontendBaseController
     with I18nSupport {
 
-  val form = formProvider()
-
   def onPageLoad(preference: Boolean): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+    val form = formProvider(preference)
     tradeReportingExtractsService.getUserDetails(request.eori).map { userDetails =>
-      Ok(view(form, preference, userDetails.notificationEmail.address))
+      if (userDetails.personalEmailNotificationsEnabled == preference) {
+        Redirect(controllers.problem.routes.EmailPreferenceToggleErrorController.onPageLoad())
+      } else {
+        Ok(view(form, preference, userDetails.notificationEmail.address))
+      }
     }
 
   }
 
   def onSubmit(preference: Boolean): Action[AnyContent] = (identify andThen getOrCreate).async { implicit request =>
+    val form = formProvider(preference)
     form
       .bindFromRequest()
       .fold(

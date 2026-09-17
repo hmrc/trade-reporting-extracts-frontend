@@ -44,7 +44,7 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
   def onwardRouteDisable = Call("GET", "/request-customs-declaration-data/email-notifications-disabled")
 
   val formProvider = new MaybeToggleEmailNotificationsFormProvider()
-  val form         = formProvider()
+  val form         = formProvider(true)
 
   lazy val maybeToggleEmailNotificationsRouteDisablingEmail =
     controllers.contact.routes.MaybeToggleEmailNotificationsController.onPageLoad(false).url
@@ -110,7 +110,7 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
             null,
             null,
             NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
-            true
+            false
           )
         )
       )
@@ -190,7 +190,7 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
             null,
             null,
             NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
-            true
+            false
           )
         )
       )
@@ -237,7 +237,7 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
             null,
             null,
             NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
-            true
+            false
           )
         )
       )
@@ -272,6 +272,8 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
+
+      val form = formProvider(false)
 
       val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
@@ -313,5 +315,77 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
       }
     }
 
+    "must redirect to error page when enabling emails when already enabled" in {
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
+        Future.successful(
+          UserDetails(
+            null,
+            null,
+            null,
+            null,
+            NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
+            false
+          )
+        )
+      )
+
+      running(application) {
+        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteDisablingEmail)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
+          .onPageLoad()
+          .url
+
+      }
+
+    }
+
+    "must redirect to error page when disabling email when already disabled" in {
+
+      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        )
+        .build()
+
+      when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
+        Future.successful(
+          UserDetails(
+            null,
+            null,
+            null,
+            null,
+            NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
+            true
+          )
+        )
+      )
+
+      running(application) {
+        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteEnablingEmail)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
+          .onPageLoad()
+          .url
+      }
+
+    }
   }
 }

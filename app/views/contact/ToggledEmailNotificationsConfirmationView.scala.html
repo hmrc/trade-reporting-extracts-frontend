@@ -34,22 +34,26 @@
     title = if (preference) {messages("toggledEmailNotificationsConfirmation.heading.enabled")} else {messages("toggledEmailNotificationsConfirmation.heading.disabled")}
    ))
 
-    @if(preference) {
-        <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message1.enabled", email, date)</p>
-        } else {
-        <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message1.disabled", email, date)</p> }
+    <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message1", date)</p>
 
-    <p class="govuk-body js-visible">@messages("toggledEmailNotificationsConfirmation.message2")
-        <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("toggledEmailNotificationsConfirmation.message2.link")</a>.
+    @if(preference) {
+        <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message2.enabled", email, date)</p>
+        } else {
+        <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message2.disabled", email, date)</p> }
+
+    <p class="govuk-body js-visible">@messages("toggledEmailNotificationsConfirmation.message3")
+        <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("toggledEmailNotificationsConfirmation.message3.link")</a>.
     </p>
 
     <script @{CSPNonce.attr}>document.getElementById("print-page").addEventListener("click", () => window.print());</script>
 
+    <p class="govuk-body"> @messages("toggledEmailNotificationsConfirmation.message4")</p>
+
     <h2 class="govuk-heading-m">@messages("toggledEmailNotificationsConfirmation.subHeading")</h2>
 
     <p class="govuk-body">
-        @messages("toggledEmailNotificationsConfirmation.message3")
-        <a class="govuk-link" href="@controllers.contact.routes.ContactDetailsController.onPageLoad().url">@messages("toggledEmailNotificationsConfirmation.message3.link")</a>.
+        @messages("toggledEmailNotificationsConfirmation.message5")
+        <a class="govuk-link" href="@controllers.contact.routes.ContactDetailsController.onPageLoad().url">@messages("toggledEmailNotificationsConfirmation.message5.link")</a>.
     </p>
 
     <p class="govuk-body">
