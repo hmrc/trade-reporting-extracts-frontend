@@ -19,7 +19,7 @@ package services
 import connectors.TradeReportingExtractsConnector
 import models.availableReports.AvailableReportsViewModel
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, RequestedReportsViewModel}
-import models.thirdparty.{AccountAuthorityOverViewModel, AuthorisedThirdPartiesViewModel, EoriBusinessAccessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
+import models.thirdparty.{AuthorisedThirdPartiesViewModel, EoriBusinessAccessInfo, ThirdPartyAddedConfirmation, ThirdPartyRequest}
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, SelectThirdPartyEori, ThirdPartyDetails, UserActiveStatus, UserDetails}
 import org.apache.pekko.Done
 import play.api.Logging
