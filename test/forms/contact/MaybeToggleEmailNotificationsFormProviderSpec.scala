@@ -22,25 +22,42 @@ import play.api.data.FormError
 
 class MaybeToggleEmailNotificationsFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "maybeToggleEmailNotifications.error.required"
-  val invalidKey  = "error.boolean"
+  val enableRequiredKey  = "maybeToggleEmailNotifications.error.required.enable"
+  val disableRequiredKey = "maybeToggleEmailNotifications.error.required.disable"
+  val invalidKey         = "error.boolean"
 
-  val form = new MaybeToggleEmailNotificationsFormProvider()()
+  val enableForm  = new MaybeToggleEmailNotificationsFormProvider()(true)
+  val disableForm = new MaybeToggleEmailNotificationsFormProvider()(false)
 
-  ".value" - {
+  val fieldName = "value"
 
-    val fieldName = "value"
+  "disabling email" - {
 
     behave like booleanField(
-      form,
+      disableForm,
       fieldName,
       invalidError = FormError(fieldName, invalidKey)
     )
 
     behave like mandatoryField(
-      form,
+      disableForm,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, disableRequiredKey)
+    )
+  }
+
+  "enabling email" - {
+
+    behave like booleanField(
+      enableForm,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      enableForm,
+      fieldName,
+      requiredError = FormError(fieldName, enableRequiredKey)
     )
   }
 }

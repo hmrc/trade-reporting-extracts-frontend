@@ -30,7 +30,15 @@
     @if(preference) {@messages("maybeToggleEmailNotifications.subHeading.enable")} else {@messages("maybeToggleEmailNotifications.subHeading.disable")}</h2>
 }
 
-@layout(pageTitle = title(form, messages("maybeToggleEmailNotifications.title"))) {
+    @layout(
+        pageTitle = title(
+            form,
+            if (preference)
+                messages("maybeToggleEmailNotifications.title.enable")
+            else
+                messages("maybeToggleEmailNotifications.title.disable")
+        )
+    ) {
 
     @formHelper(action = controllers.contact.routes.MaybeToggleEmailNotificationsController.onSubmit(preference), Symbol("autoComplete") -> "off") {
 
@@ -42,10 +50,7 @@
             @if(preference) {@messages("maybeToggleEmailNotifications.heading.enable")} else {@messages("maybeToggleEmailNotifications.heading.disable")}
         </h1>
 
-        @govukInsetText(InsetText(
-            content = email,
-            classes = "text-overflow"
-        ))
+        <p class="govuk-body govuk-!-margin-bottom-0">@if(preference) {@messages("maybeToggleEmailNotifications.message.enable", email)} else {@messages("maybeToggleEmailNotifications.message.disable", email)}</p>
 
         @govukRadios(
             RadiosViewModel.yesNo(

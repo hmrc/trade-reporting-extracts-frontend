@@ -23,8 +23,12 @@ import javax.inject.Inject
 
 class MaybeToggleEmailNotificationsFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(preference: Boolean): Form[Boolean] =
     Form(
-      "value" -> boolean("maybeToggleEmailNotifications.error.required")
+      "value" -> boolean(if (preference) {
+        "maybeToggleEmailNotifications.error.required.enable"
+      } else {
+        "maybeToggleEmailNotifications.error.required.disable"
+      })
     )
 }
