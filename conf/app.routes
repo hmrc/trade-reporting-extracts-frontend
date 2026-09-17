@@ -36,3 +36,13 @@ GET        /email-removed                        controllers.contact.EmailRemove
 POST       /email-removed                        controllers.contact.EmailRemovedController.onSubmit(emailAddress: String)
 GET        /email-removed-confirmation                       controllers.contact.EmailRemovedConfirmationController.onPageLoad(emailAddress: String)
 
+
+GET        /enable-email-notifications    controllers.contact.MaybeToggleEmailNotificationsController.onPageLoad(preference: Boolean = true)
+POST       /enable-email-notifications    controllers.contact.MaybeToggleEmailNotificationsController.onSubmit(preference: Boolean = true)
+
+GET        /disable-email-notifications    controllers.contact.MaybeToggleEmailNotificationsController.onPageLoad(preference: Boolean = false)
+POST       /disable-email-notifications    controllers.contact.MaybeToggleEmailNotificationsController.onSubmit(preference: Boolean = false)
+
+GET        /email-notifications-enabled                      controllers.contact.ToggledEmailNotificationsConfirmationController.onPageLoad(preference: Boolean = true)
+
+GET        /email-notifications-disabled                      controllers.contact.ToggledEmailNotificationsConfirmationController.onPageLoad(preference: Boolean = false)

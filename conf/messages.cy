@@ -86,6 +86,11 @@ contactDetails.inactiveEori.message2 = I weld eich manylion wedi’u diweddaru, 
 contactDetails.noEmailFound.message1 = Nid ydym yn gallu dangos eich cyfeiriad e-bost cofrestredig gan nad oes cyfeiriad e-bost wedi’i gadarnhau.
 contactDetails.noEmailFound.message2 = Gallwch
 contactDetails.noEmailFound.link = ddiweddaru’r prif gyfeiriad e-bost yr ydych am ei ddefnyddio
+contactDetails.emailNotifications = cy: Email notifications
+contactDetails.enabled = cy: Enabled
+contactDetails.disabled = cy: Disabled
+contactDetails.enable = cy: Enable
+contactDetails.disable = cy: Disable
 
 unauthorisedCdsEnrolment.title = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
 unauthorisedCdsEnrolment.heading = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
@@ -392,7 +397,6 @@ eoriNumber.error.notFound = Nid yw’r rhif EORI hwn yn bodoli. Nodwch rif EORI 
 eoriNumber.error.cannotBeOwnEori = Ni allwch roi mynediad at eich rhif EORI eich hun
 eoriNumber.change.hidden = y rhif EORI hoffech roi mynediad ato
 eoriNumber.hint = Dim ond rhif EORI, 12 digid o hyd, sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er mwyn galluogi trydydd parti i gael mynediad at rif EORI XI, nodwch y rhif EORI GB cyfatebol.
-eoriNumber.example = Er enghraifft, GB123456123456.
 
 noPermission.title = Nid oes gennych ganiatâd i gael at y gwasanaeth hwn
 noPermission.heading = Nid oes gennych ganiatâd i gael at y gwasanaeth hwn
@@ -856,3 +860,34 @@ editThirdPartySubmissionProblem.heading = Mae problem wedi codi wrth olygu eich 
 editThirdPartySubmissionProblem.message1 = Nid yw’ch newidiadau wedi’u cyflwyno i’ch manylion ynghylch trydydd parti. Gallai hyn fod o ganlyniad i broblem o fewn y gwasanaeth.
 editThirdPartySubmissionProblem.message2 = I gwblhau’r weithred hon, gallwch
 editThirdPartySubmissionProblem.message2.link = olygu eich manylion ynghylch trydydd parti eto
+
+maybeToggleEmailNotifications.title.disable = cy: Disable email notifications
+maybeToggleEmailNotifications.heading.disable = cy: Disable email notifications
+maybeToggleEmailNotifications.subHeading.disable = cy: Do you want to disable email notifications?
+maybeToggleEmailNotifications.title.enable = cy: Enable email notifications
+maybeToggleEmailNotifications.heading.enable = cy: Enable email notifications
+maybeToggleEmailNotifications.subHeading.enable = cy: Do you want to enable email notifications?
+maybeToggleEmailNotifications.message.enable = cy: Your registered email {0} will receive notifications.
+maybeToggleEmailNotifications.message.disable = cy: Your registered email {0} will no longer receive notifications. This does not change the email address linked to your account.
+maybeToggleEmailNotifications.error.required.disable = cy: Select yes if you want to disable email notifications
+maybeToggleEmailNotifications.error.required.enable = cy: Select yes if you want to enable email notifications
+
+toggledEmailNotificationsConfirmation.title.enabled = cy: Email notifications enabled
+toggledEmailNotificationsConfirmation.heading.enabled = cy: Email notifications enabled
+toggledEmailNotificationsConfirmation.title.disabled = cy: Email notifications disabled
+toggledEmailNotificationsConfirmation.heading.disabled = cy: Email notifications disabled
+toggledEmailNotificationsConfirmation.message1 = cy: Updated on {0}
+toggledEmailNotificationsConfirmation.message2.enabled = cy: You have enabled email notifications for {0}.
+toggledEmailNotificationsConfirmation.message2.disabled = cy: You have disabled email notifications for {0}. This does not change the email address linked to your account.
+toggledEmailNotificationsConfirmation.message3 = cy: To keep a record, you can
+toggledEmailNotificationsConfirmation.message3.link = cy: print this page
+toggledEmailNotificationsConfirmation.message4 = cy: You can view this email in your contact details.
+toggledEmailNotificationsConfirmation.subHeading = cy: What happens next
+toggledEmailNotificationsConfirmation.message5 = cy: You can change this at any time by
+toggledEmailNotificationsConfirmation.message5.link = cy: managing your contact details
+toggledEmailNotificationsConfirmation.homeLink = cy: Go to homepage
+
+emailPreferenceToggleError.title = cy: You have already updated your preference
+emailPreferenceToggleError.heading = cy: You have already updated your preference
+emailPreferenceToggleError.message1 = cy: You have already updated your preference. To change this again,
+emailPreferenceToggleError.message1.link = cy: manage your email notification preferences

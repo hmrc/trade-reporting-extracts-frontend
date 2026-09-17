@@ -22,6 +22,7 @@
 @(companyInformation: CompanyInformation,
 eori: String, emailAddress: String,
 additionalEmails: Seq[String],
+personalEmailNotificationsEnabled: Boolean,
 guidanceUrl: String,
 inactiveEori: Boolean,
 emailNotFound: Boolean
@@ -32,18 +33,32 @@ emailNotFound: Boolean
     <h1 class="govuk-heading-xl">@messages("contactDetails.heading")</h1>
     <p class="govuk-body">@messages("contactDetails.intro")</p>
     <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
             <dt class="govuk-summary-list__key">@messages("contactDetails.name")</dt>
             <dd class="govuk-summary-list__value">@companyInformation.name</dd>
         </div>
-        <div class="govuk-summary-list__row">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
             <dt class="govuk-summary-list__key">@messages("contactDetails.eoriNumber")</dt>
             <dd class="govuk-summary-list__value">@eori </dd>
         </div>
-        <div class="govuk-summary-list__row">
+        <div class="govuk-summary-list__row govuk-summary-list__row--no-actions">
             <dt class="govuk-summary-list__key">@messages("contactDetails.email")</dt>
             <dd class="govuk-summary-list__value">@emailAddress </dd>
         </div>
+            <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            @messages("contactDetails.emailNotifications")
+        </dt>
+        <dd class="govuk-summary-list__value">
+            @if(personalEmailNotificationsEnabled) { @messages("contactDetails.enabled") } else {@messages("contactDetails.disabled")}
+        </dd>
+        <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href =
+                    @if(personalEmailNotificationsEnabled) { @controllers.contact.routes.MaybeToggleEmailNotificationsController.onPageLoad(false).url } else {@controllers.contact.routes.MaybeToggleEmailNotificationsController.onPageLoad(true).url}>
+                @if(!personalEmailNotificationsEnabled) { @messages("contactDetails.enable") } else {@messages("contactDetails.disable")}
+                <span class="govuk-visually-hidden"> @messages("contactDetails.emailNotifications") </span></a>
+        </dd>
+    </div>
     </dl>
 
     <p class="govuk-body">@messages("contactDetails.p2")

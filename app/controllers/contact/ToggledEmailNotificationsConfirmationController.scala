@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,34 @@
 
 package controllers.contact
 
-import config.FrontendAppConfig
-import controllers.BaseController
 import controllers.actions.*
-import play.api.i18n.MessagesApi
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TradeReportingExtractsService
-import views.html.contact.ContactDetailsView
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats
+import views.html.contact.ToggledEmailNotificationsConfirmationView
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ContactDetailsController @Inject() (
+class ToggledEmailNotificationsConfirmationController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
   tradeReportingExtractsService: TradeReportingExtractsService,
   val controllerComponents: MessagesControllerComponents,
-  config: FrontendAppConfig,
-  view: ContactDetailsView
+  view: ToggledEmailNotificationsConfirmationView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
-  def onPageLoad: Action[AnyContent] = identify async { implicit request =>
-    tradeReportingExtractsService.getUserDetails(request.eori).map { userDetails =>
-      Ok(
-        view(
-          userDetails.companyInformation,
-          userDetails.eori,
-          userDetails.notificationEmail.address,
-          userDetails.additionalEmails,
-          userDetails.personalEmailNotificationsEnabled,
-          config.manageEmailGuideUrl,
-          userDetails.companyInformation.inactiveEori,
-          userDetails.notificationEmail.emailNotFound
-        )
-      )
-    }
+    extends FrontendBaseController
+    with I18nSupport {
+
+  def onPageLoad(preference: Boolean): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+    implicit request =>
+      tradeReportingExtractsService.getUserDetails(request.eori).map { userDetails =>
+        Ok(view(preference, userDetails.notificationEmail.address, DateTimeFormats.dateFormatter(LocalDate.now)))
+      }
   }
 }
