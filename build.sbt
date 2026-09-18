@@ -32,8 +32,10 @@ lazy val microservice = (project in file("."))
     ),
     PlayKeys.playDefaultPort := 2102,
     scalacOptions ++= Seq(
-      "-feature",
-      "-Wconf:cat=deprecation:ws,cat=feature:ws,cat=optimizer:ws,src=target/.*:s"
+      "-Wconf:src=routes/.*:s",
+      "-Wconf:msg=unused.import&src=html/.*:s",
+      "-Wconf:msg=Flag.*repeatedly:s",
+      "-feature"
     ),
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
