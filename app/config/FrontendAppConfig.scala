@@ -33,7 +33,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private val contactFormServiceIdentifier = "trade-reporting-extracts-frontend"
 
   def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
+    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}&useServiceNavigation"
 
   val loginUrl: String                    = configuration.get[String]("urls.login")
   val loginContinueUrl: String            = configuration.get[String]("urls.loginContinue")
@@ -48,7 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("urls.manageEmailGuideUrl")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").toString
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/trade-reporting-extracts-frontend"
+  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/trade-reporting-extracts-frontend?useServiceNavigation"
 
   def languageMap: Map[String, Lang] = Map(
     "en" -> Lang("en"),
