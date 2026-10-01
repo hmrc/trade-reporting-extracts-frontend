@@ -40,7 +40,8 @@ class DashboardControllerSpec extends SpecBase with MockitoSugar {
     additionalEmails = Seq.empty,
     authorisedUsers = Seq.empty,
     companyInformation = companyInformation,
-    notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now, false)
+    notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now, false),
+    personalEmailNotificationsEnabled = true
   )
 
   trait Setup {

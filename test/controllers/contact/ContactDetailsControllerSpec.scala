@@ -17,10 +17,13 @@
 package controllers.contact
 
 import base.SpecBase
+import config.FrontendAppConfig
+import connectors.WireMockHelper
 import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -28,11 +31,11 @@ import play.api.{Application, inject}
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.contact.ContactDetailsView
-
+import org.mockito.Mockito.reset
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class ContactDetailsControllerSpec extends SpecBase {
+class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   "ContactDetailsController" - {
 
@@ -48,7 +51,8 @@ class ContactDetailsControllerSpec extends SpecBase {
           additionalEmails = Seq("test@example.com"),
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false)
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
@@ -65,6 +69,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           eori,
           "notify@example.com",
           Seq("test@example.com"),
+          true,
           manageEmailGuideUrl,
           false,
           false
@@ -76,7 +81,6 @@ class ContactDetailsControllerSpec extends SpecBase {
     }
 
     "must return OK and render the correct view for when a user has no valid email address" in new Setup {
-
       running(application) {
 
         val userDetails = UserDetails(
@@ -84,7 +88,8 @@ class ContactDetailsControllerSpec extends SpecBase {
           additionalEmails = Seq("test@example.com"),
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true)
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
@@ -101,6 +106,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           eori,
           "notify@example.com",
           Seq("test@example.com"),
+          true,
           manageEmailGuideUrl,
           false,
           true
@@ -115,7 +121,6 @@ class ContactDetailsControllerSpec extends SpecBase {
     }
 
     "must return OK and render the correct view for when a user has an inactive eori" in new Setup {
-
       running(application) {
 
         val userDetails = UserDetails(
@@ -123,7 +128,8 @@ class ContactDetailsControllerSpec extends SpecBase {
           additionalEmails = Seq("test@example.com"),
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation.copy(inactiveEori = true),
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false)
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
@@ -140,6 +146,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           eori,
           "notify@example.com",
           Seq("test@example.com"),
+          true,
           manageEmailGuideUrl,
           true,
           false
@@ -152,7 +159,6 @@ class ContactDetailsControllerSpec extends SpecBase {
     }
 
     "must return OK and render the correct view for when a user has an inactive eori and no available email address" in new Setup {
-
       running(application) {
 
         val userDetails = UserDetails(
@@ -160,7 +166,8 @@ class ContactDetailsControllerSpec extends SpecBase {
           additionalEmails = Seq("test@example.com"),
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation.copy(inactiveEori = true),
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true)
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
@@ -177,6 +184,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           eori,
           "notify@example.com",
           Seq("test@example.com"),
+          true,
           manageEmailGuideUrl,
           true,
           true
@@ -205,7 +213,8 @@ class ContactDetailsControllerSpec extends SpecBase {
           additionalEmails = existingEmails,
           authorisedUsers = Seq.empty,
           companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false)
+          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
         )
 
         when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
@@ -224,6 +233,7 @@ class ContactDetailsControllerSpec extends SpecBase {
           eori,
           "notify@example.com",
           existingEmails,
+          true,
           manageEmailGuideUrl,
           false,
           false
@@ -242,8 +252,7 @@ class ContactDetailsControllerSpec extends SpecBase {
 
   trait Setup {
     val mockService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-    val companyInformation: CompanyInformation =
+    val companyInformation: CompanyInformation     =
       CompanyInformation(
         name = "ABC Company",
         consent = Granted,
@@ -256,7 +265,6 @@ class ContactDetailsControllerSpec extends SpecBase {
       .overrides(
         inject.bind[TradeReportingExtractsService].toInstance(mockService)
       )
-      .configure("features.new-agent-view-enabled" -> false)
       .build()
   }
 }

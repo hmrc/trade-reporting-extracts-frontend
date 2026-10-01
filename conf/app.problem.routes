@@ -25,3 +25,5 @@ GET        /error-add-a-third-party                       controllers.problem.Ad
 GET        /error-edit-a-third-party                       controllers.problem.EditThirdPartyGeneralProblemController.onPageLoad()
 
 GET        /edit-third-party-submission-error/:thirdPartyEori                       controllers.problem.EditThirdPartySubmissionProblemController.onPageLoad(thirdPartyEori: String)
+
+GET        /email-notifications-navigation-error                      controllers.problem.EmailPreferenceToggleErrorController.onPageLoad()

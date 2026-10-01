@@ -86,6 +86,11 @@ contactDetails.inactiveEori.message2 = I weld eich manylion wedi’u diweddaru, 
 contactDetails.noEmailFound.message1 = Nid ydym yn gallu dangos eich cyfeiriad e-bost cofrestredig gan nad oes cyfeiriad e-bost wedi’i gadarnhau.
 contactDetails.noEmailFound.message2 = Gallwch
 contactDetails.noEmailFound.link = ddiweddaru’r prif gyfeiriad e-bost yr ydych am ei ddefnyddio
+contactDetails.emailNotifications = Hysbysiadau drwy e-bost
+contactDetails.enabled = Wedi’i alluogi
+contactDetails.disabled = Heb ei alluogi
+contactDetails.enable = Galluogi
+contactDetails.disable = Anabl
 
 unauthorisedCdsEnrolment.title = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
 unauthorisedCdsEnrolment.heading = Nid yw’ch cyfrif wedi’i danysgrifio i’r Gwasanaeth Datganiadau Tollau (CDS)
@@ -392,7 +397,6 @@ eoriNumber.error.notFound = Nid yw’r rhif EORI hwn yn bodoli. Nodwch rif EORI 
 eoriNumber.error.cannotBeOwnEori = Ni allwch roi mynediad at eich rhif EORI eich hun
 eoriNumber.change.hidden = y rhif EORI hoffech roi mynediad ato
 eoriNumber.hint = Dim ond rhif EORI, 12 digid o hyd, sy’n dechrau gyda ‘GB’ y gallwch ei nodi. Er mwyn galluogi trydydd parti i gael mynediad at rif EORI XI, nodwch y rhif EORI GB cyfatebol.
-eoriNumber.example = Er enghraifft, GB123456123456.
 
 noPermission.title = Nid oes gennych ganiatâd i gael at y gwasanaeth hwn
 noPermission.heading = Nid oes gennych ganiatâd i gael at y gwasanaeth hwn
@@ -856,3 +860,34 @@ editThirdPartySubmissionProblem.heading = Mae problem wedi codi wrth olygu eich 
 editThirdPartySubmissionProblem.message1 = Nid yw’ch newidiadau wedi’u cyflwyno i’ch manylion ynghylch trydydd parti. Gallai hyn fod o ganlyniad i broblem o fewn y gwasanaeth.
 editThirdPartySubmissionProblem.message2 = I gwblhau’r weithred hon, gallwch
 editThirdPartySubmissionProblem.message2.link = olygu eich manylion ynghylch trydydd parti eto
+
+maybeToggleEmailNotifications.title.disable = Analluogi hysbysiadau e-bost
+maybeToggleEmailNotifications.heading.disable = Analluogi hysbysiadau e-bost
+maybeToggleEmailNotifications.subHeading.disable = A ydych am analluogi hysbysiadau e-bost?
+maybeToggleEmailNotifications.title.enable = Galluogi hysbysiadau e-bost
+maybeToggleEmailNotifications.heading.enable = Galluogi hysbysiadau e-bost
+maybeToggleEmailNotifications.subHeading.enable = A ydych am alluogi hysbysiadau e-bost?
+maybeToggleEmailNotifications.message.enable =  Bydd eich cyfeiriad e-bost cofrestredig, {0}, yn derbyn hysbysiadau.
+maybeToggleEmailNotifications.message.disable =  Ni fydd eich cyfeiriad e-bost cofrestredig, {0}, yn derbyn hysbysiadau mwyach. Ni fydd hyn yn newid y cyfeiriad e-bost sy’n gysylltiedig â’ch cyfrif.
+maybeToggleEmailNotifications.error.required.disable = Dewiswch ‘Iawn’ os ydych am analluogi hysbysiadau e-bost.
+maybeToggleEmailNotifications.error.required.enable = Dewiswch ‘Iawn’ os ydych am alluogi hysbysiadau e-bost.
+
+toggledEmailNotificationsConfirmation.title.enabled = Hysbysiadau e-bost wedi’u galluogi
+toggledEmailNotificationsConfirmation.heading.enabled = Hysbysiadau e-bost wedi’u galluogi
+toggledEmailNotificationsConfirmation.title.disabled = Hysbysiadau e-bost wedi’u hanalluogi
+toggledEmailNotificationsConfirmation.heading.disabled = Hysbysiadau e-bost wedi’u hanalluogi
+toggledEmailNotificationsConfirmation.message1 = Diweddarwyd ar {0}
+toggledEmailNotificationsConfirmation.message2.enabled = Rydych wedi galluogi hysbysiadau e-bost ar gyfer {0}.
+toggledEmailNotificationsConfirmation.message2.disabled = Rydych wedi analluogi hysbysiadau e-bost ar gyfer {0}. Ni fydd hyn yn newid y cyfeiriad e-bost sy’n gysylltiedig â’ch cyfrif.
+toggledEmailNotificationsConfirmation.message3 = I gadw cofnod, gallwch
+toggledEmailNotificationsConfirmation.message3.link = argraffu’r dudalen hon
+toggledEmailNotificationsConfirmation.message4 = Gallwch weld yr e-bost hwn yn eich manylion cyswllt.
+toggledEmailNotificationsConfirmation.subHeading = Yr hyn sy’n digwydd nesaf
+toggledEmailNotificationsConfirmation.message5 = Gallwch newid hyn unrhyw bryd drwy
+toggledEmailNotificationsConfirmation.message5.link = reoli eich manylion cyswllt
+toggledEmailNotificationsConfirmation.homeLink = Ewch i’r hafan
+
+emailPreferenceToggleError.title = Rydych eisoes wedi diweddaru eich dewis
+emailPreferenceToggleError.heading = Rydych eisoes wedi diweddaru eich dewis
+emailPreferenceToggleError.message1 = Rydych eisoes wedi diweddaru eich dewis. I newid hyn eto,
+emailPreferenceToggleError.message1.link = rheolwch eich dewisiadau hysbysiadau e-bost
