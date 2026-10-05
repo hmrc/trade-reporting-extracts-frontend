@@ -55,16 +55,6 @@ The minimum requirement for test coverage is **90%**. Builds will fail when the 
 |-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | `sbt clean coverage test coverageReport`            | Generates a unit test coverage report. The report can be found at `target/scala-3.3.4/scoverage-report/index.html` |
 
-## Feature Switches
-
-The following feature switches are set in `application.conf`:
-
-| Feature            | Description                                                        |
-|--------------------|--------------------------------------------------------------------|
-| welsh-translation  | Enables Welsh language translation support.                        |
-| third-party        | Enables or disables all third-party related features (such as adding a third party or providing access to reports). When set to false, users cannot access any third-party functionality. |
-| notifications      | Enables or disables all email notification features, such as adding additional emails to a report request. By default, users can only receive reports at the default company email associated with the EORI. |
-
 ## Helpful Commands
 
 | Command                                | Description                                                                                                 |
