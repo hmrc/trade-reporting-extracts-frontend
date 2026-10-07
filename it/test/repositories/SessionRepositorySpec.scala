@@ -16,16 +16,14 @@
 
 package repositories
 
-import config.FrontendAppConfig
+import config.FakeFrontendAppConfig
 import models.UserAnswers
-import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.Configuration
 import play.api.libs.json.Json
@@ -34,12 +32,12 @@ import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
 import java.security.SecureRandom
-import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant, ZoneId}
 import java.util.Base64
 import java.util.concurrent.Executors
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class SessionRepositorySpec
@@ -48,17 +46,15 @@ class SessionRepositorySpec
     with DefaultPlayMongoRepositorySupport[UserAnswers]
     with ScalaFutures
     with IntegrationPatience
-    with OptionValues
-    with MockitoSugar {
+    with OptionValues {
+
+  private val appConfig = new FakeFrontendAppConfig
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
-
-  private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.cacheTtl) thenReturn 1L
-
+  
   private val aesKey = {
     val aesKey = new Array[Byte](32)
     new SecureRandom().nextBytes(aesKey)
@@ -72,7 +68,7 @@ class SessionRepositorySpec
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
-    appConfig      = mockAppConfig,
+    appConfig      = appConfig,
     clock          = stubClock
   )
 
