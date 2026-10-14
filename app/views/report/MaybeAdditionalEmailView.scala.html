@@ -25,7 +25,7 @@
 @(form: Form[_], mode: Mode, isMoreThanOneReport: Boolean, email: String)(implicit request: Request[_], messages: Messages)
 
 
-@legendContent = {
+@pageContent = {
     @if(isMoreThanOneReport) {
         <p class="govuk-body text-overflow">
             @messages("maybeAdditionalEmail.message1.plural", email)
@@ -43,6 +43,9 @@
     </h1>
 }
 
+@legendHeading = {
+    <h2 class="govuk-heading-l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("maybeAdditionalEmail.heading2")</h2>
+}
 
 @layout(pageTitle = title(form, messages("maybeAdditionalEmail.title"))) {
 
@@ -52,7 +55,15 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
         @pageHeading
-        @legendContent
+        @pageContent
+
+        @govukRadios(
+            RadiosViewModel.yesNo(
+                field = form("value"),
+                legend = LegendViewModel(HtmlContent(legendHeading))
+            )
+        )
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value")

@@ -228,8 +228,9 @@ emailSelection.error.required = Select at least one email address to receive not
 emailSelection.change.hidden = the notification email added
 emailSelection.hint = Select all that apply.
 
-maybeAdditionalEmail.title = Do you want to add another email for notifications?
-maybeAdditionalEmail.heading = Do you want to add another email for notifications?
+maybeAdditionalEmail.title = Email notifications
+maybeAdditionalEmail.heading = Email notifications
+maybeAdditionalEmail.heading2 = Do you want to add another email for notifications?
 maybeAdditionalEmail.checkYourAnswersLabel = Do you want to add another email for notifications?
 maybeAdditionalEmail.error.required = Select yes if you want to add another email for notifications
 maybeAdditionalEmail.change.hidden = if you want to add another email for notifications
