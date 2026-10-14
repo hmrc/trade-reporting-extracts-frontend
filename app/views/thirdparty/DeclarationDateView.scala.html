@@ -26,8 +26,8 @@
 
 @(form: Form[_], mode: Mode, dataTypes: String)(implicit request: Request[_], messages: Messages)
 
-@contentText = {
-    <p class="govuk-body">@messages("declarationDate.message1")</p>
+@contentHint = {
+    <p class="govuk-hint">@messages("declarationDate.message1")</p>
 }
 @heading = {
     <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("declarationDate.heading", dataTypes)</h1>
@@ -40,15 +40,14 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
         }
-        @heading
-        @contentText
+
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
+                legend = LegendViewModel(messages("declarationDate.heading")).asPageHeading(),
                 items  = DeclarationDate.options,
-                fieldset = None
-
             )
+            .withHint(HintViewModel(HtmlContent(contentHint)))
         )
 
         @govukButton(
