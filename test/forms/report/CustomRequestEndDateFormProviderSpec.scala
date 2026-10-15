@@ -59,6 +59,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
     behave like dateField(formWithWindow, "value", validData)
 
     behave like mandatoryDateField(formWithWindow, "value", "customRequestEndDate.error.required.all")
+    behave like invalidDateField(formWithWindow, "customRequestEndDate.error.invalid")
   }
 
   ".value (error cases with base form)" - {

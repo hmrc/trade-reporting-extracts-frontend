@@ -68,7 +68,7 @@ private[mappings] class LocalDateFormatter(
       (dayResult, monthResult, yearResult) match {
         case (Right(day), Right(month), Right(year)) =>
           toDate(key, day, month, year)
-        case _                                        =>
+        case _                                       =>
           Left(errors)
       }
     } else {

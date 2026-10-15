@@ -42,6 +42,8 @@ class EditDataStartDateFormProviderSpec extends DateBehaviours {
 
     behave like mandatoryDateField(form, "value", "editDataStartDate.error.required.all")
 
+    behave like invalidDateField(form, "editDataStartDate.error.invalid")
+
     behave like dateFieldWithMin(
       form,
       "value",

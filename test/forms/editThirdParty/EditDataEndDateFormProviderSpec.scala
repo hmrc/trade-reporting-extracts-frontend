@@ -31,6 +31,7 @@ class EditDataEndDateFormProviderSpec extends DateBehaviours {
   ".value" - {
 
     behave like optionalDateField(form, "value")
+    behave like invalidDateField(form, "editDataEndDate.error.invalid")
 
   }
 }

@@ -21,6 +21,10 @@ import java.time.format.DateTimeFormatter
 
 import org.scalacheck.Gen
 import play.api.data.{Form, FormError}
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+import viewmodels.govuk.date.DateViewModel
+import viewmodels.govuk.errorsummary.ErrorSummaryViewModel
 
 class DateBehaviours extends FieldBehaviours {
 
@@ -92,4 +96,90 @@ class DateBehaviours extends FieldBehaviours {
 
       result(key).errors mustBe empty
     }
+
+  def invalidDateField(form: Form[_], invalidKey: String)(implicit messages: Messages): Unit = {
+    "highlight every invalid date component" in {
+      val cases = Seq(
+        (
+          Map("value.day" -> "a", "value.month" -> "a", "value.year" -> "a"),
+          Seq("value.day", "value.month", "value.year"),
+          Seq(true, true, true)
+        ),
+        (
+          Map("value.day" -> "1", "value.month" -> "a", "value.year" -> "a"),
+          Seq("value.month", "value.year"),
+          Seq(false, true, true)
+        ),
+        (
+          Map("value.day" -> "a", "value.month" -> "2", "value.year" -> "a"),
+          Seq("value.day", "value.year"),
+          Seq(true, false, true)
+        ),
+        (
+          Map("value.day" -> "a", "value.month" -> "a", "value.year" -> "2025"),
+          Seq("value.day", "value.month"),
+          Seq(true, true, false)
+        ),
+        (
+          Map("value.day" -> "a", "value.month" -> "2", "value.year" -> "2025"),
+          Seq("value.day"),
+          Seq(true, false, false)
+        ),
+        (
+          Map("value.day" -> "1", "value.month" -> "a", "value.year" -> "2025"),
+          Seq("value.month"),
+          Seq(false, true, false)
+        ),
+        (
+          Map("value.day" -> "1", "value.month" -> "13", "value.year" -> "2025"),
+          Seq("value.month"),
+          Seq(false, true, false)
+        ),
+        (
+          Map("value.day" -> "1", "value.month" -> "2", "value.year" -> "a"),
+          Seq("value.year"),
+          Seq(false, false, true)
+        )
+      )
+
+      cases.foreach { case (data, expectedErrorKeys, expectedErrorClasses) =>
+        val result = form.bind(data)
+
+        result.errors.map(_.key).toSet mustEqual expectedErrorKeys.toSet
+        result.errors.map(_.message).distinct mustEqual Seq(invalidKey)
+
+        val dateInput = DateViewModel(result("value"), Legend())
+        dateInput.items.map(_.classes.contains("govuk-input--error")) mustEqual expectedErrorClasses
+
+        val errorLinkTarget = expectedErrorKeys.head
+        val summary         = ErrorSummaryViewModel(
+          result,
+          errorLinkOverrides = Map(
+            "value"       -> errorLinkTarget,
+            "value.day"   -> errorLinkTarget,
+            "value.month" -> errorLinkTarget,
+            "value.year"  -> errorLinkTarget
+          ),
+          collapseDuplicateErrors = true
+        )
+        summary.errorList.size mustEqual 1
+        summary.errorList.head.href mustBe Some(s"#$errorLinkTarget")
+      }
+    }
+
+    "highlight only the day input when the date is impossible" in {
+      val result = form.bind(
+        Map(
+          "value.day"   -> "31",
+          "value.month" -> "2",
+          "value.year"  -> "2025"
+        )
+      )
+
+      result.errors must contain only FormError("value.day", invalidKey, Seq.empty)
+
+      val dateInput = DateViewModel(result("value"), Legend())
+      dateInput.items.map(_.classes.contains("govuk-input--error")) mustEqual Seq(true, false, false)
+    }
+  }
 }

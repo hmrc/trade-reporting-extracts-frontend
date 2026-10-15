@@ -36,5 +36,7 @@ class EditThirdPartyAccessStartDateFormProviderSpec extends DateBehaviours {
     behave like dateField(form, "value", validData)
 
     behave like mandatoryDateField(form, "value", "editThirdPartyAccessStartDate.error.required.all")
+
+    behave like invalidDateField(form, "editThirdPartyAccessStartDate.error.invalid")
   }
 }
