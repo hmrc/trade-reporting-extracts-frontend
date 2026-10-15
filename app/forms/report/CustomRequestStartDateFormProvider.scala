@@ -38,7 +38,8 @@ class CustomRequestStartDateFormProvider @Inject (clock: Clock = Clock.systemUTC
         invalidKey = "customRequestStartDate.error.invalid",
         allRequiredKey = "customRequestStartDate.error.required.all",
         twoRequiredKey = "customRequestStartDate.error.required.two",
-        requiredKey = "customRequestStartDate.error.required"
+        requiredKey = "customRequestStartDate.error.required",
+        preserveInvalidFieldKey = true
       )
         .verifying(
           firstError(

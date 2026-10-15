@@ -41,7 +41,8 @@ class EditThirdPartyAccessEndDateFormProvider @Inject (clock: Clock = Clock.syst
           invalidKey = "editThirdPartyAccessEndDate.error.invalid",
           allRequiredKey = "editThirdPartyAccessEndDate.error.required.all",
           twoRequiredKey = "editThirdPartyAccessEndDate.error.required.two",
-          requiredKey = "editThirdPartyAccessEndDate.error.required"
+          requiredKey = "editThirdPartyAccessEndDate.error.required",
+          preserveInvalidFieldKey = true
         ).verifying(
           minDate(
             minDateValue,

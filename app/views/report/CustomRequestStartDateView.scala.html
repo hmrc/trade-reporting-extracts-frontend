@@ -47,13 +47,30 @@
         }
     </h2>
 }
+@errorLinkTarget = @{
+    form.errors
+        .find(error => Seq("value.day", "value.month", "value.year").contains(error.key))
+        .map(_.key)
+        .getOrElse("value.day")
+}
 
 @layout(pageTitle = title(form, messages("customRequestStartDate.title"))) {
 
     @formHelper(action = controllers.report.routes.CustomRequestStartDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(
+                ErrorSummaryViewModel(
+                    form,
+                    errorLinkOverrides = Map(
+                        "value" -> errorLinkTarget,
+                        "value.day" -> errorLinkTarget,
+                        "value.month" -> errorLinkTarget,
+                        "value.year" -> errorLinkTarget
+                    ),
+                    collapseDuplicateErrors = true
+                )
+            )
         }
         @content
         @govukDateInput(

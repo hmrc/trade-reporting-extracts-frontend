@@ -40,7 +40,8 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
         invalidKey = "customRequestEndDate.error.invalid",
         allRequiredKey = "customRequestEndDate.error.required.all",
         twoRequiredKey = "customRequestEndDate.error.required.two",
-        requiredKey = "customRequestEndDate.error.required"
+        requiredKey = "customRequestEndDate.error.required",
+        preserveInvalidFieldKey = true
       ).verifying(
         firstError(
           maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days"),

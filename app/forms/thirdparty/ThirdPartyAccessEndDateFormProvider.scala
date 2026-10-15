@@ -34,7 +34,8 @@ class ThirdPartyAccessEndDateFormProvider @Inject() extends Mappings {
           invalidKey = "thirdPartyAccessEndDate.error.invalid",
           allRequiredKey = "thirdPartyAccessEndDate.error.required.all",
           twoRequiredKey = "thirdPartyAccessEndDate.error.required.two",
-          requiredKey = "thirdPartyAccessEndDate.error.required"
+          requiredKey = "thirdPartyAccessEndDate.error.required",
+          preserveInvalidFieldKey = true
         ).verifying(
           minDate(
             startDate,

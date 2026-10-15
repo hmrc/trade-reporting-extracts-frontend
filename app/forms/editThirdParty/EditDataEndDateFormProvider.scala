@@ -34,7 +34,8 @@ class EditDataEndDateFormProvider @Inject() extends Mappings {
           invalidKey = "editDataEndDate.error.invalid",
           allRequiredKey = "editDataEndDate.error.invalid",
           twoRequiredKey = "editDataEndDate.error.required.two",
-          requiredKey = "editDataEndDate.error.required"
+          requiredKey = "editDataEndDate.error.required",
+          preserveInvalidFieldKey = true
         ).verifying(
           minDate(
             startDate,
