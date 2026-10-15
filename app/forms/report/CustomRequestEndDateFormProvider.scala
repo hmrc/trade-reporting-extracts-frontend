@@ -21,7 +21,7 @@ import play.api.data.Form
 import play.api.data.validation.Constraint
 import play.api.i18n.Messages
 import utils.DateTimeFormats
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -51,7 +51,7 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
         minDate(
           startDate,
           "customRequestEndDate.error.beforeStartDate",
-          startDate.format(dateTimeFormat()(messages.lang))
+          startDate.format(dateTimeHintFormat)
         )
       )
     )
@@ -68,20 +68,20 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
           maxDate(
             thirdPartyDataEndDate.get,
             "customRequestEndDate.thirdParty.error",
-            thirdPartyDataEndDate.get.format(dateTimeFormat()(messages.lang))
+            thirdPartyDataEndDate.get.format(dateTimeHintFormat)
           )
         } else {
           maxDate(
             currentDate.minusDays(3),
             "customRequestEndDate.error.afterToday",
-            currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
+            currentDate.minusDays(3).format(dateTimeHintFormat)
           )
         }
       case (_, _, _)          =>
         maxDate(
           currentDate.minusDays(3),
           "customRequestEndDate.error.afterToday",
-          currentDate.minusDays(3).format(dateTimeFormat()(messages.lang))
+          currentDate.minusDays(3).format(dateTimeHintFormat)
         )
     }
 

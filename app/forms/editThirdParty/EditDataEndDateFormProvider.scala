@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.optional
 import play.api.i18n.Messages
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class EditDataEndDateFormProvider @Inject() extends Mappings {
           minDate(
             startDate,
             "editDataEndDate.error.min",
-            startDate.format(dateTimeFormat()(messages.lang))
+            startDate.format(dateTimeHintFormat)
           )
         )
       )

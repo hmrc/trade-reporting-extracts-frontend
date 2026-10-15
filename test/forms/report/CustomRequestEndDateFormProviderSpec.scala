@@ -21,7 +21,7 @@ import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import utils.Constants.maxReportRequestDays
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.dateTimeHintFormat
 
 import java.time.{Clock, LocalDate, ZoneOffset}
 
@@ -77,7 +77,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.afterToday",
-        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
+        List(currentDate.minusDays(3).format(dateTimeHintFormat))
       )
     }
 
@@ -93,7 +93,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.afterToday",
-        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
+        List(currentDate.minusDays(3).format(dateTimeHintFormat))
       )
     }
 
@@ -128,7 +128,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.beforeStartDate",
-        List(startDate.format(dateTimeFormat()(messages.lang)))
+        List(startDate.format(dateTimeHintFormat))
       )
     }
   }
@@ -155,7 +155,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.thirdParty.error",
-        List(thirdPartyDataEndDate.format(dateTimeFormat()(messages.lang)))
+        List(thirdPartyDataEndDate.format(dateTimeHintFormat))
       )
     }
 
@@ -175,7 +175,7 @@ class CustomRequestEndDateFormProviderSpec extends DateBehaviours {
       result.errors must contain only FormError(
         "value",
         "customRequestEndDate.error.afterToday",
-        List(currentDate.minusDays(3).format(dateTimeFormat()(messages.lang)))
+        List(currentDate.minusDays(3).format(dateTimeHintFormat))
       )
     }
 

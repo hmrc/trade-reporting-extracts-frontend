@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
+import utils.DateTimeFormats.dateTimeHintFormat
 import utils.json.OptionalLocalDateReads.*
 import views.html.thirdparty.DataEndDateView
 
@@ -59,7 +60,7 @@ class DataEndDateController @Inject() (
             case None        => form
             case Some(value) => form.fill(value)
           }
-          Future.successful(Ok(view(preparedForm, mode, DateTimeFormats.dateFormatter(startDate))))
+          Future.successful(Ok(view(preparedForm, mode, startDate.format(dateTimeHintFormat))))
 
         case None =>
           val updatedAnswers = AddThirdPartySection.removeAllAddThirdPartyAnswersAndNavigation(request.userAnswers)
@@ -86,7 +87,7 @@ class DataEndDateController @Inject() (
                     view(
                       formWithErrors,
                       mode,
-                      DateTimeFormats.dateFormatter(startDate)
+                      startDate.format(dateTimeHintFormat)
                     )
                   )
                 ),
