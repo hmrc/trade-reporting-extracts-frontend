@@ -514,11 +514,11 @@ declarationDate.importExport = import and export
 dataStartDate.title = When do you want to give access to your data from?
 dataStartDate.heading = When do you want to give access to your data from?
 dataStartDate.message = Data is available from 4 years from today’s date. This sets how far back the third party can view your data. It does not affect when their access begins.
-dataStartDate.hint = For example, if today’s date is 13 February 2026, data from 13 February 2022 will be available.
+dataStartDate.hint = For example, if today’s date is 13 02 2026, data from 13 02 2022 will be available.
 dataStartDate.error.required.all = Enter the date you want to give access to your data from
 dataStartDate.error.required.two = The date you want to give access to your data from must include a {0} and a {1}
 dataStartDate.error.required = The date you want to give access to your data from must include a {0}
-dataStartDate.error.invalid = The date you want to give access to your data from must be a real date and only include numbers 0 to 9
+dataStartDate.error.invalid = The date you want to give access to your data from must be a real date
 dataStartDate.error.min = The date you want to give access to your data from must be within the last 4 years
 
 dataTheyCanView.checkYourAnswersLabel = Data they can view

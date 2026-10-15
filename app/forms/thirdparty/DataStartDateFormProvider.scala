@@ -34,7 +34,8 @@ class DataStartDateFormProvider @Inject() extends Mappings {
         invalidKey = "dataStartDate.error.invalid",
         allRequiredKey = "dataStartDate.error.required.all",
         twoRequiredKey = "dataStartDate.error.required.two",
-        requiredKey = "dataStartDate.error.required"
+        requiredKey = "dataStartDate.error.required",
+        preserveInvalidFieldKey = true
       )
         .verifying(
           minDate(

@@ -46,9 +46,12 @@ trait DateFluency {
 
       val errorClass = "govuk-input--error"
 
-      val dayError         = field.error.exists(_.args.contains(messages("date.error.day")))
-      val monthError       = field.error.exists(_.args.contains(messages("date.error.month")))
-      val yearError        = field.error.exists(_.args.contains(messages("date.error.year")))
+      val dayError =
+        field.error.exists(_.args.contains(messages("date.error.day"))) || field("day").error.isDefined
+      val monthError =
+        field.error.exists(_.args.contains(messages("date.error.month"))) || field("month").error.isDefined
+      val yearError =
+        field.error.exists(_.args.contains(messages("date.error.year"))) || field("year").error.isDefined
       val anySpecificError = dayError || monthError || yearError
       val allFieldsError   = field.error.isDefined && !anySpecificError
 

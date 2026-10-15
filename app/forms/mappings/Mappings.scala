@@ -55,9 +55,19 @@ trait Mappings extends Formatters with Constraints {
     allRequiredKey: String,
     twoRequiredKey: String,
     requiredKey: String,
-    args: Seq[String] = Seq.empty
+    args: Seq[String] = Seq.empty,
+    preserveInvalidFieldKey: Boolean = false
   )(implicit messages: Messages): FieldMapping[LocalDate] =
-    of(new LocalDateFormatter(invalidKey, allRequiredKey, twoRequiredKey, requiredKey, args))
+    of(
+      new LocalDateFormatter(
+        invalidKey,
+        allRequiredKey,
+        twoRequiredKey,
+        requiredKey,
+        args,
+        preserveInvalidFieldKey
+      )
+    )
 
   protected def checkboxSet(
     requiredKey: String,
