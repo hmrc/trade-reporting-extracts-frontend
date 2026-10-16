@@ -30,6 +30,6 @@ class ThirdPartyAccessEndDateFormProviderSpec extends DateBehaviours {
 
   ".value" - {
     behave like optionalDateField(form, "value")
-
+    behave like invalidDateField(form, "thirdPartyAccessEndDate.error.invalid")
   }
 }

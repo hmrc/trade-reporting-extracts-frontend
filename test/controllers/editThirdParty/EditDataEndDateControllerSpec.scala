@@ -104,7 +104,7 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form(currentLocalDate),
           thirdPartyEori,
-          DateTimeFormats.dateFormatter(currentLocalDate)
+          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
         )(
           getRequest(),
           messages(application)
@@ -135,7 +135,7 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form(currentLocalDate).fill(Some(fixedValidAnswer)),
           thirdPartyEori,
-          DateTimeFormats.dateFormatter(currentLocalDate)
+          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
         )(
           getRequest(),
           messages(application)
@@ -166,7 +166,7 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form(serviceStart),
           thirdPartyEori,
-          DateTimeFormats.dateFormatter(serviceStart)
+          serviceStart.format(DateTimeFormats.dateTimeHintFormat)
         )(
           getRequest(),
           messages(application)
@@ -348,7 +348,7 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           boundForm,
           thirdPartyEori,
-          DateTimeFormats.dateFormatter(currentLocalDate)
+          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
         )(
           request,
           messages(application)

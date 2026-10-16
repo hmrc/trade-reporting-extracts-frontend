@@ -151,7 +151,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 onwards. Your report can start from any date within this access period."
+            "You have access to data from 1 1 2025 onwards. Your report can start from any date within this access period."
           )
         )(
           getRequest,
@@ -189,7 +189,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 to 1 March 2025. Your report can start from any date within this access period."
+            "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
           )
         )(
           getRequest,
@@ -396,7 +396,7 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 to 1 March 2025. Your report can start from any date within this access period."
+            "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
           )
         )(
           request,

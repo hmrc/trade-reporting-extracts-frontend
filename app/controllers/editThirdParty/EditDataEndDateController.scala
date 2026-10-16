@@ -28,6 +28,7 @@ import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.DateTimeFormats
+import utils.DateTimeFormats.dateTimeHintFormat
 import utils.json.OptionalLocalDateReads.*
 import views.html.editThirdParty.EditDataEndDateView
 
@@ -76,7 +77,7 @@ class EditDataEndDateController @Inject() (
               view(
                 preparedForm,
                 thirdPartyEori,
-                DateTimeFormats.dateFormatter(startDate)
+                startDate.format(dateTimeHintFormat)
               )
             )
           )
@@ -96,7 +97,7 @@ class EditDataEndDateController @Inject() (
           .fold(
             formWithErrors =>
               Future
-                .successful(BadRequest(view(formWithErrors, thirdPartyEori, DateTimeFormats.dateFormatter(startDate)))),
+                .successful(BadRequest(view(formWithErrors, thirdPartyEori, startDate.format(dateTimeHintFormat)))),
             value =>
               for {
                 updatedAnswers <-

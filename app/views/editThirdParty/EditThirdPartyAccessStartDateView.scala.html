@@ -27,11 +27,28 @@
 @contentHint = {
     <p class="govuk-hint">@messages("editThirdPartyAccessStartDate.hint", date)</p>
 }
+@errorLinkTarget = @{
+    form.errors
+        .find(error => Seq("value.day", "value.month", "value.year").contains(error.key))
+        .map(_.key)
+        .getOrElse("value.day")
+}
 
 @layout(pageTitle = title(form, messages("editThirdPartyAccessStartDate.title"))) {
     @formHelper(action = controllers.editThirdParty.routes.EditThirdPartyAccessStartDateController.onSubmit(thirdPartyEori), Symbol("autoComplete") -> "off") {
             @if(form.errors.nonEmpty) {
-                @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+                @govukErrorSummary(
+                    ErrorSummaryViewModel(
+                        form,
+                        errorLinkOverrides = Map(
+                            "value" -> errorLinkTarget,
+                            "value.day" -> errorLinkTarget,
+                            "value.month" -> errorLinkTarget,
+                            "value.year" -> errorLinkTarget
+                        ),
+                        collapseDuplicateErrors = true
+                    )
+                )
             }
 
             @govukDateInput(

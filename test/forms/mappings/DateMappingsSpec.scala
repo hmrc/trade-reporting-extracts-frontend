@@ -47,6 +47,16 @@ class DateMappingsSpec
     )
   )
 
+  val formPreservingInvalidFieldKeys = Form(
+    "value" -> localDate(
+      requiredKey = "error.required",
+      allRequiredKey = "error.required.all",
+      twoRequiredKey = "error.required.two",
+      invalidKey = "error.invalid",
+      preserveInvalidFieldKey = true
+    )
+  )
+
   val validData = datesBetween(
     min = LocalDate.of(2000, 1, 1),
     max = LocalDate.of(3000, 1, 1)
@@ -413,6 +423,33 @@ class DateMappingsSpec
     result.errors must contain(
       FormError("value", "error.invalid", List.empty)
     )
+  }
+
+  "must preserve invalid component keys when configured" in {
+    val result = formPreservingInvalidFieldKeys.bind(
+      Map(
+        "value.day"   -> "a",
+        "value.month" -> "13",
+        "value.year"  -> "2025"
+      )
+    )
+
+    result.errors must contain only (
+      FormError("value.day", "error.invalid", List.empty),
+      FormError("value.month", "error.invalid", List.empty)
+    )
+  }
+
+  "must assign impossible dates to the day component when configured" in {
+    val result = formPreservingInvalidFieldKeys.bind(
+      Map(
+        "value.day"   -> "31",
+        "value.month" -> "2",
+        "value.year"  -> "2025"
+      )
+    )
+
+    result.errors must contain only FormError("value.day", "error.invalid", List.empty)
   }
 
   "must unbind a date" in {

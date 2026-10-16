@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.optional
 import play.api.i18n.Messages
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class EditThirdPartyAccessEndDateFormProvider @Inject (clock: Clock = Clock.syst
   private def dynamicMinimum(startDate: LocalDate)(implicit messages: Messages): (LocalDate, String) = {
     val today   = LocalDate.now(clock)
     val minimum = if (startDate.isAfter(today)) startDate.plusDays(1) else today
-    (minimum, minimum.format(dateTimeFormat()(messages.lang)))
+    (minimum, minimum.format(dateTimeHintFormat))
   }
 
   def apply(startDate: LocalDate)(implicit messages: Messages): Form[Option[LocalDate]] = {
@@ -41,7 +41,8 @@ class EditThirdPartyAccessEndDateFormProvider @Inject (clock: Clock = Clock.syst
           invalidKey = "editThirdPartyAccessEndDate.error.invalid",
           allRequiredKey = "editThirdPartyAccessEndDate.error.required.all",
           twoRequiredKey = "editThirdPartyAccessEndDate.error.required.two",
-          requiredKey = "editThirdPartyAccessEndDate.error.required"
+          requiredKey = "editThirdPartyAccessEndDate.error.required",
+          preserveInvalidFieldKey = true
         ).verifying(
           minDate(
             minDateValue,

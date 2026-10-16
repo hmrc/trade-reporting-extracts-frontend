@@ -33,6 +33,12 @@
 @heading = {
 <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("dataEndDate.heading")</h1>
 }
+@errorLinkTarget = @{
+    form.errors
+        .find(error => Seq("value.day", "value.month", "value.year").contains(error.key))
+        .map(_.key)
+        .getOrElse("value.day")
+}
 
 
 @layout(pageTitle = title(form, messages("dataEndDate.title"))) {
@@ -40,7 +46,18 @@
     @formHelper(action = controllers.thirdparty.routes.DataEndDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(
+                ErrorSummaryViewModel(
+                    form,
+                    errorLinkOverrides = Map(
+                        "value" -> errorLinkTarget,
+                        "value.day" -> errorLinkTarget,
+                        "value.month" -> errorLinkTarget,
+                        "value.year" -> errorLinkTarget
+                    ),
+                    collapseDuplicateErrors = true
+                )
+            )
         }
         @heading
         @guidanceContent

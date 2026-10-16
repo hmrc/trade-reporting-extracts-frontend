@@ -189,7 +189,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
+            "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(
           getRequest,
@@ -375,7 +375,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 to 1 February 2025. Based on your start date, the latest end date you can enter is 31 1 2025."
+            "You have access to data from 1 1 2025 to 1 2 2025. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(
           getRequest,
@@ -593,7 +593,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           false,
           true,
           Some(
-            "You have access to data from 1 January 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
+            "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
           )
         )(request, messages(application)).toString
       }

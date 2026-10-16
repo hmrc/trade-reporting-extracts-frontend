@@ -76,5 +76,7 @@ class EditThirdPartyAccessEndDateFormProviderSpec extends DateBehaviours {
       result.errors mustBe Nil
       result.value mustBe Some(Some(LocalDate.of(2025, 1, 3)))
     }
+
+    behave like invalidDateField(form, "editThirdPartyAccessEndDate.error.invalid")
   }
 }

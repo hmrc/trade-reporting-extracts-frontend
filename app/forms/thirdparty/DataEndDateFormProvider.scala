@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.optional
 import play.api.i18n.Messages
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.dateTimeHintFormat
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -34,12 +34,13 @@ class DataEndDateFormProvider @Inject() extends Mappings {
           invalidKey = "dataEndDate.error.invalid",
           allRequiredKey = "dataEndDate.error.invalid",
           twoRequiredKey = "dataEndDate.error.required.two",
-          requiredKey = "dataEndDate.error.required"
+          requiredKey = "dataEndDate.error.required",
+          preserveInvalidFieldKey = true
         ).verifying(
           minDate(
             startDate,
             "dataEndDate.error.min",
-            startDate.format(dateTimeFormat()(messages.lang))
+            startDate.format(dateTimeHintFormat)
           )
         )
       )

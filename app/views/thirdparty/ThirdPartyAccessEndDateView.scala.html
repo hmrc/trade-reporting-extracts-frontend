@@ -37,6 +37,12 @@
 @legendHeading = {
 <h2 class="govuk-heading-l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("thirdPartyAccessEndDate.heading2")</h2>
 }
+@errorLinkTarget = @{
+    form.errors
+        .find(error => Seq("value.day", "value.month", "value.year").contains(error.key))
+        .map(_.key)
+        .getOrElse("value.day")
+}
 
 
 @layout(pageTitle = title(form, messages("thirdPartyAccessEndDate.title"))) {
@@ -44,7 +50,18 @@
     @formHelper(action = controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(
+                ErrorSummaryViewModel(
+                    form,
+                    errorLinkOverrides = Map(
+                        "value" -> errorLinkTarget,
+                        "value.day" -> errorLinkTarget,
+                        "value.month" -> errorLinkTarget,
+                        "value.year" -> errorLinkTarget
+                    ),
+                    collapseDuplicateErrors = true
+                )
+            )
         }
         @heading
         @guidanceContent

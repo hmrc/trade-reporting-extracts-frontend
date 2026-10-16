@@ -51,6 +51,12 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
         }
     </h1>
 }
+@errorLinkTarget = @{
+    form.errors
+        .find(error => Seq("value.day", "value.month", "value.year").contains(error.key))
+        .map(_.key)
+        .getOrElse("value.day")
+}
 
 
 @layout(pageTitle = title(form,
@@ -62,7 +68,18 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
     @formHelper(action = controllers.report.routes.CustomRequestEndDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
+            @govukErrorSummary(
+                ErrorSummaryViewModel(
+                    form,
+                    errorLinkOverrides = Map(
+                        "value" -> errorLinkTarget,
+                        "value.day" -> errorLinkTarget,
+                        "value.month" -> errorLinkTarget,
+                        "value.year" -> errorLinkTarget
+                    ),
+                    collapseDuplicateErrors = true
+                )
+            )
         }
         @pageHeading
         @legendContent

@@ -77,7 +77,7 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DataEndDateView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024")(
+        contentAsString(result) mustEqual view(form, NormalMode, "1 1 2024")(
           getRequest(),
           messages(application)
         ).toString
@@ -102,7 +102,7 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 January 2024")(
+        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 1 2024")(
           getRequest(),
           messages(application)
         ).toString
@@ -187,7 +187,7 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024")(
+        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 1 2024")(
           request,
           messages(application)
         ).toString

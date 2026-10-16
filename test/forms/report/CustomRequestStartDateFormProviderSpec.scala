@@ -42,6 +42,8 @@ class CustomRequestStartDateFormProviderSpec extends DateBehaviours {
 
     behave like mandatoryDateField(form, "value", "customRequestStartDate.error.required.all")
 
+    behave like invalidDateField(form, "customRequestStartDate.error.invalid")
+
     behave like dateFieldWithMax(
       form,
       "value",

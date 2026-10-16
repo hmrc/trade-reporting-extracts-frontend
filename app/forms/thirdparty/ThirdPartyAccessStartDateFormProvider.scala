@@ -30,7 +30,8 @@ class ThirdPartyAccessStartDateFormProvider extends Mappings {
         invalidKey = "thirdPartyAccessStartDate.error.invalid",
         allRequiredKey = "thirdPartyAccessStartDate.error.required.all",
         twoRequiredKey = "thirdPartyAccessStartDate.error.required.two",
-        requiredKey = "thirdPartyAccessStartDate.error.required"
+        requiredKey = "thirdPartyAccessStartDate.error.required",
+        preserveInvalidFieldKey = true
       )
     )
 }

@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.DateTimeFormats.dateTimeHintFormat
 import utils.{DateTimeFormats, ErrorHandlers, ReportHelpers}
 import views.html.report.CustomRequestStartDateView
 
@@ -178,16 +179,16 @@ class CustomRequestStartDateController @Inject() (
     (startDate, endDate) match {
       case (Some(startDate), None)          =>
         messages("customRequestStartDate.message2.thirdParty")
-          + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
+          + " " + startDate.format(dateTimeHintFormat) + " " + messages(
             messages("customRequestStartDate.thirdParty.onwards") + " " + messages(
               "customRequestStartDate.message2.thirdParty2"
             )
           )
       case (Some(startDate), Some(endDate)) =>
         messages("customRequestStartDate.message2.thirdParty")
-          + " " + DateTimeFormats.dateFormatter(startDate) + " " + messages(
+          + " " + startDate.format(dateTimeHintFormat) + " " + messages(
             "customRequestStartDate.thirdParty.to"
-          ) + " " + DateTimeFormats.dateFormatter(endDate) + "." + " " + messages(
+          ) + " " + endDate.format(dateTimeHintFormat) + "." + " " + messages(
             "customRequestStartDate.message2.thirdParty2"
           )
       case (_, _)                           => messages("customRequestStartDate.message2.thirdParty.allAccess")
