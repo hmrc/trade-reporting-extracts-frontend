@@ -228,8 +228,9 @@ emailSelection.error.required = Dewiswch o leiaf un cyfeiriad e-bost i anfon hys
 emailSelection.change.hidden = yr e-bost hysbysu a ychwanegwyd
 emailSelection.hint = Dewiswch bob un sy’n berthnasol.
 
-maybeAdditionalEmail.title = A hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau?
-maybeAdditionalEmail.heading = A hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau?
+maybeAdditionalEmail.title = Hysbysiadau drwy e-bost
+maybeAdditionalEmail.heading = Hysbysiadau drwy e-bost
+maybeAdditionalEmail.heading2 = A hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau?
 maybeAdditionalEmail.checkYourAnswersLabel = A hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau?
 maybeAdditionalEmail.error.required = Dewiswch ‘Iawn’ os hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau
 maybeAdditionalEmail.change.hidden = os hoffech ychwanegu e-bost arall ar gyfer cael hysbysiadau

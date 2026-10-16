@@ -30,13 +30,13 @@ maybeThirdPartyRequest: Boolean,
 thirdPartyString: Option[String])(implicit request: Request[_], messages: Messages)
 
 
-@legendContent = {
+@contentHint = {
     @if(maybeThirdPartyRequest) {
-        <p class="govuk-body govuk-!-margin-bottom-4">
+        <p class="govuk-hint">
             @thirdPartyString
         </p>
     } else {
-        <p class="govuk-body govuk-!-margin-bottom-4">
+        <p class="govuk-hint">
             @messages("customRequestEndDate.message1", startDate, endDateHint)
         </p>
     }
@@ -81,12 +81,13 @@ thirdPartyString: Option[String])(implicit request: Request[_], messages: Messag
                 )
             )
         }
-        @pageHeading
-        @legendContent
+
         @govukDateInput(
             DateViewModel(
-                field  = form("value")
+                field  = form("value"),
+                legend = LegendViewModel(HtmlContent(pageHeading))
             )
+            .withHint(HintViewModel(HtmlContent(contentHint)))
         )
 
         @govukButton(
