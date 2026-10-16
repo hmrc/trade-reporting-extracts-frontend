@@ -40,6 +40,10 @@
         .getOrElse("value.day")
 }
 
+@legendHeading = {
+    <h2 class="govuk-heading-l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("dataStartDate.heading2")</h2>
+}
+
 @layout(pageTitle = title(form, messages("dataStartDate.title"))) {
 
     @formHelper(action = controllers.thirdparty.routes.DataStartDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -63,7 +67,7 @@
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = Legend()
+                legend = LegendViewModel(HtmlContent(legendHeading)),
             )
             .withHint(HintViewModel(HtmlContent(contentHint)))
         )

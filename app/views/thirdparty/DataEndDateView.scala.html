@@ -40,6 +40,10 @@
         .getOrElse("value.day")
 }
 
+@legendHeading = {
+<h2 class="govuk-heading-l govuk-!-margin-top-4 govuk-!-margin-bottom-2">@messages("dataEndDate.heading2")</h2>
+}
+
 
 @layout(pageTitle = title(form, messages("dataEndDate.title"))) {
 
@@ -64,7 +68,7 @@
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = Legend()
+                legend = LegendViewModel(HtmlContent(legendHeading))
             )
             .withHint(HintViewModel(HtmlContent(contentHint)))
         )

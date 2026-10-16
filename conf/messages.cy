@@ -510,8 +510,9 @@ declarationDate.import = mewnforio
 declarationDate.export = allforio
 declarationDate.importExport = mewnforio ac allforio
 
-dataStartDate.title = Pryd hoffech ddechrau rhoi mynediad at eich data?
-dataStartDate.heading = Pryd hoffech ddechrau rhoi mynediad at eich data?
+dataStartDate.title = Dyddiad dechrau’r data
+dataStartDate.heading = Dyddiad dechrau’r data
+dataStartDate.heading2 = Pryd hoffech ddechrau rhoi mynediad at eich data?
 dataStartDate.message = Mae data ar gael o 4 blynedd o ddyddiad heddiw. Mae hyn yn pennu pa mor bell yn ôl y gall trydydd parti weld o ran eich data. Nid yw’n effeithio ar bryd mae ei gyfnod o fynediad yn dechrau.
 dataStartDate.hint = Er enghraifft, os taw dyddiad heddiw yw 13 02 2026, bydd data o 13 02 2022 ar gael.
 dataStartDate.error.required.all = Nodwch o ba ddyddiad hoffech ddechrau rhoi mynediad at eich data
@@ -525,8 +526,9 @@ dataTheyCanView.fixed.answerLabel = {0} i {1}
 dataTheyCanView.ongoing.answerLabel = O {0} i bresennol
 dataTheyCanView.change.hidden = data y mae modd i’r trydydd parti eu gweld
 
-dataEndDate.title = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
-dataEndDate.heading = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
+dataEndDate.title = Dyddiad dod i ben y data
+dataEndDate.heading = Dyddiad dod i ben y data
+dataEndDate.heading2 = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
 dataEndDate.message = Gwnaethoch nodi {0} fel dyddiad dechrau. Gadewch hyn yn wag ar gyfer cyfnodau o fynediad presennol i ddata yn y dyfodol.
 dataEndDate.hint = Er enghraifft, 27 05 2025.
 dataEndDate.error.required.two = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0} a {1}
@@ -633,7 +635,7 @@ thirdPartyAccessSelfRemoved.link2 = Ewch i’r hafan
 removeThirdParty.title = A ydych yn siŵr yr hoffech dynnu’r trydydd parti hwn?
 removeThirdParty.heading = A ydych yn siŵr yr hoffech dynnu’r trydydd parti hwn?
 removeThirdParty.error.required = Dewiswch ‘Iawn’ os hoffech dynnu’r trydydd parti hwn
-removeThirdParty.message = Os byddwch yn tynnu ei fynediad, ni fydd yn gallu gofyn am gael adroddiadau CDS a’u lawrlwytho.
+removeThirdParty.hint = Os byddwch yn tynnu ei fynediad, ni fydd yn gallu gofyn am gael adroddiadau CDS a’u lawrlwytho.
 removeThirdParty.change.hidden = A ydych yn siŵr yr hoffech dynnu’r trydydd parti hwn?
 
 removeThirdPartyConfirmation.title = Trydydd parti wedi’i dynnu
@@ -738,8 +740,9 @@ editThirdPartyDataTypes.hint = Dewiswch bob un sy’n berthnasol.
 editThirdParty.confirmChanges = Cadarnhau newidiadau
 editThirdParty.cancel = Canslo
 
-editDataStartDate.title = Pryd hoffech ddechrau rhoi mynediad at eich data?
-editDataStartDate.heading = Pryd hoffech ddechrau rhoi mynediad at eich data?
+editDataStartDate.title = Dyddiad dechrau’r data
+editDataStartDate.heading = Dyddiad dechrau’r data
+editDataStartDate.heading2 = Pryd hoffech ddechrau rhoi mynediad at eich data?
 editDataStartDate.message = Mae data ar gael o 4 blynedd o ddyddiad heddiw. Mae hyn yn pennu pa mor bell yn ôl y gall trydydd parti weld o ran eich data. Nid yw’n effeithio ar bryd mae ei gyfnod o fynediad yn dechrau.
 editDataStartDate.hint = Er enghraifft, os taw dyddiad heddiw yw 13 02 2026, bydd data o 13 02 2022 ar gael.
 editDataStartDate.error.required.all = Nodwch o ba ddyddiad hoffech ddechrau rhoi mynediad at eich data
@@ -748,8 +751,9 @@ editDataStartDate.error.required = Mae’n rhaid i’r dyddiad hoffech ddechrau 
 editDataStartDate.error.invalid = Mae’n rhaid i’r dyddiad hoffech ddechrau rhoi mynediad at eich data fod yn ddyddiad go iawn a dim ond cynnwys rhifau 0 i 9
 editDataStartDate.error.min = Mae’n rhaid i’r dyddiad hoffech ddechrau rhoi mynediad at eich data fod yn ystod y 4 blynedd ddiwethaf
 
-editDataEndDate.title = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
-editDataEndDate.heading = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
+editDataEndDate.title = Dyddiad dod i ben y data
+editDataEndDate.heading = Dyddiad dod i ben y data
+editDataEndDate.heading2 = Pryd hoffech stopio rhoi mynediad at eich data? (dewisol)
 editDataEndDate.message =  Gwnaethoch nodi {0} fel dyddiad dechrau. Gadewch hyn yn wag ar gyfer cyfnodau o fynediad presennol i ddata yn y dyfodol.
 editDataEndDate.hint = Er enghraifft, 27 05 2025.
 editDataEndDate.error.required.two = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0} a {1}
