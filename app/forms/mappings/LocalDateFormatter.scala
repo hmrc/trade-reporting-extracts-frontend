@@ -55,7 +55,13 @@ private[mappings] class LocalDateFormatter(
 
     val month = new MonthFormatter(invalidKey, args)
 
-    val dayResult   = int.bind(s"$key.day", data)
+    val dayResult   = int.bind(s"$key.day", data).flatMap { day =>
+      if (!preserveInvalidFieldKey || (day >= 1 && day <= 31)) {
+        Right(day)
+      } else {
+        Left(Seq(FormError(s"$key.day", invalidKey, args)))
+      }
+    }
     val monthResult = month.bind(s"$key.month", data)
     val yearResult  = int.bind(s"$key.year", data)
 

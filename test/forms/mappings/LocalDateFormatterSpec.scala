@@ -62,6 +62,24 @@ class LocalDateFormatterSpec extends AnyFreeSpec with Matchers {
       )
     }
 
+    "mark an out-of-range day even when the month is also invalid" in {
+      val result = preservingFormatter.bind(
+        "value",
+        Map(
+          "value.day"   -> "123",
+          "value.month" -> "123",
+          "value.year"  -> "123"
+        )
+      )
+
+      result mustBe Left(
+        Seq(
+          FormError("value.day", "error.invalid"),
+          FormError("value.month", "error.invalid")
+        )
+      )
+    }
+
     "report an impossible date against the day component when configured" in {
       val result = preservingFormatter.bind(
         "value",
