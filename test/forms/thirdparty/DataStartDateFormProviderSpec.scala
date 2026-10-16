@@ -20,6 +20,9 @@ import forms.behaviours.DateBehaviours
 import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+import viewmodels.govuk.date.DateViewModel
 
 import java.time.LocalDate
 
@@ -43,6 +46,20 @@ class DataStartDateFormProviderSpec extends DateBehaviours {
     behave like mandatoryDateField(form, "value", "dataStartDate.error.required.all")
 
     behave like invalidDateField(form, "dataStartDate.error.invalid")
+
+    "show a component validation error beside the date inputs" in {
+      val result = form.bind(
+        Map(
+          "value.day"   -> "a",
+          "value.month" -> "a",
+          "value.year"  -> "a"
+        )
+      )
+
+      val dateInput = DateViewModel(result("value"), Legend())
+
+      dateInput.errorMessage.map(_.content) mustBe Some(Text(messages("dataStartDate.error.invalid")))
+    }
 
     behave like dateFieldWithMin(
       form,

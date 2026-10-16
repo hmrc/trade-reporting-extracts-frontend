@@ -54,6 +54,9 @@ trait DateFluency {
         field.error.exists(_.args.contains(messages("date.error.year"))) || field("year").error.isDefined
       val anySpecificError = dayError || monthError || yearError
       val allFieldsError   = field.error.isDefined && !anySpecificError
+      val dateErrorMessage =
+        errorMessage(field)
+          .orElse(Seq("day", "month", "year").flatMap(component => errorMessage(field(component))).headOption)
 
       val dayErrorClass   = if (dayError || allFieldsError) errorClass else ""
       val monthErrorClass = if (monthError || allFieldsError) errorClass else ""
@@ -87,7 +90,7 @@ trait DateFluency {
         fieldset = fieldset,
         items = items,
         id = field.id,
-        errorMessage = errorMessage(field)
+        errorMessage = dateErrorMessage
       )
     }
   }
