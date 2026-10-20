@@ -16,7 +16,7 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -25,7 +25,13 @@ import views.html.contact.AdditionalEmailAddedView
 
 import java.time.{Clock, Instant, ZoneOffset}
 
-class AdditionalEmailAddedControllerSpec extends SpecBase {
+class AdditionalEmailAddedControllerSpec extends AppPerSuiteSpecBase {
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Clock].toInstance(fixedClock)
+      )
+      .build()
 
   private val fixedInstant = Instant.parse("2026-02-04T10:30:00Z")
   private val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
@@ -36,59 +42,52 @@ class AdditionalEmailAddedControllerSpec extends SpecBase {
 
       val emailAddress = "test@example.com"
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
+      val request =
+        FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view                         = application.injector.instanceOf[AdditionalEmailAddedView]
-        val (expectedDate, expectedTime) =
-          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val view                         = application.injector.instanceOf[AdditionalEmailAddedView]
+      val (expectedDate, expectedTime) =
+        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emailAddress, expectedDate, expectedTime)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(emailAddress, expectedDate, expectedTime)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to contact details controller if missing email address" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(null).url)
+      val request =
+        FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(null).url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
       val emailAddress = "test@example.com"
-      val application  = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application  = app
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
+      val request =
+        FakeRequest(GET, controllers.contact.routes.AdditionalEmailAddedController.onPageLoad(emailAddress).url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

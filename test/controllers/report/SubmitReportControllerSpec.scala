@@ -16,15 +16,16 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import exceptions.NoAuthorisedUserFoundException
 import models.report.ChooseEori.{Myauthority, Myeori}
 import models.report.{ReportConfirmation, ReportRequestUserAnswersModel, SubmissionMeta}
 import models.{AlreadySubmittedFlag, NotificationEmail, ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, argThat}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatest.BeforeAndAfterEach
 import pages.report.{ChooseEoriPage, SelectThirdPartyEoriPage}
 import play.api.inject
 import play.api.libs.json.{JsObject, Json}
@@ -36,15 +37,38 @@ import services.{ReportRequestDataService, TradeReportingExtractsService}
 import java.time.*
 import scala.concurrent.Future
 
-class SubmitReportControllerSpec extends SpecBase {
+class SubmitReportControllerSpec extends AppPerSuiteSpecBase with BeforeAndAfterEach {
+
+  private val mockSessionRepository             = mock[SessionRepository]
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockReportRequestDataService      = mock[ReportRequestDataService]
+  private var clockInstant                      = Instant.now()
+  private val suiteClock: Clock                 = new Clock {
+    override def instant(): Instant            = clockInstant
+    override def getZone: ZoneId               = ZoneOffset.UTC
+    override def withZone(zone: ZoneId): Clock = this
+  }
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        inject.bind[SessionRepository].toInstance(mockSessionRepository),
+        inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
+        inject.bind[Clock].toInstance(suiteClock)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockSessionRepository, mockTradeReportingExtractsService, mockReportRequestDataService)
+    clockInstant = Instant.now()
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   "SubmitReportController" - {
 
     "must redirect to confirmation page and update session on successful submission" in {
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-
       val userAnswers       = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
       val notificationEmail = NotificationEmail("test@example.com", LocalDateTime.now(), false)
 
@@ -71,71 +95,43 @@ class SubmitReportControllerSpec extends SpecBase {
           )
         )
 
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestConfirmationController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestConfirmationController
+        .onPageLoad()
+        .url
     }
 
     "must redirect to report request issue page when buildReportRequest returns None" in {
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-
       val userAnswers = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
 
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(None)
 
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+        .onPageLoad()
+        .url
     }
 
     "must create SubmissionMeta with correct values and save to session repository" in {
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-
       val userAnswers         = emptyUserAnswers.set(ChooseEoriPage, Myeori).success.value
       val notificationEmail   = NotificationEmail("test@example.com", LocalDateTime.now(), false)
       val reportConfirmations = Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
 
       val fixedInstant = Instant.parse("2025-06-01T12:00:00Z")
-      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      clockInstant = fixedInstant
 
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(notificationEmail))
@@ -160,47 +156,32 @@ class SubmitReportControllerSpec extends SpecBase {
           )
         )
 
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
-          inject.bind[Clock].toInstance(fixedClock)
-        )
-        .build()
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      status(result) mustEqual SEE_OTHER
 
-        status(result) mustEqual SEE_OTHER
-
-        val expectedSubmissionMeta = Json
-          .toJson(
-            SubmissionMeta(
-              reportConfirmations = reportConfirmations,
-              submittedAt = fixedInstant,
-              isMoreThanOneReport = false,
-              allEmails = Seq(notificationEmail.address)
-            )
+      val expectedSubmissionMeta = Json
+        .toJson(
+          SubmissionMeta(
+            reportConfirmations = reportConfirmations,
+            submittedAt = fixedInstant,
+            isMoreThanOneReport = false,
+            allEmails = Seq(notificationEmail.address)
           )
-          .as[JsObject]
+        )
+        .as[JsObject]
 
-        verify(mockSessionRepository).set(argThat { userAnswers =>
-          userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
-          userAnswers.get(AlreadySubmittedFlag()).contains(true)
-        })
-      }
+      verify(mockSessionRepository).set(argThat { userAnswers =>
+        userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
+        userAnswers.get(AlreadySubmittedFlag()).contains(true)
+      })
     }
 
     "must fail with RuntimeException when service fails" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-      val mockSessionRepository             = mock[SessionRepository]
-
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.failed(new RuntimeException("Service error")))
 
@@ -223,35 +204,24 @@ class SubmitReportControllerSpec extends SpecBase {
           )
         )
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-        whenReady(result.failed) { ex =>
-          ex mustBe a[RuntimeException]
-          ex.getMessage mustEqual "Service error"
-        }
+      whenReady(result.failed) { ex =>
+        ex mustBe a[RuntimeException]
+        ex.getMessage mustEqual "Service error"
       }
     }
 
     "must collect and store additional emails in SubmissionMeta" in {
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-
       val notificationEmail   = NotificationEmail("primary@example.com", LocalDateTime.now(), false)
       val reportConfirmations = Seq(ReportConfirmation("MyReport", "importHeader", "Reference"))
 
       val fixedInstant = Instant.parse("2025-06-01T12:00:00Z")
-      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      clockInstant = fixedInstant
 
       val userAnswers = emptyUserAnswers
         .set(ChooseEoriPage, Myeori)
@@ -290,41 +260,30 @@ class SubmitReportControllerSpec extends SpecBase {
           )
         )
 
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService),
-          inject.bind[Clock].toInstance(fixedClock)
-        )
-        .build()
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      status(result) mustEqual SEE_OTHER
 
-        status(result) mustEqual SEE_OTHER
-
-        val expectedEmails         = Seq("primary@example.com", "existing@example.com", "new@example.com")
-        val expectedSubmissionMeta = Json
-          .toJson(
-            SubmissionMeta(
-              reportConfirmations = reportConfirmations,
-              submittedAt = fixedInstant,
-              isMoreThanOneReport = false,
-              allEmails = expectedEmails
-            )
+      val expectedEmails         = Seq("primary@example.com", "existing@example.com", "new@example.com")
+      val expectedSubmissionMeta = Json
+        .toJson(
+          SubmissionMeta(
+            reportConfirmations = reportConfirmations,
+            submittedAt = fixedInstant,
+            isMoreThanOneReport = false,
+            allEmails = expectedEmails
           )
-          .as[JsObject]
+        )
+        .as[JsObject]
 
-        verify(mockSessionRepository).set(argThat { userAnswers =>
-          userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
-          userAnswers.get(AlreadySubmittedFlag()).contains(true)
-        })
-      }
+      verify(mockSessionRepository).set(argThat { userAnswers =>
+        userAnswers.submissionMeta.contains(expectedSubmissionMeta) &&
+        userAnswers.get(AlreadySubmittedFlag()).contains(true)
+      })
     }
   }
 
@@ -332,10 +291,6 @@ class SubmitReportControllerSpec extends SpecBase {
 
     "when third party journey and a trader eori selected must submit report when third party access still available" in {
 
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-
       val userAnswers = emptyUserAnswers
         .set(ChooseEoriPage, Myauthority)
         .success
@@ -346,38 +301,25 @@ class SubmitReportControllerSpec extends SpecBase {
 
       when(mockReportRequestDataService.buildReportRequest(any(), any()))
         .thenReturn(None)
-
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
 
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(ThirdPartyDetails(None, LocalDate.now(), None, Set("imports"), None, None)))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+        .onPageLoad()
+        .url
     }
 
     "when third party journey and trader eori selected must handle failure if third party access removed" in {
 
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-      val userAnswersCaptor                 = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       val userAnswers = emptyUserAnswers
         .set(ChooseEoriPage, Myauthority)
@@ -395,34 +337,24 @@ class SubmitReportControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ChooseEoriPage) mustBe None
-        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad("foo")
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ChooseEoriPage) mustBe None
+      capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad("foo")
+        .url
     }
 
     "in any other scenario, remove all user answers and reset the journey" in {
 
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockReportRequestDataService      = mock[ReportRequestDataService]
-      val userAnswersCaptor                 = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       val userAnswers = emptyUserAnswers
         .set(ChooseEoriPage, Myauthority)
@@ -437,25 +369,18 @@ class SubmitReportControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          inject.bind[SessionRepository].toInstance(mockSessionRepository),
-          inject.bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          inject.bind[ReportRequestDataService].toInstance(mockReportRequestDataService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, controllers.report.routes.SubmitReportController.onSubmit.url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ChooseEoriPage) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ChooseEoriPage) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+        .onPageLoad()
+        .url
     }
   }
 }

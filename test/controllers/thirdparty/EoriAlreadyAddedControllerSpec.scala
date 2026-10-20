@@ -16,13 +16,13 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import pages.thirdparty.EoriAlreadyAddedPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.thirdparty.EoriAlreadyAddedView
 
-class EoriAlreadyAddedControllerSpec extends SpecBase {
+class EoriAlreadyAddedControllerSpec extends AppPerSuiteSpecBase {
 
   "EoriAlreadyAdded Controller" - {
 
@@ -32,18 +32,17 @@ class EoriAlreadyAddedControllerSpec extends SpecBase {
 
       val userAnswers = emptyUserAnswers.set(EoriAlreadyAddedPage, eori).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.thirdparty.routes.EoriAlreadyAddedController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EoriAlreadyAddedView]
+      val view = application.injector.instanceOf[EoriAlreadyAddedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(eori)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(eori)(request, messages(application)).toString
     }
   }
 }

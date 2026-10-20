@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import models.UserAnswers
 import models.thirdparty.ThirdPartySubmissionMeta
@@ -29,7 +29,7 @@ import views.html.thirdparty.ThirdPartyAddedConfirmationView
 
 import java.time.LocalDate
 
-class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyAddedConfirmationControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   "ThirdPartyAddedConfirmationController" - {
 
@@ -44,45 +44,43 @@ class ThirdPartyAddedConfirmationControllerSpec extends SpecBase with MockitoSug
         submissionMeta = Some(Json.toJson(submissionMeta).as[JsObject])
       )
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+      val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
+      val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-        val expectedDateText = dateFormatter(LocalDate.parse("2025-05-05"))(messages(application))
+      val expectedDateText = dateFormatter(LocalDate.parse("2025-05-05"))(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          "GB123456123456",
-          expectedDateText,
-          appConfig.exitSurveyUrl
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        "GB123456123456",
+        expectedDateText,
+        appConfig.exitSurveyUrl
+      )(request, messages(application)).toString
     }
 
     "return OK and render the view with default values when submissionMeta is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.ThirdPartyAddedConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+      val view      = application.injector.instanceOf[ThirdPartyAddedConfirmationView]
+      val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-        val todayDateText = dateFormatter(LocalDate.now())(messages(application))
+      val todayDateText = dateFormatter(LocalDate.now())(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          "",
-          todayDateText,
-          appConfig.exitSurveyUrl
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        "",
+        todayDateText,
+        appConfig.exitSurveyUrl
+      )(request, messages(application)).toString
     }
   }
 }

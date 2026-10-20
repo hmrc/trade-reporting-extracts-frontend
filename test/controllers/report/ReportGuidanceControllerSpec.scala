@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers.*
 import play.api.test.*
@@ -26,53 +26,66 @@ import models.report.ReportRequestSection
 import repositories.SessionRepository
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.reset
 import play.api.inject.bind
 import controllers.actions.*
+import org.scalatest.BeforeAndAfterEach
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.inject.guice.GuiceApplicationBuilder
 import services.TradeReportingExtractsService
+import play.api.Application
 
 import java.time.LocalDateTime
 
-class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
+class ReportGuidanceControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  def appBuilder(
-    userAnswers: Option[UserAnswers] = None,
-    mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService],
-    thirdPartyEnabled: Boolean = false
-  ): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .configure("features.third-party" -> thirdPartyEnabled)
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository             = mock[SessionRepository]
+
+  override def fakeApplication(): Application =
+    applicationBuilder(
+      useSharedFakeAction = true,
+      useFakeDataRetrievalOrCreateAction = false
+    )
+      .configure("features.third-party" -> true)
       .overrides(
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
       )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService, mockSessionRepository)
+    when(mockSessionRepository.get(any())).thenReturn(Future.successful(None))
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+  }
 
   "ReportGuidanceController" - {
 
     "must return OK and correct view for initial page load when thirdPartyEnabled = true" in {
-      val mockService = mock[TradeReportingExtractsService]
+      val mockService = mockTradeReportingExtractsService
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
       when(mockService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
 
-      val application = appBuilder(Some(emptyUserAnswers), mockService, thirdPartyEnabled = true).build()
+      when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(emptyUserAnswers)))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ReportGuidanceView]
+      val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[ReportGuidanceView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          NormalMode,
-          "25",
-          routes.ChooseEoriController.onPageLoad(NormalMode).url,
-          "test@email.com"
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        NormalMode,
+        "25",
+        routes.ChooseEoriController.onPageLoad(NormalMode).url,
+        "test@email.com"
+      )(request, messages(application)).toString
     }
 
     "must remove AlreadySubmittedFlag and return OK when navigation is JourneyRecoveryUrl" in {
@@ -87,37 +100,30 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val mockService = mock[TradeReportingExtractsService]
+      val mockService = mockTradeReportingExtractsService
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
       when(mockService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
 
-      val application = appBuilder(Some(userAnswers), mockService)
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ReportGuidanceView]
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          NormalMode,
-          "25",
-          routes.ChooseEoriController.onPageLoad(NormalMode).url,
-          "test@email.com"
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[ReportGuidanceView]
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        NormalMode,
+        "25",
+        routes.ChooseEoriController.onPageLoad(NormalMode).url,
+        "test@email.com"
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must remove AlreadySubmittedFlag and return OK when navigation is checkYourAnswersUrl and AlreadySubmittedFlag is true" in {
@@ -132,37 +138,30 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val mockService = mock[TradeReportingExtractsService]
+      val mockService = mockTradeReportingExtractsService
       when(mockService.getReportRequestLimitNumber(any())).thenReturn(Future.successful("25"))
       when(mockService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
 
-      val application = appBuilder(Some(userAnswers), mockService)
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[ReportGuidanceView]
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          NormalMode,
-          "25",
-          routes.ChooseEoriController.onPageLoad(NormalMode).url,
-          "test@email.com"
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[ReportGuidanceView]
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        NormalMode,
+        "25",
+        routes.ChooseEoriController.onPageLoad(NormalMode).url,
+        "test@email.com"
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to navigation url when not initial or recovery/checkYourAnswers" in {
@@ -171,25 +170,18 @@ class ReportGuidanceControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.get(any())).thenReturn(Future.successful(Some(userAnswers)))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val mockService = mock[TradeReportingExtractsService]
+      val mockService = mockTradeReportingExtractsService
 
-      val application = appBuilder(Some(userAnswers), mockService)
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[DataRetrievalOrCreateAction].toInstance(new DataRetrievalOrCreateActionImpl(mockSessionRepository))
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
-        val result  = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ReportRequestSection().navigateTo(userAnswers)
-      }
+      val request = FakeRequest(GET, routes.ReportGuidanceController.onPageLoad().url)
+      val result  = route(application, request).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual ReportRequestSection().navigateTo(userAnswers)
     }
   }
 }

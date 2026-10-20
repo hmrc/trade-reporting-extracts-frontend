@@ -40,6 +40,11 @@ trait SpecBase
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
+  protected val fakeDataRetrievalAction: FakeDataRetrievalAction = new FakeDataRetrievalAction(None)
+
+  protected def setUserAnswers(userAnswers: Option[UserAnswers]): Unit =
+    fakeDataRetrievalAction.setUserAnswers(userAnswers)
+
   def checkNavigation(nextUrl: String, expectedUrl: String) = {
     val urlWithNoContext = nextUrl.replace("/request-customs-declaration-data", "")
     urlWithNoContext `must` `be`(expectedUrl)
@@ -47,12 +52,34 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
+  protected def applicationBuilder(
+    userAnswers: Option[UserAnswers] = None,
+    useSharedFakeAction: Boolean = false,
+    useFakeDataRetrievalOrCreateAction: Boolean = true
+  ): GuiceApplicationBuilder = {
+    val fakeAction =
+      if (useSharedFakeAction) {
+        setUserAnswers(userAnswers)
+        fakeDataRetrievalAction
+      } else {
+        new FakeDataRetrievalAction(userAnswers)
+      }
+
+    val builder = new GuiceApplicationBuilder()
+
+    if (useFakeDataRetrievalOrCreateAction) {
+      builder.overrides(
         bind[DataRetrievalOrCreateAction].to[FakeDataRetrievalOrCreateAction],
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(fakeAction)
       )
+    } else {
+      builder.overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(fakeAction)
+      )
+    }
+  }
 }

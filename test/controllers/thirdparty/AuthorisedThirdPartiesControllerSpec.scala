@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import models.UserActiveStatus
 import models.thirdparty.AuthorisedThirdPartiesViewModel
@@ -34,42 +34,47 @@ import views.html.thirdparty.AuthorisedThirdPartiesView
 
 import scala.concurrent.Future
 
-class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
-  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+class AuthorisedThirdPartiesControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
+  val mockAppConfig: FrontendAppConfig          = mock[FrontendAppConfig]
+  when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository             = mock[SessionRepository]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[FrontendAppConfig].toInstance(mockAppConfig)
+      )
+      .build()
+
   "AuthorisedThirdPartiesController" - {
 
     "must return OK and the correct view for a GET when no authorised third parties" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(Seq.empty[AuthorisedThirdPartiesViewModel]))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
+      val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq.empty)(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(Seq.empty)(
+        request,
+        messages(application)
+      ).toString
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include("You have not added any third parties")
-      }
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-heading-xl").text() must include("You have not added any third parties")
     }
 
     "must return OK and the correct view for a GET when authorised third parties exist" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val thirdParty                        = Seq(
+      val thirdParty = Seq(
         AuthorisedThirdPartiesViewModel(
           eori = "GB123456789000",
           businessInfo = Some("Business Name"),
@@ -86,44 +91,37 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(thirdParty))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
+      val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(thirdParty)(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(thirdParty)(
+        request,
+        messages(application)
+      ).toString
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include(
-          "Manage third parties that can access your data"
-        )
-        document.text()                                        must include("GB123456789000")
-        document.text()                                        must include("Business Name")
-        document.text()                                        must include("Reference Name")
-        document.getElementsByClass("govuk-tag--green").text() must include("Active")
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-heading-xl").text() must include(
+        "Manage third parties that can access your data"
+      )
+      document.text()                                        must include("GB123456789000")
+      document.text()                                        must include("Business Name")
+      document.text()                                        must include("Reference Name")
+      document.getElementsByClass("govuk-tag--green").text() must include("Active")
 
-        document.text()                                       must include("GB987654321000")
-        document.text()                                       must include("Another Business Name")
-        document.text()                                       must include("Another Reference Name")
-        document.getElementsByClass("govuk-tag--blue").text() must include("Pending")
-      }
+      document.text()                                       must include("GB987654321000")
+      document.text()                                       must include("Another Business Name")
+      document.text()                                       must include("Another Reference Name")
+      document.getElementsByClass("govuk-tag--blue").text() must include("Pending")
     }
 
     "must return OK and the correct view for a GET when authorised third parties exist but show correctly when businessInfo and refName don't exist" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val thirdParty                        = AuthorisedThirdPartiesViewModel(
+      val thirdParty = AuthorisedThirdPartiesViewModel(
         eori = "GB123456789000",
         businessInfo = None,
         referenceName = None,
@@ -132,41 +130,32 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(Seq(thirdParty)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
+      val view = application.injector.instanceOf[AuthorisedThirdPartiesView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Seq(thirdParty))(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(Seq(thirdParty))(
+        request,
+        messages(application)
+      ).toString
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include(
-          "Manage third parties that can access your data"
-        )
-        document.text()                                        must include("GB123456789000")
-        document.text()                                        must include(
-          "This business has not agreed to share their name. Contact them directly for more details."
-        )
-        document.text()                                        must include("Not applicable")
-      }
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-heading-xl").text() must include(
+        "Manage third parties that can access your data"
+      )
+      document.text()                                        must include("GB123456789000")
+      document.text()                                        must include(
+        "This business has not agreed to share their name. Contact them directly for more details."
+      )
+      document.text()                                        must include("Not applicable")
     }
 
     "must show edit action when editThirdPartyEnabled is true" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val mockSessionRepository             = mock[SessionRepository]
-
       val thirdParty = Seq(
         AuthorisedThirdPartiesViewModel(
           eori = "GB123456789000",
@@ -178,29 +167,20 @@ class AuthorisedThirdPartiesControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockTradeReportingExtractsService.getAuthorisedThirdParties(any())(any()))
         .thenReturn(Future.successful(thirdParty))
-      when(mockAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[FrontendAppConfig].toInstance(mockAppConfig)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.thirdparty.routes.AuthorisedThirdPartiesController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
+      status(result) mustEqual OK
 
-        val doc = Jsoup.parse(contentAsString(result))
-        doc.text() must include(messages(application)("authorisedThirdParties.edit"))
-        doc.text() must include(messages(application)("authorisedThirdParties.remove"))
-      }
+      val doc = Jsoup.parse(contentAsString(result))
+      doc.text() must include(messages(application)("authorisedThirdParties.edit"))
+      doc.text() must include(messages(application)("authorisedThirdParties.remove"))
     }
   }
 }

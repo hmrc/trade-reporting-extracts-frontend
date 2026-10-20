@@ -16,11 +16,12 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import models.report.{ReportConfirmation, SubmissionMeta}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.inject
+import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -29,10 +30,15 @@ import views.html.report.RequestConfirmationView
 
 import java.time.{Clock, Instant, ZoneId}
 
-class RequestConfirmationControllerSpec extends SpecBase {
+class RequestConfirmationControllerSpec extends AppPerSuiteSpecBase {
 
   private val fixedInstant: Instant = Instant.parse("2025-05-05T10:15:30Z")
   private val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(inject.bind[Clock].toInstance(fixedClock))
+      .build()
 
   "RequestConfirmationController" - {
 
@@ -61,39 +67,36 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .value
         .copy(submissionMeta = Some(submissionMetaJson))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
-        val surveyUrl = appConfig.exitSurveyUrl
-        val view      = application.injector.instanceOf[RequestConfirmationView]
+      val appConfig = application.injector.instanceOf[FrontendAppConfig]
+      val surveyUrl = appConfig.exitSurveyUrl
+      val view      = application.injector.instanceOf[RequestConfirmationView]
 
-        val (expectedDate, expectedTime) =
-          DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val (expectedDate, expectedTime) =
+        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
 
-        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          Seq(notificationEmail) ++ selectedEmails,
-          false,
-          Seq(ReportConfirmation("MyReport", "reportTypeImport.exportItem", "RE00000001")),
-          surveyUrl,
-          expectedDate,
-          expectedTime
-        )(request, messages(application)).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        Seq(notificationEmail) ++ selectedEmails,
+        false,
+        Seq(ReportConfirmation("MyReport", "reportTypeImport.exportItem", "RE00000001")),
+        surveyUrl,
+        expectedDate,
+        expectedTime
+      )(request, messages(application)).toString
 
-        contentAsString(result) must include("MyReport")
-        contentAsString(result) must include("RE00000001")
-        contentAsString(result) must include(notificationEmail)
-        contentAsString(result) must include(
-          "You will receive your report shortly."
-        )
+      contentAsString(result) must include("MyReport")
+      contentAsString(result) must include("RE00000001")
+      contentAsString(result) must include(notificationEmail)
+      contentAsString(result) must include(
+        "You will receive your report shortly."
+      )
 
-      }
     }
 
     "return OK and render the correct view when submissionMeta and EmailSelectionPage are defined when import" in {
@@ -125,47 +128,44 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .value
         .copy(submissionMeta = Some(submissionMetaJson))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
-        val surveyUrl = appConfig.exitSurveyUrl
-        val view      = application.injector.instanceOf[RequestConfirmationView]
+      val appConfig = application.injector.instanceOf[FrontendAppConfig]
+      val surveyUrl = appConfig.exitSurveyUrl
+      val view      = application.injector.instanceOf[RequestConfirmationView]
 
-        val (expectedDate, expectedTime) =
-          DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val (expectedDate, expectedTime) =
+        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
 
-        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          Seq(notificationEmail) ++ selectedEmails,
-          true,
-          Seq(
-            ReportConfirmation("MyReport", "reportTypeImport.importItem", "RE00000001"),
-            ReportConfirmation("MyReport", "reportTypeImport.importHeader", "RE00000002"),
-            ReportConfirmation("MyReport", "reportTypeImport.importTaxLine", "RE00000003")
-          ),
-          surveyUrl,
-          expectedDate,
-          expectedTime
-        )(request, messages(application)).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        Seq(notificationEmail) ++ selectedEmails,
+        true,
+        Seq(
+          ReportConfirmation("MyReport", "reportTypeImport.importItem", "RE00000001"),
+          ReportConfirmation("MyReport", "reportTypeImport.importHeader", "RE00000002"),
+          ReportConfirmation("MyReport", "reportTypeImport.importTaxLine", "RE00000003")
+        ),
+        surveyUrl,
+        expectedDate,
+        expectedTime
+      )(request, messages(application)).toString
 
-        contentAsString(result) must include("MyReport")
-        contentAsString(result) must include("RE00000001")
-        contentAsString(result) must include("RE00000002")
-        contentAsString(result) must include("RE00000003")
-        contentAsString(result) must include("Import item")
-        contentAsString(result) must include("Import header")
-        contentAsString(result) must include("Import tax line")
-        contentAsString(result) must include(notificationEmail)
-        contentAsString(result) must include(
-          "You will receive your report shortly."
-        )
-      }
+      contentAsString(result) must include("MyReport")
+      contentAsString(result) must include("RE00000001")
+      contentAsString(result) must include("RE00000002")
+      contentAsString(result) must include("RE00000003")
+      contentAsString(result) must include("Import item")
+      contentAsString(result) must include("Import header")
+      contentAsString(result) must include("Import tax line")
+      contentAsString(result) must include(notificationEmail)
+      contentAsString(result) must include(
+        "You will receive your report shortly."
+      )
     }
 
     "return OK and render plural message when isMoreThanOneReport is true" in {
@@ -193,31 +193,27 @@ class RequestConfirmationControllerSpec extends SpecBase {
         .value
         .copy(submissionMeta = Some(submissionMetaJson))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) must include(
-          "You will receive your report shortly."
-        )
-      }
+      status(result) mustEqual OK
+      contentAsString(result) must include(
+        "You will receive your report shortly."
+      )
     }
 
     "return OK and render empty values when submissionMeta is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) must include("")
-      }
+      status(result) mustEqual OK
+      contentAsString(result) must include("")
     }
   }
 }

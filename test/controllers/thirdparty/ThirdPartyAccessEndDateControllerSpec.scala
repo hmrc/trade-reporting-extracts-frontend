@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.ThirdPartyAccessEndDateFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -37,7 +37,7 @@ import views.html.thirdparty.ThirdPartyAccessEndDateView
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
-class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyAccessEndDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   private implicit val messages: Messages = stubMessages()
 
@@ -50,6 +50,17 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val thirdPartyAccessEndDateRoute =
     controllers.thirdparty.routes.ThirdPartyAccessEndDateController.onPageLoad(NormalMode).url
+
+  private val mockSessionRepository = mock[SessionRepository]
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
@@ -72,47 +83,37 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, startDate).success.value)
-      ).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, startDate).success.value))
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
+      val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", endDateHint)(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "1 January 2024", endDateHint)(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must redirect to general problem screen and clear user answers if no third party access start date is found on a GET" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EoriNumberPage) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EoriNumberPage) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -127,133 +128,97 @@ class ThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
+      val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill(Some(validAnswer)),
-          NormalMode,
-          DateTimeFormats.dateFormatter(futureStartdate),
-          futureEndDateHint
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form.fill(Some(validAnswer)),
+        NormalMode,
+        DateTimeFormats.dateFormatter(futureStartdate),
+        futureEndDateHint
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, startDate).success.value))
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val result = route(application, postRequest()).value
 
-      val application =
-        applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-              .set(ThirdPartyAccessStartDatePage, startDate)
-              .success
-              .value
-          )
-        )
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
-
-      running(application) {
-        val result = route(application, postRequest()).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
     }
 
     "must redirect to general problem screen and clear user answers if no third party access start date is found on a POST" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(EoriNumberPage, "eori").success.value))
 
-      running(application) {
-        val result = route(application, postRequest()).value
+      val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EoriNumberPage) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EoriNumberPage) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers =
-        Some(
-          emptyUserAnswers
-            .set(ThirdPartyAccessStartDatePage, startDate)
-            .success
-            .value
-        )
-      ).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(ThirdPartyAccessStartDatePage, startDate).success.value))
 
       val request =
         FakeRequest(POST, thirdPartyAccessEndDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
+      val view = application.injector.instanceOf[ThirdPartyAccessEndDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", endDateHint)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, "1 January 2024", endDateHint)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val result = route(application, postRequest()).value
+      val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

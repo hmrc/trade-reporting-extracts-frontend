@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.MaybeThirdPartyAccessSelfRemovalFormProvider
 import models.UserAnswers
 import org.apache.pekko.Done
@@ -34,7 +34,7 @@ import views.html.thirdparty.MaybeThirdPartyAccessSelfRemovalView
 
 import scala.concurrent.Future
 
-class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with MockitoSugar {
+class MaybeThirdPartyAccessSelfRemovalControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   val formProvider = new MaybeThirdPartyAccessSelfRemovalFormProvider()
   private val form = formProvider()
@@ -42,6 +42,15 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
   private lazy val maybeThirdPartyAccessSelfRemovalRoute =
     controllers.thirdparty.routes.MaybeThirdPartyAccessSelfRemovalController.onPageLoad("traderEori").url
   private val mockTradeReportingExtractsService          = mock[TradeReportingExtractsService]
+  private val mockSessionRepository                      = mock[SessionRepository]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
 
   when(mockTradeReportingExtractsService.selfRemoveThirdPartyAccess(any(), any())(any()))
     .thenReturn(Future.successful(Done))
@@ -50,97 +59,78 @@ class MaybeThirdPartyAccessSelfRemovalControllerSpec extends SpecBase with Mocki
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, maybeThirdPartyAccessSelfRemovalRoute)
+      val request = FakeRequest(GET, maybeThirdPartyAccessSelfRemovalRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MaybeThirdPartyAccessSelfRemovalView]
+      val view = application.injector.instanceOf[MaybeThirdPartyAccessSelfRemovalView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, "traderEori")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, "traderEori")(request, messages(application)).toString
     }
 
     "must redirect to the next page when true is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(
-          result
-        ).value mustEqual controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(
+        result
+      ).value mustEqual controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
     }
 
     "must redirect to the next page when false is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
-            .withFormUrlEncodedBody(("value", "false"))
+      val request =
+        FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
+          .withFormUrlEncodedBody(("value", "false"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.thirdparty.routes.AccountsAuthorityOverController
-          .onPageLoad()
-          .url
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe None
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.thirdparty.routes.AccountsAuthorityOverController
+        .onPageLoad()
+        .url
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(MaybeThirdPartyAccessSelfRemovalPage) mustBe None
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, maybeThirdPartyAccessSelfRemovalRoute)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[MaybeThirdPartyAccessSelfRemovalView]
+      val view = application.injector.instanceOf[MaybeThirdPartyAccessSelfRemovalView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, "traderEori")(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, "traderEori")(request, messages(application)).toString
     }
   }
 }

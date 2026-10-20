@@ -16,11 +16,12 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.additionalEmail.NewAdditionalEmailFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.additionalEmail.NewAdditionalEmailPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -31,7 +32,21 @@ import views.html.contact.NewAdditionalEmailView
 
 import scala.concurrent.Future
 
-class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
+class NewAdditionalEmailControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+  private val mockTradeReportingService     = mock[TradeReportingExtractsService]
+  private val mockSessionRepository         = mock[SessionRepository]
+  override def fakeApplication()            =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
+      )
+      .build()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockTradeReportingService, mockSessionRepository)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   val formProvider = new NewAdditionalEmailFormProvider()
   val emptyForm    = formProvider()
@@ -42,312 +57,233 @@ class NewAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
   "NewAdditionalEmail Controller" - {
 
     "must return OK and the correct view for a GET when no existing emails" in {
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(Seq.empty))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, newAdditionalEmailRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[NewAdditionalEmailView]
+      val request = FakeRequest(GET, newAdditionalEmailRoute)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[NewAdditionalEmailView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emptyForm)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(emptyForm)(request, messages(application)).toString
     }
 
     "must return OK and the correct view for a GET when existing emails are present" in {
-      val existingEmails            = Seq("existing1@example.com", "existing2@example.com")
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-      val formWithExistingEmails    = formProvider(existingEmails)
+      val existingEmails         = Seq("existing1@example.com", "existing2@example.com")
+      val formWithExistingEmails = formProvider(existingEmails)
 
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, newAdditionalEmailRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[NewAdditionalEmailView]
+      val request = FakeRequest(GET, newAdditionalEmailRoute)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[NewAdditionalEmailView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(formWithExistingEmails)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(formWithExistingEmails)(request, messages(application)).toString
     }
 
     "must redirect to the contact details page when user has reached additional email limit of 5" in {
-      val existingEmails            = Seq(
+      val existingEmails = Seq(
         "existing1@example.com",
         "existing2@example.com",
         "existing3@example.com",
         "existing4@example.com",
         "existing5@example.com"
       )
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController
+        .onPageLoad()
+        .url
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val existingEmails            = Seq("existing@example.com")
-      val previousAnswer            = "previous@example.com"
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-      val formWithExistingEmails    = formProvider(existingEmails)
+      val existingEmails         = Seq("existing@example.com")
+      val previousAnswer         = "previous@example.com"
+      val formWithExistingEmails = formProvider(existingEmails)
 
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
       val userAnswersWithPreviousValue = emptyUserAnswers.set(NewAdditionalEmailPage, previousAnswer).get
-      val application                  = applicationBuilder(userAnswers = Some(userAnswersWithPreviousValue))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswersWithPreviousValue))
+      val application                  = app
 
-      running(application) {
-        val request = FakeRequest(GET, newAdditionalEmailRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[NewAdditionalEmailView]
+      val request = FakeRequest(GET, newAdditionalEmailRoute)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[NewAdditionalEmailView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(formWithExistingEmails.fill(previousAnswer))(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(formWithExistingEmails.fill(previousAnswer))(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid unique email is submitted" in {
-      val existingEmails            = Seq("existing@example.com")
-      val newEmail                  = "new@example.com"
-      val mockSessionRepository     = mock[SessionRepository]
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com")
+      val newEmail       = "new@example.com"
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", newEmail))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", newEmail))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
+        .onPageLoad()
+        .url
     }
 
     "must redirect to the next page when valid unique email is submitted (no previous user answers)" in {
-      val existingEmails            = Seq("existing@example.com")
-      val newEmail                  = "new@example.com"
-      val mockSessionRepository     = mock[SessionRepository]
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com")
+      val newEmail       = "new@example.com"
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = None)
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", newEmail))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", newEmail))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.CheckAdditionalEmailController
+        .onPageLoad()
+        .url
     }
     "must handle email normalization correctly for duplicate checking" in {
-      val existingEmails            = Seq("test@example.com")
-      val emailWithSpaces           = "  test@example.com  " // This should be handled by the form validation
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails  = Seq("test@example.com")
+      val emailWithSpaces = "  test@example.com  " // This should be handled by the form validation
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", emailWithSpaces))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", emailWithSpaces))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        // The validation should catch this as either invalid format or duplicate
-        status(result) mustEqual BAD_REQUEST
-      }
+      // The validation should catch this as either invalid format or duplicate
+      status(result) mustEqual BAD_REQUEST
     }
     "must return a Bad Request and errors when duplicate email is submitted" in {
-      val existingEmails            = Seq("existing@example.com", "another@example.com")
-      val duplicateEmail            = "existing@example.com"
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com", "another@example.com")
+      val duplicateEmail = "existing@example.com"
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", duplicateEmail))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", duplicateEmail))
 
-        val boundForm = formProvider(existingEmails).bind(Map("value" -> duplicateEmail))
-        val view      = application.injector.instanceOf[NewAdditionalEmailView]
-        val result    = route(application, request).value
+      val boundForm = formProvider(existingEmails).bind(Map("value" -> duplicateEmail))
+      val view      = application.injector.instanceOf[NewAdditionalEmailView]
+      val result    = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
 
-        boundForm.hasErrors mustBe true
-        boundForm.errors.head.message mustEqual "newAdditionalEmail.error.alreadyAdded"
-      }
+      boundForm.hasErrors mustBe true
+      boundForm.errors.head.message mustEqual "newAdditionalEmail.error.alreadyAdded"
     }
 
     "must return a Bad Request and errors when duplicate email is submitted with different case" in {
-      val existingEmails            = Seq("existing@example.com")
-      val duplicateEmail            = "EXISTING@EXAMPLE.COM"
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com")
+      val duplicateEmail = "EXISTING@EXAMPLE.COM"
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", duplicateEmail))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", duplicateEmail))
 
-        val boundForm = formProvider(existingEmails).bind(Map("value" -> duplicateEmail))
-        val view      = application.injector.instanceOf[NewAdditionalEmailView]
-        val result    = route(application, request).value
+      val boundForm = formProvider(existingEmails).bind(Map("value" -> duplicateEmail))
+      val view      = application.injector.instanceOf[NewAdditionalEmailView]
+      val result    = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
 
-        boundForm.hasErrors mustBe true
-        boundForm.errors.head.message mustEqual "newAdditionalEmail.error.alreadyAdded"
-      }
+      boundForm.hasErrors mustBe true
+      boundForm.errors.head.message mustEqual "newAdditionalEmail.error.alreadyAdded"
     }
 
     "must return a Bad Request and errors when empty email is submitted" in {
-      val existingEmails            = Seq("existing@example.com")
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com")
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", ""))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = formProvider(existingEmails).bind(Map("value" -> ""))
-        val view      = application.injector.instanceOf[NewAdditionalEmailView]
-        val result    = route(application, request).value
+      val boundForm = formProvider(existingEmails).bind(Map("value" -> ""))
+      val view      = application.injector.instanceOf[NewAdditionalEmailView]
+      val result    = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
 
-        boundForm.hasErrors mustBe true
-        boundForm.errors.head.message mustEqual "newAdditionalEmail.error.required"
-      }
+      boundForm.hasErrors mustBe true
+      boundForm.errors.head.message mustEqual "newAdditionalEmail.error.required"
     }
 
     "must return a Bad Request and errors when invalid email format is submitted" in {
-      val existingEmails            = Seq("existing@example.com")
-      val invalidEmail              = "invalid-email"
-      val mockTradeReportingService = mock[TradeReportingExtractsService]
-
+      val existingEmails = Seq("existing@example.com")
+      val invalidEmail   = "invalid-email"
       when(mockTradeReportingService.getAdditionalEmails(any())(any()))
         .thenReturn(Future.successful(existingEmails))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(POST, newAdditionalEmailRoute)
-          .withFormUrlEncodedBody(("value", invalidEmail))
+      val request = FakeRequest(POST, newAdditionalEmailRoute)
+        .withFormUrlEncodedBody(("value", invalidEmail))
 
-        val boundForm = formProvider(existingEmails).bind(Map("value" -> invalidEmail))
-        val view      = application.injector.instanceOf[NewAdditionalEmailView]
-        val result    = route(application, request).value
+      val boundForm = formProvider(existingEmails).bind(Map("value" -> invalidEmail))
+      val view      = application.injector.instanceOf[NewAdditionalEmailView]
+      val result    = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
 
-        boundForm.hasErrors mustBe true
-        boundForm.errors.head.message mustEqual "newAdditionalEmail.error.invalidFormat"
-      }
+      boundForm.hasErrors mustBe true
+      boundForm.errors.head.message mustEqual "newAdditionalEmail.error.invalidFormat"
     }
   }
 }

@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.UserAnswers
 import models.thirdparty.ThirdPartyRemovalMeta
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,11 +29,16 @@ import views.html.thirdparty.ThirdPartyAccessSelfRemovedView
 
 import java.time.{Clock, Instant, ZoneId}
 
-class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyAccessSelfRemovedControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   private val fixedInstant: Instant = Instant.parse("2025-05-05T00:00:00Z")
 
   private val fixedClock: Clock = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[Clock].toInstance(fixedClock))
+      .build()
 
   "ThirdPartyAccessSelfRemoved Controller" - {
 
@@ -49,32 +54,26 @@ class ThirdPartyAccessSelfRemovedControllerSpec extends SpecBase with MockitoSug
         submissionMeta = Some(Json.toJson(removalMeta).as[JsObject])
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Clock].toInstance(fixedClock)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
-        )
+      val request = FakeRequest(
+        GET,
+        controllers.thirdparty.routes.ThirdPartyAccessSelfRemovedController.onPageLoad.url
+      )
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ThirdPartyAccessSelfRemovedView]
+      val view = application.injector.instanceOf[ThirdPartyAccessSelfRemovedView]
 
-        val (expectedDate, expectedTime) =
-          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val (expectedDate, expectedTime) =
+        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(expectedDate, expectedTime, "traderEori")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(expectedDate, expectedTime, "traderEori")(
+        request,
+        messages(application)
+      ).toString
     }
   }
 }

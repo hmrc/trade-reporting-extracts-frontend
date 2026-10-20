@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import controllers.report
 import exceptions.NoAuthorisedUserFoundException
 import models.{AlreadySubmittedFlag, SectionNavigation}
@@ -24,8 +24,9 @@ import models.report.{ChooseEori, Decision, ReportDateRange, ReportTypeImport}
 import models.EoriRole
 import pages.report._
 import org.mockito.ArgumentMatchers.{any, argThat}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatest.BeforeAndAfterEach
 import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -33,7 +34,24 @@ import repositories.SessionRepository
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class CheckYourAnswersControllerSpec extends SpecBase {
+class CheckYourAnswersControllerSpec extends AppPerSuiteSpecBase with BeforeAndAfterEach {
+
+  private val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
+  private val mockSessionRepository             = mock[SessionRepository]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        inject.bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService, mockSessionRepository)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   "CheckYourAnswers Controller" - {
     val sectionNav = SectionNavigation("reportRequestSection")
@@ -62,15 +80,14 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, report.routes.CheckYourAnswersController.onPageLoad().url)
+      val request = FakeRequest(GET, report.routes.CheckYourAnswersController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-      }
+      status(result) mustEqual OK
     }
 
     "must hide DecisionSummary when thirdPartyEori and dataTypes is only exports" in {
@@ -108,8 +125,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
-      val thirdPartyDetails                 = models.ThirdPartyDetails(
+      val thirdPartyDetails = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
         accessStartDate = LocalDate.now(),
         accessEndDate = None,
@@ -121,18 +137,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val content = contentAsString(result)
-        content must not include "Type of data to download"
-        status(result) mustEqual OK
-      }
+      val content = contentAsString(result)
+      content must not include "Type of data to download"
+      status(result) mustEqual OK
     }
 
     "must hide DecisionSummary when thirdPartyEori and dataTypes is only imports" in {
@@ -173,8 +186,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
-      val thirdPartyDetails                 = models.ThirdPartyDetails(
+      val thirdPartyDetails = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
         accessStartDate = LocalDate.now(),
         accessEndDate = None,
@@ -186,18 +198,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val content = contentAsString(result)
-        content must not include "Type of data to download"
-        status(result) mustEqual OK
-      }
+      val content = contentAsString(result)
+      content must not include "Type of data to download"
+      status(result) mustEqual OK
     }
 
     "must show DecisionSummary when thirdPartyEori and dataTypes is both imports and exports" in {
@@ -238,8 +247,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
-      val thirdPartyDetails                 = models.ThirdPartyDetails(
+      val thirdPartyDetails = models.ThirdPartyDetails(
         referenceName = Some("Test Name"),
         accessStartDate = LocalDate.now(),
         accessEndDate = None,
@@ -251,18 +259,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val content = contentAsString(result)
-        content must include("Type of data to download")
-        status(result) mustEqual OK
-      }
+      val content = contentAsString(result)
+      content must include("Type of data to download")
+      status(result) mustEqual OK
     }
 
     "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown" in {
@@ -279,30 +284,22 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val mockTradeReportingExtractsService = mock[services.TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(new NoAuthorisedUserFoundException("No authorised user found for third party EORI:")))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(inject.bind[services.TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad(thirdPartyEori)
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad(thirdPartyEori)
+        .url
     }
 
     "must redirect to ReportRequestIssueController when validation fails for incomplete user answers" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-
       val incompleteUserAnswers = emptyUserAnswers
         .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
         .success
@@ -311,29 +308,23 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(incompleteUserAnswers))
-        .overrides(inject.bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
+      setUserAnswers(Some(incompleteUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
-          .onPageLoad()
-          .url
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+        .onPageLoad()
+        .url
 
-        // Verify that AlreadySubmittedFlag was set and session was updated
-        verify(mockSessionRepository).set(argThat { (userAnswers: models.UserAnswers) =>
-          userAnswers.get(AlreadySubmittedFlag()).contains(true)
-        })
-      }
+      // Verify that AlreadySubmittedFlag was set and session was updated
+      verify(mockSessionRepository).set(argThat { (userAnswers: models.UserAnswers) =>
+        userAnswers.get(AlreadySubmittedFlag()).contains(true)
+      })
     }
     "must clear all report request answers and set AlreadySubmittedFlag when validation fails" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-
       val userAnswersWithData = emptyUserAnswers
         .set(sectionNav, "/request-customs-declaration-data/check-your-answers")
         .success
@@ -345,26 +336,23 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithData))
-        .overrides(inject.bind[SessionRepository].toInstance(mockSessionRepository))
-        .build()
+      setUserAnswers(Some(userAnswersWithData))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.report.routes.CheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
-          .onPageLoad()
-          .url
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestIssueController
+        .onPageLoad()
+        .url
 
-        // Verify that the session repository was called to set updated answers
-        verify(mockSessionRepository).set(argThat { (updatedAnswers: models.UserAnswers) =>
-          updatedAnswers.get(AlreadySubmittedFlag()).contains(true) &&
-          updatedAnswers.get(DecisionPage).isEmpty &&
-          updatedAnswers.get(EoriRolePage).isEmpty
-        })
-      }
+      // Verify that the session repository was called to set updated answers
+      verify(mockSessionRepository).set(argThat { (updatedAnswers: models.UserAnswers) =>
+        updatedAnswers.get(AlreadySubmittedFlag()).contains(true) &&
+        updatedAnswers.get(DecisionPage).isEmpty &&
+        updatedAnswers.get(EoriRolePage).isEmpty
+      })
     }
   }
 }

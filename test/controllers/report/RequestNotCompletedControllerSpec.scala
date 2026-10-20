@@ -16,14 +16,14 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.UserAnswers
 import pages.report.SelectThirdPartyEoriPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.report.RequestNotCompletedView
 
-class RequestNotCompletedControllerSpec extends SpecBase {
+class RequestNotCompletedControllerSpec extends AppPerSuiteSpecBase {
 
   "RequestNotCompleted Controller" - {
 
@@ -34,19 +34,18 @@ class RequestNotCompletedControllerSpec extends SpecBase {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.report.routes.RequestNotCompletedController.onPageLoad("GB123456789000").url)
+      val request =
+        FakeRequest(GET, controllers.report.routes.RequestNotCompletedController.onPageLoad("GB123456789000").url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RequestNotCompletedView]
+      val view = application.injector.instanceOf[RequestNotCompletedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view("GB123456789000")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view("GB123456789000")(request, messages(application)).toString
     }
   }
 }

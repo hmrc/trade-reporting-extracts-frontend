@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.ThirdPartyDataOwnerConsentFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -33,7 +33,7 @@ import views.html.thirdparty.ThirdPartyDataOwnerConsentView
 
 import scala.concurrent.Future
 
-class ThirdPartyDataOwnerConsentControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyDataOwnerConsentControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -43,115 +43,110 @@ class ThirdPartyDataOwnerConsentControllerSpec extends SpecBase with MockitoSuga
   lazy val thirdPartyDataOwnerConsentRoute =
     controllers.thirdparty.routes.ThirdPartyDataOwnerConsentController.onPageLoad(NormalMode).url
 
+  private val mockSessionRepository = mock[SessionRepository]
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
   "ThirdPartyDataOwnerConsent Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
+      val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
+      val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId).set(ThirdPartyDataOwnerConsentPage, true).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
+      val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
 
-        val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
+      val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val request =
+        FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val result = route(application, request).value
 
-      running(application) {
-        val request =
-          FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
-            .withFormUrlEncodedBody(("value", "true"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
+      val view = application.injector.instanceOf[ThirdPartyDataOwnerConsentView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
+      val request = FakeRequest(GET, thirdPartyDataOwnerConsentRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request =
-          FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, thirdPartyDataOwnerConsentRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

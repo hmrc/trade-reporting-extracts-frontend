@@ -16,12 +16,13 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import controllers.routes
 import models.{NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import play.api.i18n.Messages.implicitMessagesProviderToMessages
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -34,90 +35,95 @@ import play.api.inject.bind
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 
-class ToggledEmailNotificationsConfirmationControllerSpec extends SpecBase with MockitoSugar {
+class ToggledEmailNotificationsConfirmationControllerSpec
+    extends AppPerSuiteSpecBase
+    with MockitoSugar
+    with BeforeAndAfterEach {
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  override def fakeApplication()                =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+  override protected def beforeEach(): Unit     = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockTradeReportingExtractsService)
+  }
 
   val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   private implicit val messages: Messages = stubMessages()
 
   "ToggledEmailNotificationsConfirmation Controller" - {
-
-    val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
     "must return OK and the correct view for a GET when user enabled emails" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.contact.routes.ToggledEmailNotificationsConfirmationController.onPageLoad(true).url
-        )
+      val request = FakeRequest(
+        GET,
+        controllers.contact.routes.ToggledEmailNotificationsConfirmationController.onPageLoad(true).url
+      )
 
-        when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
-          Future.successful(
-            UserDetails(
-              null,
-              null,
-              null,
-              null,
-              NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
-              true
-            )
+      when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
+        Future.successful(
+          UserDetails(
+            null,
+            null,
+            null,
+            null,
+            NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
+            true
           )
         )
+      )
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ToggledEmailNotificationsConfirmationView]
+      val view = application.injector.instanceOf[ToggledEmailNotificationsConfirmationView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          true,
-          "example@example.com",
-          DateTimeFormats.dateFormatter(LocalDate.now)
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        true,
+        "example@example.com",
+        DateTimeFormats.dateFormatter(LocalDate.now)
+      )(request, messages(application)).toString
     }
 
     "must return OK and the correct view for a GET when user disabled emails" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.contact.routes.ToggledEmailNotificationsConfirmationController.onPageLoad(false).url
-        )
+      val request = FakeRequest(
+        GET,
+        controllers.contact.routes.ToggledEmailNotificationsConfirmationController.onPageLoad(false).url
+      )
 
-        when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
-          Future.successful(
-            UserDetails(
-              null,
-              null,
-              null,
-              null,
-              NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
-              true
-            )
+      when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
+        Future.successful(
+          UserDetails(
+            null,
+            null,
+            null,
+            null,
+            NotificationEmail("example@example.com", LocalDateTime.of(2024, 1, 1, 0, 0, 0), false),
+            true
           )
         )
+      )
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ToggledEmailNotificationsConfirmationView]
+      val view = application.injector.instanceOf[ToggledEmailNotificationsConfirmationView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          false,
-          "example@example.com",
-          DateTimeFormats.dateFormatter(LocalDate.now)
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        false,
+        "example@example.com",
+        DateTimeFormats.dateFormatter(LocalDate.now)
+      )(request, messages(application)).toString
     }
   }
 }

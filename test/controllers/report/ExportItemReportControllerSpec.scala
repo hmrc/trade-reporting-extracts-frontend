@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import models.NormalMode
 import models.report.{ChooseEori, ReportDateRange}
@@ -28,34 +28,33 @@ import views.html.report.ExportItemReportView
 
 import java.time.LocalDate
 
-class ExportItemReportControllerSpec extends SpecBase {
+class ExportItemReportControllerSpec extends AppPerSuiteSpecBase {
 
   "ExportItemReport Controller" - {
 
     "must return OK and the correct view for a GET and continue url must be ReportDateRange when no answer to report date range page" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view   = application.injector.instanceOf[ExportItemReportView]
-        val config = application.injector.instanceOf[FrontendAppConfig]
+      val view   = application.injector.instanceOf[ExportItemReportView]
+      val config = application.injector.instanceOf[FrontendAppConfig]
 
-        val continueUrl = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
+      val continueUrl = controllers.report.routes.ReportDateRangeController.onPageLoad(NormalMode).url
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET and continue url must be start date page when answer to report date range page, third party journey and start date page not answered" in {
-      val application = applicationBuilder(userAnswers =
+      val application = app
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(ChooseEoriPage, ChooseEori.Myauthority)
@@ -66,24 +65,21 @@ class ExportItemReportControllerSpec extends SpecBase {
             .value
         )
       )
-        .build()
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view   = application.injector.instanceOf[ExportItemReportView]
-        val config = application.injector.instanceOf[FrontendAppConfig]
+      val view   = application.injector.instanceOf[ExportItemReportView]
+      val config = application.injector.instanceOf[FrontendAppConfig]
 
-        val continueUrl = controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
+      val continueUrl = controllers.report.routes.CustomRequestStartDateController.onPageLoad(NormalMode).url
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET and continue url must be CYA when any other scenario and report date range already answered" in {
@@ -112,25 +108,23 @@ class ExportItemReportControllerSpec extends SpecBase {
             .value
         )
       )
-      val application = applicationBuilder(userAnswers = Some(userAnswers.sample.value))
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers.sample.value))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.ExportItemReportController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view   = application.injector.instanceOf[ExportItemReportView]
-        val config = application.injector.instanceOf[FrontendAppConfig]
+      val view   = application.injector.instanceOf[ExportItemReportView]
+      val config = application.injector.instanceOf[FrontendAppConfig]
 
-        val continueUrl = controllers.report.routes.CheckYourAnswersController.onPageLoad().url
+      val continueUrl = controllers.report.routes.CheckYourAnswersController.onPageLoad().url
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(config.guidanceWhatsInTheReportUrl, continueUrl)(
+        request,
+        messages(application)
+      ).toString
     }
   }
 }

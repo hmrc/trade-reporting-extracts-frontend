@@ -21,7 +21,12 @@ import models.requests.{IdentifierRequest, OptionalDataRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+class FakeDataRetrievalAction(initialDataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+
+  private var dataToReturn = initialDataToReturn
+
+  def setUserAnswers(userAnswers: Option[UserAnswers]): Unit =
+    dataToReturn = userAnswers
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
     Future(OptionalDataRequest(request.request, request.userId, request.eori, request.affinityGroup, dataToReturn))

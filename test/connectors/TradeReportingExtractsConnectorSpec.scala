@@ -31,6 +31,7 @@ import models.thirdparty.{EoriBusinessAccessInfo, EoriBusinessInfo, ThirdPartyAd
 import models.{AuditDownloadRequest, CompanyInformation, ConsentStatus, NotificationEmail, ThirdPartyDetails, UpdateEmailPreference, UserDetails}
 import org.apache.pekko.Done
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.*
@@ -39,14 +40,20 @@ import uk.gov.hmrc.http.{HeaderCarrier, JsValidationException, UpstreamErrorResp
 
 import java.time.*
 
-class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures with WireMockHelper {
+class TradeReportingExtractsConnectorSpec
+    extends SpecBase
+    with ScalaFutures
+    with GuiceOneAppPerSuite
+    with WireMockHelper {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
-  private def application: Application =
+  override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure("microservice.services.trade-reporting-extracts.port" -> server.port)
       .build()
+
+  private def application: Application = app
 
   "TradeReportingExtractsConnector" - {
 
@@ -71,20 +78,18 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(201).withBody(details.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(201).withBody(details.toString))
+        )
 
-          val result = connector
-            .getOrSetupUser("GB000000000001")
-            .futureValue
+        val result = connector
+          .getOrSetupUser("GB000000000001")
+          .futureValue
 
-          result mustBe details.as[UserDetails]
-        }
+        result mustBe details.as[UserDetails]
 
       }
 
@@ -95,39 +100,35 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(201).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(201).withBody(responseBody))
+        )
 
-          val result = connector
-            .getOrSetupUser("GB000000000001")
-            .failed
-            .futureValue
+        val result = connector
+          .getOrSetupUser("GB000000000001")
+          .failed
+          .futureValue
 
-          result mustBe an[JsValidationException]
-        }
+        result mustBe an[JsValidationException]
       }
 
       "must return failed future when bad requested returned" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400).withBody("error"))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400).withBody("error"))
+        )
 
-          val result = connector
-            .getOrSetupUser("GB000000000001")
-            .failed
-            .futureValue
+        val result = connector
+          .getOrSetupUser("GB000000000001")
+          .failed
+          .futureValue
 
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
 
     }
@@ -194,20 +195,18 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector
-            .getRequestedReports("GB000000000001")
-            .futureValue
+        val result = connector
+          .getRequestedReports("GB000000000001")
+          .futureValue
 
-          result mustBe response.as[RequestedReportsViewModel]
-        }
+        result mustBe response.as[RequestedReportsViewModel]
 
       }
 
@@ -218,86 +217,78 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(responseBody))
+        )
 
-          val result = connector
-            .getRequestedReports("GB000000000001")
-            .failed
-            .failed
-            .futureValue
+        val result = connector
+          .getRequestedReports("GB000000000001")
+          .failed
+          .failed
+          .futureValue
 
-          result mustBe an[RuntimeException]
+        result mustBe an[RuntimeException]
 
-        }
       }
 
       "must return future successful when no report requests found" in {
 
         val response = Json.toJson(RequestedReportsViewModel(None, None))
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(204).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(204).withBody(response.toString))
+        )
 
-          val result = connector
-            .getRequestedReports("GB000000000001")
-            .futureValue
+        val result = connector
+          .getRequestedReports("GB000000000001")
+          .futureValue
 
-          result mustBe RequestedReportsViewModel(None, None)
+        result mustBe RequestedReportsViewModel(None, None)
 
-        }
       }
 
       "must return failed future when bad request returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400))
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400))
+        )
+
+        val result = connector
+          .getRequestedReports(
+            "GB000000000001"
           )
+          .failed
+          .futureValue
 
-          val result = connector
-            .getRequestedReports(
-              "GB000000000001"
-            )
-            .failed
-            .futureValue
-
-          result mustBe an[IllegalArgumentException]
-        }
+        result mustBe an[IllegalArgumentException]
       }
 
       "must return failed future when unexpected response returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(500))
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(500))
+        )
+
+        val result = connector
+          .getRequestedReports(
+            "GB000000000001"
           )
+          .failed
+          .futureValue
 
-          val result = connector
-            .getRequestedReports(
-              "GB000000000001"
-            )
-            .failed
-            .futureValue
-
-          result mustBe an[RuntimeException]
-        }
+        result mustBe an[RuntimeException]
       }
     }
 
@@ -357,20 +348,18 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector
-            .getAvailableReports("GB000000000001")
-            .futureValue
+        val result = connector
+          .getAvailableReports("GB000000000001")
+          .futureValue
 
-          result mustBe response.as[AvailableReportsViewModel]
-        }
+        result mustBe response.as[AvailableReportsViewModel]
 
       }
 
@@ -381,86 +370,78 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(responseBody))
+        )
 
-          val result = connector
-            .getAvailableReports("GB000000000001")
-            .failed
-            .failed
-            .futureValue
+        val result = connector
+          .getAvailableReports("GB000000000001")
+          .failed
+          .failed
+          .futureValue
 
-          result mustBe an[RuntimeException]
+        result mustBe an[RuntimeException]
 
-        }
       }
 
       "must return future successful when no report requests found" in {
 
         val response = Json.toJson(AvailableReportsViewModel(None, None))
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector
-            .getAvailableReports("GB000000000001")
-            .futureValue
+        val result = connector
+          .getAvailableReports("GB000000000001")
+          .futureValue
 
-          result mustBe AvailableReportsViewModel(None, None)
+        result mustBe AvailableReportsViewModel(None, None)
 
-        }
       }
 
       "must return failed future when bad request returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400))
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400))
+        )
+
+        val result = connector
+          .getAvailableReports(
+            "GB000000000001"
           )
+          .failed
+          .futureValue
 
-          val result = connector
-            .getAvailableReports(
-              "GB000000000001"
-            )
-            .failed
-            .futureValue
-
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
 
       "must return failed future when unexpected response returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(500))
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(500))
+        )
+
+        val result = connector
+          .getAvailableReports(
+            "GB000000000001"
           )
+          .failed
+          .futureValue
 
-          val result = connector
-            .getAvailableReports(
-              "GB000000000001"
-            )
-            .failed
-            .futureValue
-
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -478,18 +459,16 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector.getNotificationEmail("GB000000000001").futureValue
+        val result = connector.getNotificationEmail("GB000000000001").futureValue
 
-          result mustBe response.as[NotificationEmail]
-        }
+        result mustBe response.as[NotificationEmail]
       }
 
       "must return a failed future when malformed response returned" in {
@@ -499,35 +478,31 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(responseBody))
+        )
 
-          val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
+        val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
+        result mustBe an[UpstreamErrorResponse]
 
-        }
       }
 
       "must return a failed future when bad request returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400))
+        )
 
-          val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
+        val result = connector.getNotificationEmail("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -545,18 +520,16 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           )
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector.getCompanyInformation("GB000000000001").futureValue
+        val result = connector.getCompanyInformation("GB000000000001").futureValue
 
-          result mustBe response.as[CompanyInformation]
-        }
+        result mustBe response.as[CompanyInformation]
       }
 
       "must return a failed future when malformed response returned" in {
@@ -566,35 +539,31 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(responseBody))
+        )
 
-          val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
+        val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
+        result mustBe an[UpstreamErrorResponse]
 
-        }
       }
 
       "must return a failed future when bad request returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400))
+        )
 
-          val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
+        val result = connector.getCompanyInformation("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -608,18 +577,16 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           Seq("EORI1", "EORI2", "EORI3")
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector.getAuthorisedEoris("GB000000000001").futureValue
+        val result = connector.getAuthorisedEoris("GB000000000001").futureValue
 
-          result mustBe response.as[Seq[String]]
-        }
+        result mustBe response.as[Seq[String]]
       }
 
       "must be successful when no authorised eoris" in {
@@ -628,18 +595,16 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
           Seq("")
         )
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(response.toString))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(response.toString))
+        )
 
-          val result = connector.getAuthorisedEoris("GB000000000001").futureValue
+        val result = connector.getAuthorisedEoris("GB000000000001").futureValue
 
-          result mustBe List("")
-        }
+        result mustBe List("")
       }
 
       "must return a failed future when malformed response returned" in {
@@ -649,35 +614,31 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            get(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(200).withBody(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          get(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(200).withBody(responseBody))
+        )
 
-          val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
+        val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
+        result mustBe an[UpstreamErrorResponse]
 
-        }
       }
 
       "must return a failed future when bad request returned" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(400))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(400))
+        )
 
-          val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
+        val result = connector.getAuthorisedEoris("GB000000000001").failed.futureValue
 
-          result mustBe an[UpstreamErrorResponse]
-        }
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -694,32 +655,30 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "reportReference": "RE00000001"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(ok(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(ok(responseBody))
+        )
 
-          val result = connector
-            .createReportRequest(
-              ReportRequestUserAnswersModel(
-                eori = "eori",
-                dataType = "import",
-                whichEori = "eori",
-                eoriRole = Set("declarant"),
-                reportType = Set("importHeader"),
-                reportStartDate = "2025-04-16",
-                reportEndDate = "2025-05-16",
-                reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
-              )
+        val result = connector
+          .createReportRequest(
+            ReportRequestUserAnswersModel(
+              eori = "eori",
+              dataType = "import",
+              whichEori = "eori",
+              eoriRole = Set("declarant"),
+              reportType = Set("importHeader"),
+              reportStartDate = "2025-04-16",
+              reportEndDate = "2025-05-16",
+              reportName = "MyReport",
+              additionalEmail = Some(Set("email@email.com"))
             )
-            .futureValue
+          )
+          .futureValue
 
-          result mustBe Seq(ReportConfirmation("name1", "importHeader", "RE00000001"))
-        }
+        result mustBe Seq(ReportConfirmation("name1", "importHeader", "RE00000001"))
       }
 
       "must return an OK response multiple request confirmations when JSON is valid" in {
@@ -738,35 +697,33 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  }
              |]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(ok(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(ok(responseBody))
+        )
 
-          val result = connector
-            .createReportRequest(
-              ReportRequestUserAnswersModel(
-                eori = "eori",
-                dataType = "import",
-                whichEori = "eori",
-                eoriRole = Set("declarant"),
-                reportType = Set("importHeader", "importItem"),
-                reportStartDate = "2025-04-16",
-                reportEndDate = "2025-05-16",
-                reportName = "name1",
-                additionalEmail = Some(Set("email@email.com"))
-              )
+        val result = connector
+          .createReportRequest(
+            ReportRequestUserAnswersModel(
+              eori = "eori",
+              dataType = "import",
+              whichEori = "eori",
+              eoriRole = Set("declarant"),
+              reportType = Set("importHeader", "importItem"),
+              reportStartDate = "2025-04-16",
+              reportEndDate = "2025-05-16",
+              reportName = "name1",
+              additionalEmail = Some(Set("email@email.com"))
             )
-            .futureValue
-
-          result mustBe Seq(
-            ReportConfirmation("name1", "importHeader", "RE00000001"),
-            ReportConfirmation("name1", "importItem", "RE00000002")
           )
-        }
+          .futureValue
+
+        result mustBe Seq(
+          ReportConfirmation("name1", "importHeader", "RE00000001"),
+          ReportConfirmation("name1", "importItem", "RE00000002")
+        )
       }
 
       "must return a failed future when OK and JSON not valid" in {
@@ -776,64 +733,60 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "ref" : [ "TR-00000001" ]
              |}""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(ok(responseBody))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(ok(responseBody))
+        )
 
-          val result = connector
-            .createReportRequest(
-              ReportRequestUserAnswersModel(
-                eori = "eori",
-                dataType = "import",
-                whichEori = "eori",
-                eoriRole = Set("declarant"),
-                reportType = Set("importHeader"),
-                reportStartDate = "2025-04-16",
-                reportEndDate = "2025-05-16",
-                reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
-              )
+        val result = connector
+          .createReportRequest(
+            ReportRequestUserAnswersModel(
+              eori = "eori",
+              dataType = "import",
+              whichEori = "eori",
+              eoriRole = Set("declarant"),
+              reportType = Set("importHeader"),
+              reportStartDate = "2025-04-16",
+              reportEndDate = "2025-05-16",
+              reportName = "MyReport",
+              additionalEmail = Some(Set("email@email.com"))
             )
-            .failed
-            .futureValue
+          )
+          .failed
+          .futureValue
 
-          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
-        }
+        result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
       }
 
       "must return a failed future when anything but OK" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse.withStatus(500))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse.withStatus(500))
+        )
 
-          val result = connector
-            .createReportRequest(
-              ReportRequestUserAnswersModel(
-                eori = "eori",
-                dataType = "import",
-                whichEori = "eori",
-                eoriRole = Set("declarant"),
-                reportType = Set("importHeader"),
-                reportStartDate = "2025-04-16",
-                reportEndDate = "2025-05-16",
-                reportName = "MyReport",
-                additionalEmail = Some(Set("email@email.com"))
-              )
+        val result = connector
+          .createReportRequest(
+            ReportRequestUserAnswersModel(
+              eori = "eori",
+              dataType = "import",
+              whichEori = "eori",
+              eoriRole = Set("declarant"),
+              reportType = Set("importHeader"),
+              reportStartDate = "2025-04-16",
+              reportEndDate = "2025-05-16",
+              reportName = "MyReport",
+              additionalEmail = Some(Set("email@email.com"))
             )
-            .failed
-            .futureValue
+          )
+          .failed
+          .futureValue
 
-          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
-        }
+        result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
       }
     }
 
@@ -843,48 +796,44 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
       "Must return Done when response is OK" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .post(
-                WireMock.urlEqualTo(url)
-              )
-              .willReturn(aResponse().withStatus(OK))
-          )
-          val result    = connector
-            .updatePersonalEmailNotificationsPreference(
-              UpdateEmailPreference(
-                eori,
-                false
-              )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .post(
+              WireMock.urlEqualTo(url)
             )
-            .futureValue
-          result mustBe Done
-        }
+            .willReturn(aResponse().withStatus(OK))
+        )
+        val result    = connector
+          .updatePersonalEmailNotificationsPreference(
+            UpdateEmailPreference(
+              eori,
+              false
+            )
+          )
+          .futureValue
+        result mustBe Done
       }
 
       "Must return upstream error response when anythign else" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse().withStatus(BAD_REQUEST))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse().withStatus(BAD_REQUEST))
+        )
 
-          val result = connector
-            .updatePersonalEmailNotificationsPreference(
-              UpdateEmailPreference(
-                eori,
-                false
-              )
+        val result = connector
+          .updatePersonalEmailNotificationsPreference(
+            UpdateEmailPreference(
+              eori,
+              false
             )
-            .failed
-            .futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+          )
+          .failed
+          .futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -894,115 +843,105 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val url  = s"/trade-reporting-extracts/report-submission-limit/$eori"
 
       "must return false when response is NO_CONTENT (204)" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .get(
-                WireMock.urlEqualTo(url)
-              )
-              .willReturn(
-                WireMock.aResponse().withStatus(204)
-              )
-          )
-          val result    = connector.hasReachedSubmissionLimit(eori).futureValue
-          result mustBe false
-        }
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .get(
+              WireMock.urlEqualTo(url)
+            )
+            .willReturn(
+              WireMock.aResponse().withStatus(204)
+            )
+        )
+        val result    = connector.hasReachedSubmissionLimit(eori).futureValue
+        result mustBe false
       }
 
       "must return true when response is TOO_MANY_REQUESTS (429)" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .get(
-                WireMock.urlEqualTo(url)
-              )
-              .willReturn(
-                WireMock.aResponse().withStatus(429)
-              )
-          )
-          val result    = connector.hasReachedSubmissionLimit(eori).futureValue
-          result mustBe true
-        }
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .get(
+              WireMock.urlEqualTo(url)
+            )
+            .willReturn(
+              WireMock.aResponse().withStatus(429)
+            )
+        )
+        val result    = connector.hasReachedSubmissionLimit(eori).futureValue
+        result mustBe true
       }
 
       "must throw a RuntimeException for unexpected status" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .get(
-                WireMock.urlEqualTo(url)
-              )
-              .willReturn(
-                WireMock.aResponse().withStatus(500)
-              )
-          )
-          val thrown    = intercept[RuntimeException] {
-            connector.hasReachedSubmissionLimit(eori).futureValue
-          }
-          thrown.getMessage must include("Unexpected response: 500")
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .get(
+              WireMock.urlEqualTo(url)
+            )
+            .willReturn(
+              WireMock.aResponse().withStatus(500)
+            )
+        )
+        val thrown    = intercept[RuntimeException] {
+          connector.hasReachedSubmissionLimit(eori).futureValue
         }
+        thrown.getMessage must include("Unexpected response: 500")
       }
     }
 
     "getUserDetails" - {
 
       "must return user details when the API call is successful" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          val eori                = "GB123456789000"
-          val expectedUserDetails = UserDetails(
-            eori = eori,
-            additionalEmails = Seq.empty,
-            authorisedUsers = Seq.empty,
-            companyInformation = CompanyInformation(
-              name = "Test Company",
-              consent = Granted,
-              false
-            ),
-            notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false),
-            personalEmailNotificationsEnabled = true
-          )
+        val eori                = "GB123456789000"
+        val expectedUserDetails = UserDetails(
+          eori = eori,
+          additionalEmails = Seq.empty,
+          authorisedUsers = Seq.empty,
+          companyInformation = CompanyInformation(
+            name = "Test Company",
+            consent = Granted,
+            false
+          ),
+          notificationEmail = NotificationEmail("test@test.com", LocalDateTime.now(), false),
+          personalEmailNotificationsEnabled = true
+        )
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
-              .willReturn(
-                ok(Json.toJson(expectedUserDetails).toString())
-              )
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+            .willReturn(
+              ok(Json.toJson(expectedUserDetails).toString())
+            )
+        )
 
-          val result = connector.getUserDetails(eori).futureValue
-          result mustBe expectedUserDetails
-        }
+        val result = connector.getUserDetails(eori).futureValue
+        result mustBe expectedUserDetails
       }
 
       "must throw an exception when the API call fails" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val eori      = "GB123456789000"
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
-              .willReturn(
-                aResponse().withStatus(500).withBody("Failed to fetch getUserDetails")
-              )
-          )
-          val thrown    = intercept[RuntimeException] {
-            connector.getUserDetails(eori).futureValue
-          }
-          thrown.getMessage must include("Failed to fetch getUserDetails")
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val eori      = "GB123456789000"
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(s"/trade-reporting-extracts/eori/get-user-detail"))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+            .willReturn(
+              aResponse().withStatus(500).withBody("Failed to fetch getUserDetails")
+            )
+        )
+        val thrown    = intercept[RuntimeException] {
+          connector.getUserDetails(eori).futureValue
         }
+        thrown.getMessage must include("Failed to fetch getUserDetails")
       }
     }
 
@@ -1017,77 +956,69 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val requestBody = Json.toJson(request).toString()
 
       "must return true when the API call is successful (NO_CONTENT)" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(requestBody))
-              .willReturn(aResponse().withStatus(NO_CONTENT))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(requestBody))
+            .willReturn(aResponse().withStatus(NO_CONTENT))
+        )
 
-          val result = connector.auditReportDownload(request).futureValue
+        val result = connector.auditReportDownload(request).futureValue
 
-          result mustBe true
-        }
+        result mustBe true
       }
 
       "must return false for any other status" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(requestBody))
-              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(requestBody))
+            .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+        )
 
-          val result = connector.auditReportDownload(request).futureValue
+        val result = connector.auditReportDownload(request).futureValue
 
-          result mustBe false
-        }
+        result mustBe false
       }
     }
 
     "getReportRequestLimitNumber" - {
 
       "must return the report request limit number when the API call is successful" in {
-        val app = application
-        running(app) {
-          val connector           = app.injector.instanceOf[TradeReportingExtractsConnector]
-          val expectedLimitNumber = "25"
+        val app                 = application
+        val connector           = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val expectedLimitNumber = "25"
 
-          server.stubFor(
-            WireMock
-              .get(WireMock.urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
-              .willReturn(WireMock.ok("\"25\""))
-          )
+        server.stubFor(
+          WireMock
+            .get(WireMock.urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+            .willReturn(WireMock.ok("\"25\""))
+        )
 
-          val result = connector.getReportRequestLimitNumber.futureValue
-          result mustBe expectedLimitNumber
-        }
+        val result = connector.getReportRequestLimitNumber.futureValue
+        result mustBe expectedLimitNumber
       }
 
       "must throw an exception when the API call fails" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
-              .willReturn(
-                aResponse().withStatus(500).withBody("error")
-              )
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo("/trade-reporting-extracts/report-request-limit-number"))
+            .willReturn(
+              aResponse().withStatus(500).withBody("error")
+            )
+        )
 
-          val thrown = intercept[RuntimeException] {
-            connector.getReportRequestLimitNumber.futureValue
-          }
-          thrown.getMessage must include("error")
+        val thrown = intercept[RuntimeException] {
+          connector.getReportRequestLimitNumber.futureValue
         }
+        thrown.getMessage must include("error")
       }
     }
 
@@ -1112,44 +1043,38 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
            |}""".stripMargin
 
       "must return confirmation when response is OK and JSON is valid" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(ok(confirmationJson))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(ok(confirmationJson))
+        )
 
-          val result = connector.createThirdPartyAddRequest(thirdPartyRequest).futureValue
-          result.thirdPartyEori mustBe "GB987654321000"
-        }
+        val result = connector.createThirdPartyAddRequest(thirdPartyRequest).futureValue
+        result.thirdPartyEori mustBe "GB987654321000"
       }
 
       "must fail when response is OK but JSON is invalid" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(ok("""{ "unexpected": "value" }"""))
-          )
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(ok("""{ "unexpected": "value" }"""))
+        )
 
-          val result = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
-          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
-        }
+        val result = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
+        result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
       }
 
       "must fail when response status is not OK" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            post(urlEqualTo(url))
-              .willReturn(aResponse().withStatus(500))
-          )
-          val result    = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
-          result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
-        }
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(aResponse().withStatus(500))
+        )
+        val result    = connector.createThirdPartyAddRequest(thirdPartyRequest).failed.futureValue
+        result mustBe an[uk.gov.hmrc.http.UpstreamErrorResponse]
       }
     }
 
@@ -1166,100 +1091,90 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
       "must return third party details when OK and valid third party details" in {
 
-        val response = Json.toJson(validThirdPartyDetails).toString()
-        val app      = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val response  = Json.toJson(validThirdPartyDetails).toString()
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
-              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
-              .willReturn(
-                aResponse().withStatus(OK).withBody(response)
-              )
-          )
-          val result = connector.getThirdPartyDetails("123", "456").futureValue
-          result mustBe validThirdPartyDetails
-        }
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+            .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+            .willReturn(
+              aResponse().withStatus(OK).withBody(response)
+            )
+        )
+        val result = connector.getThirdPartyDetails("123", "456").futureValue
+        result mustBe validThirdPartyDetails
       }
 
       "must return failed future when invalid json received" in {
 
         val invalidResponse = """{ "foo": "bar" }"""
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
-              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
-              .willReturn(
-                aResponse().withStatus(OK).withBody(invalidResponse)
-              )
-          )
-          val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+            .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+            .willReturn(
+              aResponse().withStatus(OK).withBody(invalidResponse)
+            )
+        )
+        val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
 
       "must return failed future when not OK received" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
-              .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
-              .willReturn(
-                aResponse().withStatus(500).withBody("error")
-              )
-          )
-          val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo("/trade-reporting-extracts/third-party-details"))
+            .withRequestBody(equalToJson("""{ "eori": "123", "thirdPartyEori": "456" }"""))
+            .willReturn(
+              aResponse().withStatus(500).withBody("error")
+            )
+        )
+        val result = connector.getThirdPartyDetails("123", "456").failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
     "selfRemoveThirdPartyAccess" - {
       "Return Done when OK received" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
-              .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
-              .willReturn(
-                aResponse().withStatus(OK)
-              )
-          )
-          val result = connector.selfRemoveThirdPartyAccess("123", "456").futureValue
-          result mustBe Done
-        }
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
+            .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
+            .willReturn(
+              aResponse().withStatus(OK)
+            )
+        )
+        val result = connector.selfRemoveThirdPartyAccess("123", "456").futureValue
+        result mustBe Done
       }
 
       "Return upstream error response when anything else received" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
-              .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
-              .willReturn(
-                aResponse().withStatus(500).withBody("error")
-              )
-          )
-          val result = connector.selfRemoveThirdPartyAccess("123", "456").failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo("/trade-reporting-extracts/third-party-access-self-removal"))
+            .withRequestBody(equalToJson("""{ "traderEori": "123", "thirdPartyEori": "456" }"""))
+            .willReturn(
+              aResponse().withStatus(500).withBody("error")
+            )
+        )
+        val result = connector.selfRemoveThirdPartyAccess("123", "456").failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -1269,33 +1184,29 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val thirdPartyEori = "GB456"
 
       "must return Done when response is NO_CONTENT" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
-              .willReturn(aResponse().withStatus(NO_CONTENT))
-          )
-          val result    = connector.removeThirdParty(eori, thirdPartyEori).futureValue
-          result mustBe Done
-        }
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
+            .willReturn(aResponse().withStatus(NO_CONTENT))
+        )
+        val result    = connector.removeThirdParty(eori, thirdPartyEori).futureValue
+        result mustBe Done
       }
 
       "must fail with UpstreamErrorResponse when response is not NO_CONTENT" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
-              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("error"))
-          )
-          val result    = connector.removeThirdParty(eori, thirdPartyEori).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "thirdPartyEori": "$thirdPartyEori" }"""))
+            .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("error"))
+        )
+        val result    = connector.removeThirdParty(eori, thirdPartyEori).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
     }
 
@@ -1313,39 +1224,35 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
-              .willReturn(ok(Json.toJson(validResponseBody).toString()))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+            .willReturn(ok(Json.toJson(validResponseBody).toString()))
+        )
 
-          val result = connector.getAccountsAuthorityOver(eori).futureValue
-          result mustBe validResponseBody
-        }
+        val result = connector.getAccountsAuthorityOver(eori).futureValue
+        result mustBe validResponseBody
       }
 
       "must throw exception when API call fails" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
-              .willReturn(serverError().withBody("error"))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+            .willReturn(serverError().withBody("error"))
+        )
 
-          val thrown = intercept[RuntimeException] {
-            connector.getAccountsAuthorityOver(eori).futureValue
-          }
-          thrown.getMessage must include("error")
+        val thrown = intercept[RuntimeException] {
+          connector.getAccountsAuthorityOver(eori).futureValue
         }
+        thrown.getMessage must include("error")
       }
     }
 
@@ -1359,39 +1266,35 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       )
 
       "must return list of AccountAuthorityOverViewModel when API call is successful" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
-              .willReturn(ok(Json.toJson(expectedResponse).toString()))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+            .willReturn(ok(Json.toJson(expectedResponse).toString()))
+        )
 
-          val result = connector.getSelectThirdPartyEori(eori).futureValue
-          result mustBe expectedResponse
-        }
+        val result = connector.getSelectThirdPartyEori(eori).futureValue
+        result mustBe expectedResponse
       }
 
       "must throw exception when API call fails" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
-              .willReturn(aResponse().withStatus(500).withBody("some error"))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$eori" }"""))
+            .willReturn(aResponse().withStatus(500).withBody("some error"))
+        )
 
-          val thrown = intercept[RuntimeException] {
-            connector.getSelectThirdPartyEori(eori).futureValue
-          }
-          thrown.getMessage must include("some error")
+        val thrown = intercept[RuntimeException] {
+          connector.getSelectThirdPartyEori(eori).futureValue
         }
+        thrown.getMessage must include("some error")
       }
     }
 
@@ -1411,38 +1314,34 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       "must return confirmation when successful" in {
         val app              = application
         val expectedResponse = ThirdPartyAddedConfirmation("456")
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val connector        = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .put(urlEqualTo(url))
-              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
-              .willReturn(ok(Json.toJson(expectedResponse).toString))
-          )
+        server.stubFor(
+          WireMock
+            .put(urlEqualTo(url))
+            .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+            .willReturn(ok(Json.toJson(expectedResponse).toString))
+        )
 
-          val result = connector.editThirdPartyRequest(editThirdPartyRequest).futureValue
-          result mustBe expectedResponse
-        }
+        val result = connector.editThirdPartyRequest(editThirdPartyRequest).futureValue
+        result mustBe expectedResponse
       }
 
       "must return error when confirmation can't be parsed" in {
         val app                = application
         val unexpectedResponse = "foo"
 
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .put(urlEqualTo(url))
-              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
-              .willReturn(ok(Json.toJson(unexpectedResponse).toString))
-          )
+        server.stubFor(
+          WireMock
+            .put(urlEqualTo(url))
+            .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+            .willReturn(ok(Json.toJson(unexpectedResponse).toString))
+        )
 
-          val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
 
       }
 
@@ -1450,19 +1349,17 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
         val app = application
 
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .put(urlEqualTo(url))
-              .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
-              .willReturn(aResponse().withStatus(500).withBody("some error"))
-          )
+        server.stubFor(
+          WireMock
+            .put(urlEqualTo(url))
+            .withRequestBody(equalToJson(Json.toJson(editThirdPartyRequest).toString()))
+            .willReturn(aResponse().withStatus(500).withBody("some error"))
+        )
 
-          val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        val result = connector.editThirdPartyRequest(editThirdPartyRequest).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
 
       }
 
@@ -1483,20 +1380,18 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       )
 
       "must return ThirdPartyDetails when API returns 200 with valid JSON" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
-              .willReturn(ok(Json.toJson(validThirdPartyDetails).toString()))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+            .willReturn(ok(Json.toJson(validThirdPartyDetails).toString()))
+        )
 
-          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).futureValue
-          result mustBe validThirdPartyDetails
-        }
+        val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).futureValue
+        result mustBe validThirdPartyDetails
       }
 
       "must fail when malformed response recieved" in {
@@ -1506,76 +1401,68 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
              |  "foo": "bar"
              |}]""".stripMargin
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
-              .willReturn(ok(Json.toJson(responseBody).toString()))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+            .willReturn(ok(Json.toJson(responseBody).toString()))
+        )
 
-          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
       }
 
       "must throw NoAuthorisedUserFoundException when API returns 404" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
-              .willReturn(aResponse().withStatus(NOT_FOUND).withBody("No authorised user found for third party EORI:"))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+            .willReturn(aResponse().withStatus(NOT_FOUND).withBody("No authorised user found for third party EORI:"))
+        )
 
-          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
-          result mustBe a[NoAuthorisedUserFoundException]
-          result.getMessage mustBe "No authorised user found for third party EORI:"
-        }
+        val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+        result mustBe a[NoAuthorisedUserFoundException]
+        result.getMessage mustBe "No authorised user found for third party EORI:"
       }
 
       "must throw UpstreamErrorResponse when API returns other error status" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
-              .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("Server error"))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+            .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody("Server error"))
+        )
 
-          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-          result.asInstanceOf[UpstreamErrorResponse].statusCode mustBe INTERNAL_SERVER_ERROR
-          result.asInstanceOf[UpstreamErrorResponse].message must include(
-            "Unexpected response from /trade-reporting-extracts/authorised-business-details"
-          )
-        }
+        val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
+        result.asInstanceOf[UpstreamErrorResponse].statusCode mustBe INTERNAL_SERVER_ERROR
+        result.asInstanceOf[UpstreamErrorResponse].message must include(
+          "Unexpected response from /trade-reporting-extracts/authorised-business-details"
+        )
       }
 
       "must throw JsonParseException when JSON parsing fails" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
-              .willReturn(ok("invalid json"))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "thirdPartyEori": "$thirdPartyEori", "traderEori": "$traderEori" }"""))
+            .willReturn(ok("invalid json"))
+        )
 
-          val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
-          result mustBe an[JsonParseException]
-        }
+        val result = connector.getAuthorisedBusinessDetails(thirdPartyEori, traderEori).failed.futureValue
+        result mustBe an[JsonParseException]
       }
     }
 
@@ -1587,71 +1474,63 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
         val expectedEmails = Seq("email1@example.com", "email2@example.com")
         val responseBody   = Json.toJson(expectedEmails).toString()
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
-              .willReturn(ok(responseBody))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+            .willReturn(ok(responseBody))
+        )
 
-          val result = connector.getAdditionalEmails(eori).futureValue
-          result mustBe expectedEmails
-        }
+        val result = connector.getAdditionalEmails(eori).futureValue
+        result mustBe expectedEmails
       }
 
       "must return empty list when API returns empty array" in {
         val responseBody = "[]"
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
-              .willReturn(ok(responseBody))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori" }"""))
+            .willReturn(ok(responseBody))
+        )
 
-          val result = connector.getAdditionalEmails(eori).futureValue
-          result mustBe Seq.empty
-        }
+        val result = connector.getAdditionalEmails(eori).futureValue
+        result mustBe Seq.empty
       }
 
       "must return empty list when the API call throws an exception" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
+        )
 
-          val result = connector.getAdditionalEmails(eori).futureValue
-          result mustBe Seq.empty
-        }
+        val result = connector.getAdditionalEmails(eori).futureValue
+        result mustBe Seq.empty
       }
 
       "must return empty list when API returns server error" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .get(urlEqualTo(url))
-              .willReturn(serverError())
-          )
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(url))
+            .willReturn(serverError())
+        )
 
-          val result = connector.getAdditionalEmails(eori).futureValue
-          result mustBe Seq.empty
-        }
+        val result = connector.getAdditionalEmails(eori).futureValue
+        result mustBe Seq.empty
       }
     }
 
@@ -1661,53 +1540,47 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
       val emailAddress = "test@example.com"
 
       "must return true when API returns status 200" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .post(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
-              .willReturn(ok())
-          )
+        server.stubFor(
+          WireMock
+            .post(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+            .willReturn(ok())
+        )
 
-          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
-          result mustBe true
-        }
+        val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+        result mustBe true
       }
 
       "must return false when the API call throws an exception" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .post(urlEqualTo(url))
-              .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
-          )
+        server.stubFor(
+          WireMock
+            .post(urlEqualTo(url))
+            .willReturn(aResponse().withFault(com.github.tomakehurst.wiremock.http.Fault.CONNECTION_RESET_BY_PEER))
+        )
 
-          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
-          result mustBe false
-        }
+        val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+        result mustBe false
       }
 
       "must return true for status 201" in {
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .post(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
-              .willReturn(aResponse().withStatus(CREATED))
-          )
+        server.stubFor(
+          WireMock
+            .post(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+            .willReturn(aResponse().withStatus(CREATED))
+        )
 
-          val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
-          result mustBe false
-        }
+        val result = connector.addAdditionalEmail(eori, emailAddress).futureValue
+        result mustBe false
       }
     }
 
@@ -1719,38 +1592,34 @@ class TradeReportingExtractsConnectorSpec extends SpecBase with ScalaFutures wit
 
       "must return Done when No content recieved" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
-              .willReturn(aResponse().withStatus(NO_CONTENT))
-          )
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+            .willReturn(aResponse().withStatus(NO_CONTENT))
+        )
 
-          val result = connector.removeAdditionalEmail(eori, emailAddress).futureValue
-          result mustBe Done
-        }
+        val result = connector.removeAdditionalEmail(eori, emailAddress).futureValue
+        result mustBe Done
       }
 
       "must return upstream error when anything else" in {
 
-        val app = application
-        running(app) {
-          val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
+        val app       = application
+        val connector = app.injector.instanceOf[TradeReportingExtractsConnector]
 
-          server.stubFor(
-            WireMock
-              .delete(urlEqualTo(url))
-              .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
-              .willReturn(aResponse().withStatus(BAD_REQUEST))
-          )
+        server.stubFor(
+          WireMock
+            .delete(urlEqualTo(url))
+            .withRequestBody(equalToJson(s"""{ "eori": "$eori", "emailAddress": "$emailAddress" }"""))
+            .willReturn(aResponse().withStatus(BAD_REQUEST))
+        )
 
-          val result = connector.removeAdditionalEmail(eori, emailAddress).failed.futureValue
-          result mustBe an[UpstreamErrorResponse]
-        }
+        val result = connector.removeAdditionalEmail(eori, emailAddress).failed.futureValue
+        result mustBe an[UpstreamErrorResponse]
 
       }
     }

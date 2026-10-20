@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.EoriRoleFormProvider
 import models.report.Decision
 import models.{EoriRole, NormalMode, UserAnswers}
@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.report.EoriRoleView
 
-class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
+class EoriRoleControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRouteImport: Call = Call("GET", "/request-customs-declaration-data/import-report-type")
   def onwardRouteExport: Call = Call("GET", "/request-customs-declaration-data/date-range")
@@ -57,66 +57,61 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+      val application = app
+      setUserAnswers(Some(userAnswersImporter))
 
-      running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+      val request = FakeRequest(GET, eoriRoleRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EoriRoleView]
+      val view = application.injector.instanceOf[EoriRoleView]
 
-        status(result) mustEqual OK
+      status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, NormalMode, true)(request, messages(application)).toString
-      }
+      contentAsString(result) mustEqual view(form, NormalMode, true)(request, messages(application)).toString
     }
 
     "must populate the view correctly when Importer selected" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+      val application = app
+      setUserAnswers(Some(userAnswersImporter))
 
-      running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+      val request = FakeRequest(GET, eoriRoleRoute)
 
-        val view = application.injector.instanceOf[EoriRoleView]
+      val view = application.injector.instanceOf[EoriRoleView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, true)(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result).contains("importer") mustBe true
-        contentAsString(result).contains("exporter") mustBe false
-        contentAsString(result).contains("declarant") mustBe true
-
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, true)(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result).contains("importer") mustBe true
+      contentAsString(result).contains("exporter") mustBe false
+      contentAsString(result).contains("declarant") mustBe true
 
     }
 
     "must populate the view correctly when Exporter selected" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersExporter)).build()
+      val application = app
+      setUserAnswers(Some(userAnswersExporter))
 
-      running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+      val request = FakeRequest(GET, eoriRoleRoute)
 
-        val view = application.injector.instanceOf[EoriRoleView]
+      val view = application.injector.instanceOf[EoriRoleView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, false)(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result).contains("importer") mustBe false
-        contentAsString(result).contains("exporter") mustBe true
-        contentAsString(result).contains("declarant") mustBe true
-
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, false)(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result).contains("importer") mustBe false
+      contentAsString(result).contains("exporter") mustBe true
+      contentAsString(result).contains("declarant") mustBe true
 
     }
 
@@ -124,87 +119,82 @@ class EoriRoleControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = userAnswersImporter.set(EoriRolePage, Set(EoriRole.Importer, EoriRole.Declarant)).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+      val request = FakeRequest(GET, eoriRoleRoute)
 
-        val view = application.injector.instanceOf[EoriRoleView]
+      val view = application.injector.instanceOf[EoriRoleView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Set(EoriRole.Importer, EoriRole.Declarant)), NormalMode, true)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(Set(EoriRole.Importer, EoriRole.Declarant)), NormalMode, true)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+      val application = app
+      setUserAnswers(Some(userAnswersImporter))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, eoriRoleRoute)
-            .withFormUrlEncodedBody(("value[0]", EoriRole.Importer.toString), ("value[1]", EoriRole.Declarant.toString))
+      val request =
+        FakeRequest(POST, eoriRoleRoute)
+          .withFormUrlEncodedBody(("value[0]", EoriRole.Importer.toString), ("value[1]", EoriRole.Declarant.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteImport.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRouteImport.url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersImporter)).build()
+      val application = app
+      setUserAnswers(Some(userAnswersImporter))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, eoriRoleRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+      val request =
+        FakeRequest(POST, eoriRoleRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[EoriRoleView]
+      val view = application.injector.instanceOf[EoriRoleView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, true)(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, true)(request, messages(application)).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(GET, eoriRoleRoute)
+      val request = FakeRequest(GET, eoriRoleRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request =
-          FakeRequest(POST, eoriRoleRoute)
-            .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
+      val request =
+        FakeRequest(POST, eoriRoleRoute)
+          .withFormUrlEncodedBody(("value[0]", EoriRole.values.head.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.CustomRequestEndDateFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, ThirdPartyDetails, UserAnswers}
@@ -24,7 +24,9 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.reset
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.i18n.Messages
 import play.api.inject.bind
@@ -37,13 +39,25 @@ import utils.DateTimeFormats
 import views.html.report.CustomRequestEndDateView
 
 import java.time.{Clock, LocalDate, ZoneId, ZoneOffset}
+import java.time.Instant
 import scala.concurrent.Future
 
-class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
+class CustomRequestEndDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private implicit val messages: Messages = stubMessages()
 
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository                                    = mock[SessionRepository]
+  private var clockInstant                                             = Instant.now()
+  private var clockZone: ZoneId                                        = ZoneId.systemDefault()
+  private val suiteClock: Clock                                        = new Clock {
+    override def instant(): Instant            = clockInstant
+    override def getZone: ZoneId               = clockZone
+    override def withZone(zone: ZoneId): Clock = {
+      clockZone = zone
+      this
+    }
+  }
 
   lazy val thirdPartyDetails = ThirdPartyDetails(
     None,
@@ -80,33 +94,48 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         "value.year"  -> date.getYear.toString
       )
 
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        bind[Clock].toInstance(suiteClock)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService, mockSessionRepository)
+    clockInstant = Instant.now()
+    clockZone = ZoneId.systemDefault()
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+  }
+
   "CustomRequestEndDate Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(CustomRequestStartDatePage, startDate).success.value)
-      ).build()
+      setUserAnswers(Some(emptyUserAnswers.set(CustomRequestStartDatePage, startDate).success.value))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          startDateString,
-          startDatePlus30DaysString,
-          false,
-          false,
-          None
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        startDateString,
+        startDatePlus30DaysString,
+        false,
+        false,
+        None
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return OK and correct view when third party with complete data access" in {
@@ -116,7 +145,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -125,32 +154,27 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      val application = app
+
+      val result = route(application, getRequest).value
+
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        startDateString,
+        "31 1 2025",
+        false,
+        true,
+        Some(
+          "Based on your start date, the latest end date you can enter is 31 1 2025."
         )
-        .build()
-
-      running(application) {
-        val result = route(application, getRequest).value
-
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          startDateString,
-          "31 1 2025",
-          false,
-          true,
-          Some(
-            "Based on your start date, the latest end date you can enter is 31 1 2025."
-          )
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      )(
+        getRequest,
+        messages(application)
+      ).toString
 
     }
 
@@ -161,7 +185,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -170,32 +194,27 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      val application = app
+
+      val result = route(application, getRequest).value
+
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        startDateString,
+        "31 1 2025",
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
         )
-        .build()
-
-      running(application) {
-        val result = route(application, getRequest).value
-
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          startDateString,
-          "31 1 2025",
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
-          )
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must use data end date as max end date when third party data end date is before T-2" in {
@@ -211,7 +230,8 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val application = applicationBuilder(userAnswers =
+      clockInstant = clock.instant()
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -220,17 +240,11 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[Clock].toInstance(clock)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
-        status(result) mustEqual OK
-        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 2 1 2026.")
-      }
+      val result = route(application, getRequest).value
+      status(result) mustEqual OK
+      contentAsString(result) must include("Based on your start date, the latest end date you can enter is 2 1 2026.")
     }
 
     "must use T-2 as max end date when third party data end date is after T-2" in {
@@ -246,7 +260,8 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val application = applicationBuilder(userAnswers =
+      clockInstant = clock.instant()
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -255,17 +270,11 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[Clock].toInstance(clock)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
-        status(result) mustEqual OK
-        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
-      }
+      val result = route(application, getRequest).value
+      status(result) mustEqual OK
+      contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
     }
 
     "must use start date as max end date when third party data end date is before start date" in {
@@ -281,7 +290,8 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val application = applicationBuilder(userAnswers =
+      clockInstant = clock.instant()
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -290,17 +300,11 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[Clock].toInstance(clock)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
-        status(result) mustEqual OK
-        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 1 1 2026.")
-      }
+      val result = route(application, getRequest).value
+      status(result) mustEqual OK
+      contentAsString(result) must include("Based on your start date, the latest end date you can enter is 1 1 2026.")
     }
 
     "must use start date + 30 days or T-2, whichever is earlier, when third party data end date is not present" in {
@@ -315,7 +319,8 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(details))
 
-      val application = applicationBuilder(userAnswers =
+      clockInstant = clock.instant()
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -324,17 +329,11 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[Clock].toInstance(clock)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
-        status(result) mustEqual OK
-        contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
-      }
+      val result = route(application, getRequest).value
+      status(result) mustEqual OK
+      contentAsString(result) must include("Based on your start date, the latest end date you can enter is 6 1 2026.")
     }
 
     "must return OK and correct view when third party with fixed start and end data range " in {
@@ -347,7 +346,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -356,38 +355,33 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      val application = app
+
+      val result = route(application, getRequest).value
+
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        startDateString,
+        "31 1 2025",
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 to 1 2 2025. Based on your start date, the latest end date you can enter is 31 1 2025."
         )
-        .build()
-
-      running(application) {
-        val result = route(application, getRequest).value
-
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          startDateString,
-          "31 1 2025",
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 to 1 2 2025. Based on your start date, the latest end date you can enter is 31 1 2025."
-          )
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      )(
+        getRequest,
+        messages(application)
+      ).toString
 
     }
 
     "must return correct view when more than one report type selected " in {
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(CustomRequestStartDatePage, startDate)
@@ -397,32 +391,31 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .success
             .value
         )
-      ).build()
+      )
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          startDateString,
-          startDatePlus30DaysString,
-          true,
-          false,
-          None
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        startDateString,
+        startDatePlus30DaysString,
+        true,
+        false,
+        None
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return maximum date as today minus 2 days when start date + 30days is in the future" in {
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(CustomRequestStartDatePage, mostRecentPossibleStartDate)
@@ -432,27 +425,26 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .success
             .value
         )
-      ).build()
+      )
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          possibleStartDateString,
-          mostRecentPossibleStartDateString,
-          false,
-          false,
-          None
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        possibleStartDateString,
+        mostRecentPossibleStartDateString,
+        false,
+        false,
+        None
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -465,55 +457,45 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill(startDate),
-          NormalMode,
-          startDateString,
-          startDatePlus30DaysString,
-          false,
-          false,
-          None
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form.fill(startDate),
+        NormalMode,
+        startDateString,
+        startDatePlus30DaysString,
+        false,
+        false,
+        None
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val ua                    = emptyUserAnswers
+      val ua = emptyUserAnswers
         .set(ReportTypeImportPage, Set(ReportTypeImport.ImportItem, ReportTypeImport.ImportHeader))
         .success
         .value
         .set(CustomRequestStartDatePage, startDate)
         .success
         .value
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(ua))
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(startDate)).value
+      val result = route(application, postRequest(startDate)).value
 
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
@@ -526,30 +508,29 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
+      setUserAnswers(Some(ua))
+      val application = app
 
       val request =
         FakeRequest(POST, customRequestEndDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          startDateString,
-          startDatePlus30DaysString,
-          false,
-          false,
-          None
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        startDateString,
+        startDatePlus30DaysString,
+        false,
+        false,
+        None
+      )(request, messages(application)).toString
     }
 
     "must return a Bad Request and errors when invalid data is submitted for a third party" in {
@@ -559,7 +540,7 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
 
       val form = formProvider(LocalDate.of(2025, 1, 1), true, None)
 
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(SelectThirdPartyEoriPage, "traderEori")
@@ -568,128 +549,105 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
             .get
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
 
       val request =
         FakeRequest(POST, customRequestEndDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[CustomRequestEndDateView]
+      val view = application.injector.instanceOf[CustomRequestEndDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          startDateString,
-          "31 1 2025",
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
-          )
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        startDateString,
+        "31 1 2025",
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 onwards. Based on your start date, the latest end date you can enter is 31 1 2025."
+        )
+      )(request, messages(application)).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(startDate)).value
+      val result = route(application, postRequest(startDate)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for GET onPageLoad request" in {
       import exceptions.NoAuthorisedUserFoundException
 
-      val testEori              = "GB123456789012"
-      val userAnswers           = emptyUserAnswers
+      val testEori    = "GB123456789012"
+      val userAnswers = emptyUserAnswers
         .set(SelectThirdPartyEoriPage, testEori)
         .success
         .value
         .set(CustomRequestStartDatePage, startDate)
         .success
         .value
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(NoAuthorisedUserFoundException("Test exception")))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad(testEori)
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad(testEori)
+        .url
     }
 
     "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for POST onsubmit request" in {
       import exceptions.NoAuthorisedUserFoundException
 
-      val testEori              = "GB123456789012"
-      val userAnswers           = emptyUserAnswers
+      val testEori    = "GB123456789012"
+      val userAnswers = emptyUserAnswers
         .set(SelectThirdPartyEoriPage, testEori)
         .success
         .value
         .set(CustomRequestStartDatePage, startDate)
         .success
         .value
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(NoAuthorisedUserFoundException("Test exception")))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val endDate = startDate.plusDays(10)
-        val result  = route(application, postRequest(endDate)).value
+      val endDate = startDate.plusDays(10)
+      val result  = route(application, postRequest(endDate)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad(testEori)
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad(testEori)
+        .url
     }
 
     "must redirect to Report Issue Controller when no request start date is found for POST onsubmit request" in {
@@ -700,29 +658,22 @@ class CustomRequestEndDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val endDate = startDate.plusDays(10)
-        val result  = route(application, postRequest(endDate)).value
+      val endDate = startDate.plusDays(10)
+      val result  = route(application, postRequest(endDate)).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(SelectThirdPartyEoriPage) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.ReportRequestGeneralProblemController
+        .onPageLoad()
+        .url
     }
   }
 }

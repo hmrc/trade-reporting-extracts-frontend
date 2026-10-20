@@ -16,30 +16,29 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import controllers.problem.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.AlreadySubmittedView
 
-class AlreadySubmittedControllerSpec extends SpecBase {
+class AlreadySubmittedControllerSpec extends AppPerSuiteSpecBase {
 
   "AlreadySubmitted Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AlreadySubmittedController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.AlreadySubmittedController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AlreadySubmittedView]
+      val view = application.injector.instanceOf[AlreadySubmittedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view()(request, messages(application)).toString
     }
   }
 }

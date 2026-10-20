@@ -16,32 +16,31 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.MissingDependentAnswersView
 
-class MissingDependentAnswersControllerSpec extends SpecBase {
+class MissingDependentAnswersControllerSpec extends AppPerSuiteSpecBase {
 
   "MissingDependentAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.MissingDependentAnswersController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.MissingDependentAnswersController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MissingDependentAnswersView]
+      val view = application.injector.instanceOf[MissingDependentAnswersView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view("/request-customs-declaration-data/request-cds-report")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view("/request-customs-declaration-data/request-cds-report")(
+        request,
+        messages(application)
+      ).toString
     }
   }
 }

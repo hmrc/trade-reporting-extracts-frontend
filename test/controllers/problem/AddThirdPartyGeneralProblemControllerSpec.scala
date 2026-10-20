@@ -16,30 +16,29 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.AddThirdPartyGeneralProblemView
 
-class AddThirdPartyGeneralProblemControllerSpec extends SpecBase {
+class AddThirdPartyGeneralProblemControllerSpec extends AppPerSuiteSpecBase {
 
   "AddThirdPartyGeneralProblem Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad().url)
+      val request =
+        FakeRequest(GET, controllers.problem.routes.AddThirdPartyGeneralProblemController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AddThirdPartyGeneralProblemView]
+      val view = application.injector.instanceOf[AddThirdPartyGeneralProblemView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view()(request, messages(application)).toString
     }
   }
 }

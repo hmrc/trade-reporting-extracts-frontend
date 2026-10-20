@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.ConfirmEoriFormProvider
 import models.thirdparty.ConfirmEori
 import models.{CompanyInformation, ConsentStatus, NormalMode, UserAnswers}
@@ -35,7 +35,7 @@ import views.html.thirdparty.ConfirmEoriView
 
 import scala.concurrent.Future
 
-class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
+class ConfirmEoriControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRoute: Call                = Call("GET", "/request-customs-declaration-data/reference-name")
   def onwardRouteSkipRefNamePage: Call = Call("GET", "/request-customs-declaration-data/access-start-date")
@@ -53,6 +53,15 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
   val companyInfo: CompanyInformation            = CompanyInformation("Test Company", ConsentStatus.Denied, false)
   val companyInfoWithConsent: CompanyInformation = CompanyInformation("Test Company", ConsentStatus.Granted, false)
 
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+
   "ConfirmEori Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -64,26 +73,21 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, confirmEoriRoute)
+      val request = FakeRequest(GET, confirmEoriRoute)
 
-        val result = route(application, request).value
-        val view   = application.injector.instanceOf[ConfirmEoriView]
+      val result = route(application, request).value
+      val view   = application.injector.instanceOf[ConfirmEoriView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          eoriNumber,
-          messages(application)("confirmEori.noConsent")
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        eoriNumber,
+        messages(application)("confirmEori.noConsent")
+      )(request, messages(application)).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -98,26 +102,21 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(companyInfo))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, confirmEoriRoute)
-        val view    = application.injector.instanceOf[ConfirmEoriView]
+      val request = FakeRequest(GET, confirmEoriRoute)
+      val view    = application.injector.instanceOf[ConfirmEoriView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill(ConfirmEori.Yes),
-          NormalMode,
-          eoriNumber,
-          messages(application)("confirmEori.noConsent")
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form.fill(ConfirmEori.Yes),
+        NormalMode,
+        eoriNumber,
+        messages(application)("confirmEori.noConsent")
+      )(request, messages(application)).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
@@ -130,23 +129,16 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, confirmEoriRoute)
-          .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
+      val request = FakeRequest(POST, confirmEoriRoute)
+        .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
     }
 
     "must redirect to ThirdPartyAccessStartDate page when No consent in company info" in {
@@ -159,23 +151,16 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, confirmEoriRoute)
-          .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
+      val request = FakeRequest(POST, confirmEoriRoute)
+        .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteSkipRefNamePage.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRouteSkipRefNamePage.url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
@@ -186,58 +171,51 @@ class ConfirmEoriControllerSpec extends SpecBase with MockitoSugar {
         .set(EoriNumberPage, eoriNumber)
         .success
         .value
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, confirmEoriRoute)
-          .withFormUrlEncodedBody("value" -> "invalid value")
+      val request = FakeRequest(POST, confirmEoriRoute)
+        .withFormUrlEncodedBody("value" -> "invalid value")
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
-        val view      = application.injector.instanceOf[ConfirmEoriView]
+      val boundForm = form.bind(Map("value" -> "invalid value"))
+      val view      = application.injector.instanceOf[ConfirmEoriView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          eoriNumber,
-          messages(application)("confirmEori.noConsent")
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        eoriNumber,
+        messages(application)("confirmEori.noConsent")
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(GET, confirmEoriRoute)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, confirmEoriRoute)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(POST, confirmEoriRoute)
-          .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
+      val request = FakeRequest(POST, confirmEoriRoute)
+        .withFormUrlEncodedBody("value" -> ConfirmEori.Yes.toString)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

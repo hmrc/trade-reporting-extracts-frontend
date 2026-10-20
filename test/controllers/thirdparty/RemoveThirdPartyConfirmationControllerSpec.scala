@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.UserAnswers
 import models.thirdparty.ThirdPartyRemovalMeta
 import play.api.inject.bind
@@ -28,14 +28,19 @@ import views.html.thirdparty.RemoveThirdPartyConfirmationView
 
 import java.time.{Clock, Instant, ZoneId}
 
-class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
+class RemoveThirdPartyConfirmationControllerSpec extends AppPerSuiteSpecBase {
+
+  private val fixedInstant: Instant = Instant.parse("2025-05-20T00:00:00Z")
+  private val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[Clock].toInstance(fixedClock))
+      .build()
 
   "RemoveThirdPartyConfirmationController" - {
 
     "must return OK and render the correct view for a GET" in {
-      val fixedInstant: Instant = Instant.parse("2025-05-20T00:00:00Z")
-      val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
-
       val removalMeta = ThirdPartyRemovalMeta(
         eori = "GB123456789000",
         submittedAt = fixedInstant,
@@ -46,41 +51,37 @@ class RemoveThirdPartyConfirmationControllerSpec extends SpecBase {
         submissionMeta = Some(Json.toJson(removalMeta).as[JsObject])
       )
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val view = application.injector.instanceOf[RemoveThirdPartyConfirmationView]
+      val view = application.injector.instanceOf[RemoveThirdPartyConfirmationView]
 
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
-        val result  = route(application, request).value
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
+      val result  = route(application, request).value
 
-        val (expectedDate, expectedTime) =
-          DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val (expectedDate, expectedTime) =
+        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          expectedDate,
-          expectedTime,
-          "GB123456789000",
-          "notify@example.com"
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        expectedDate,
+        expectedTime,
+        "GB123456789000",
+        "notify@example.com"
+      )(request, messages(application)).toString
     }
 
     "return OK and render empty values when submissionMeta is missing" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
-        val result  = route(application, request).value
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) must include("")
-      }
+      status(result) mustEqual OK
+      contentAsString(result) must include("")
     }
   }
 
