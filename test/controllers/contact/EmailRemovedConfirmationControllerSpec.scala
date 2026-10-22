@@ -16,7 +16,7 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -26,7 +26,13 @@ import views.html.contact.EmailRemovedConfirmationView
 
 import java.time.{Clock, Instant, ZoneId}
 
-class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar {
+class EmailRemovedConfirmationControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Clock].toInstance(fixedClock)
+      )
+      .build()
 
   private val fixedInstant: Instant = Instant.parse("2026-02-16T10:18:36Z")
   private val fixedClock: Clock     = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
@@ -37,66 +43,54 @@ class EmailRemovedConfirmationControllerSpec extends SpecBase with MockitoSugar 
 
       val emailAddress = "test@test.com"
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[Clock].toInstance(fixedClock))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
+      val request =
+        FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
 
-        val result = route(application, request).value
-        val view   = application.injector.instanceOf[EmailRemovedConfirmationView]
+      val result = route(application, request).value
+      val view   = application.injector.instanceOf[EmailRemovedConfirmationView]
 
-        val (submittedDate, submittedTime) =
-          DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val (submittedDate, submittedTime) =
+        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emailAddress, submittedDate, submittedTime)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(emailAddress, submittedDate, submittedTime)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to ContactDetailsController when emailAddress is empty" in {
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[Clock].toInstance(fixedClock))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad("").url)
+      val request = FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad("").url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual
-          controllers.contact.routes.ContactDetailsController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual
+        controllers.contact.routes.ContactDetailsController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a GET when no existing data is found" in {
 
       val emailAddress = "test@test.com"
 
-      val application =
-        applicationBuilder(userAnswers = None)
-          .overrides(bind[Clock].toInstance(fixedClock))
-          .build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
+      val request =
+        FakeRequest(GET, controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual
-          controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual
+        controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

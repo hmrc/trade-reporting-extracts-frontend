@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.thirdparty.*
 import models.{AlreadyAddedThirdPartyFlag, CompanyInformation, ConsentStatus, UserAnswers}
 import org.mockito.ArgumentCaptor
@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatest.BeforeAndAfterEach
 import pages.thirdparty.*
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -37,12 +38,42 @@ import views.html.thirdparty.AddThirdPartyCheckYourAnswersView
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
-class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
+class AddThirdPartyCheckYourAnswersControllerSpec
+    extends AppPerSuiteSpecBase
+    with MockitoSugar
+    with BeforeAndAfterEach {
 
   private val fixedClock: Clock                                        = Clock.fixed(Instant.parse("2025-05-05T10:15:30Z"), ZoneOffset.UTC)
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
   val mockAuditService: AuditService                                   = mock[AuditService]
   val mockThirdPartyService: ThirdPartyService                         = mock[ThirdPartyService]
+  private val mockSessionRepository                                    = mock[SessionRepository]
+
+  when(mockAuditService.auditThirdPartyAdded(any())(any())).thenReturn(Future.successful(()))
+  when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        bind[AuditService].toInstance(mockAuditService),
+        bind[ThirdPartyService].toInstance(mockThirdPartyService),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[Clock].toInstance(fixedClock)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(
+      mockTradeReportingExtractsService,
+      mockAuditService,
+      mockThirdPartyService,
+      mockSessionRepository
+    )
+    when(mockAuditService.auditThirdPartyAdded(any())(any())).thenReturn(Future.successful(()))
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   "AddThirdPartyCheckYourAnswers Controller" - {
 
@@ -68,33 +99,27 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(CompanyInformation("businessInfo", ConsentStatus.Granted, false)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[AddThirdPartyCheckYourAnswersView]
+      val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[AddThirdPartyCheckYourAnswersView]
 
-        val list = SummaryListViewModel(
-          Seq(
-            ThirdPartyDataOwnerConsentSummary.row(userAnswers)(messages(application)),
-            EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            BusinessInfoSummary.row("businessInfo")(messages(application)),
-            ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            DataTypesSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            DeclarationDateSummary.row(userAnswers)(messages(application)),
-            DataTheyCanViewSummary.checkYourAnswersRow(userAnswers)(messages(application))
-          ).flatten
-        )
+      val list = SummaryListViewModel(
+        Seq(
+          ThirdPartyDataOwnerConsentSummary.row(userAnswers)(messages(application)),
+          EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          BusinessInfoSummary.row("businessInfo")(messages(application)),
+          ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          DataTypesSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          DeclarationDateSummary.row(userAnswers)(messages(application)),
+          DataTheyCanViewSummary.checkYourAnswersRow(userAnswers)(messages(application))
+        ).flatten
+      )
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list)(request, messages(application)).toString
     }
 
     "must redirect to AddThirdPartyController when validation fails due to missing mandatory fields" in {
@@ -105,17 +130,14 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .value
       // Missing: ThirdPartyDataOwnerConsentPage, ThirdPartyAccessStartDatePage, DataTypesPage, DeclarationDatePage
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController.onPageLoad().url
     }
 
     "must redirect to AddThirdPartyController when consent is false (No)" in {
@@ -140,17 +162,14 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController.onPageLoad().url
     }
 
     "must return OK and the correct view for a GET when business consent not given" in {
@@ -180,39 +199,32 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
       when(mockTradeReportingExtractsService.getCompanyInformation(any())(any()))
         .thenReturn(Future.successful(CompanyInformation("businessInfo", ConsentStatus.Denied, false)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[AddThirdPartyCheckYourAnswersView]
+      val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onPageLoad().url)
+      val result  = route(application, request).value
+      val view    = application.injector.instanceOf[AddThirdPartyCheckYourAnswersView]
 
-        val list = SummaryListViewModel(
-          Seq(
-            ThirdPartyDataOwnerConsentSummary.row(userAnswers)(messages(application)),
-            EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            DataTypesSummary.checkYourAnswersRow(userAnswers)(messages(application)),
-            DeclarationDateSummary.row(userAnswers)(messages(application)),
-            DataTheyCanViewSummary.checkYourAnswersRow(userAnswers)(messages(application))
-          ).flatten
-        )
+      val list = SummaryListViewModel(
+        Seq(
+          ThirdPartyDataOwnerConsentSummary.row(userAnswers)(messages(application)),
+          EoriNumberSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          ThirdPartyReferenceSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          ThirdPartyAccessPeriodSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          DataTypesSummary.checkYourAnswersRow(userAnswers)(messages(application)),
+          DeclarationDateSummary.row(userAnswers)(messages(application)),
+          DataTheyCanViewSummary.checkYourAnswersRow(userAnswers)(messages(application))
+        ).flatten
+      )
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list)(request, messages(application)).toString
     }
 
     "Clear user answers, set already submitted flag if eori number page missing and redirect to general problem page for a GET" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
@@ -233,25 +245,19 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
-        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
-        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+      capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+      redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "must redirect to confirmation page for a POST" in {
@@ -307,28 +313,21 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .thenReturn(Future.successful(CompanyInformation("businessInfo", ConsentStatus.Granted, false)))
       when(mockAuditService.auditThirdPartyAdded(any())(any())).thenReturn(Future.successful(()))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[Clock].toInstance(fixedClock)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
+        .onPageLoad()
+        .url
     }
 
     "Clear user answers, set already submitted flag if eori number page missing and redirect to general problem page for a POST" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
@@ -346,32 +345,25 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
-        capturedAnswers.get(ThirdPartyReferencePage) mustBe None
-        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
-        redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+      capturedAnswers.get(ThirdPartyReferencePage) mustBe None
+      capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+      redirectLocation(result).value mustEqual controllers.problem.routes.AddThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "Clear user answers, set already submitted flag if any other page missing and redirect to  problem page for a POST" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
@@ -392,26 +384,20 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
-        capturedAnswers.get(ThirdPartyReferencePage) mustBe None
-        capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
-        redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ThirdPartyDataOwnerConsentPage) mustBe None
+      capturedAnswers.get(ThirdPartyReferencePage) mustBe None
+      capturedAnswers.get(AlreadyAddedThirdPartyFlag()) mustBe Some(true)
+      redirectLocation(result).value mustEqual controllers.problem.routes.ThirdPartyIssueController
+        .onPageLoad()
+        .url
     }
 
     "must return correct details for audit event" in {
@@ -467,25 +453,17 @@ class AddThirdPartyCheckYourAnswersControllerSpec extends SpecBase with MockitoS
         .thenReturn(Future.successful(CompanyInformation("businessInfo", ConsentStatus.Granted, false)))
       when(mockAuditService.auditThirdPartyAdded(any())(any())).thenReturn(Future.successful(()))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[ThirdPartyService].toInstance(mockThirdPartyService),
-          bind[AuditService].toInstance(mockAuditService),
-          bind[Clock].toInstance(fixedClock)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(POST, routes.AddThirdPartyCheckYourAnswersController.onSubmit().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
-          .onPageLoad()
-          .url
-        verify(mockAuditService, times(1)).auditThirdPartyAdded(any())(any())
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.thirdparty.routes.ThirdPartyAddedConfirmationController
+        .onPageLoad()
+        .url
+      verify(mockAuditService, times(1)).auditThirdPartyAdded(any())(any())
     }
 
   }

@@ -97,7 +97,7 @@ class ReportDateRangeController @Inject (clock: Clock = Clock.systemUTC())(
   }
 
   private def lastFullCalendarMonthHintStrings(implicit messages: Messages): (String, String) = {
-    val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock.getZone()))
+    val startEndDate = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock))
     (startEndDate._1.format(dateTimeFormat()(messages.lang)), startEndDate._2.format(dateTimeFormat()(messages.lang)))
   }
 }

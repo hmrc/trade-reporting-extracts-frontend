@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.ReportDateRangeFormProvider
 import models.report.ReportDateRange
 import models.{NormalMode, UserAnswers}
@@ -24,6 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.report.ReportDateRangePage
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -36,11 +37,11 @@ import utils.DateTimeFormats
 import utils.DateTimeFormats.dateTimeFormat
 import views.html.report.ReportDateRangeView
 
-import java.time.{Clock, Instant, LocalDate, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneId, ZoneOffset}
 import java.time.temporal.ChronoUnit
 import scala.concurrent.Future
 
-class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
+class ReportDateRangeControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/report-name")
 
@@ -49,70 +50,86 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
   val formProvider                        = new ReportDateRangeFormProvider()
   val form: Form[ReportDateRange]         = formProvider("reportDateRange.error.required")
   val instant: Instant                    = Instant.now().truncatedTo(ChronoUnit.MILLIS)
-  val fixedClock: Clock                   = Clock.fixed(instant, ZoneOffset.UTC)
+  private var clockInstant                = instant
+  private val suiteClock: Clock           = new Clock {
+    override def instant(): Instant            = clockInstant
+    override def getZone: ZoneId               = ZoneOffset.UTC
+    override def withZone(zone: ZoneId): Clock = this
+  }
+  private val mockSessionRepository       = mock[SessionRepository]
   private implicit val messages: Messages = stubMessages()
 
-  private def lastFullCalendarMonthHintStrings(clock: Clock = fixedClock): (String, String) = {
+  private def lastFullCalendarMonthHintStrings(clock: Clock = suiteClock): (String, String) = {
     val (start, end) = DateTimeFormats.lastFullCalendarMonth(LocalDate.now(clock))
     val fmt          = dateTimeFormat()(messages.lang)
     (start.format(fmt), end.format(fmt))
+  }
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Clock].toInstance(suiteClock),
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    clockInstant = instant
+    org.mockito.Mockito.reset(mockSessionRepository)
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
   }
 
   "ReportDateRange Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+      val request = FakeRequest(GET, reportDateRangeRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+      val view = application.injector.instanceOf[ReportDateRangeView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          lastFullCalendarMonthHintStrings(),
-          isMoreThanOneReport = false
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        lastFullCalendarMonthHintStrings(),
+        isMoreThanOneReport = false
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view/dates when last day of calendar month after T-2 current day for a GET" in {
 
       val fixedInstant = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).atStartOfDay().toInstant(ZoneOffset.UTC)
-      val fixedClock   = Clock.fixed(fixedInstant, ZoneOffset.UTC)
+      clockInstant = fixedInstant
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+      val request = FakeRequest(GET, reportDateRangeRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+      val view = application.injector.instanceOf[ReportDateRangeView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          lastFullCalendarMonthHintStrings(),
-          isMoreThanOneReport = false
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        lastFullCalendarMonthHintStrings(),
+        isMoreThanOneReport = false
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -120,115 +137,98 @@ class ReportDateRangeControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers =
         UserAnswers(userAnswersId).set(ReportDateRangePage, ReportDateRange.LastFullCalendarMonth).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+      val request = FakeRequest(GET, reportDateRangeRoute)
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+      val view = application.injector.instanceOf[ReportDateRangeView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill(ReportDateRange.LastFullCalendarMonth),
-          NormalMode,
-          lastFullCalendarMonthHintStrings(),
-          isMoreThanOneReport = false
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form.fill(ReportDateRange.LastFullCalendarMonth),
+        NormalMode,
+        lastFullCalendarMonthHintStrings(),
+        isMoreThanOneReport = false
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
+      val request =
+        FakeRequest(POST, reportDateRangeRoute)
+          .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+      val request =
+        FakeRequest(POST, reportDateRangeRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[ReportDateRangeView]
+      val view = application.injector.instanceOf[ReportDateRangeView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          lastFullCalendarMonthHintStrings(),
-          isMoreThanOneReport = false
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        lastFullCalendarMonthHintStrings(),
+        isMoreThanOneReport = false
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, reportDateRangeRoute)
+      val request = FakeRequest(GET, reportDateRangeRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, reportDateRangeRoute)
-            .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
+      val request =
+        FakeRequest(POST, reportDateRangeRoute)
+          .withFormUrlEncodedBody(("value", ReportDateRange.values.head.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+      status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

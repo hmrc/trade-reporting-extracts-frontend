@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.DeclarationDateFormProvider
 import models.NormalMode
 import models.thirdparty.{DataTypes, DeclarationDate}
@@ -34,11 +34,22 @@ import views.html.thirdparty.DeclarationDateView
 
 import scala.concurrent.Future
 
-class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
+class DeclarationDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
   lazy val declarationDateRoute = controllers.thirdparty.routes.DeclarationDateController.onPageLoad(NormalMode).url
+
+  private val mockSessionRepository = mock[SessionRepository]
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
 
   val formProvider = new DeclarationDateFormProvider()
 
@@ -50,127 +61,111 @@ class DeclarationDateControllerSpec extends SpecBase with MockitoSugar {
     val noAnswers         = emptyUserAnswers
 
     "must return OK and the correct view for a GET with import only" in {
-      val application = applicationBuilder(userAnswers = Some(importOnlyAnswers)).build()
-      running(application) {
-        val request = FakeRequest(GET, declarationDateRoute)
-        val view    = application.injector.instanceOf[DeclarationDateView]
-        val form    = formProvider(Seq("import"))
-        val result  = route(application, request).value
+      val application = app
+      setUserAnswers(Some(importOnlyAnswers))
+      val request     = FakeRequest(GET, declarationDateRoute)
+      val view        = application.injector.instanceOf[DeclarationDateView]
+      val form        = formProvider(Seq("import"))
+      val result      = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "import")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "import")(request, messages(application)).toString
     }
 
     "must return OK and the correct view for a GET with export only" in {
-      val application = applicationBuilder(userAnswers = Some(exportOnlyAnswers)).build()
-      running(application) {
-        val request = FakeRequest(GET, declarationDateRoute)
-        val view    = application.injector.instanceOf[DeclarationDateView]
-        val form    = formProvider(Seq("export"))
-        val result  = route(application, request).value
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "export")(request, messages(application)).toString
-      }
+      val application = app
+      setUserAnswers(Some(exportOnlyAnswers))
+      val request     = FakeRequest(GET, declarationDateRoute)
+      val view        = application.injector.instanceOf[DeclarationDateView]
+      val form        = formProvider(Seq("export"))
+      val result      = route(application, request).value
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "export")(request, messages(application)).toString
     }
 
     "must return OK and the correct view for a GET with import and export" in {
-      val application = applicationBuilder(userAnswers = Some(bothAnswers)).build()
-      running(application) {
-        val request = FakeRequest(GET, declarationDateRoute)
-        val view    = application.injector.instanceOf[DeclarationDateView]
-        val form    = formProvider(Seq("import and export"))
-        val result  = route(application, request).value
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "import and export")(
-          request,
-          messages(application)
-        ).toString
-      }
+      val application = app
+      setUserAnswers(Some(bothAnswers))
+      val request     = FakeRequest(GET, declarationDateRoute)
+      val view        = application.injector.instanceOf[DeclarationDateView]
+      val form        = formProvider(Seq("import and export"))
+      val result      = route(application, request).value
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "import and export")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET with no DataTypes" in {
-      val application = applicationBuilder(userAnswers = Some(noAnswers)).build()
-      running(application) {
-        val request = FakeRequest(GET, declarationDateRoute)
-        val view    = application.injector.instanceOf[DeclarationDateView]
-        val form    = formProvider(Seq(""))
-        val result  = route(application, request).value
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "")(request, messages(application)).toString
-      }
+      val application = app
+      setUserAnswers(Some(noAnswers))
+      val request     = FakeRequest(GET, declarationDateRoute)
+      val view        = application.injector.instanceOf[DeclarationDateView]
+      val form        = formProvider(Seq(""))
+      val result      = route(application, request).value
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "")(request, messages(application)).toString
     }
 
     "must redirect to the next page when valid data is submitted with import only" in {
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      val application           =
-        applicationBuilder(userAnswers = Some(importOnlyAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
-      running(application) {
-        val request =
-          FakeRequest(POST, declarationDateRoute)
-            .withFormUrlEncodedBody(("value", DeclarationDate.values.head.toString))
-        val result  = route(application, request).value
-        status(result) mustEqual SEE_OTHER
-      }
+      val application = app
+      setUserAnswers(Some(importOnlyAnswers))
+      val request     =
+        FakeRequest(POST, declarationDateRoute)
+          .withFormUrlEncodedBody(("value", DeclarationDate.values.head.toString))
+      val result      = route(application, request).value
+      status(result) mustEqual SEE_OTHER
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, declarationDateRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+      val request =
+        FakeRequest(POST, declarationDateRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val form = formProvider(Seq(""))
+      val form = formProvider(Seq(""))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[DeclarationDateView]
+      val view = application.injector.instanceOf[DeclarationDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "")(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, "")(request, messages(application)).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(GET, declarationDateRoute)
+      val request = FakeRequest(GET, declarationDateRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request =
-          FakeRequest(POST, declarationDateRoute)
-            .withFormUrlEncodedBody(("value", DeclarationDate.values.head.toString))
+      val request =
+        FakeRequest(POST, declarationDateRoute)
+          .withFormUrlEncodedBody(("value", DeclarationDate.values.head.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+      status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

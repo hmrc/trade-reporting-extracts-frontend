@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import connectors.WireMockHelper
 import models.ConsentStatus.Granted
@@ -27,178 +27,196 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.{Application, inject}
+import play.api.inject.bind
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.contact.ContactDetailsView
-import org.mockito.Mockito.reset
+import org.scalatest.BeforeAndAfterEach
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
+class ContactDetailsControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val companyInformation: CompanyInformation     =
+    CompanyInformation(
+      name = "ABC Company",
+      consent = Granted,
+      inactiveEori = false
+    )
+  private val eori                                       = "GB123456789002"
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[TradeReportingExtractsService].toInstance(mockService))
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockService)
+  }
 
   "ContactDetailsController" - {
 
     val manageEmailGuideUrl: String =
       "https://www.gov.uk/guidance/manage-your-email-address-for-the-customs-declaration-service"
 
-    "must return OK and render the correct view for a GET request" in new Setup {
+    "must return OK and render the correct view for a GET request" in {
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
+      val userDetails = UserDetails(
+        eori = eori,
+        additionalEmails = Seq("test@example.com"),
+        authorisedUsers = Seq.empty,
+        companyInformation = companyInformation,
+        notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+        personalEmailNotificationsEnabled = true
+      )
 
-        val userDetails = UserDetails(
-          eori = eori,
-          additionalEmails = Seq("test@example.com"),
-          authorisedUsers = Seq.empty,
-          companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
-          personalEmailNotificationsEnabled = true
-        )
+      when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userDetails))
 
-        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userDetails))
+      val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
-        val result  = route(application, request).value
+      val view = application.injector.instanceOf[ContactDetailsView]
 
-        val view = application.injector.instanceOf[ContactDetailsView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          companyInformation,
-          eori,
-          "notify@example.com",
-          Seq("test@example.com"),
-          true,
-          manageEmailGuideUrl,
-          false,
-          false
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        companyInformation,
+        eori,
+        "notify@example.com",
+        Seq("test@example.com"),
+        true,
+        manageEmailGuideUrl,
+        false,
+        false
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
-    "must return OK and render the correct view for when a user has no valid email address" in new Setup {
-      running(application) {
+    "must return OK and render the correct view for when a user has no valid email address" in {
+      setUserAnswers(None)
+      val application = app
 
-        val userDetails = UserDetails(
-          eori = eori,
-          additionalEmails = Seq("test@example.com"),
-          authorisedUsers = Seq.empty,
-          companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
-          personalEmailNotificationsEnabled = true
-        )
+      val userDetails = UserDetails(
+        eori = eori,
+        additionalEmails = Seq("test@example.com"),
+        authorisedUsers = Seq.empty,
+        companyInformation = companyInformation,
+        notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
+        personalEmailNotificationsEnabled = true
+      )
 
-        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userDetails))
+      when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userDetails))
 
-        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[ContactDetailsView]
+      val view = application.injector.instanceOf[ContactDetailsView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          companyInformation,
-          eori,
-          "notify@example.com",
-          Seq("test@example.com"),
-          true,
-          manageEmailGuideUrl,
-          false,
-          true
-        )(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result) must include(
-          "We are unable to display your registered email address because there is no verified email address."
-        )
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        companyInformation,
+        eori,
+        "notify@example.com",
+        Seq("test@example.com"),
+        true,
+        manageEmailGuideUrl,
+        false,
+        true
+      )(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result) must include(
+        "We are unable to display your registered email address because there is no verified email address."
+      )
     }
 
-    "must return OK and render the correct view for when a user has an inactive eori" in new Setup {
-      running(application) {
+    "must return OK and render the correct view for when a user has an inactive eori" in {
+      setUserAnswers(None)
+      val application = app
 
-        val userDetails = UserDetails(
-          eori = eori,
-          additionalEmails = Seq("test@example.com"),
-          authorisedUsers = Seq.empty,
-          companyInformation = companyInformation.copy(inactiveEori = true),
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
-          personalEmailNotificationsEnabled = true
-        )
+      val userDetails = UserDetails(
+        eori = eori,
+        additionalEmails = Seq("test@example.com"),
+        authorisedUsers = Seq.empty,
+        companyInformation = companyInformation.copy(inactiveEori = true),
+        notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+        personalEmailNotificationsEnabled = true
+      )
 
-        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userDetails))
+      when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userDetails))
 
-        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[ContactDetailsView]
+      val view = application.injector.instanceOf[ContactDetailsView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          companyInformation,
-          eori,
-          "notify@example.com",
-          Seq("test@example.com"),
-          true,
-          manageEmailGuideUrl,
-          true,
-          false
-        )(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result) must include("Your EORI number is inactive")
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        companyInformation,
+        eori,
+        "notify@example.com",
+        Seq("test@example.com"),
+        true,
+        manageEmailGuideUrl,
+        true,
+        false
+      )(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result) must include("Your EORI number is inactive")
     }
 
-    "must return OK and render the correct view for when a user has an inactive eori and no available email address" in new Setup {
-      running(application) {
+    "must return OK and render the correct view for when a user has an inactive eori and no available email address" in {
+      setUserAnswers(None)
+      val application = app
 
-        val userDetails = UserDetails(
-          eori = eori,
-          additionalEmails = Seq("test@example.com"),
-          authorisedUsers = Seq.empty,
-          companyInformation = companyInformation.copy(inactiveEori = true),
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
-          personalEmailNotificationsEnabled = true
-        )
+      val userDetails = UserDetails(
+        eori = eori,
+        additionalEmails = Seq("test@example.com"),
+        authorisedUsers = Seq.empty,
+        companyInformation = companyInformation.copy(inactiveEori = true),
+        notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), true),
+        personalEmailNotificationsEnabled = true
+      )
 
-        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userDetails))
+      when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userDetails))
 
-        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[ContactDetailsView]
+      val view = application.injector.instanceOf[ContactDetailsView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          companyInformation,
-          eori,
-          "notify@example.com",
-          Seq("test@example.com"),
-          true,
-          manageEmailGuideUrl,
-          true,
-          true
-        )(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result) must include("Your EORI number is inactive")
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        companyInformation,
+        eori,
+        "notify@example.com",
+        Seq("test@example.com"),
+        true,
+        manageEmailGuideUrl,
+        true,
+        true
+      )(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result) must include("Your EORI number is inactive")
     }
 
-    "must return OK and render the correct view for a GET request when user has reached additional email limit of 5" in new Setup {
+    "must return OK and render the correct view for a GET request when user has reached additional email limit of 5" in {
 
-      private val existingEmails = Seq(
+      val existingEmails = Seq(
         "existing1@example.com",
         "existing2@example.com",
         "existing3@example.com",
@@ -206,65 +224,48 @@ class ContactDetailsControllerSpec extends SpecBase with MockitoSugar {
         "existing5@example.com"
       )
 
-      running(application) {
+      setUserAnswers(None)
+      val application = app
 
-        val userDetails = UserDetails(
-          eori = eori,
-          additionalEmails = existingEmails,
-          authorisedUsers = Seq.empty,
-          companyInformation = companyInformation,
-          notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
-          personalEmailNotificationsEnabled = true
-        )
+      val userDetails = UserDetails(
+        eori = eori,
+        additionalEmails = existingEmails,
+        authorisedUsers = Seq.empty,
+        companyInformation = companyInformation,
+        notificationEmail = NotificationEmail("notify@example.com", LocalDateTime.now(), false),
+        personalEmailNotificationsEnabled = true
+      )
 
-        when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
-          .thenReturn(Future.successful(userDetails))
+      when(mockService.getUserDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(userDetails))
 
-        val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, controllers.contact.routes.ContactDetailsController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        val view = application.injector.instanceOf[ContactDetailsView]
+      val view = application.injector.instanceOf[ContactDetailsView]
 
-        status(result) mustEqual OK
-        val body = contentAsString(result)
-        val msgs = messages(application)
-        body mustEqual view(
-          companyInformation,
-          eori,
-          "notify@example.com",
-          existingEmails,
-          true,
-          manageEmailGuideUrl,
-          false,
-          false
-        )(
-          request,
-          msgs
-        ).toString
+      status(result) mustEqual OK
+      val body = contentAsString(result)
+      val msgs = messages(application)
+      body mustEqual view(
+        companyInformation,
+        eori,
+        "notify@example.com",
+        existingEmails,
+        true,
+        manageEmailGuideUrl,
+        false,
+        false
+      )(
+        request,
+        msgs
+      ).toString
 
-        body must include(msgs("additionalEmail.limitReached"))
-        val addUrl = controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url
-        body must not include addUrl
+      body must include(msgs("additionalEmail.limitReached"))
+      val addUrl = controllers.contact.routes.NewAdditionalEmailController.onPageLoad().url
+      body must not include addUrl
 
-      }
     }
   }
 
-  trait Setup {
-    val mockService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-    val companyInformation: CompanyInformation     =
-      CompanyInformation(
-        name = "ABC Company",
-        consent = Granted,
-        inactiveEori = false
-      )
-
-    val eori: String = "GB123456789002"
-
-    val application: Application = applicationBuilder()
-      .overrides(
-        inject.bind[TradeReportingExtractsService].toInstance(mockService)
-      )
-      .build()
-  }
 }

@@ -16,32 +16,31 @@
 
 package controllers
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.problem.EditThirdPartySubmissionProblemView
 
-class EditThirdPartySubmissionProblemControllerSpec extends SpecBase {
+class EditThirdPartySubmissionProblemControllerSpec extends AppPerSuiteSpecBase {
 
   "EditThirdPartySubmissionProblem Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.problem.routes.EditThirdPartySubmissionProblemController.onPageLoad("thirdPartyEori").url
-        )
+      val request = FakeRequest(
+        GET,
+        controllers.problem.routes.EditThirdPartySubmissionProblemController.onPageLoad("thirdPartyEori").url
+      )
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EditThirdPartySubmissionProblemView]
+      val view = application.injector.instanceOf[EditThirdPartySubmissionProblemView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view("thirdPartyEori")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view("thirdPartyEori")(request, messages(application)).toString
     }
   }
 }

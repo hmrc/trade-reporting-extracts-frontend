@@ -16,9 +16,10 @@
 
 package controllers
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
-import controllers.actions.{CustomFakeDataRetrievalOrCreateAction, DataRetrievalOrCreateAction, FakeIdentifierAction, IdentifierAction}
+import controllers.actions.DataRetrievalOrCreateAction
+import models.requests.{DataRequest, IdentifierRequest}
 import models.thirdparty.DeclarationDate
 import models.{CompanyInformation, ConsentStatus, ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
@@ -29,7 +30,6 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.editThirdParty.{EditDataEndDatePage, EditDataStartDatePage, EditDeclarationDatePage, EditThirdPartyReferencePage}
 import pages.report.NewEmailNotificationPage
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -40,15 +40,44 @@ import viewmodels.govuk.all.SummaryListViewModel
 import views.html.thirdparty.ThirdPartyDetailsView
 
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
+class ThirdPartyDetailsControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
+
+  private val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockFrontendAppConfig: FrontendAppConfig                         = mock[FrontendAppConfig]
+  private val mockSessionRepository                                            = mock[SessionRepository]
+  private val fakeDataRetrievalOrCreateAction                                  = new SharedFakeDataRetrievalOrCreateAction
+
+  override def fakeApplication() =
+    applicationBuilder(
+      useSharedFakeAction = true,
+      useFakeDataRetrievalOrCreateAction = false
+    )
+      .overrides(
+        bind[DataRetrievalOrCreateAction].toInstance(fakeDataRetrievalOrCreateAction),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      )
+      .build()
+
+  private class SharedFakeDataRetrievalOrCreateAction extends DataRetrievalOrCreateAction {
+    private var dataToReturn: UserAnswers = emptyUserAnswers
+
+    def setUserAnswers(userAnswers: UserAnswers): Unit =
+      dataToReturn = userAnswers
+
+    override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
+      Future.successful(
+        DataRequest(request.request, request.userId, request.eori, request.affinityGroup, dataToReturn)
+      )
+
+    override protected implicit val executionContext: ExecutionContext = global
+  }
 
   "ThirdPartyDetails Controller" - {
-
-    val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
-    val mockFrontendAppConfig: FrontendAppConfig                         = mock[FrontendAppConfig]
-    val mockSessionRepository                                            = mock[SessionRepository]
 
     "must return OK and the correct view for a GET when consent given, no reference" in {
 
@@ -73,42 +102,36 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(emptyUserAnswers)
+
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+      val list = SummaryListViewModel(
+        Seq(
+          EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+          BusinessInfoSummary.row("foo")(messages(application)).get,
+          ThirdPartyAccessPeriodSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get,
+          DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
+          DataTheyCanViewSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get
         )
-        .build()
+      )
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyDetailsView]
-
-        val list = SummaryListViewModel(
-          Seq(
-            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
-            BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get,
-            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get
-          )
-        )
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when consent given with reference" in {
@@ -134,43 +157,37 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(emptyUserAnswers)
+
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+      val list = SummaryListViewModel(
+        Seq(
+          EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+          BusinessInfoSummary.row("foo")(messages(application)).get,
+          ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
+          ThirdPartyAccessPeriodSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get,
+          DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
+          DataTheyCanViewSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get
         )
-        .build()
+      )
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyDetailsView]
-
-        val list = SummaryListViewModel(
-          Seq(
-            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
-            BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get,
-            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get
-          )
-        )
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when editThirdPartyEnabled is true" in {
@@ -196,43 +213,37 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(emptyUserAnswers)
+
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+      val list = SummaryListViewModel(
+        Seq(
+          EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+          BusinessInfoSummary.row("foo")(messages(application)).get,
+          ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
+          ThirdPartyAccessPeriodSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get,
+          DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
+          DataTheyCanViewSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get
         )
-        .build()
+      )
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyDetailsView]
-
-        val list = SummaryListViewModel(
-          Seq(
-            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
-            BusinessInfoSummary.row("foo")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get,
-            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get
-          )
-        )
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when consent not given with reference" in {
@@ -258,39 +269,33 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(emptyUserAnswers)
+
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+      val list = SummaryListViewModel(
+        Seq(
+          EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+          ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
+          ThirdPartyAccessPeriodSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get,
+          DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
+          DataTheyCanViewSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get
         )
-        .build()
+      )
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyDetailsView]
-
-        val list = SummaryListViewModel(
-          Seq(
-            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(Some("bar"), "thirdPartyEori")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get,
-            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get
-          )
-        )
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list, "", true, false, "eori")(request, messages(application)).toString
     }
 
     "must return OK and the correct view for a GET when consent not given with no reference" in {
@@ -316,42 +321,36 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockFrontendAppConfig.feedbackUrl(any(classOf[RequestHeader]))).thenReturn("http://localhost/feedback")
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(emptyUserAnswers)
+
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[ThirdPartyDetailsView]
+
+      val list = SummaryListViewModel(
+        Seq(
+          EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
+          ThirdPartyReferenceSummary.detailsRow(None, "thirdPartyEori")(messages(application)).get,
+          ThirdPartyAccessPeriodSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get,
+          DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
+          DataTheyCanViewSummary
+            .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
+            .get
         )
-        .build()
+      )
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[ThirdPartyDetailsView]
-
-        val list = SummaryListViewModel(
-          Seq(
-            EoriNumberSummary.detailsRow("thirdPartyEori")(messages(application)).get,
-            ThirdPartyReferenceSummary.detailsRow(None, "thirdPartyEori")(messages(application)).get,
-            ThirdPartyAccessPeriodSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get,
-            DataTypesSummary.detailsRow(Set("import"), "thirdPartyEori")(messages(application)).get,
-            DataTheyCanViewSummary
-              .detailsRow(thirdPartyDetails, "thirdPartyEori", emptyUserAnswers)(messages(application))
-              .get
-          )
-        )
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(list, "", true, false, "thirdPartyEori")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must display confirm changes and cancel buttons when there are changes" in {
@@ -378,27 +377,19 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(modifiedUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(modifiedUserAnswers)
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-        val result  = route(application, request).value
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+      val result  = route(application, request).value
 
-        val content = contentAsString(result)
+      val content = contentAsString(result)
 
-        status(result) mustEqual OK
-        content must include(messages(application)("editThirdParty.confirmChanges"))
-        content must include(messages(application)("editThirdParty.cancel"))
-      }
+      status(result) mustEqual OK
+      content must include(messages(application)("editThirdParty.confirmChanges"))
+      content must include(messages(application)("editThirdParty.cancel"))
     }
 
     "must display confirm changes when EditDataStartDatePage answer differs from original" in {
@@ -425,25 +416,17 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(modifiedUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(modifiedUserAnswers)
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-        val result  = route(application, request).value
-        val content = contentAsString(result)
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+      val result  = route(application, request).value
+      val content = contentAsString(result)
 
-        status(result) mustEqual OK
-        content must include(messages(application)("editThirdParty.confirmChanges"))
-      }
+      status(result) mustEqual OK
+      content must include(messages(application)("editThirdParty.confirmChanges"))
     }
 
     "must display confirm changes when data start absent in answers but EditDeclarationDatePage is AllAvailableData and original present" in {
@@ -470,25 +453,17 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(modifiedUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(modifiedUserAnswers)
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-        val result  = route(application, request).value
-        val content = contentAsString(result)
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+      val result  = route(application, request).value
+      val content = contentAsString(result)
 
-        status(result) mustEqual OK
-        content must include(messages(application)("editThirdParty.confirmChanges"))
-      }
+      status(result) mustEqual OK
+      content must include(messages(application)("editThirdParty.confirmChanges"))
     }
 
     "must display confirm changes when EditDataEndDatePage answer is set and differs from original" in {
@@ -515,25 +490,17 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(modifiedUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(modifiedUserAnswers)
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-        val result  = route(application, request).value
-        val content = contentAsString(result)
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+      val result  = route(application, request).value
+      val content = contentAsString(result)
 
-        status(result) mustEqual OK
-        content must include(messages(application)("editThirdParty.confirmChanges"))
-      }
+      status(result) mustEqual OK
+      content must include(messages(application)("editThirdParty.confirmChanges"))
     }
 
     "must display confirm changes when data end absent in answers but EditDeclarationDatePage is AllAvailableData and original present" in {
@@ -560,25 +527,17 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRetrievalOrCreateAction].toInstance(new CustomFakeDataRetrievalOrCreateAction(modifiedUserAnswers)),
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-        )
-        .build()
+      val application = app
+      setUserAnswers(Some(modifiedUserAnswers))
+      fakeDataRetrievalOrCreateAction.setUserAnswers(modifiedUserAnswers)
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
-        val result  = route(application, request).value
-        val content = contentAsString(result)
+      val request =
+        FakeRequest(GET, controllers.thirdparty.routes.ThirdPartyDetailsController.onPageLoad("thirdPartyEori").url)
+      val result  = route(application, request).value
+      val content = contentAsString(result)
 
-        status(result) mustEqual OK
-        content must include(messages(application)("editThirdParty.confirmChanges"))
-      }
+      status(result) mustEqual OK
+      content must include(messages(application)("editThirdParty.confirmChanges"))
     }
 
     "removeAnswersAndRedirect" - {
@@ -616,29 +575,23 @@ class ThirdPartyDetailsControllerSpec extends SpecBase with MockitoSugar {
           .success
           .value
 
-        val application = applicationBuilder(userAnswers = Some(ua))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+        val application = app
+        setUserAnswers(Some(ua))
 
-        running(application) {
-          val request = FakeRequest(
-            GET,
-            controllers.thirdparty.routes.ThirdPartyDetailsController.removeAnswersAndRedirect("thirdParty1").url
-          )
+        val request = FakeRequest(
+          GET,
+          controllers.thirdparty.routes.ThirdPartyDetailsController.removeAnswersAndRedirect("thirdParty1").url
+        )
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(EditThirdPartyReferencePage("thirdParty1")) mustBe None
-          capturedAnswers.get(EditThirdPartyReferencePage("thirdParty2")) mustBe Some("refTP2")
-          redirectLocation(result).value mustEqual controllers.thirdparty.routes.AuthorisedThirdPartiesController
-            .onPageLoad()
-            .url
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(EditThirdPartyReferencePage("thirdParty1")) mustBe None
+        capturedAnswers.get(EditThirdPartyReferencePage("thirdParty2")) mustBe Some("refTP2")
+        redirectLocation(result).value mustEqual controllers.thirdparty.routes.AuthorisedThirdPartiesController
+          .onPageLoad()
+          .url
       }
     }
 

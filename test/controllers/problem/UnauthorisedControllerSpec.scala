@@ -16,31 +16,30 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.UnauthorisedView
 
-class UnauthorisedControllerSpec extends SpecBase {
+class UnauthorisedControllerSpec extends AppPerSuiteSpecBase {
 
   "Unauthorised Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.problem.routes.UnauthorisedController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.problem.routes.UnauthorisedController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view   = application.injector.instanceOf[UnauthorisedView]
-        val config = application.injector.instanceOf[FrontendAppConfig]
+      val view   = application.injector.instanceOf[UnauthorisedView]
+      val config = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(config.cdsSubscribeUrl)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(config.cdsSubscribeUrl)(request, messages(application)).toString
     }
   }
 }

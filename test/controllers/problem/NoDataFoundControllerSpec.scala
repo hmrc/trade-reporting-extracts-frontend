@@ -16,13 +16,13 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.NoDataFoundView
 
-class NoDataFoundControllerSpec extends SpecBase {
+class NoDataFoundControllerSpec extends AppPerSuiteSpecBase {
 
   "NoDataFound Controller" - {
 
@@ -32,34 +32,33 @@ class NoDataFoundControllerSpec extends SpecBase {
       val reportStartDate = "1 Jan 2024"
       val reportEndDate   = "31 Jan 2024"
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.problem.routes.NoDataFoundController
-            .onPageLoad(reportName, reportRef, reportStartDate, reportEndDate)
-            .url
-        )
+      val request = FakeRequest(
+        GET,
+        controllers.problem.routes.NoDataFoundController
+          .onPageLoad(reportName, reportRef, reportStartDate, reportEndDate)
+          .url
+      )
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[NoDataFoundView]
+      val view = application.injector.instanceOf[NoDataFoundView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          reportName,
-          reportRef,
-          reportStartDate,
-          reportEndDate
-        )(request, messages(application)).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        reportName,
+        reportRef,
+        reportStartDate,
+        reportEndDate
+      )(request, messages(application)).toString
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include(
-          messages(application)("noDataFound.heading", reportName, reportRef)
-        )
-        document.text()                                        must include(messages(application)("noDataFound.message1", reportStartDate, reportEndDate))
-      }
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-heading-xl").text() must include(
+        messages(application)("noDataFound.heading", reportName, reportRef)
+      )
+      document.text()                                        must include(messages(application)("noDataFound.message1", reportStartDate, reportEndDate))
     }
   }
 }

@@ -16,14 +16,17 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.contact.MaybeToggleEmailNotificationsFormProvider
+import models.{Mode, UserAnswers}
 import models.{NotificationEmail, UserDetails}
-import navigation.{FakeNavigator, Navigator}
+import navigation.Navigator
+import pages.Page
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -35,7 +38,31 @@ import views.html.contact.MaybeToggleEmailNotificationsView
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
-class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoSugar {
+class MaybeToggleEmailNotificationsControllerSpec
+    extends AppPerSuiteSpecBase
+    with MockitoSugar
+    with BeforeAndAfterEach {
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository             = mock[SessionRepository]
+  private var nextPageRoute: Call               = Call("GET", "/")
+  private val suiteNavigator: Navigator         = new Navigator {
+    override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call                = nextPageRoute
+    override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, flag: Boolean): Call =
+      nextPageRoute
+  }
+  override def fakeApplication()                =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(suiteNavigator),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+  override protected def beforeEach(): Unit     = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockTradeReportingExtractsService, mockSessionRepository)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
@@ -55,14 +82,8 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
   "MaybeToggleEmailNotifications Controller" - {
 
     "must return OK and the correct view for a GET when disabling email" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
@@ -77,30 +98,22 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         )
       )
 
-      running(application) {
-        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteDisablingEmail)
+      val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteDisablingEmail)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
+      val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, false, "example@example.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, false, "example@example.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when enabling email" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
@@ -115,26 +128,20 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         )
       )
 
-      running(application) {
-        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteEnablingEmail)
+      val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteEnablingEmail)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
+      val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, true, "example@example.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, true, "example@example.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted when disabling notifications" in {
-
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
           UserDetails(
@@ -156,32 +163,21 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         Future.successful(Done)
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRouteDisable)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      nextPageRoute = onwardRouteDisable
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeToggleEmailNotificationsRouteDisablingEmail)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, maybeToggleEmailNotificationsRouteDisablingEmail)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteDisable.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRouteDisable.url
     }
 
     "must redirect to the next page when valid data is submitted when enabling notifications" in {
-
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
           UserDetails(
@@ -203,32 +199,21 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         Future.successful(Done)
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRouteEnable)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      nextPageRoute = onwardRouteEnable
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeToggleEmailNotificationsRouteEnablingEmail)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, maybeToggleEmailNotificationsRouteEnablingEmail)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRouteEnable.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRouteEnable.url
     }
 
     "must redirect to contact details page when user decides against continuing with change " in {
-
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
           UserDetails(
@@ -250,38 +235,25 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         Future.successful(Done)
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRouteEnable)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      nextPageRoute = onwardRouteEnable
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeToggleEmailNotificationsRouteEnablingEmail)
-            .withFormUrlEncodedBody(("value", "false"))
+      val request =
+        FakeRequest(POST, maybeToggleEmailNotificationsRouteEnablingEmail)
+          .withFormUrlEncodedBody(("value", "false"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val form = formProvider(false)
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val form        = formProvider(false)
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
@@ -296,34 +268,26 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         )
       )
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeToggleEmailNotificationsRouteDisablingEmail)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, maybeToggleEmailNotificationsRouteDisablingEmail)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
+      val view = application.injector.instanceOf[MaybeToggleEmailNotificationsView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, false, "example@example.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, false, "example@example.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to error page when enabling emails when already enabled" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
@@ -338,29 +302,20 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         )
       )
 
-      running(application) {
-        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteDisablingEmail)
+      val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteDisablingEmail)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
-          .onPageLoad()
-          .url
-
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
+        .onPageLoad()
+        .url
 
     }
 
     "must redirect to error page when disabling email when already disabled" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       when(mockTradeReportingExtractsService.getUserDetails(any())(any())).thenReturn(
         Future.successful(
@@ -375,16 +330,14 @@ class MaybeToggleEmailNotificationsControllerSpec extends SpecBase with MockitoS
         )
       )
 
-      running(application) {
-        val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteEnablingEmail)
+      val request = FakeRequest(GET, maybeToggleEmailNotificationsRouteEnablingEmail)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.EmailPreferenceToggleErrorController
+        .onPageLoad()
+        .url
 
     }
   }

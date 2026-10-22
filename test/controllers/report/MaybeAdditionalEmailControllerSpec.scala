@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.MaybeAdditionalEmailFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, NotificationEmail, UserAnswers}
@@ -36,7 +36,7 @@ import views.html.report.MaybeAdditionalEmailView
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
+class MaybeAdditionalEmailControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/notification-email")
 
@@ -47,14 +47,26 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
   lazy val maybeAdditionalEmailRoute =
     controllers.report.routes.MaybeAdditionalEmailController.onPageLoad(NormalMode).url
 
+  private val mockSessionRepository = mock[SessionRepository]
+
+  when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
+    .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+
   "MaybeAdditionalEmail Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
-
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem))
@@ -62,30 +74,22 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
             .value
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+      val request = FakeRequest(GET, maybeAdditionalEmailRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+      val view = application.injector.instanceOf[MaybeAdditionalEmailView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, true, "test@email.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, true, "test@email.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
-      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
 
       val userAnswers = UserAnswers(userAnswersId)
         .set(MaybeAdditionalEmailPage, true)
@@ -95,62 +99,39 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+      val request = FakeRequest(GET, maybeAdditionalEmailRoute)
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+      val view = application.injector.instanceOf[MaybeAdditionalEmailView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, false, "test@email.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(true), NormalMode, false, "test@email.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val request =
+        FakeRequest(POST, maybeAdditionalEmailRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
+      val result = route(application, request).value
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", "true"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
-        .thenReturn(Future.successful(NotificationEmail("test@email.com", LocalDateTime.now(), false)))
-
-      val application = applicationBuilder(userAnswers =
+      setUserAnswers(
         Some(
           emptyUserAnswers
             .set(ReportTypeImportPage, Set(ReportTypeImport.ImportHeader, ReportTypeImport.ImportItem))
@@ -158,58 +139,51 @@ class MaybeAdditionalEmailControllerSpec extends SpecBase with MockitoSugar {
             .value
         )
       )
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, maybeAdditionalEmailRoute)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[MaybeAdditionalEmailView]
+      val view = application.injector.instanceOf[MaybeAdditionalEmailView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, true, "test@email.com")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, true, "test@email.com")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, maybeAdditionalEmailRoute)
+      val request = FakeRequest(GET, maybeAdditionalEmailRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, maybeAdditionalEmailRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, maybeAdditionalEmailRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

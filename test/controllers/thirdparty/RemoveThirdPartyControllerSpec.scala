@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.RemoveThirdPartyFormProvider
 import models.NotificationEmail
 import org.apache.pekko.Done
@@ -36,7 +36,18 @@ import views.html.thirdparty.RemoveThirdPartyView
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
+class RemoveThirdPartyControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
+
+  private val mockSessionRepository             = mock[SessionRepository]
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
 
   val formProvider        = new RemoveThirdPartyFormProvider()
   val form: Form[Boolean] = formProvider()
@@ -48,25 +59,22 @@ class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, removeThirdPartyRoute)
+      val request = FakeRequest(GET, removeThirdPartyRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RemoveThirdPartyView]
+      val view = application.injector.instanceOf[RemoveThirdPartyView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, "Eori")(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, "Eori")(request, messages(application)).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository             = mock[SessionRepository]
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val notificationEmail                 = NotificationEmail("test@example.com", LocalDateTime.now(), false)
+      val notificationEmail = NotificationEmail("test@example.com", LocalDateTime.now(), false)
 
       when(mockTradeReportingExtractsService.getNotificationEmail(any())(any()))
         .thenReturn(Future.successful(notificationEmail))
@@ -76,46 +84,38 @@ class RemoveThirdPartyControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, removeThirdPartyRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+      val request =
+        FakeRequest(POST, removeThirdPartyRoute)
+          .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(
-          result
-        ).value mustEqual controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(
+        result
+      ).value mustEqual controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request =
-          FakeRequest(POST, removeThirdPartyRoute)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, removeThirdPartyRoute)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[RemoveThirdPartyView]
+      val view = application.injector.instanceOf[RemoveThirdPartyView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, "Eori")(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, "Eori")(request, messages(application)).toString
     }
   }
 }

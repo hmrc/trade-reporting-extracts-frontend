@@ -16,7 +16,7 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.thirdparty.DataEndDateFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -36,7 +36,7 @@ import views.html.thirdparty.DataEndDateView
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
-class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
+class DataEndDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   private implicit val messages: Messages = stubMessages()
 
@@ -49,6 +49,17 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val thirdPartyAccessEndDateRoute =
     controllers.thirdparty.routes.DataEndDateController.onPageLoad(NormalMode).url
+
+  private val mockSessionRepository = mock[SessionRepository]
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
@@ -67,21 +78,18 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers =
-        Some(emptyUserAnswers.set(DataStartDatePage, LocalDate.of(2024, 1, 1)).success.value)
-      ).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(DataStartDatePage, LocalDate.of(2024, 1, 1)).success.value))
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        val view = application.injector.instanceOf[DataEndDateView]
+      val view = application.injector.instanceOf[DataEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "1 1 2024")(
-          getRequest(),
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "1 1 2024")(
+        getRequest(),
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -94,155 +102,104 @@ class DataEndDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = app
+      setUserAnswers(Some(userAnswers))
 
-      running(application) {
-        val view = application.injector.instanceOf[DataEndDateView]
+      val view = application.injector.instanceOf[DataEndDateView]
 
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 1 2024")(
-          getRequest(),
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(Some(validAnswer)), NormalMode, "1 1 2024")(
+        getRequest(),
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(DataStartDatePage, LocalDate.of(2024, 1, 1)).success.value))
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val result = route(application, postRequest()).value
 
-      val application =
-        applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-              .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
-              .success
-              .value
-          )
-        )
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
-
-      running(application) {
-        val result = route(application, postRequest()).value
-
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must redirect to general problem page when DataStartDatePage is missing for a GET" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application =
-        applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-          )
-        )
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(DataStartDatePage) mustBe None
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(DataStartDatePage) mustBe None
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers =
-        Some(
-          emptyUserAnswers
-            .set(DataStartDatePage, LocalDate.of(2024, 1, 1))
-            .success
-            .value
-        )
-      ).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers.set(DataStartDatePage, LocalDate.of(2024, 1, 1)).success.value))
 
       val request =
         FakeRequest(POST, thirdPartyAccessEndDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[DataEndDateView]
+      val view = application.injector.instanceOf[DataEndDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "1 1 2024")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, "1 1 2024")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to general problem page when DataStartDatePage is missing for a POST" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application =
-        applicationBuilder(userAnswers =
-          Some(
-            emptyUserAnswers
-          )
-        )
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val result = route(application, postRequest()).value
+      val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(DataStartDatePage) mustBe None
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(DataStartDatePage) mustBe None
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val result = route(application, postRequest()).value
+      val result = route(application, postRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

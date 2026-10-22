@@ -16,14 +16,15 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.ReportStatus.{ERROR, IN_PROGRESS, NO_DATA_AVAILABLE}
 import models.ReportTypeName
 import models.report.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -33,47 +34,49 @@ import views.html.report.RequestedReportsView
 import java.time.Instant
 import scala.concurrent.Future
 
-class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
+class RequestedReportsControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService)
+  }
 
   "RequestedReports Controller" - {
 
     "must return OK and the correct view for a GET when no reports available" in {
 
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
         .thenReturn(Future.successful(RequestedReportsViewModel(None, None)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RequestedReportsView]
+      val view = application.injector.instanceOf[RequestedReportsView]
 
-        val reports = RequestedReportsViewModel(None, None)
+      val reports = RequestedReportsViewModel(None, None)
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, false)(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result).contains(
-          "You do not have any reports in progress. If you’ve recently requested a report, it may already be ready to download. You can:"
-        ) mustBe true
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(reports, false, false)(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result).contains(
+        "You do not have any reports in progress. If you’ve recently requested a report, it may already be ready to download. You can:"
+      ) mustBe true
     }
 
     "must return OK and the correct view for a GET when both types of reports reports available" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
       val userReport = RequestedUserReportViewModel(
         reportName = "reportName",
@@ -105,39 +108,32 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RequestedReportsView]
+      val view = application.injector.instanceOf[RequestedReportsView]
 
-        val reports =
-          RequestedReportsViewModel(
-            Some(Seq(userReport)),
-            Some(Seq(thirdPartyReport))
-          )
+      val reports =
+        RequestedReportsViewModel(
+          Some(Seq(userReport)),
+          Some(Seq(thirdPartyReport))
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, true)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(reports, true, true)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return correct view for a GET when only user reports available" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
         Future.successful(
           RequestedReportsViewModel(
@@ -159,55 +155,48 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RequestedReportsView]
+      val view = application.injector.instanceOf[RequestedReportsView]
 
-        val reports =
-          RequestedReportsViewModel(
-            Some(
-              Seq(
-                RequestedUserReportViewModel(
-                  reportName = "reportName",
-                  referenceNumber = "referenceNumber",
-                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
-                  reportStatus = IN_PROGRESS
-                )
+      val reports =
+        RequestedReportsViewModel(
+          Some(
+            Seq(
+              RequestedUserReportViewModel(
+                reportName = "reportName",
+                referenceNumber = "referenceNumber",
+                reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                reportEndDate = Instant.parse("2024-02-01T00:00:00Z"),
+                reportStatus = IN_PROGRESS
               )
-            ),
-            None
-          )
+            )
+          ),
+          None
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
-        contentAsString(result).contains("My reports") mustBe true
-        contentAsString(result).contains("Third party reports") mustBe false
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
+      contentAsString(result).contains("My reports") mustBe true
+      contentAsString(result).contains("Third party reports") mustBe false
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, true, false)(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(reports, true, false)(
+        request,
+        messages(application)
+      ).toString
 
-      }
     }
 
     "must return OK and the correct view for a GET when only user third party reports available" in {
 
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any())).thenReturn(
         Future.successful(
           RequestedReportsViewModel(
@@ -230,55 +219,48 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RequestedReportsView]
+      val view = application.injector.instanceOf[RequestedReportsView]
 
-        val reports =
-          RequestedReportsViewModel(
-            None,
-            Some(
-              Seq(
-                RequestedThirdPartyReportViewModel(
-                  reportName = "reportName",
-                  referenceNumber = "referenceNumber",
-                  companyName = "businessName",
-                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  reportStatus = IN_PROGRESS
-                )
+      val reports =
+        RequestedReportsViewModel(
+          None,
+          Some(
+            Seq(
+              RequestedThirdPartyReportViewModel(
+                reportName = "reportName",
+                referenceNumber = "referenceNumber",
+                companyName = "businessName",
+                reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                requestedDate = Instant.parse("2024-01-01T00:00:00Z"),
+                reportStartDate = Instant.parse("2024-01-01T00:00:00Z"),
+                reportEndDate = Instant.parse("2024-01-01T00:00:00Z"),
+                reportStatus = IN_PROGRESS
               )
             )
           )
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
-        contentAsString(result).contains("My reports") mustBe false
-        contentAsString(result).contains("Third party reports") mustBe true
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
+      contentAsString(result).contains("My reports") mustBe false
+      contentAsString(result).contains("Third party reports") mustBe true
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reports, false, true)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(reports, false, true)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must display NO status tag and correct redirect for ERROR" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val userReport                        = RequestedUserReportViewModel(
+      val userReport = RequestedUserReportViewModel(
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
@@ -290,29 +272,24 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
         .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
-        val result   = route(application, request).value
-        val document = Jsoup.parse(contentAsString(result))
+      val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val result   = route(application, request).value
+      val document = Jsoup.parse(contentAsString(result))
 
-        val statusCell = document.select("td").get(3)
-        val link       = statusCell.select("a")
-        link.attr("href") must include(
-          controllers.problem.routes.ReportFailedController.onPageLoad("reportName", "referenceNumber").url
-        )
-        link.text() mustBe messages(application)("requestedReports.status.error")
-        statusCell.select("span.govuk-tag").isEmpty mustBe true
-      }
+      val statusCell = document.select("td").get(3)
+      val link       = statusCell.select("a")
+      link.attr("href") must include(
+        controllers.problem.routes.ReportFailedController.onPageLoad("reportName", "referenceNumber").url
+      )
+      link.text() mustBe messages(application)("requestedReports.status.error")
+      statusCell.select("span.govuk-tag").isEmpty mustBe true
     }
 
     "must display correct status tag and NO redirect for IN_PROGRESS" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val userReport                        = RequestedUserReportViewModel(
+      val userReport = RequestedUserReportViewModel(
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
@@ -324,25 +301,20 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
         .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
-        val result   = route(application, request).value
-        val document = Jsoup.parse(contentAsString(result))
+      val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val result   = route(application, request).value
+      val document = Jsoup.parse(contentAsString(result))
 
-        val statusCell = document.select("span.govuk-tag--blue").first()
-        statusCell.text() mustBe messages(application)("requestedReports.status.inProgress")
-        statusCell.select("a").isEmpty mustBe true
-      }
+      val statusCell = document.select("span.govuk-tag--blue").first()
+      statusCell.text() mustBe messages(application)("requestedReports.status.inProgress")
+      statusCell.select("a").isEmpty mustBe true
     }
 
     "must display NO status tag and correct redirect for NO_DATA_AVAILABLE" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-      val userReport                        = RequestedUserReportViewModel(
+      val userReport = RequestedUserReportViewModel(
         reportName = "reportName",
         referenceNumber = "referenceNumber",
         reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
@@ -354,31 +326,27 @@ class RequestedReportsControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getRequestedReports(any())(any()))
         .thenReturn(Future.successful(RequestedReportsViewModel(Some(Seq(userReport)), None)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
-        val result   = route(application, request).value
-        val document = Jsoup.parse(contentAsString(result))
+      val request  = FakeRequest(GET, controllers.report.routes.RequestedReportsController.onPageLoad().url)
+      val result   = route(application, request).value
+      val document = Jsoup.parse(contentAsString(result))
 
-        val statusCell = document.select("td").get(3)
-        val link       = statusCell.select("a")
-        link.attr("href") must include(
-          controllers.problem.routes.NoDataFoundController
-            .onPageLoad(
-              "reportName",
-              "referenceNumber",
-              "1 Jan 2024",
-              "1 Feb 2024"
-            )
-            .url
-        )
-        link.text() mustBe messages(application)("requestedReports.status.noDataAvailable")
-        statusCell.select("span.govuk-tag").isEmpty mustBe true
-      }
+      val statusCell = document.select("td").get(3)
+      val link       = statusCell.select("a")
+      link.attr("href") must include(
+        controllers.problem.routes.NoDataFoundController
+          .onPageLoad(
+            "reportName",
+            "referenceNumber",
+            "1 Jan 2024",
+            "1 Feb 2024"
+          )
+          .url
+      )
+      link.text() mustBe messages(application)("requestedReports.status.noDataAvailable")
+      statusCell.select("span.govuk-tag").isEmpty mustBe true
     }
   }
 }

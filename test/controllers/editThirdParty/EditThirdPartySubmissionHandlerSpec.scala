@@ -16,7 +16,7 @@
 
 package controllers.editThirdParty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import models.thirdparty.*
 import models.{ThirdPartyDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
@@ -27,6 +27,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.editThirdParty.*
 import play.api.inject.bind
 import play.api.mvc.Result
@@ -43,7 +44,25 @@ class EditThirdPartySubmissionHandlerSpec
     with Matchers
     with MockitoSugar
     with ScalaFutures
-    with SpecBase {
+    with AppPerSuiteSpecBase
+    with BeforeAndAfterEach {
+  private val mockService                   = mock[TradeReportingExtractsService]
+  private val mockSessionRepository         = mock[SessionRepository]
+  private val mockAuditService              = mock[AuditService]
+  override def fakeApplication()            =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[AuditService].toInstance(mockAuditService),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockService)
+      )
+      .build()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockService, mockSessionRepository, mockAuditService)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+    when(mockAuditService.auditThirdPartyUpdated(any())(any())).thenReturn(Future.successful(()))
+  }
 
   "EditThirdPartySubmissionHandler.submit" - {
 
@@ -56,8 +75,6 @@ class EditThirdPartySubmissionHandlerSpec
     val accessEndInstant   = endDate.atStartOfDay().toInstant(ZoneOffset.UTC)
 
     "must call TradeReportingExtractsService and redirect on success and replace old details if edited" in {
-      val mockService = mock[TradeReportingExtractsService]
-
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.successful(ThirdPartyAddedConfirmation("GB123456789000")))
 
@@ -88,37 +105,32 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] =
-          controller.submit(thirdPartyEori)(FakeRequest())
+      val result: Future[Result] =
+        controller.submit(thirdPartyEori)(FakeRequest())
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
-          .onPageLoad()
-          .url
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
+        .onPageLoad()
+        .url
 
-        val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
-        verify(mockService).editThirdPartyRequest(captor.capture())(any())
+      val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
+      verify(mockService).editThirdPartyRequest(captor.capture())(any())
 
-        val sent = captor.getValue
-        sent.userEORI mustBe "GB123456789012"
-        sent.thirdPartyEORI mustBe thirdPartyEori
-        sent.accessStart mustBe accessStartInstant
-        sent.accessEnd.value mustBe accessEndInstant
-        sent.referenceName.value mustBe "Ref Name"
-        sent.accessType must contain("IMPORT")
-      }
+      val sent = captor.getValue
+      sent.userEORI mustBe "GB123456789012"
+      sent.thirdPartyEORI mustBe thirdPartyEori
+      sent.accessStart mustBe accessStartInstant
+      sent.accessEnd.value mustBe accessEndInstant
+      sent.referenceName.value mustBe "Ref Name"
+      sent.accessType must contain("IMPORT")
     }
 
     "must not replace old details if not edited" in {
-      val mockService = mock[TradeReportingExtractsService]
-
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.successful(()))
 
@@ -140,36 +152,31 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] =
-          controller.submit(thirdPartyEori)(FakeRequest())
+      val result: Future[Result] =
+        controller.submit(thirdPartyEori)(FakeRequest())
 
-        result.futureValue
+      result.futureValue
 
-        val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
-        verify(mockService).editThirdPartyRequest(captor.capture())(any())
+      val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
+      verify(mockService).editThirdPartyRequest(captor.capture())(any())
 
-        val sent = captor.getValue
-        sent.userEORI mustBe "GB123456789012"
-        sent.thirdPartyEORI mustBe thirdPartyEori
-        sent.accessStart mustBe LocalDate.of(2024, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
-        sent.accessEnd mustBe Some(LocalDate.of(2024, 12, 31).atStartOfDay().toInstant(ZoneOffset.UTC))
-        sent.referenceName.value mustBe "Ref Name"
-        sent.reportDateStart mustBe None
-        sent.reportDateEnd mustBe None
-        sent.accessType must contain("EXPORT")
-      }
+      val sent = captor.getValue
+      sent.userEORI mustBe "GB123456789012"
+      sent.thirdPartyEORI mustBe thirdPartyEori
+      sent.accessStart mustBe LocalDate.of(2024, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
+      sent.accessEnd mustBe Some(LocalDate.of(2024, 12, 31).atStartOfDay().toInstant(ZoneOffset.UTC))
+      sent.referenceName.value mustBe "Ref Name"
+      sent.reportDateStart mustBe None
+      sent.reportDateEnd mustBe None
+      sent.accessType must contain("EXPORT")
     }
 
     "must handle end date of LocalDate.MAX as no end date" in {
-      val mockService = mock[TradeReportingExtractsService]
-
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.successful(()))
 
@@ -194,30 +201,24 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] =
-          controller.submit(thirdPartyEori)(FakeRequest())
+      val result: Future[Result] =
+        controller.submit(thirdPartyEori)(FakeRequest())
 
-        result.futureValue
+      result.futureValue
 
-        val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
-        verify(mockService).editThirdPartyRequest(captor.capture())(any())
+      val captor = ArgumentCaptor.forClass(classOf[ThirdPartyRequest])
+      verify(mockService).editThirdPartyRequest(captor.capture())(any())
 
-        val sent = captor.getValue
-        sent.accessEnd mustBe None
-      }
+      val sent = captor.getValue
+      sent.accessEnd mustBe None
     }
 
     "must redirect to editThirdPartySubmissionError page and clean up edit user answers when service fails" in {
-      val mockService           = mock[TradeReportingExtractsService]
-      val mockSessionRepository = mock[SessionRepository]
-
       val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
@@ -249,33 +250,24 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result = controller.submit(thirdPartyEori)(FakeRequest())
+      val result = controller.submit(thirdPartyEori)(FakeRequest())
 
-        status(result) mustBe SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
-        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-        capturedAnswers.get(EditThirdPartyReferencePage("anotherThirdPartyEori")) mustBe Some("updatedRef")
-        redirectLocation(result).value mustBe controllers.problem.routes.EditThirdPartySubmissionProblemController
-          .onPageLoad(thirdPartyEori)
-          .url
-      }
+      status(result) mustBe SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
+      capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+      capturedAnswers.get(EditThirdPartyReferencePage("anotherThirdPartyEori")) mustBe Some("updatedRef")
+      redirectLocation(result).value mustBe controllers.problem.routes.EditThirdPartySubmissionProblemController
+        .onPageLoad(thirdPartyEori)
+        .url
     }
 
     "must call audit service with correct event when third party details are updated" in {
-      val mockService      = mock[TradeReportingExtractsService]
-      val mockAuditService = mock[AuditService]
-
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.successful(ThirdPartyAddedConfirmation("GB123456789000")))
 
@@ -309,40 +301,31 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockService),
-          bind[AuditService].toInstance(mockAuditService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] =
-          controller.submit(thirdPartyEori)(FakeRequest())
+      val result: Future[Result] =
+        controller.submit(thirdPartyEori)(FakeRequest())
 
-        status(result) mustBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
 
-        val auditCaptor = ArgumentCaptor.forClass(classOf[ThirdPartyUpdatedEvent])
-        verify(mockAuditService).auditThirdPartyUpdated(auditCaptor.capture())(any())
+      val auditCaptor = ArgumentCaptor.forClass(classOf[ThirdPartyUpdatedEvent])
+      verify(mockAuditService).auditThirdPartyUpdated(auditCaptor.capture())(any())
 
-        val auditEvent = auditCaptor.getValue
-        auditEvent.requesterEori mustBe "GB123456789012"
-        auditEvent.thirdPartyEori mustBe thirdPartyEori
+      val auditEvent = auditCaptor.getValue
+      auditEvent.requesterEori mustBe "GB123456789012"
+      auditEvent.thirdPartyEori mustBe thirdPartyEori
 
-        auditEvent.updatesToThirdPartyData must contain(DataUpdate("accessType", "export", "import, export"))
-        auditEvent.updatesToThirdPartyData must contain(DataUpdate("referenceName", "", "Updated Reference"))
-        auditEvent.updatesToThirdPartyData must contain(
-          DataUpdate("thirdPartyAccessStart", "2024-01-01T00:00:00Z", "2025-01-01T00:00:00Z")
-        )
-      }
+      auditEvent.updatesToThirdPartyData must contain(DataUpdate("accessType", "export", "import, export"))
+      auditEvent.updatesToThirdPartyData must contain(DataUpdate("referenceName", "", "Updated Reference"))
+      auditEvent.updatesToThirdPartyData must contain(
+        DataUpdate("thirdPartyAccessStart", "2024-01-01T00:00:00Z", "2025-01-01T00:00:00Z")
+      )
     }
 
     "must handle audit service failure gracefully without affecting the edit operation" in {
-      val mockService      = mock[TradeReportingExtractsService]
-      val mockAuditService = mock[AuditService]
-
       when(mockService.editThirdPartyRequest(any())(any()))
         .thenReturn(Future.successful(ThirdPartyAddedConfirmation("GB123456789000")))
 
@@ -367,24 +350,18 @@ class EditThirdPartySubmissionHandlerSpec
         .success
         .value
 
-      val application = applicationBuilder(Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockService),
-          bind[AuditService].toInstance(mockAuditService)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
+      val controller = application.injector.instanceOf[EditThirdPartySubmissionHandler]
 
-        val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
-          .onPageLoad()
-          .url
-        verify(mockAuditService).auditThirdPartyUpdated(any())(any())
-        verify(mockService).editThirdPartyRequest(any())(any())
-      }
+      val result: Future[Result] = controller.submit(thirdPartyEori)(FakeRequest())
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).value mustBe controllers.thirdparty.routes.ThirdPartyUpdatedConfirmationController
+        .onPageLoad()
+        .url
+      verify(mockAuditService).auditThirdPartyUpdated(any())(any())
+      verify(mockService).editThirdPartyRequest(any())(any())
     }
   }
 }

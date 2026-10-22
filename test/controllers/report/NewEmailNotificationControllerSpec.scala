@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.NewEmailNotificationFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -34,7 +34,7 @@ import views.html.report.NewEmailNotificationView
 
 import scala.concurrent.Future
 
-class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
+class NewEmailNotificationControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/request-customs-declaration-data/check-new-email")
 
@@ -44,127 +44,123 @@ class NewEmailNotificationControllerSpec extends SpecBase with MockitoSugar {
   lazy val newEmailNotificationRoute =
     controllers.report.routes.NewEmailNotificationController.onPageLoad(NormalMode).url
 
+  private val mockSessionRepository = mock[SessionRepository]
+
+  when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
   "NewEmailNotification Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, newEmailNotificationRoute)
+      val request = FakeRequest(GET, newEmailNotificationRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[NewEmailNotificationView]
+      val view = application.injector.instanceOf[NewEmailNotificationView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, ReportHelpers.isMoreThanOneReport(emptyUserAnswers))(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, ReportHelpers.isMoreThanOneReport(emptyUserAnswers))(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId).set(NewEmailNotificationPage, "answer").success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, newEmailNotificationRoute)
+      val request = FakeRequest(GET, newEmailNotificationRoute)
 
-        val view = application.injector.instanceOf[NewEmailNotificationView]
+      val view = application.injector.instanceOf[NewEmailNotificationView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form.fill("answer"),
-          NormalMode,
-          ReportHelpers.isMoreThanOneReport(userAnswers)
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form.fill("answer"),
+        NormalMode,
+        ReportHelpers.isMoreThanOneReport(userAnswers)
+      )(request, messages(application)).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val request =
+        FakeRequest(POST, newEmailNotificationRoute)
+          .withFormUrlEncodedBody(("value", "answer@test.com"))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val result = route(application, request).value
 
-      running(application) {
-        val request =
-          FakeRequest(POST, newEmailNotificationRoute)
-            .withFormUrlEncodedBody(("value", "answer@test.com"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, newEmailNotificationRoute)
-            .withFormUrlEncodedBody(("value", ""))
+      val request =
+        FakeRequest(POST, newEmailNotificationRoute)
+          .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+      val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[NewEmailNotificationView]
+      val view = application.injector.instanceOf[NewEmailNotificationView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          ReportHelpers.isMoreThanOneReport(emptyUserAnswers)
-        )(request, messages(application)).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        ReportHelpers.isMoreThanOneReport(emptyUserAnswers)
+      )(request, messages(application)).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, newEmailNotificationRoute)
+      val request = FakeRequest(GET, newEmailNotificationRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, newEmailNotificationRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+      val request =
+        FakeRequest(POST, newEmailNotificationRoute)
+          .withFormUrlEncodedBody(("value", "answer"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

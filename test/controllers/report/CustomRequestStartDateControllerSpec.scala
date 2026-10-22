@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.report.CustomRequestStartDateFormProvider
 import models.report.ReportTypeImport
 import models.{NormalMode, ThirdPartyDetails, UserAnswers}
@@ -24,7 +24,9 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.mockito.Mockito.reset
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.report.{CustomRequestEndDatePage, CustomRequestStartDatePage, ReportTypeImportPage, SelectThirdPartyEoriPage}
 import play.api.Application
 import play.api.i18n.Messages
@@ -40,11 +42,12 @@ import exceptions.NoAuthorisedUserFoundException
 import java.time.{LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
-class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
+class CustomRequestStartDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private implicit val messages: Messages = stubMessages()
 
   val mockTradeReportingExtractsService: TradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository                                    = mock[SessionRepository]
 
   private val formProvider = new CustomRequestStartDateFormProvider()
   private val startDate    = LocalDate.now(ZoneOffset.UTC).minusYears(1)
@@ -66,6 +69,21 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService, mockSessionRepository)
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+  }
+
   def getRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, customRequestStartDateRoute)
 
@@ -81,19 +99,18 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, false, false, None)(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, false, false, None)(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when third party report with complete date range" in {
@@ -101,30 +118,24 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          false,
-          true,
-          Some("Your report can start from any date within 4 years from today’s date.")
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        false,
+        true,
+        Some("Your report can start from any date within 4 years from today’s date.")
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when third party report with ongoing data range" in {
@@ -132,32 +143,26 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.successful(thirdPartyDetails.copy(dataStartDate = Some(LocalDate.of(2025, 1, 1)))))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 onwards. Your report can start from any date within this access period."
-          )
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 onwards. Your report can start from any date within this access period."
+        )
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return OK and the correct view for a GET when third party report with fixed data range" in {
@@ -170,32 +175,26 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form,
-          NormalMode,
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
-          )
-        )(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form,
+        NormalMode,
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
+        )
+      )(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must return correct view when more than one report selected" in {
@@ -205,67 +204,55 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
+      setUserAnswers(Some(ua))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, true, false, None)(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, true, false, None)(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId).set(CustomRequestStartDatePage, startDate).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false, false, None)(
-          getRequest,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(startDate), NormalMode, false, false, None)(
+        getRequest,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(startDate)).value
+      val result = route(application, postRequest(startDate)).value
 
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "Value handling and cleanup" - {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val prevStartDate         = LocalDate.now.minusMonths(2)
-      val prevEndDate           = prevStartDate.plusDays(30)
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val prevStartDate     = LocalDate.now.minusMonths(2)
+      val prevEndDate       = prevStartDate.plusDays(30)
 
       def createAppWithPrevDates: (Application, ArgumentCaptor[UserAnswers]) = {
 
@@ -279,13 +266,8 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           .success
           .value
 
-        val application =
-          applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(
-              bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-              bind[SessionRepository].toInstance(mockSessionRepository)
-            )
-            .build()
+        setUserAnswers(Some(userAnswers))
+        val application = app
 
         (application, userAnswersCaptor)
       }
@@ -294,70 +276,60 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
 
         val (application, userAnswersCaptor) = createAppWithPrevDates
 
-        running(application) {
-          val result = route(application, postRequest(prevStartDate.minusDays(1))).value
+        val result = route(application, postRequest(prevStartDate.minusDays(1))).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.minusDays(1))
-          capturedAnswers.get(CustomRequestEndDatePage) mustBe None
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.minusDays(1))
+        capturedAnswers.get(CustomRequestEndDatePage) mustBe None
       }
 
       "must not cleanup end date when new start date == old start date" in {
 
         val (application, userAnswersCaptor) = createAppWithPrevDates
 
-        running(application) {
-          val result = route(application, postRequest(prevStartDate)).value
+        val result = route(application, postRequest(prevStartDate)).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate)
-          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate)
+        capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
       }
 
       "must not cleanup end date when new start date is between old start date and end date" in {
 
         val (application, userAnswersCaptor) = createAppWithPrevDates
 
-        running(application) {
-          val result = route(application, postRequest(prevStartDate.plusWeeks(1))).value
+        val result = route(application, postRequest(prevStartDate.plusWeeks(1))).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.plusWeeks(1))
-          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevStartDate.plusWeeks(1))
+        capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
       }
 
       "must not cleanup end date when new start date == end date" in {
 
         val (application, userAnswersCaptor) = createAppWithPrevDates
 
-        running(application) {
-          val result = route(application, postRequest(prevEndDate)).value
+        val result = route(application, postRequest(prevEndDate)).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate)
-          capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate)
+        capturedAnswers.get(CustomRequestEndDatePage) mustBe Some(prevEndDate)
       }
 
       "must cleanup end date when new start date is after end date" in {
 
         val (application, userAnswersCaptor) = createAppWithPrevDates
 
-        running(application) {
-          val result = route(application, postRequest(prevEndDate.plusWeeks(1))).value
+        val result = route(application, postRequest(prevEndDate.plusWeeks(1))).value
 
-          status(result) mustEqual SEE_OTHER
-          val capturedAnswers = userAnswersCaptor.getValue
-          capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate.plusWeeks(1))
-          capturedAnswers.get(CustomRequestEndDatePage) mustBe None
-        }
+        status(result) mustEqual SEE_OTHER
+        val capturedAnswers = userAnswersCaptor.getValue
+        capturedAnswers.get(CustomRequestStartDatePage) mustBe Some(prevEndDate.plusWeeks(1))
+        capturedAnswers.get(CustomRequestEndDatePage) mustBe None
       }
     }
 
@@ -371,139 +343,113 @@ class CustomRequestStartDateControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers.set(SelectThirdPartyEoriPage, "traderEori").get))
+      val application = app
 
       val request =
         FakeRequest(POST, customRequestStartDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          NormalMode,
-          false,
-          true,
-          Some(
-            "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
-          )
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        NormalMode,
+        false,
+        true,
+        Some(
+          "You have access to data from 1 1 2025 to 1 3 2025. Your report can start from any date within this access period."
+        )
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       val request =
         FakeRequest(POST, customRequestStartDateRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[CustomRequestStartDateView]
+      val view = application.injector.instanceOf[CustomRequestStartDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, false, false, None)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, false, false, None)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(startDate)).value
+      val result = route(application, postRequest(startDate)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for onPageLoad request" in {
 
-      val testEori              = "GB123456789012"
-      val userAnswers           = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
-      val mockSessionRepository = mock[SessionRepository]
-
+      val testEori    = "GB123456789012"
+      val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(new NoAuthorisedUserFoundException("Test exception")))
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest).value
+      val result = route(application, getRequest).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad(testEori)
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad(testEori)
+        .url
     }
 
     "must redirect to RequestNotCompletedController when NoAuthorisedUserFoundException is thrown for POST onSubmit request" in {
 
-      val testEori              = "GB123456789012"
-      val userAnswers           = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
-      val mockSessionRepository = mock[SessionRepository]
-
+      val testEori    = "GB123456789012"
+      val userAnswers = emptyUserAnswers.set(SelectThirdPartyEoriPage, testEori).success.value
       when(mockTradeReportingExtractsService.getAuthorisedBusinessDetails(any(), any())(any()))
         .thenReturn(Future.failed(new NoAuthorisedUserFoundException("Test exception")))
-      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService),
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(startDate)).value
+      val result = route(application, postRequest(startDate)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
-          .onPageLoad(testEori)
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.report.routes.RequestNotCompletedController
+        .onPageLoad(testEori)
+        .url
     }
   }
 }

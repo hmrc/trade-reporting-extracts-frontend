@@ -16,12 +16,13 @@
 
 package controllers.contact
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.additionalEmail.EmailRemovedFormProvider
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.additionalEmail.emailRemovedPage
 import play.api.data.Form
 import play.api.inject.bind
@@ -33,7 +34,21 @@ import views.html.contact.emailRemovedView
 
 import scala.concurrent.Future
 
-class EmailRemovedControllerSpec extends SpecBase with MockitoSugar {
+class EmailRemovedControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+  private val mockSessionRepository         = mock[SessionRepository]
+  private val mockTradeService              = mock[TradeReportingExtractsService]
+  override def fakeApplication()            =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeService)
+      )
+      .build()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockSessionRepository, mockTradeService)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   private val emailAddress         = "test@test.com"
   val formProvider                 = new EmailRemovedFormProvider()
@@ -48,103 +63,79 @@ class EmailRemovedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, onPageLoadRoute)
+      val request = FakeRequest(GET, onPageLoadRoute)
 
-        val result = route(application, request).value
-        val view   = application.injector.instanceOf[emailRemovedView]
+      val result = route(application, request).value
+      val view   = application.injector.instanceOf[emailRemovedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emailAddress)(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, emailAddress)(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = emptyUserAnswers.set(emailRemovedPage, true).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, onPageLoadRoute)
-          .withFormUrlEncodedBody(("value", "true"))
+      val request = FakeRequest(GET, onPageLoadRoute)
+        .withFormUrlEncodedBody(("value", "true"))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[emailRemovedView]
+      val view = application.injector.instanceOf[emailRemovedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, emailAddress)(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, emailAddress)(request, messages(application)).toString
     }
 
     "must redirect to EmailRemovedConfirmationController and call removeAddiotnalEmail when value = true" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val mockTradeService      = mock[TradeReportingExtractsService]
-
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(true))
 
       when(mockTradeService.removeAddiotnalEmail(any(), any())(any()))
         .thenReturn(Future.successful(Done))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, onSubmitRoute)
-            .withFormUrlEncodedBody("value" -> "true")
+      val request =
+        FakeRequest(POST, onSubmitRoute)
+          .withFormUrlEncodedBody("value" -> "true")
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual
-          controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual
+        controllers.contact.routes.EmailRemovedConfirmationController.onPageLoad(emailAddress).url
 
-        verify(mockSessionRepository, times(1)).set(any())
+      verify(mockSessionRepository, times(1)).set(any())
 
-        verify(mockTradeService, times(1))
-          .removeAddiotnalEmail(any[String], eqTo(emailAddress))(any())
-      }
+      verify(mockTradeService, times(1))
+        .removeAddiotnalEmail(any[String], eqTo(emailAddress))(any())
     }
 
     "must redirect to COntact detils page when value = false" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val mockTradeService      = mock[TradeReportingExtractsService]
-
       when(mockSessionRepository.set(any()))
         .thenReturn(Future.successful(false))
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, onSubmitRoute)
-            .withFormUrlEncodedBody("value" -> "false")
+      val request =
+        FakeRequest(POST, onSubmitRoute)
+          .withFormUrlEncodedBody("value" -> "false")
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.contact.routes.ContactDetailsController.onPageLoad().url
     }
   }
 }

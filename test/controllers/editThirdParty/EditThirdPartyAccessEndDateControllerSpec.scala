@@ -32,7 +32,7 @@
 
 package controllers.editThirdParty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.editThirdParty.EditThirdPartyAccessEndDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -40,6 +40,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.editThirdParty.{EditThirdPartyAccessEndDatePage, EditThirdPartyAccessStartDatePage}
 import play.api.i18n.Messages
 import play.api.inject.bind
@@ -53,17 +54,29 @@ import views.html.editThirdParty.EditThirdPartyAccessEndDateView
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
-class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSugar {
+class EditThirdPartyAccessEndDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+  private val mockSessionRepository             = mock[SessionRepository]
+  override def fakeApplication()                =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Clock].toInstance(fixedClock),
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
+      )
+      .build()
+  override protected def beforeEach(): Unit     = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockTradeReportingExtractsService, mockSessionRepository)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider               = new EditThirdPartyAccessEndDateFormProvider()
   private def form(startDate: LocalDate) = formProvider(startDate)(messages)
-
-  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-  private val mockSessionRepository             = mock[SessionRepository]
-
-  def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/third-party-details-GB123456789000")
+  def onwardRoute: Call                  = Call("GET", "/request-customs-declaration-data/third-party-details-GB123456789000")
 
   val validAnswer: LocalDate = LocalDate.now(ZoneOffset.UTC)
   val thirdPartyEori         = "GB123456789000"
@@ -108,22 +121,19 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
       val userAnswers   =
         emptyUserAnswers.set(EditThirdPartyAccessStartDatePage(thirdPartyEori), pageStartDate).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest()).value
-        val view   = application.injector.instanceOf[EditThirdPartyAccessEndDateView]
+      val result = route(application, getRequest()).value
+      val view   = application.injector.instanceOf[EditThirdPartyAccessEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form(pageStartDate),
-          utils.DateTimeFormats.dateFormatter(pageStartDate),
-          thirdPartyEori,
-          expectedHint(pageStartDate)
-        )(getRequest(), messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form(pageStartDate),
+        utils.DateTimeFormats.dateFormatter(pageStartDate),
+        thirdPartyEori,
+        expectedHint(pageStartDate)
+      )(getRequest(), messages(application)).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
@@ -136,55 +146,42 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[Clock].toInstance(fixedClock))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val view   = application.injector.instanceOf[EditThirdPartyAccessEndDateView]
-        val result = route(application, getRequest()).value
+      val view   = application.injector.instanceOf[EditThirdPartyAccessEndDateView]
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form(pageStartDate).fill(Some(validAnswer)),
-          utils.DateTimeFormats.dateFormatter(pageStartDate),
-          thirdPartyEori,
-          expectedHint(pageStartDate)
-        )(getRequest(), messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form(pageStartDate).fill(Some(validAnswer)),
+        utils.DateTimeFormats.dateFormatter(pageStartDate),
+        thirdPartyEori,
+        expectedHint(pageStartDate)
+      )(getRequest(), messages(application)).toString
     }
 
     "must redirect to edit third party general problem page if EditThirdPartyAccessStartDatePage is missing on GET" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      val mockSessionRepository = mock[SessionRepository]
-      val mockTradeService      = mock[TradeReportingExtractsService]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockTradeService.getThirdPartyDetails(any(), any())(any())) thenReturn Future.successful(
+      when(mockTradeReportingExtractsService.getThirdPartyDetails(any(), any())(any())) thenReturn Future.successful(
         ThirdPartyDetails(
           referenceName = Some(thirdPartyEori),
           accessStartDate = LocalDate.of(2024, 1, 1),
@@ -199,69 +196,51 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), LocalDate.of(2024, 1, 1))
         .success
         .value
-
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeService),
-          bind[Clock].toInstance(fixedClock)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
       val validDate   = LocalDate.now().plusDays(1)
 
-      running(application) {
-        val result = route(application, postRequest(validDate)).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-      }
+      val result = route(application, postRequest(validDate)).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
     }
 
     "must redirect to edit third party general problem page if EditThirdPartyAccessStartDatePage is missing on POST" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())).thenReturn(Future.successful(true))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[SessionRepository].toInstance(mockSessionRepository)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequest(LocalDate.now().plusDays(1))).value
+      val result = route(application, postRequest(LocalDate.now().plusDays(1))).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-        redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
-          .onPageLoad()
-          .url
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
+      redirectLocation(result).value mustEqual controllers.problem.routes.EditThirdPartyGeneralProblemController
+        .onPageLoad()
+        .url
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest()).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      val result = route(application, getRequest()).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-      val application       = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application       = app
       val originalStartDate = fixedToday
       val invalidDate       = originalStartDate.minusDays(1)
 
-      running(application) {
-        val result = route(application, postRequest(invalidDate)).value
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      val result = route(application, postRequest(invalidDate)).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must set a user answer when submitted value differs from original end date" in {
@@ -289,26 +268,17 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
         .success
         .value
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(fixedClock),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val result = route(application, postRequest(changedEndDate)).value
 
-      running(application) {
-        val result = route(application, postRequest(changedEndDate)).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val updated = captor.getValue
-        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe Some(changedEndDate)
-        updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe Some(originalStartDate) // retained
-      }
+      val updated = captor.getValue
+      updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe Some(changedEndDate)
+      updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe Some(originalStartDate) // retained
     }
 
     "must remove start date and not set end date when submitted value equals original end date and start date unchanged" in {
@@ -335,26 +305,17 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
         .success
         .value
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(fixedClock),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val result = route(application, postRequest(originalEndDate)).value
 
-      running(application) {
-        val result = route(application, postRequest(originalEndDate)).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val updated = captor.getValue
-        updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
-        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-      }
+      val updated = captor.getValue
+      updated.get(EditThirdPartyAccessStartDatePage(thirdPartyEori)) mustBe None
+      updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
     }
 
     "must persist LocalDate.MAX when user selects 'No End Date' but there was an original end date" in {
@@ -382,25 +343,16 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
         .success
         .value
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(fixedClock),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val result = route(application, postNoEndDateRequest()).value
 
-      running(application) {
-        val result = route(application, postNoEndDateRequest()).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val updated = captor.getValue
-        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe Some(LocalDate.MAX)
-      }
+      val updated = captor.getValue
+      updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe Some(LocalDate.MAX)
     }
 
     "must not persist end date when user selects 'No End Date' and there was no original end date" in {
@@ -427,25 +379,16 @@ class EditThirdPartyAccessEndDateControllerSpec extends SpecBase with MockitoSug
         .set(EditThirdPartyAccessStartDatePage(thirdPartyEori), originalStartDate)
         .success
         .value
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[Clock].toInstance(fixedClock),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-        )
-        .build()
+      val result = route(application, postNoEndDateRequest()).value
 
-      running(application) {
-        val result = route(application, postNoEndDateRequest()).value
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual onwardRoute.url
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
-
-        val updated = captor.getValue
-        updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
-      }
+      val updated = captor.getValue
+      updated.get(EditThirdPartyAccessEndDatePage(thirdPartyEori)) mustBe None
     }
 
   }

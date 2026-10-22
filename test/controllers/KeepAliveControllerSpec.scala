@@ -16,9 +16,9 @@
 
 package controllers
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{never, reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -27,7 +27,14 @@ import repositories.SessionRepository
 
 import scala.concurrent.Future
 
-class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
+class KeepAliveControllerSpec extends AppPerSuiteSpecBase with MockitoSugar {
+
+  private val mockSessionRepository = mock[SessionRepository]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+      .build()
 
   "keepAlive" - {
 
@@ -35,23 +42,18 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must keep the answers alive and return OK" in {
 
-        val mockSessionRepository = mock[SessionRepository]
+        reset(mockSessionRepository)
         when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
 
-        val application =
-          applicationBuilder(Some(emptyUserAnswers))
-            .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-            .build()
+        val application = app
+        setUserAnswers(Some(emptyUserAnswers))
 
-        running(application) {
+        val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
 
-          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-        }
+        status(result) mustEqual OK
+        verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
       }
     }
 
@@ -59,23 +61,18 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK" in {
 
-        val mockSessionRepository = mock[SessionRepository]
+        reset(mockSessionRepository)
         when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
 
-        val application =
-          applicationBuilder(None)
-            .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-            .build()
+        val application = app
+        setUserAnswers(None)
 
-        running(application) {
+        val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
 
-          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          verify(mockSessionRepository, never()).keepAlive(any())
-        }
+        status(result) mustEqual OK
+        verify(mockSessionRepository, never()).keepAlive(any())
       }
     }
   }

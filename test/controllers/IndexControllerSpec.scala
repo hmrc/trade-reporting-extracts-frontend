@@ -16,26 +16,25 @@
 
 package controllers
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
-class IndexControllerSpec extends SpecBase {
+class IndexControllerSpec extends AppPerSuiteSpecBase {
 
   "Index Controller" - {
 
     "must redirect to DashboardController for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = app
+      setUserAnswers(None)
 
-      running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+      val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.DashboardController.onPageLoad().url)
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.DashboardController.onPageLoad().url)
     }
   }
 }

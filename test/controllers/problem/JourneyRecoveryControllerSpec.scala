@@ -16,13 +16,13 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.problem.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
-class JourneyRecoveryControllerSpec extends SpecBase {
+class JourneyRecoveryControllerSpec extends AppPerSuiteSpecBase {
 
   "JourneyRecovery Controller" - {
 
@@ -30,23 +30,22 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
       "must return OK and the continue view" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        val application = app
+        setUserAnswers(None)
 
-        running(application) {
-          val continueUrl = RedirectUrl("/foo")
-          val request     =
-            FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
+        val continueUrl = RedirectUrl("/foo")
+        val request     =
+          FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
+        val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(
-            request,
-            messages(application)
-          ).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -54,20 +53,19 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
       "must return OK and the start again view" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        val application = app
+        setUserAnswers(None)
 
-        running(application) {
-          val continueUrl = RedirectUrl("https://foo.com")
-          val request     =
-            FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
+        val continueUrl = RedirectUrl("https://foo.com")
+        val request     =
+          FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
+        val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
       }
     }
 
@@ -75,18 +73,17 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
       "must return OK and the start again view" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
+        val application = app
+        setUserAnswers(None)
 
-        running(application) {
-          val request = FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.problem.routes.JourneyRecoveryController.onPageLoad().url)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
+        val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
       }
     }
   }

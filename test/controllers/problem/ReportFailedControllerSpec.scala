@@ -16,14 +16,14 @@
 
 package controllers.problem
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.problem.ReportFailedView
 
-class ReportFailedControllerSpec extends SpecBase {
+class ReportFailedControllerSpec extends AppPerSuiteSpecBase {
 
   "ReportFailed Controller" - {
 
@@ -31,28 +31,27 @@ class ReportFailedControllerSpec extends SpecBase {
       val reportName = "Test Report"
       val reportRef  = "REF123"
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
       val config      = application.injector.instanceOf[FrontendAppConfig]
 
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.problem.routes.ReportFailedController.onPageLoad(reportName, reportRef).url)
+      val request =
+        FakeRequest(GET, controllers.problem.routes.ReportFailedController.onPageLoad(reportName, reportRef).url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ReportFailedView]
+      val view = application.injector.instanceOf[ReportFailedView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(reportName, reportRef, config.importsExportsContctUrl)(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(reportName, reportRef, config.importsExportsContctUrl)(
+        request,
+        messages(application)
+      ).toString
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-heading-xl").text() must include(
-          messages(application)("reportFailed.heading", reportName, reportRef)
-        )
-      }
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-heading-xl").text() must include(
+        messages(application)("reportFailed.heading", reportName, reportRef)
+      )
     }
   }
 }

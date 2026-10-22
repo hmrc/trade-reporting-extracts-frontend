@@ -16,15 +16,16 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import config.FrontendAppConfig
 import models.ReportTypeName
 import models.availableReports.{AvailableReportAction, AvailableReportsViewModel, AvailableThirdPartyReportsViewModel, AvailableUserReportsViewModel}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.matchers.should.Matchers.should
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -34,52 +35,54 @@ import views.html.AvailableReportsView
 import java.time.Instant
 import scala.concurrent.Future
 
-class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
+class AvailableReportsControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
+
+  override def fakeApplication() =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService))
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockTradeReportingExtractsService)
+  }
 
   "AvailableReports Controller" - {
 
     "must return OK and the correct view for a GET when no reports available" in {
 
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.getAvailableReports(any())(any()))
         .thenReturn(Future.successful(AvailableReportsViewModel(None, None)))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+      val view = application.injector.instanceOf[AvailableReportsView]
 
-        val reports = AvailableReportsViewModel(None, None)
-        val config  = application.injector.instanceOf[FrontendAppConfig]
+      val reports = AvailableReportsViewModel(None, None)
+      val config  = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          reports,
-          false,
-          false,
-          config.guidanceWhatsInTheReportUrl,
-          config.importsExportsContctUrl
-        )(
-          request,
-          messages(application)
-        ).toString
-        contentAsString(result).contains("There are no reports available to download yet") mustBe true
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        reports,
+        false,
+        false,
+        config.guidanceWhatsInTheReportUrl,
+        config.importsExportsContctUrl
+      )(
+        request,
+        messages(application)
+      ).toString
+      contentAsString(result).contains("There are no reports available to download yet") mustBe true
     }
 
     "must return OK and the correct view for a GET when both types of reports reports available" in {
-
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
 
       val userReport = AvailableUserReportsViewModel(
         reportName = "reportName",
@@ -107,46 +110,39 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+      val view = application.injector.instanceOf[AvailableReportsView]
 
-        val reports =
-          AvailableReportsViewModel(
-            Some(Seq(userReport)),
-            Some(Seq(thirdPartyReport))
-          )
+      val reports =
+        AvailableReportsViewModel(
+          Some(Seq(userReport)),
+          Some(Seq(thirdPartyReport))
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
-        val config   = application.injector.instanceOf[FrontendAppConfig]
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 2
+      val config   = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          reports,
-          true,
-          true,
-          config.guidanceWhatsInTheReportUrl,
-          config.importsExportsContctUrl
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        reports,
+        true,
+        true,
+        config.guidanceWhatsInTheReportUrl,
+        config.importsExportsContctUrl
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return correct view for a GET when only user reports available" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
@@ -166,60 +162,53 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+      val view = application.injector.instanceOf[AvailableReportsView]
 
-        val reports =
-          AvailableReportsViewModel(
-            Some(
-              Seq(
-                AvailableUserReportsViewModel(
-                  reportName = "reportName",
-                  referenceNumber = "referenceNumber",
-                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
-                )
+      val reports =
+        AvailableReportsViewModel(
+          Some(
+            Seq(
+              AvailableUserReportsViewModel(
+                reportName = "reportName",
+                referenceNumber = "referenceNumber",
+                reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                action = Seq.empty[AvailableReportAction]
               )
-            ),
-            None
-          )
+            )
+          ),
+          None
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
-        contentAsString(result).contains("My reports") mustBe true
-        contentAsString(result).contains("Third party reports") mustBe false
-        val config   = application.injector.instanceOf[FrontendAppConfig]
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
+      contentAsString(result).contains("My reports") mustBe true
+      contentAsString(result).contains("Third party reports") mustBe false
+      val config   = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          reports,
-          true,
-          false,
-          config.guidanceWhatsInTheReportUrl,
-          config.importsExportsContctUrl
-        )(
-          request,
-          messages(application)
-        ).toString
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        reports,
+        true,
+        false,
+        config.guidanceWhatsInTheReportUrl,
+        config.importsExportsContctUrl
+      )(
+        request,
+        messages(application)
+      ).toString
 
-      }
     }
 
     "must return OK and the correct view for a GET when only user third party reports available" in {
 
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
       when(mockTradeReportingExtractsService.getAvailableReports(any())(any())).thenReturn(
         Future.successful(
           AvailableReportsViewModel(
@@ -240,76 +229,65 @@ class AvailableReportsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[TradeReportingExtractsService].toInstance(mockTradeReportingExtractsService)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.routes.AvailableReportsController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AvailableReportsView]
+      val view = application.injector.instanceOf[AvailableReportsView]
 
-        val reports =
-          AvailableReportsViewModel(
-            None,
-            Some(
-              Seq(
-                AvailableThirdPartyReportsViewModel(
-                  reportName = "reportName",
-                  referenceNumber = "referenceNumber",
-                  companyName = "businessName",
-                  reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
-                  expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
-                  action = Seq.empty[AvailableReportAction]
-                )
+      val reports =
+        AvailableReportsViewModel(
+          None,
+          Some(
+            Seq(
+              AvailableThirdPartyReportsViewModel(
+                reportName = "reportName",
+                referenceNumber = "referenceNumber",
+                companyName = "businessName",
+                reportType = ReportTypeName.IMPORTS_ITEM_REPORT,
+                expiryDate = Instant.parse("2024-01-01T00:00:00Z"),
+                action = Seq.empty[AvailableReportAction]
               )
             )
           )
+        )
 
-        val document = Jsoup.parse(contentAsString(result))
-        document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
-        contentAsString(result).contains("My reports") mustBe false
-        contentAsString(result).contains("Third party reports") mustBe true
-        val config   = application.injector.instanceOf[FrontendAppConfig]
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementsByClass("govuk-tabs__list-item").size() mustBe 0
+      contentAsString(result).contains("My reports") mustBe false
+      contentAsString(result).contains("Third party reports") mustBe true
+      val config   = application.injector.instanceOf[FrontendAppConfig]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          reports,
-          false,
-          true,
-          config.guidanceWhatsInTheReportUrl,
-          config.importsExportsContctUrl
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        reports,
+        false,
+        true,
+        config.guidanceWhatsInTheReportUrl,
+        config.importsExportsContctUrl
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must return download response when audit download file is called" in {
-      val mockTradeReportingExtractsService = mock[TradeReportingExtractsService]
-
       when(mockTradeReportingExtractsService.auditReportDownload(any(), any(), any())(any()))
         .thenReturn(Future.successful(NO_CONTENT))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(
-          GET,
-          controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
-        )
-        val result  = route(application, request).value
+      val request = FakeRequest(
+        GET,
+        controllers.routes.AvailableReportsController.auditDownloadFile("file", "fileName", "reportReference").url
+      )
+      val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
   }
 }

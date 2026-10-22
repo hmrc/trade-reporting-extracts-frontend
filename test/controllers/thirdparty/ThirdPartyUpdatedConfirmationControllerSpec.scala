@@ -16,24 +16,23 @@
 
 package controllers.thirdparty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
-class ThirdPartyUpdatedConfirmationControllerSpec extends SpecBase {
+class ThirdPartyUpdatedConfirmationControllerSpec extends AppPerSuiteSpecBase {
 
   "ThirdParty Updated Confirmation Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ThirdPartyUpdatedConfirmationController.onPageLoad().url)
-        val result  = route(application, request).value
+      val request = FakeRequest(GET, routes.ThirdPartyUpdatedConfirmationController.onPageLoad().url)
+      val result  = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) must include(messages(application)("thirdPartyUpdatedConfirmation.heading"))
-      }
+      status(result) mustEqual OK
+      contentAsString(result) must include(messages(application)("thirdPartyUpdatedConfirmation.heading"))
     }
   }
 }

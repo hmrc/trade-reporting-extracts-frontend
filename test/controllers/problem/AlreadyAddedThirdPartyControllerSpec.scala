@@ -15,30 +15,29 @@
  */
 
 package controllers.problem
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.*
 import views.html.problem.AlreadyAddedThirdPartyView
 
-class AlreadyAddedThirdPartyControllerSpec extends SpecBase {
+class AlreadyAddedThirdPartyControllerSpec extends AppPerSuiteSpecBase {
 
   "AlreadySubmitted Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = app
+      setUserAnswers(Some(emptyUserAnswers))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad().url)
+      val request = FakeRequest(GET, controllers.problem.routes.AlreadyAddedThirdPartyController.onPageLoad().url)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AlreadyAddedThirdPartyView]
+      val view = application.injector.instanceOf[AlreadyAddedThirdPartyView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view()(request, messages(application)).toString
     }
   }
 }

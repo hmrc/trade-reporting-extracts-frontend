@@ -16,7 +16,7 @@
 
 package controllers.editThirdParty
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import forms.editThirdParty.EditDataEndDateFormProvider
 import models.{ThirdPartyDetails, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -24,6 +24,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.editThirdParty.EditDataEndDatePage
 import play.api.i18n.Messages
 import play.api.inject.bind
@@ -39,7 +40,22 @@ import views.html.editThirdParty.EditDataEndDateView
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
+class EditDataEndDateControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
+  private val mockTradeService              = mock[TradeReportingExtractsService]
+  private val mockSessionRepository         = mock[SessionRepository]
+  override def fakeApplication()            =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository),
+        bind[TradeReportingExtractsService].toInstance(mockTradeService)
+      )
+      .build()
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    org.mockito.Mockito.reset(mockTradeService, mockSessionRepository)
+    when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+  }
 
   private implicit val messages: Messages = stubMessages()
 
@@ -85,299 +101,208 @@ class EditDataEndDateControllerSpec extends SpecBase with MockitoSugar {
   "EditDataEndDate Controller" - {
 
     "must return OK and the correct view for a GET when no prior data and service has start date" in {
-
-      val mockTradeService = mock[TradeReportingExtractsService]
-
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), None)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeService))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        val view = application.injector.instanceOf[EditDataEndDateView]
+      val view = application.injector.instanceOf[EditDataEndDateView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form(currentLocalDate),
-          thirdPartyEori,
-          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
-        )(
-          getRequest(),
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form(currentLocalDate),
+        thirdPartyEori,
+        currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
+      )(
+        getRequest(),
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers =
         UserAnswers(userAnswersId).set(EditDataEndDatePage(thirdPartyEori), Some(fixedValidAnswer)).success.value
-
-      val mockTradeService = mock[TradeReportingExtractsService]
-
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), None)))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeService))
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val view = application.injector.instanceOf[EditDataEndDateView]
+      val view = application.injector.instanceOf[EditDataEndDateView]
 
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          form(currentLocalDate).fill(Some(fixedValidAnswer)),
-          thirdPartyEori,
-          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
-        )(
-          getRequest(),
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(
+        form(currentLocalDate).fill(Some(fixedValidAnswer)),
+        thirdPartyEori,
+        currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
+      )(
+        getRequest(),
+        messages(application)
+      ).toString
     }
 
     "must show empty form on GET when service start is after service end" in {
 
-      val serviceStart     = LocalDate.of(2025, 6, 2)
-      val serviceEnd       = LocalDate.of(2025, 6, 1)
-      val mockTradeService = mock[TradeReportingExtractsService]
-
+      val serviceStart = LocalDate.of(2025, 6, 2)
+      val serviceEnd   = LocalDate.of(2025, 6, 1)
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(serviceStart), Some(serviceEnd))))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeService))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val view = application.injector.instanceOf[EditDataEndDateView]
+      val view = application.injector.instanceOf[EditDataEndDateView]
 
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual OK
+      status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(
-          form(serviceStart),
-          thirdPartyEori,
-          serviceStart.format(DateTimeFormats.dateTimeHintFormat)
-        )(
-          getRequest(),
-          messages(application)
-        ).toString
-      }
+      contentAsString(result) mustEqual view(
+        form(serviceStart),
+        thirdPartyEori,
+        serviceStart.format(DateTimeFormats.dateTimeHintFormat)
+      )(
+        getRequest(),
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
-      val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val mockTradeService = mock[TradeReportingExtractsService]
-
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), None)))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      val result = route(application, postRequestFor(fixedValidAnswer)).value
 
-      running(application) {
-        val result = route(application, postRequestFor(fixedValidAnswer)).value
-
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must set end date when service had no previous end date" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
-
-      val mockTradeService = mock[TradeReportingExtractsService]
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), None)))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application       = app
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      val result = route(application, postRequestFor(fixedValidAnswer)).value
 
-      running(application) {
-        val result = route(application, postRequestFor(fixedValidAnswer)).value
-
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(fixedValidAnswer))
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(fixedValidAnswer))
     }
 
     "must remove stored end date when submitted end equals service-provided end" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val serviceEnd = fixedValidAnswer
-
-      val mockTradeService = mock[TradeReportingExtractsService]
+      val serviceEnd  = fixedValidAnswer
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), Some(serviceEnd))))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      val result = route(application, postRequestFor(serviceEnd)).value
 
-      running(application) {
-        val result = route(application, postRequestFor(serviceEnd)).value
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-
-        capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe None
-      }
+      capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe None
     }
 
     "must set LocalDate.MAX when user selects 'No End Date' and service had previous end date" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val serviceEnd = fixedValidAnswer
-
-      val mockTradeService = mock[TradeReportingExtractsService]
+      val serviceEnd  = fixedValidAnswer
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), Some(serviceEnd))))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      val request = FakeRequest(POST, editRoute)
 
-      running(application) {
-        val request = FakeRequest(POST, editRoute)
+      val result = route(application, request).value
 
-        val result = route(application, request).value
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-
-        capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(LocalDate.MAX))
-      }
+      capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(LocalDate.MAX))
     }
 
     "must update end date when submitted end differs from service-provided end" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val serviceEnd = otherDate
-
-      val mockTradeService = mock[TradeReportingExtractsService]
+      val serviceEnd  = otherDate
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), Some(serviceEnd))))
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository),
-            bind[TradeReportingExtractsService].toInstance(mockTradeService)
-          )
-          .build()
+      val result = route(application, postRequestFor(fixedValidAnswer)).value
 
-      running(application) {
-        val result = route(application, postRequestFor(fixedValidAnswer)).value
-
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(fixedValidAnswer))
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(EditDataEndDatePage(thirdPartyEori)) mustBe Some(Some(fixedValidAnswer))
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val mockTradeService = mock[TradeReportingExtractsService]
-
       when(mockTradeService.getThirdPartyDetails(any(), eqTo(thirdPartyEori))(any()))
         .thenReturn(Future.successful(thirdPartyDetails(Some(currentLocalDate), None)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[TradeReportingExtractsService].toInstance(mockTradeService))
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
       val request =
         FakeRequest(POST, editRoute)
           .withFormUrlEncodedBody(("value", "invalid value"))
 
-      running(application) {
-        val boundForm = form(currentLocalDate).bind(Map("value" -> "invalid value"))
+      val boundForm = form(currentLocalDate).bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[EditDataEndDateView]
+      val view = application.injector.instanceOf[EditDataEndDateView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(
-          boundForm,
-          thirdPartyEori,
-          currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
-        )(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(
+        boundForm,
+        thirdPartyEori,
+        currentLocalDate.format(DateTimeFormats.dateTimeHintFormat)
+      )(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, getRequest()).value
+      val result = route(application, getRequest()).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val result = route(application, postRequestFor(fixedValidAnswer)).value
+      val result = route(application, postRequestFor(fixedValidAnswer)).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
   }
 }

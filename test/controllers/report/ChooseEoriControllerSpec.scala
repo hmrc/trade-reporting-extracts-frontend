@@ -16,7 +16,7 @@
 
 package controllers.report
 
-import base.SpecBase
+import base.AppPerSuiteSpecBase
 import controllers.actions.BelowReportRequestLimitAction
 import controllers.problem.routes.TooManySubmissionsController
 import forms.report.ChooseEoriFormProvider
@@ -26,8 +26,9 @@ import models.{EoriRole, NormalMode, UserAnswers}
 import navigation.{FakeReportNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import pages.report.*
 import play.api.data.Form
 import play.api.inject.bind
@@ -41,20 +42,24 @@ import views.html.report.ChooseEoriView
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.Application
 
-class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
+class ChooseEoriControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 
+  private var submissionLimitReached                                    = false
   val mockPassLimitAction: BelowReportRequestLimitAction & MockitoSugar = new BelowReportRequestLimitAction
     with MockitoSugar {
     override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
       Future.successful(
-        Right(
-          DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers)
-        )
+        if (submissionLimitReached) Left(Redirect(TooManySubmissionsController.onPageLoad()))
+        else
+          Right(DataRequest(request.request, request.userId, request.eori, request.affinityGroup, request.userAnswers))
       )
 
     override protected def executionContext: ExecutionContext = global
   }
+
+  private val mockSessionRepository = mock[SessionRepository]
 
   def onwardRoute: Call = Call("GET", "/request-customs-declaration-data/request-cds-report/eoriRole")
 
@@ -63,141 +68,119 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
   val formProvider           = new ChooseEoriFormProvider()
   val form: Form[ChooseEori] = formProvider()
 
+  override def fakeApplication(): Application =
+    applicationBuilder(useSharedFakeAction = true)
+      .overrides(
+        bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction),
+        bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
+        bind[SessionRepository].toInstance(mockSessionRepository)
+      )
+      .build()
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    submissionLimitReached = false
+    reset(mockSessionRepository)
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+  }
+
   "ChooseEori Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
-        )
-        .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+      val request = FakeRequest(GET, chooseEoriRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+      val view = application.injector.instanceOf[ChooseEoriView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, "GB123456789012")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form, NormalMode, "GB123456789012")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = UserAnswers(userAnswersId).set(ChooseEoriPage, ChooseEori.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers))
-        .overrides(
-          bind[BelowReportRequestLimitAction].toInstance(mockPassLimitAction)
-        )
-        .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+      val request = FakeRequest(GET, chooseEoriRoute)
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+      val view = application.injector.instanceOf[ChooseEoriView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "GB123456789012")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view(form.fill(ChooseEori.values.head), NormalMode, "GB123456789012")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val result = route(application, request).value
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-      }
+      status(result) mustEqual SEE_OTHER
     }
 
     "must populate ReportDateRange with custom date range when third party" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
     }
 
     "must not populate ReportDateRange when user using own EORI" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedAnswers = userAnswersCaptor.getValue
-        capturedAnswers.get(ReportDateRangePage) mustBe None
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedAnswers = userAnswersCaptor.getValue
+      capturedAnswers.get(ReportDateRangePage) mustBe None
     }
 
     "if previous answer was Myeori and user selects my authority must clear any data and redirect to next page" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
@@ -227,39 +210,31 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.Myauthority.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedUserAnswers = userAnswersCaptor.getValue
-        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
-        capturedUserAnswers.get(SelectThirdPartyEoriPage) mustBe None
-        capturedUserAnswers.get(DecisionPage) mustBe None
-        capturedUserAnswers.get(EoriRolePage) mustBe None
-        capturedUserAnswers.get(ReportTypeImportPage) mustBe None
-        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
-        capturedUserAnswers.get(CustomRequestEndDatePage) mustBe None
-        capturedUserAnswers.get(ReportNamePage) mustBe None
-        capturedUserAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedUserAnswers = userAnswersCaptor.getValue
+      capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
+      capturedUserAnswers.get(SelectThirdPartyEoriPage) mustBe None
+      capturedUserAnswers.get(DecisionPage) mustBe None
+      capturedUserAnswers.get(EoriRolePage) mustBe None
+      capturedUserAnswers.get(ReportTypeImportPage) mustBe None
+      capturedUserAnswers.get(CustomRequestStartDatePage) mustBe None
+      capturedUserAnswers.get(CustomRequestEndDatePage) mustBe None
+      capturedUserAnswers.get(ReportNamePage) mustBe None
+      capturedUserAnswers.get(ReportDateRangePage) mustBe Some(ReportDateRange.CustomDateRange)
     }
 
     "if previous answer was Myeori and user selects Myeori again, must not clear any data and redirect to next page" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      val userAnswersCaptor     = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val userAnswersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
       when(mockSessionRepository.set(userAnswersCaptor.capture())) thenReturn Future.successful(true)
 
@@ -271,100 +246,81 @@ class ChooseEoriControllerSpec extends SpecBase with MockitoSugar {
         .success
         .value
 
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeReportNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      setUserAnswers(Some(userAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.Myeori.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        val capturedUserAnswers = userAnswersCaptor.getValue
-        capturedUserAnswers.get(CustomRequestStartDatePage) mustBe Some(LocalDate.now().minusDays(10))
-      }
+      status(result) mustEqual SEE_OTHER
+      val capturedUserAnswers = userAnswersCaptor.getValue
+      capturedUserAnswers.get(CustomRequestStartDatePage) mustBe Some(LocalDate.now().minusDays(10))
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+      val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[ChooseEoriView]
+      val view = application.injector.instanceOf[ChooseEoriView]
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, "GB123456789012")(
-          request,
-          messages(application)
-        ).toString
-      }
+      status(result) mustEqual BAD_REQUEST
+      contentAsString(result) mustEqual view(boundForm, NormalMode, "GB123456789012")(
+        request,
+        messages(application)
+      ).toString
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
+      val request = FakeRequest(GET, chooseEoriRoute)
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      setUserAnswers(None)
+      val application = app
 
-      running(application) {
-        val request =
-          FakeRequest(POST, chooseEoriRoute)
-            .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
+      val request =
+        FakeRequest(POST, chooseEoriRoute)
+          .withFormUrlEncodedBody(("value", ChooseEori.values.head.toString))
 
-        val result = route(application, request).value
+      val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
+      status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
-      }
+      redirectLocation(result).value mustEqual controllers.problem.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must redirect to TooManySubmissionsController for a GET when submission limit is reached" in {
-      val mockAction = new BelowReportRequestLimitAction with MockitoSugar {
-        override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
-          Future.successful(Left(Redirect(TooManySubmissionsController.onPageLoad())))
+      submissionLimitReached = true
+      setUserAnswers(Some(emptyUserAnswers))
+      val application = app
 
-        override protected def executionContext = global
-      }
+      val request = FakeRequest(GET, chooseEoriRoute)
+      val result  = route(application, request).value
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[BelowReportRequestLimitAction].toInstance(mockAction))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, chooseEoriRoute)
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
-      }
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual TooManySubmissionsController.onPageLoad().url
     }
   }
 }
