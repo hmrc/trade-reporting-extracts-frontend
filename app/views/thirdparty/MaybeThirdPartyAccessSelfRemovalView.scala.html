@@ -24,8 +24,8 @@
 
 @(form: Form[_], traderEori: String)(implicit request: Request[_], messages: Messages)
 
-@content = {
-    <p class="govuk-body">@messages("maybeThirdPartyAccessSelfRemoval.message")</p>
+@contentHint = {
+    <p class="govuk-hint">@messages("maybeThirdPartyAccessSelfRemoval.message")</p>
 }
 @heading = {
     <h1 class="govuk-heading-xl govuk-!-margin-top-0 govuk-!-margin-bottom-2">@messages("maybeThirdPartyAccessSelfRemoval.heading")</h1>
@@ -38,13 +38,11 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
-        @heading
-        @content
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = Legend()
-            )
+                legend = LegendViewModel(HtmlContent(heading))
+            ).withHint(HintViewModel(HtmlContent(contentHint)))
         )
 
         @govukButton(
