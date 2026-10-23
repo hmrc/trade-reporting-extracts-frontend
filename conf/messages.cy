@@ -479,7 +479,7 @@ thirdPartyAccessStartDate.hint = Gallwch nodi dyddiad heddiw neu ddewis dyddiad 
 thirdPartyAccessStartDate.error.required.all = Nodwch ddyddiad dechrau’r cyfnod hwn o fynediad
 thirdPartyAccessStartDate.error.required.two = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0} a {1}
 thirdPartyAccessStartDate.error.required = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0}
-thirdPartyAccessStartDate.error.invalid = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn ddyddiad go iawn a dim
+thirdPartyAccessStartDate.error.invalid = Mae’n rhaid i’r dyddiad y bydd y mynediad hwn yn dechrau fod yn ddyddiad go iawn
 thirdPartyAccessStartDate.error.min = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn heddiw neu’n ddyddiad yn y dyfodol
 thirdPartyAccessStartDate.error.max = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod cyn {0}
 
@@ -534,7 +534,7 @@ dataEndDate.message = Gwnaethoch nodi {0} fel dyddiad dechrau. Gadewch hyn yn wa
 dataEndDate.hint = Er enghraifft, 27 05 2025.
 dataEndDate.error.required.two = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0} a {1}
 dataEndDate.error.required = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0}
-dataEndDate.error.invalid = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data fod yn ddyddiad go iawn a dim
+dataEndDate.error.invalid = Mae’n rhaid i’r dyddiad yr hoffech stopio rhoi mynediad at eich data fod yn ddyddiad go iawn
 dataEndDate.error.min = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data fod ar neu ar ôl {0}
 
 dataTheyCanView.checkYourAnswersLabel = Data y mae modd i’r trydydd parti eu gweld
@@ -718,7 +718,7 @@ editThirdPartyAccessStartDate.hint = Gallwch nodi dyddiad heddiw neu ddewis dydd
 editThirdPartyAccessStartDate.error.required.all =  Nodwch ddyddiad dechrau’r cyfnod hwn o fynediad
 editThirdPartyAccessStartDate.error.required.two = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0} a {1}
 editThirdPartyAccessStartDate.error.required = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad gynnwys {0}
-editThirdPartyAccessStartDate.error.invalid = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn ddyddiad go iawn a dim
+editThirdPartyAccessStartDate.error.invalid = Mae’n rhaid i’r dyddiad y bydd y mynediad hwn yn dechrau fod yn ddyddiad go iawn
 editThirdPartyAccessStartDate.error.min = Mae’n rhaid i ddyddiad dechrau’r cyfnod hwn o fynediad fod yn heddiw neu’n ddyddiad yn y dyfodol
 
 editThirdPartyAccessEndDate.title = Dyddiad dod â mynediad i ben
@@ -759,7 +759,7 @@ editDataEndDate.message =  Gwnaethoch nodi {0} fel dyddiad dechrau. Gadewch hyn 
 editDataEndDate.hint = Er enghraifft, 27 05 2025.
 editDataEndDate.error.required.two = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0} a {1}
 editDataEndDate.error.required = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data gynnwys {0}
-editDataEndDate.error.invalid = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data fod yn ddyddiad go iawn a dim
+editDataEndDate.error.invalid = Mae’n rhaid i’r dyddiad yr hoffech stopio rhoi mynediad at eich data fod yn ddyddiad go iawn
 editDataEndDate.error.min = Mae’n rhaid i’r dyddiad hoffech stopio rhoi mynediad at eich data fod ar neu ar ôl {0}
 
 editDeclarationDate.title = Hoffech roi mynediad at yr holl ddata am {0} sydd ar gael?
