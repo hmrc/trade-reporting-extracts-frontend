@@ -22,7 +22,7 @@
         govukPanel: GovukPanel
 )
 
-@(allEmails: Seq[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, date: String, time: String)(implicit request: Request[_], messages: Messages)
+@(allEmails: Seq[String], isMoreThanOneReport: Boolean, reportConfirmations: Seq[ReportConfirmation], surveyUrl: String, date: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("requestConfirmation.title")) , showBackLink = false) {
 
@@ -30,7 +30,7 @@
        title = messages("requestConfirmation.heading")
     ))
 
-    <p class="govuk-body">@messages("requestConfirmation.message.dateAndTime", date, time)</p>
+    <p class="govuk-body">@messages("requestConfirmation.message.dateAndTime", date)</p>
 
     <p class="govuk-body js-visible">@messages("requestConfirmation.print.message")
         <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("requestConfirmation.print.link")</a>.

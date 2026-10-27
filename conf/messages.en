@@ -245,7 +245,7 @@ checkNewEmail.change.hidden = if this email address is correct
 
 requestConfirmation.title = Report request submitted
 requestConfirmation.heading = Report request submitted
-requestConfirmation.message.dateAndTime = Submitted on {0} at {1}.
+requestConfirmation.message.dateAndTime = Submitted on {0}
 requestConfirmation.print.message = To keep a record, you can
 requestConfirmation.print.link = print this page
 requestConfirmation.message1 = You have requested:

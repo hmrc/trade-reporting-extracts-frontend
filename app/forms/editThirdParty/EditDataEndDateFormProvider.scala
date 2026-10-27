@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.optional
 import play.api.i18n.Messages
-import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
+import utils.DateTimeFormats.dateTimeHintFormat
 
 import java.time.LocalDate
 import javax.inject.Inject

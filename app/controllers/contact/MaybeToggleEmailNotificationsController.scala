@@ -19,10 +19,8 @@ package controllers.contact
 import controllers.actions.*
 import forms.contact.MaybeToggleEmailNotificationsFormProvider
 import models.UpdateEmailPreference
-import navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contact.MaybeToggleEmailNotificationsView
@@ -32,11 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MaybeToggleEmailNotificationsController @Inject() (
   override val messagesApi: MessagesApi,
-  sessionRepository: SessionRepository,
-  navigator: Navigator,
   identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
   getOrCreate: DataRetrievalOrCreateAction,
   tradeReportingExtractsService: TradeReportingExtractsService,
   formProvider: MaybeToggleEmailNotificationsFormProvider,

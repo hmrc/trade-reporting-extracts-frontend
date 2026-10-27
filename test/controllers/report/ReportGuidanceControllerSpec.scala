@@ -17,26 +17,24 @@
 package controllers.report
 
 import base.AppPerSuiteSpecBase
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.test.Helpers.*
-import play.api.test.*
-import views.html.report.ReportGuidanceView
-import models.{AlreadySubmittedFlag, NormalMode, NotificationEmail, UserAnswers}
-import models.report.ReportRequestSection
-import repositories.SessionRepository
-import org.mockito.Mockito.*
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.reset
-import play.api.inject.bind
 import controllers.actions.*
+import models.report.ReportRequestSection
+import models.{AlreadySubmittedFlag, NormalMode, NotificationEmail}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import services.TradeReportingExtractsService
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
+import play.api.inject.bind
+import play.api.test.*
+import play.api.test.Helpers.*
+import repositories.SessionRepository
+import services.TradeReportingExtractsService
+import views.html.report.ReportGuidanceView
 
 import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ReportGuidanceControllerSpec extends AppPerSuiteSpecBase with MockitoSugar with BeforeAndAfterEach {
 

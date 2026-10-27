@@ -245,7 +245,7 @@ checkNewEmail.change.hidden = os yw’r cyfeiriad e-bost hwn yn gywir
 
 requestConfirmation.title = Cais am adroddiad wedi’i gyflwyno
 requestConfirmation.heading = Cais am adroddiad wedi’i gyflwyno
-requestConfirmation.message.dateAndTime = Cyflwynwyd ar {0} am {1}.
+requestConfirmation.message.dateAndTime = Cyflwynwyd ar {0}
 requestConfirmation.print.message = I gadw cofnod, gallwch
 requestConfirmation.print.link = argraffu’r dudalen hon
 requestConfirmation.message1 = Rydych wedi gofyn am y canlynol:

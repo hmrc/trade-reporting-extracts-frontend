@@ -17,21 +17,20 @@
 package controllers.contact
 
 import base.AppPerSuiteSpecBase
-import config.FrontendAppConfig
-import connectors.WireMockHelper
 import models.ConsentStatus.Granted
 import models.{CompanyInformation, NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.inject.bind
 import services.TradeReportingExtractsService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.contact.ContactDetailsView
-import org.scalatest.BeforeAndAfterEach
+
 import java.time.LocalDateTime
 import scala.concurrent.Future
 

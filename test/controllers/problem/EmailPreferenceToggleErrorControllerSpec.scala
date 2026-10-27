@@ -17,7 +17,6 @@
 package controllers.problem
 
 import base.AppPerSuiteSpecBase
-import controllers.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.EmailPreferenceToggleErrorView

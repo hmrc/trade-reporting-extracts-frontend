@@ -50,8 +50,8 @@ class RequestConfirmationController @Inject() (
 
     val isMoreThanOneReport = submissionMeta.isMoreThanOneReport
 
-    val (submittedDate, submittedTime) =
-      DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
+    val submittedDate =
+      DateTimeFormats.instantToDateString(submissionMeta.submittedAt, clock)
     Future.successful(
       Ok(
         view(
@@ -59,8 +59,7 @@ class RequestConfirmationController @Inject() (
           isMoreThanOneReport,
           transformReportConfirmations(submissionMeta.reportConfirmations),
           surveyUrl,
-          submittedDate,
-          submittedTime
+          submittedDate
         )
       )
     )
