@@ -41,10 +41,10 @@ class RemoveThirdPartyConfirmationController @Inject() (
 
   def onPageLoad: Action[AnyContent] =
     (identify andThen getData andThen requireData).async { implicit request =>
-      val submissionMeta                 = request.userAnswers.submissionMeta
+      val submissionMeta = request.userAnswers.submissionMeta
         .map(_.as[ThirdPartyRemovalMeta])
         .getOrElse(ThirdPartyRemovalMeta("", Instant.now(), None))
-      val submittedDate =
+      val submittedDate  =
         DateTimeFormats.instantToDateString(submissionMeta.submittedAt, clock)
       Future.successful(
         Ok(

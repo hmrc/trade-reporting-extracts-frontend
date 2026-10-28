@@ -41,7 +41,7 @@ class ThirdPartyUpdatedConfirmationController @Inject() (
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     implicit val appConfig: FrontendAppConfig = frontendAppConfig
-    val submittedDate        =
+    val submittedDate                         =
       DateTimeFormats.instantToDateString(Instant.now(clock), clock)
     Ok(view(request.eori, submittedDate))
   }
