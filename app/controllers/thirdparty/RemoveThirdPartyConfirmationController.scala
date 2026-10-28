@@ -44,13 +44,12 @@ class RemoveThirdPartyConfirmationController @Inject() (
       val submissionMeta                 = request.userAnswers.submissionMeta
         .map(_.as[ThirdPartyRemovalMeta])
         .getOrElse(ThirdPartyRemovalMeta("", Instant.now(), None))
-      val (submittedDate, submittedTime) =
-        DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
+      val submittedDate =
+        DateTimeFormats.instantToDateString(submissionMeta.submittedAt, clock)
       Future.successful(
         Ok(
           view(
             submittedDate,
-            submittedTime,
             submissionMeta.eori,
             submissionMeta.notificationEmail.getOrElse("")
           )

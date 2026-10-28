@@ -624,7 +624,7 @@ maybeThirdPartyAccessSelfRemoval.error.required = Select yes if you want to remo
 
 thirdPartyAccessSelfRemoved.title = Your third-party access has been removed
 thirdPartyAccessSelfRemoved.heading = Your third-party access has been removed
-thirdPartyAccessSelfRemoved.message1 = Removed on {0} at {1}.
+thirdPartyAccessSelfRemoved.message1 = Removed on {0}.
 thirdPartyAccessSelfRemoved.message2 = To keep a record, you can
 thirdPartyAccessSelfRemoved.print.link = print this page
 thirdPartyAccessSelfRemoved.heading2 = What happens next
@@ -641,7 +641,7 @@ removeThirdParty.change.hidden = Are you sure you want to remove this third part
 
 removeThirdPartyConfirmation.title = Third-party removed
 removeThirdPartyConfirmation.heading = Third-party removed
-removeThirdPartyConfirmation.message1 = Removed on {0} at {1}.
+removeThirdPartyConfirmation.message1 = Removed on {0}.
 removeThirdPartyConfirmation.message2 = To keep a record, you can
 removeThirdPartyConfirmation.print.link = print this page
 removeThirdPartyConfirmation.heading2 = What happens next
@@ -776,7 +776,7 @@ editDeclarationDate.importExport = import and export
 
 thirdPartyUpdatedConfirmation.title = Third-party details updated
 thirdPartyUpdatedConfirmation.heading = Third-party details updated
-thirdPartyUpdatedConfirmation.message1 = Updated on {0} at {1}.
+thirdPartyUpdatedConfirmation.message1 = Updated on {0}.
 thirdPartyUpdatedConfirmation.message2 = To keep a record, you can
 thirdPartyUpdatedConfirmation.print.link = print this page
 thirdPartyUpdatedConfirmation.heading2 = What happens next
@@ -807,7 +807,7 @@ checkEmail.error.required = Select yes if this email address is correct
 
 emailAdded.title = {0} added
 emailAdded.heading = {0} added
-emailAdded.message1 = Added on {0} {1}.
+emailAdded.message1 = Added on {0}.
 emailAdded.message2 = To keep a record, you can
 emailAdded.print.link = print this page
 emailAdded.message3 = You can
@@ -827,7 +827,7 @@ emailRemoved.heading2 = Do you want to remove this email address?
 emailRemovedConfirmation.title = Email removed
 emailRemovedConfirmation.heading = Email removed
 emailRemovedConfirmation.heading2 = {0} has been removed from your account
-emailRemovedConfirmation.p1 = Removed on {0} at {1}.
+emailRemovedConfirmation.p1 = Removed on {0}.
 emailRemovedConfirmation.p2 = To keep a record, you can
 emailRemovedConfirmation.printLink = print this page
 emailRemovedConfirmation.heading3 = What happens next

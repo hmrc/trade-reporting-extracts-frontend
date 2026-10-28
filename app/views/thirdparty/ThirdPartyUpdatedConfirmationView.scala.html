@@ -22,7 +22,7 @@
 govukPanel: GovukPanel
 )
 
-@(eoriNumber: String, date: String, time: String)(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
+@(eoriNumber: String, date: String)(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
 
 @layout(
     pageTitle = titleNoForm(messages("thirdPartyUpdatedConfirmation.title")),
@@ -33,7 +33,7 @@ govukPanel: GovukPanel
     ))
 
 
-    <p class="govuk-body">@messages("thirdPartyUpdatedConfirmation.message1", date, time)</p>
+    <p class="govuk-body">@messages("thirdPartyUpdatedConfirmation.message1", date)</p>
     <p class="govuk-body js-visible">@messages("thirdPartyUpdatedConfirmation.message2")
         <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("thirdPartyUpdatedConfirmation.print.link")</a>.
     </p>

@@ -624,7 +624,7 @@ maybeThirdPartyAccessSelfRemoval.error.required = Dewiswch ‘Iawn’ os hoffech
 
 thirdPartyAccessSelfRemoved.title = Mae eich mynediad fel trydydd parti wedi’i dynnu
 thirdPartyAccessSelfRemoved.heading = Mae eich mynediad fel trydydd parti wedi’i dynnu
-thirdPartyAccessSelfRemoved.message1 = Tynnwyd ar {0} am {1}.
+thirdPartyAccessSelfRemoved.message1 = Tynnwyd ar {0}.
 thirdPartyAccessSelfRemoved.message2 = I gadw cofnod, gallwch
 thirdPartyAccessSelfRemoved.print.link = argraffu’r dudalen hon
 thirdPartyAccessSelfRemoved.heading2 = Yr hyn sy’n digwydd nesaf
@@ -641,7 +641,7 @@ removeThirdParty.change.hidden = A ydych yn siŵr yr hoffech dynnu’r trydydd p
 
 removeThirdPartyConfirmation.title = Trydydd parti wedi’i dynnu
 removeThirdPartyConfirmation.heading = Trydydd parti wedi’i dynnu
-removeThirdPartyConfirmation.message1 = Tynnwyd ar {0} am {1}.
+removeThirdPartyConfirmation.message1 = Tynnwyd ar {0}.
 removeThirdPartyConfirmation.message2 = I gadw cofnod, gallwch
 removeThirdPartyConfirmation.print.link = argraffu’r dudalen hon
 removeThirdPartyConfirmation.heading2 = Yr hyn sy’n digwydd nesaf
@@ -776,7 +776,7 @@ editDeclarationDate.importExport = mewnforio ac allforio
 
 thirdPartyUpdatedConfirmation.title = Manylion trydydd parti wedi’u diweddaru
 thirdPartyUpdatedConfirmation.heading = Manylion trydydd parti wedi’u diweddaru
-thirdPartyUpdatedConfirmation.message1 = Wedi’u diweddaru ar {0} am {1}.
+thirdPartyUpdatedConfirmation.message1 = Wedi’u diweddaru ar {0}.
 thirdPartyUpdatedConfirmation.message2 = I gadw cofnod, gallwch
 thirdPartyUpdatedConfirmation.print.link = argraffu’r dudalen hon
 thirdPartyUpdatedConfirmation.heading2 = Yr hyn sy’n digwydd nesaf
@@ -807,7 +807,7 @@ checkEmail.error.required = Dewiswch ‘Iawn’ os yw’r cyfeiriad e-bost hwn y
 
 emailAdded.title = Ychwanegwyd {0}
 emailAdded.heading = Ychwanegwyd {0}
-emailAdded.message1 = Ychwanegwyd ar {0} {1}.
+emailAdded.message1 = Ychwanegwyd ar {0}.
 emailAdded.message2 = I gadw cofnod, gallwch
 emailAdded.print.link = argraffu’r dudalen hon
 emailAdded.message3 = Gallwch
@@ -827,7 +827,7 @@ emailRemoved.heading2 = A ydych chi am dynnu’r cyfeiriad e-bost hwn?
 emailRemovedConfirmation.title = Tynnwyd y cyfeiriad e-bost
 emailRemovedConfirmation.heading = Tynnwyd y cyfeiriad e-bost
 emailRemovedConfirmation.heading2 = Mae {0} wedi’i dynnu o’ch cyfrif
-emailRemovedConfirmation.p1 = Tynnwyd ar {0} am {1}.
+emailRemovedConfirmation.p1 = Tynnwyd ar {0}.
 emailRemovedConfirmation.p2 = I gadw cofnod, gallwch
 emailRemovedConfirmation.printLink = argraffu’r dudalen hon
 emailRemovedConfirmation.heading3 = Yr hyn sy’n digwydd nesaf
