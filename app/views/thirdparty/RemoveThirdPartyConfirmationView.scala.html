@@ -21,7 +21,7 @@
  govukPanel: GovukPanel
 )
 
-@(date: String, time: String, thirdPartyEori: String, notificationEmail: String)(implicit request: Request[_], messages: Messages)
+@(date: String, thirdPartyEori: String, notificationEmail: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("removeThirdPartyConfirmation.title")), showBackLink = false) {
 
@@ -29,7 +29,7 @@
 title = messages("removeThirdPartyConfirmation.heading")
 ))
 
-<p class="govuk-body">@messages("removeThirdPartyConfirmation.message1", date, time)</p>
+<p class="govuk-body">@messages("removeThirdPartyConfirmation.message1", date)</p>
 
 <p class="govuk-body js-visible">@messages("removeThirdPartyConfirmation.message2")
  <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("removeThirdPartyConfirmation.print.link")</a>.

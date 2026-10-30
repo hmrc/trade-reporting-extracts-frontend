@@ -39,10 +39,10 @@ class EmailRemovedConfirmationController @Inject() (
 
   def onPageLoad(emailAddress: String): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val (submittedDate, submittedTime) =
-        DateTimeFormats.instantToDateAndTime(Instant.now(clock), clock)
+      val submittedDate =
+        DateTimeFormats.instantToDateString(Instant.now(clock), clock)
       if (emailAddress.nonEmpty) {
-        Ok(view(emailAddress, submittedDate, submittedTime))
+        Ok(view(emailAddress, submittedDate))
       } else {
         Redirect(controllers.contact.routes.ContactDetailsController.onPageLoad())
       }

@@ -45,9 +45,9 @@ class ThirdPartyAccessSelfRemovedController @Inject() (
         .map(_.as[ThirdPartyRemovalMeta])
         .getOrElse(ThirdPartyRemovalMeta("", Instant.now(), None))
 
-      val (submittedDate, submittedTime) =
-        DateTimeFormats.instantToDateAndTime(submissionMeta.submittedAt, clock)
+      val submittedDate =
+        DateTimeFormats.instantToDateString(submissionMeta.submittedAt, clock)
 
-      Future.successful(Ok(view(submittedDate, submittedTime, submissionMeta.eori)))
+      Future.successful(Ok(view(submittedDate, submissionMeta.eori)))
     }
 }

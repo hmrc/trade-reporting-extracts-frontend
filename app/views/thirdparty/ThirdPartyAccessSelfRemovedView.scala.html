@@ -21,7 +21,7 @@
         govukPanel: GovukPanel
 )
 
-@(date: String, time: String, traderEori: String)(implicit request: Request[_], messages: Messages)
+@(date: String, traderEori: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("thirdPartyAccessSelfRemoved.title")), showBackLink = false) {
 
@@ -29,7 +29,7 @@
        title = messages("thirdPartyAccessSelfRemoved.heading")
     ))
 
-    <p class="govuk-body">@messages("thirdPartyAccessSelfRemoved.message1", date, time)</p>
+    <p class="govuk-body">@messages("thirdPartyAccessSelfRemoved.message1", date)</p>
 
     <p class="govuk-body js-visible">@messages("thirdPartyAccessSelfRemoved.message2")
         <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("thirdPartyAccessSelfRemoved.print.link")</a>.

@@ -22,7 +22,7 @@
 govukPanel: GovukPanel
 )
 
-@(emailAddress: String, date: String, time: String)(implicit request: Request[_], messages: Messages)
+@(emailAddress: String, date: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("emailRemovedConfirmation.title")), showBackLink = false) {
 
@@ -34,7 +34,7 @@ govukPanel: GovukPanel
         )
     )
 
-<p class="govuk-body">@messages("emailRemovedConfirmation.p1", date: String, time: String)</p>
+<p class="govuk-body">@messages("emailRemovedConfirmation.p1", date: String)</p>
 
 <p class="govuk-body js-visible">@messages("emailRemovedConfirmation.p2")
  <a class="govuk-link" id="print-page" href="#print" onclick="window.print();return false;">@messages("emailRemovedConfirmation.printLink")</a>.

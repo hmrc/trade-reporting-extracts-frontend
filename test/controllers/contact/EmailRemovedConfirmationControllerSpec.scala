@@ -52,11 +52,11 @@ class EmailRemovedConfirmationControllerSpec extends AppPerSuiteSpecBase with Mo
       val result = route(application, request).value
       val view   = application.injector.instanceOf[EmailRemovedConfirmationView]
 
-      val (submittedDate, submittedTime) =
-        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val submittedDate =
+        DateTimeFormats.instantToDateString(Instant.now(fixedClock), fixedClock)(messages(application))
 
       status(result) mustEqual OK
-      contentAsString(result) mustEqual view(emailAddress, submittedDate, submittedTime)(
+      contentAsString(result) mustEqual view(emailAddress, submittedDate)(
         request,
         messages(application)
       ).toString

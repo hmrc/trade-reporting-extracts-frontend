@@ -60,13 +60,12 @@ class RemoveThirdPartyConfirmationControllerSpec extends AppPerSuiteSpecBase {
         FakeRequest(GET, controllers.thirdparty.routes.RemoveThirdPartyConfirmationController.onPageLoad.url)
       val result  = route(application, request).value
 
-      val (expectedDate, expectedTime) =
-        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val expectedDate =
+        DateTimeFormats.instantToDateString(fixedInstant, fixedClock)(messages(application))
 
       status(result) mustEqual OK
       contentAsString(result) mustEqual view(
         expectedDate,
-        expectedTime,
         "GB123456789000",
         "notify@example.com"
       )(request, messages(application)).toString

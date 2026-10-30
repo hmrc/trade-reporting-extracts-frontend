@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import models.report.{ReportConfirmation, SubmissionMeta}
 import pages.report.{EmailSelectionPage, NewEmailNotificationPage}
 import play.api.inject
-import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -74,8 +73,8 @@ class RequestConfirmationControllerSpec extends AppPerSuiteSpecBase {
       val surveyUrl = appConfig.exitSurveyUrl
       val view      = application.injector.instanceOf[RequestConfirmationView]
 
-      val (expectedDate, expectedTime) =
-        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val expectedDate =
+        DateTimeFormats.instantToDateString(Instant.now(fixedClock), fixedClock)(messages(application))
 
       val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
       val result  = route(application, request).value
@@ -86,8 +85,7 @@ class RequestConfirmationControllerSpec extends AppPerSuiteSpecBase {
         false,
         Seq(ReportConfirmation("MyReport", "reportTypeImport.exportItem", "RE00000001")),
         surveyUrl,
-        expectedDate,
-        expectedTime
+        expectedDate
       )(request, messages(application)).toString
 
       contentAsString(result) must include("MyReport")
@@ -135,8 +133,8 @@ class RequestConfirmationControllerSpec extends AppPerSuiteSpecBase {
       val surveyUrl = appConfig.exitSurveyUrl
       val view      = application.injector.instanceOf[RequestConfirmationView]
 
-      val (expectedDate, expectedTime) =
-        DateTimeFormats.instantToDateAndTime(Instant.now(fixedClock), fixedClock)(messages(application))
+      val expectedDate =
+        DateTimeFormats.instantToDateString(Instant.now(fixedClock), fixedClock)(messages(application))
 
       val request = FakeRequest(GET, controllers.report.routes.RequestConfirmationController.onPageLoad().url)
       val result  = route(application, request).value
@@ -151,8 +149,7 @@ class RequestConfirmationControllerSpec extends AppPerSuiteSpecBase {
           ReportConfirmation("MyReport", "reportTypeImport.importTaxLine", "RE00000003")
         ),
         surveyUrl,
-        expectedDate,
-        expectedTime
+        expectedDate
       )(request, messages(application)).toString
 
       contentAsString(result) must include("MyReport")
