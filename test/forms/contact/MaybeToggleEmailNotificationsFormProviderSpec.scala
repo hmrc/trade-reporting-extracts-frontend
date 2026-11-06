@@ -17,7 +17,6 @@
 package forms.contact
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.contact.MaybeToggleEmailNotificationsFormProvider
 import play.api.data.FormError
 
 class MaybeToggleEmailNotificationsFormProviderSpec extends BooleanFieldBehaviours {

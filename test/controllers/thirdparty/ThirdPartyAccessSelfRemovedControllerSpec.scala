@@ -66,11 +66,11 @@ class ThirdPartyAccessSelfRemovedControllerSpec extends AppPerSuiteSpecBase with
 
       val view = application.injector.instanceOf[ThirdPartyAccessSelfRemovedView]
 
-      val (expectedDate, expectedTime) =
-        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val expectedDate =
+        DateTimeFormats.instantToDateString(fixedInstant, fixedClock)(messages(application))
 
       status(result) mustEqual OK
-      contentAsString(result) mustEqual view(expectedDate, expectedTime, "traderEori")(
+      contentAsString(result) mustEqual view(expectedDate, "traderEori")(
         request,
         messages(application)
       ).toString

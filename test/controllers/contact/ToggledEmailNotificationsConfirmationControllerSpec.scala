@@ -17,20 +17,18 @@
 package controllers.contact
 
 import base.AppPerSuiteSpecBase
-import controllers.routes
 import models.{NotificationEmail, UserDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
-import play.api.i18n.Messages.implicitMessagesProviderToMessages
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.i18n.Messages
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.TradeReportingExtractsService
 import utils.DateTimeFormats
 import views.html.contact.ToggledEmailNotificationsConfirmationView
-import play.api.i18n.Messages
-import play.api.inject.bind
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}

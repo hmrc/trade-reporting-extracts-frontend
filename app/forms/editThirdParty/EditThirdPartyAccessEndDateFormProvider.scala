@@ -20,14 +20,14 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.optional
 import play.api.i18n.Messages
-import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
+import utils.DateTimeFormats.dateTimeHintFormat
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
 class EditThirdPartyAccessEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()) extends Mappings {
 
-  private def dynamicMinimum(startDate: LocalDate)(implicit messages: Messages): (LocalDate, String) = {
+  private def dynamicMinimum(startDate: LocalDate): (LocalDate, String) = {
     val today   = LocalDate.now(clock)
     val minimum = if (startDate.isAfter(today)) startDate.plusDays(1) else today
     (minimum, minimum.format(dateTimeHintFormat))
