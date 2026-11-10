@@ -20,8 +20,7 @@ import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.validation.Constraint
 import play.api.i18n.Messages
-import utils.DateTimeFormats
-import utils.DateTimeFormats.{dateTimeFormat, dateTimeHintFormat}
+import utils.DateTimeFormats.dateTimeHintFormat
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
@@ -45,7 +44,7 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
       ).verifying(
         firstError(
           maxDate(maxReportLength, "customRequestEndDate.error.lengthGreaterThan31Days"),
-          determineMaximumDate(maybeThirdPartyRequest, thirdPartyDataEndDate, startDate)(messages)
+          determineMaximumDate(maybeThirdPartyRequest, thirdPartyDataEndDate, startDate)
         )
       ).verifying(
         minDate(
@@ -61,7 +60,7 @@ class CustomRequestEndDateFormProvider @Inject (clock: Clock = Clock.systemUTC()
     maybeThirdPartyRequest: Boolean,
     thirdPartyDataEndDate: Option[LocalDate],
     startDate: LocalDate
-  )(messages: Messages): Constraint[LocalDate] =
+  ): Constraint[LocalDate] =
     (maybeThirdPartyRequest, thirdPartyDataEndDate, startDate) match {
       case (true, Some(_), _) =>
         if (thirdPartyDataEndDate.get.isBefore(currentDate.minusDays(3))) {

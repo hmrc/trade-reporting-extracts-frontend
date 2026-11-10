@@ -50,12 +50,12 @@ class AdditionalEmailAddedControllerSpec extends AppPerSuiteSpecBase {
 
       val result = route(application, request).value
 
-      val view                         = application.injector.instanceOf[AdditionalEmailAddedView]
-      val (expectedDate, expectedTime) =
-        DateTimeFormats.instantToDateAndTime(fixedInstant, fixedClock)(messages(application))
+      val view         = application.injector.instanceOf[AdditionalEmailAddedView]
+      val expectedDate =
+        DateTimeFormats.instantToDateString(fixedInstant, fixedClock)(messages(application))
 
       status(result) mustEqual OK
-      contentAsString(result) mustEqual view(emailAddress, expectedDate, expectedTime)(
+      contentAsString(result) mustEqual view(emailAddress, expectedDate)(
         request,
         messages(application)
       ).toString
