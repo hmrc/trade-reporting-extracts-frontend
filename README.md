@@ -34,12 +34,15 @@ Once set up:
 
 The minimum requirement for test coverage is **90%**. Builds will fail when the project drops below this threshold.
 
-| Command                                  | Description                  |
-|------------------------------------------|------------------------------|
-| `sbt test`                               | Runs unit tests locally      |
-| `sbt "test/testOnly *TEST_FILE_NAME*"`   | Runs tests for a single file |
-| `sbt it/test`                            | Runs integration tests       |
+| Command                                  | Description                                                                                                        |
+|------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `sbt test`                               | Runs unit tests locally                                                                                            |
+| `sbt "test/testOnly *TEST_FILE_NAME*"`   | Runs tests for a single file                                                                                       |
+| `sbt it/test`                            | Runs integration tests                                                                                             |
 | `sbt clean coverage test coverageReport` | Generates a unit test coverage report. The report can be found at `target/scala-3.3.4/scoverage-report/index.html` |
+| `sbt testAndCoverage`                    | Runs tests and generates a coverage report                                                                         |  
+| `sbt prePR`                              | Run scala formating, test and coverage. Designed to be ran before raising a PR.                                    |
+| `sbt preMerge`                           | Run scala check all, test and coverage. Designed to be ran before merging.                                         |
 
 ### UI-Journey Tests
 The Trade-reporting-extracts-ui-journey-tests are ran in the pipeline and can be run against the frontend. For more info see the readme:
